@@ -1,5 +1,5 @@
 # SET WD ----
-setwd("~/phengaris")
+setwd("~/phengaris_management")
 
 # LOAD PACKAGES ----
 if(!isTRUE(require(tidyverse, quietly = TRUE))) {
