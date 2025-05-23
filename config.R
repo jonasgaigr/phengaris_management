@@ -145,15 +145,116 @@ sitmap <- sf::st_read(getfeature_url_sitmap1rad) %>%
 rn2kcz::load_n2k_sites()
 
 #--------------------------------------------------#
-## Load species data -----
+## Load species data 2012 - 2018 -----
 #--------------------------------------------------#
 
-data_new <- readr::read_csv2(
-  "Data/Input/Phengaris_nausithous_2019_2024.csv",
-  locale = locale(encoding = "Windows-1250")
-)
+data_Pnau_old <- 
+  readr::read_csv2(
+    "Data/Input/Phengaris_nausithous_2012_2018.csv",
+    locale = locale(encoding = "Windows-1250")
+  )
+data_Ptel_old <- 
+  readr::read_csv2(
+    "Data/Input/Phengaris_teleius_2012_2018.csv",
+    locale = locale(encoding = "Windows-1250")
+  )
 
-lokal_b_new <- sf::st_read(
+data_old <-
+  dplyr::bind_rows(
+    data_Pnau_old,
+    data_Ptel_old
+  )
+
+lokal_Pnau_b_old <- sf::st_read(
+  "Data/Input/Phengaris_nausithous_2012_2018/w03_nd_lokalizace_b.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
+  sf::st_cast("POINT") %>%
+  sf::st_make_valid()
+
+lokal_Pnau_p_old <- sf::st_read(
+  "Data/Input/Phengaris_nausithous_2012_2018/w03_nd_lokalizace_p.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
+  sf::st_cast("POLYGON") %>%
+  sf::st_make_valid()
+lokal_Pnau_l_old <- sf::st_read(
+  "Data/Input/Phengaris_nausithous_2012_2018/w03_nd_lokalizace_l.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
+  sf::st_cast("LINESTRING") %>%
+  sf::st_make_valid()
+
+lokal_Ptel_b_old <- sf::st_read(
+  "Data/Input/Phengaris_teleius_2012_2018/w03_nd_lokalizace_b.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
+  sf::st_cast("POINT") %>%
+  sf::st_make_valid()
+
+lokal_Ptel_p_old <- sf::st_read(
+  "Data/Input/Phengaris_teleius_2012_2018/w03_nd_lokalizace_p.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
+  sf::st_cast("POLYGON") %>%
+  sf::st_make_valid()
+lokal_Ptel_l_old <- sf::st_read(
+  "Data/Input/Phengaris_teleius_2012_2018/w03_nd_lokalizace_l.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
+  sf::st_cast("LINESTRING") %>%
+  sf::st_make_valid()
+
+lokal_old <- dplyr::bind_rows(
+  lokal_Pnau_b_old, 
+  lokal_Pnau_p_old, 
+  lokal_Pnau_l_old,
+  lokal_Ptel_b_old, 
+  lokal_Ptel_p_old, 
+  lokal_Ptel_l_old
+) %>%
+  dplyr::rename(
+    ID_LOKAL = idx_nd_lok
+  ) %>%
+  sf::st_as_sf() %>%
+  sf::st_make_valid()
+
+phengaris_lokal_old <- 
+  data_old %>%
+  dplyr::full_join(
+    ., 
+    lokal_old
+  ) %>%
+  sf::st_as_sf() %>%
+  sf::st_make_valid()
+
+#--------------------------------------------------#
+## Load species data 2019 - 2024 -----
+#--------------------------------------------------#
+data_Pnau_new <- 
+  readr::read_csv2(
+    "Data/Input/Phengaris_nausithous_2019_2024.csv",
+    locale = locale(encoding = "Windows-1250")
+    )
+data_Ptel_new <- 
+  readr::read_csv2(
+    "Data/Input/Phengaris_teleius_2019_2024.csv",
+    locale = locale(encoding = "Windows-1250")
+    )
+
+data_new <-
+  dplyr::bind_rows(
+    data_Pnau_new,
+    data_Ptel_new
+  )
+
+lokal_Pnau_b_new <- sf::st_read(
   "Data/Input/Phengaris_nausithous_2019_2024/w03_nd_lokalizace_b.shp"
   )  %>%
   sf::st_set_crs(5514) %>%  # assign the correct CRS
@@ -161,14 +262,14 @@ lokal_b_new <- sf::st_read(
   sf::st_cast("POINT") %>%
   sf::st_make_valid()
 
-lokal_p_new <- sf::st_read(
+lokal_Pnau_p_new <- sf::st_read(
   "Data/Input/Phengaris_nausithous_2019_2024/w03_nd_lokalizace_p.shp"
 )  %>%
   sf::st_set_crs(5514) %>%  # assign the correct CRS
   sf::st_transform(5514) %>%
   sf::st_cast("POLYGON") %>%
   sf::st_make_valid()
-lokal_l_new <- sf::st_read(
+lokal_Pnau_l_new <- sf::st_read(
   "Data/Input/Phengaris_nausithous_2019_2024/w03_nd_lokalizace_l.shp"
 )  %>%
   sf::st_set_crs(5514) %>%  # assign the correct CRS
@@ -176,11 +277,36 @@ lokal_l_new <- sf::st_read(
   sf::st_cast("LINESTRING") %>%
   sf::st_make_valid()
 
+lokal_Ptel_b_new <- sf::st_read(
+  "Data/Input/Phengaris_teleius_2019_2024/w03_nd_lokalizace_b.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
+  sf::st_cast("POINT") %>%
+  sf::st_make_valid()
+
+lokal_Ptel_p_new <- sf::st_read(
+  "Data/Input/Phengaris_teleius_2019_2024/w03_nd_lokalizace_p.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
+  sf::st_cast("POLYGON") %>%
+  sf::st_make_valid()
+lokal_Ptel_l_new <- sf::st_read(
+  "Data/Input/Phengaris_teleius_2019_2024/w03_nd_lokalizace_l.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
+  sf::st_cast("LINESTRING") %>%
+  sf::st_make_valid()
 
 lokal_new <- dplyr::bind_rows(
-  lokal_b_new, 
-  lokal_p_new, 
-  lokal_l_new
+  lokal_Pnau_b_new, 
+  lokal_Pnau_p_new, 
+  lokal_Pnau_l_new,
+  lokal_Ptel_b_new, 
+  lokal_Ptel_p_new, 
+  lokal_Ptel_l_new
   ) %>%
   dplyr::rename(
     ID_LOKAL = idx_nd_lok
@@ -188,7 +314,7 @@ lokal_new <- dplyr::bind_rows(
   sf::st_as_sf() %>%
   sf::st_make_valid()
 
-phengaris_lokal <- 
+phengaris_lokal_new <- 
   data_new %>%
   dplyr::full_join(
     ., 
