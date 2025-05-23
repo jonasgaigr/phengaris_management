@@ -188,19 +188,31 @@ lokal_new <- dplyr::bind_rows(
   sf::st_as_sf() %>%
   sf::st_make_valid()
 
-phengaris_lokal <- data_new %>%
-  dplyr::full_join(., lokal_new) %>%
+phengaris_lokal <- 
+  data_new %>%
+  dplyr::full_join(
+    ., 
+    lokal_new
+    ) %>%
   sf::st_as_sf() %>%
   sf::st_make_valid()
 
+#----------------------------------------------------------#
+# List ZDROJ for analyis -----
+#----------------------------------------------------------#
+target_mon_zdroj <- c(
+  "Kolektiv autorů (2017) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2018) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2021) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2022) Monitoring motýlů.",
+  "Kolektiv autorů (2023) Monitoring motýlů.",
+  "Kolektiv autorů (2024) Monitoring motýlů."
+  )
 
-target_mon_zdroj <- c("Kolektiv autorů (2017) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-                      "Kolektiv autorů (2018) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-                      "Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-                      "Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-                      "Kolektiv autorů (2021) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-                      "Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
-                      "Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
-                      "Kolektiv autorů (2022) Monitoring motýlů.",
-                      "Kolektiv autorů (2023) Monitoring motýlů.",
-                      "Kolektiv autorů (2024) Monitoring motýlů.")
+#----------------------------------------------------------#
+# End config -----
+#----------------------------------------------------------#
