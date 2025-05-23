@@ -69,6 +69,20 @@ if(!isTRUE(require(RCzechia, quietly = TRUE))) {
 } else {
   require(RCzechia)}
 
+if(!isTRUE(require(openxlsx, quietly = TRUE))) {
+  install.packages("openxlsx", dependencies = TRUE); library(openxlsx)
+} else {
+  require(openxlsx)}
+
+if(!isTRUE(require(remotes, quietly = TRUE))) {
+  install.packages("remotes", dependencies = TRUE); library(remotes)
+} else {
+  require(remotes)}
+
+if(!isTRUE(require(rn2kcz, quietly = TRUE))) {
+  remotes::install_github("jonasgaigr/rn2kcz", dependencies = TRUE); library(rn2kcz)
+} else {
+  require(rn2kcz)}
 #----------------------------------------------------------#
 # Load data -----
 #----------------------------------------------------------#
@@ -139,64 +153,45 @@ data_new <- readr::read_csv2(
   locale = locale(encoding = "Windows-1250")
 )
 
-lokal_b <- sf::st_read("w03_nd_lokalizace_b.shp") %>% 
-  sf::st_transform(., CRS("+init=epsg:5514")) %>%
+lokal_b_new <- sf::st_read(
+  "Data/Input/Phengaris_nausithous_2019_2024/w03_nd_lokalizace_b.shp"
+  )  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
   sf::st_cast("POINT") %>%
   sf::st_make_valid()
-lokal_p1 <- sf::st_read("w03_nd_lokalizace_p1.shp") %>% 
-  sf::st_transform(., CRS("+init=epsg:5514")) %>%
+
+lokal_p_new <- sf::st_read(
+  "Data/Input/Phengaris_nausithous_2019_2024/w03_nd_lokalizace_p.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
   sf::st_cast("POLYGON") %>%
   sf::st_make_valid()
-lokal_p <- sf::st_read("w03_nd_lokalizace_p.shp") %>% 
-  sf::st_transform(., CRS("+init=epsg:5514")) %>%
-  sf::st_cast("POLYGON") %>%
-  sf::st_make_valid() %>%
-  dplyr::bind_rows(., lokal_p1) %>%
-  distinct()
-lokal_l  <- sf::st_read("w03_nd_lokalizace_l.shp") %>% 
-  sf::st_transform(., CRS("+init=epsg:5514")) %>%
+lokal_l_new <- sf::st_read(
+  "Data/Input/Phengaris_nausithous_2019_2024/w03_nd_lokalizace_l.shp"
+)  %>%
+  sf::st_set_crs(5514) %>%  # assign the correct CRS
+  sf::st_transform(5514) %>%
   sf::st_cast("LINESTRING") %>%
   sf::st_make_valid()
 
-lokal <- dplyr::bind_rows(lokal_b, lokal_p, lokal_l) %>%
-  dplyr::rename(ID_LOKAL = idx_nd_lok) %>%
+
+lokal_new <- dplyr::bind_rows(
+  lokal_b_new, 
+  lokal_p_new, 
+  lokal_l_new
+  ) %>%
+  dplyr::rename(
+    ID_LOKAL = idx_nd_lok
+    ) %>%
   sf::st_as_sf() %>%
   sf::st_make_valid()
 
-lokal_vmb <- sf::st_read("lokal_vmb_2.gpkg") %>%
-  #sf::st_drop_geometry() %>%
-  dplyr::select(ID_LOKAL, FSB, BIOTOP_SEZ, SHAPE_AREA, BIOTOP, 
-                STEJ_PR, KVALITA, AREA_real)
-
-phengaris_lokal <- phengaris_data %>%
-  dplyr::full_join(., lokal) %>%
-  dplyr::full_join(., lokal_vmb) %>%
+phengaris_lokal <- data_new %>%
+  dplyr::full_join(., lokal_new) %>%
   sf::st_as_sf() %>%
   sf::st_make_valid()
-
-phengaris_evl_id <- phengaris_lokal %>%
-  sf::st_intersection(., evl) %>%
-  sf::st_make_valid() %>%
-  dplyr::pull(ID_LOKAL)
-
-phenau_evl_id <- phengaris_lokal %>%
-  sf::st_intersection(., evl %>% 
-                        dplyr::filter(SITECODE %in% filter(sites_subjects, 
-                                                           nazev_lat == "Phengaris nausithous")$site_code)) %>%
-  sf::st_make_valid() %>%
-  dplyr::pull(ID_LOKAL)
-
-phetel_evl_id <- phengaris_lokal %>%
-  sf::st_intersection(., evl %>% 
-                        dplyr::filter(SITECODE %in% filter(sites_subjects, 
-                                                           nazev_lat == "Phengaris teleius")$site_code)) %>%
-  sf::st_make_valid() %>%
-  dplyr::pull(ID_LOKAL)
-
-phengaris_mzchu_id <- phengaris_lokal %>%
-  sf::st_intersection(., mzchu) %>%
-  sf::st_make_valid() %>%
-  dplyr::pull(ID_LOKAL)
 
 
 target_mon_zdroj <- c("Kolektiv autorů (2017) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
@@ -206,4 +201,6 @@ target_mon_zdroj <- c("Kolektiv autorů (2017) Monitoring totenových modrásků
                       "Kolektiv autorů (2021) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
                       "Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
                       "Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
-                      "Kolektiv autorů (2022) Monitoring motýlů.")
+                      "Kolektiv autorů (2022) Monitoring motýlů.",
+                      "Kolektiv autorů (2023) Monitoring motýlů.",
+                      "Kolektiv autorů (2024) Monitoring motýlů.")
