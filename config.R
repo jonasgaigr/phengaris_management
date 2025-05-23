@@ -1,4 +1,17 @@
 #----------------------------------------------------------#
+#
+#
+#                     Project name
+#
+#                     Config file
+#
+#
+#                       Jonáš Gaigr
+#                         2025
+#
+#----------------------------------------------------------#
+
+#----------------------------------------------------------#
 # Load packages -----
 #----------------------------------------------------------#
 if(!isTRUE(require(tidyverse, quietly = TRUE))) {
@@ -35,7 +48,7 @@ if(!isTRUE(require(lme4, quietly = TRUE))) {
   install.packages("lme4", dependencies = TRUE); library(lme4)
 } else {
   require(lme4)}
-
+citation()
 if(!isTRUE(require(lmerTest, quietly = TRUE))) {
   install.packages("lmerTest", dependencies = TRUE); library(lmerTest)
 } else {
@@ -51,6 +64,10 @@ if(!isTRUE(require(GLMMadaptive, quietly = TRUE))) {
 } else {
   require(GLMMadaptive)}
 
+if(!isTRUE(require(RCzechia, quietly = TRUE))) {
+  install.packages("RCzechia", dependencies = TRUE); library(RCzechia)
+} else {
+  require(RCzechia)}
 
 #----------------------------------------------------------#
 # Load data -----
@@ -59,7 +76,14 @@ if(!isTRUE(require(GLMMadaptive, quietly = TRUE))) {
 ## Load remote data -----
 #--------------------------------------------------#
 # Borders of Czechia
-czechia_border <- RCzechia::republika(resolution = "high")
+czechia_border <- 
+  RCzechia::republika(
+    resolution = "high"
+    ) %>%
+  sf::st_transform(
+    ., 
+    st_crs("+init=epsg:5514")
+  ) 
 
 # Data on protected areas and mapping fields
 endpoint <- "http://gis.nature.cz/arcgis/services/Aplikace/Opendata/MapServer/WFSServer?"
@@ -93,25 +117,28 @@ mzchu <- sf::st_read(getfeature_url_mzchu) %>%
     ., 
     st_crs("+init=epsg:5514")
     )
-sitmap <- sf::st_read("getfeature_url_sitmap1rad") %>%
+sitmap <- sf::st_read(getfeature_url_sitmap1rad) %>%
   sf::st_transform(
     ., 
-    CRS("+init=epsg:5514")
+    st_crs("+init=epsg:5514")
     ) %>%
-  sf::st_crop(.,
-              czechia_border
-              )
+  sf::st_crop(
+    .,
+    czechia_border
+    )
 
-# Sites where 
+# Sites where the spicies are target features
 rn2kcz::load_n2k_sites()
 
 #--------------------------------------------------#
 ## Load species data -----
 #--------------------------------------------------#
 
-phengaris_data <- read.csv2("phengaris_23.csv",
-                            stringsAsFactors = FALSE,
-                            fileEncoding = "Windows-1250")
+data_new <- readr::read_csv2(
+  "Data/Input/Phengaris_nausithous_2019_2024.csv",
+  locale = locale(encoding = "Windows-1250")
+)
+
 lokal_b <- sf::st_read("w03_nd_lokalizace_b.shp") %>% 
   sf::st_transform(., CRS("+init=epsg:5514")) %>%
   sf::st_cast("POINT") %>%
