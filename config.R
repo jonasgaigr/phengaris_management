@@ -1,7 +1,6 @@
-# SET WD ----
-setwd("~/phengaris_management")
-
-# LOAD PACKAGES ----
+#----------------------------------------------------------#
+# Load packages -----
+#----------------------------------------------------------#
 if(!isTRUE(require(tidyverse, quietly = TRUE))) {
   install.packages("tidyverse", dependencies = TRUE); library(tidyverse)
 } else {
@@ -53,20 +52,59 @@ if(!isTRUE(require(GLMMadaptive, quietly = TRUE))) {
   require(GLMMadaptive)}
 
 
-# LOAD DATA ----
-czechia <- sf::st_read("HraniceCR.shp") %>%
-  sf::st_transform(., CRS("+init=epsg:5514"))
-evl <- sf::st_read("Evropsky_v%C3%BDznamn%C3%A9_lokality.shp") %>% 
-  sf::st_transform(., CRS("+init=epsg:5514"))
-mzchu <- sf::st_read("mzchu.shp") %>% 
-  sf::st_transform(., CRS("+init=epsg:5514"))
-sitmap <- sf::st_read("sitmap_1rad.shp") %>%
-  sf::st_transform(., CRS("+init=epsg:5514"))
+#----------------------------------------------------------#
+# Load data -----
+#----------------------------------------------------------#
+#--------------------------------------------------#
+## Load remote data -----
+#--------------------------------------------------#
+# Borders of Czechia
+czechia_border <- RCzechia::republika(resolution = "high")
+
+# Data on protected areas and mapping fields
+endpoint <- "http://gis.nature.cz/arcgis/services/Aplikace/Opendata/MapServer/WFSServer?"
+caps_url <- base::paste0(endpoint, "request=GetCapabilities&service=WFS")
+
+layer_name_evl <- "Opendata:Evropsky_vyznamne_lokality"
+layer_name_mzchu <- "Opendata:Maloplosna_zvlaste_chranena_uzemi__MZCHU_"
+layer_name_sitmap1rad <- "Opendata:Mapovaci_sit_-_deleni_1.radu"
+
+getfeature_url_evl <- paste0(
+  endpoint,
+  "service=WFS&version=2.0.0&request=GetFeature&typeName=", layer_name_evl
+)
+getfeature_url_mzchu <- paste0(
+  endpoint,
+  "service=WFS&version=2.0.0&request=GetFeature&typeName=", layer_name_mzchu
+)
+getfeature_url_sitmap1rad <- paste0(
+  endpoint,
+  "service=WFS&version=2.0.0&request=GetFeature&typeName=", layer_name_sitmap1rad
+)
 
 
+evl <- sf::st_read(getfeature_url_evl) %>%
+  sf::st_transform(
+    ., 
+    st_crs("+init=epsg:5514")
+    ) 
+mzchu <- sf::st_read(getfeature_url_mzchu) %>%
+  sf::st_transform(
+    ., 
+    st_crs("+init=epsg:5514")
+    )
+sitmap <- sf::st_read("getfeature_url_sitmap1rad") %>%
+  sf::st_transform(
+    ., 
+    CRS("+init=epsg:5514")
+    ) %>%
+  sf::st_crop(.,
+              czechia_border
+              )
+
+# Sites whhere 
 rn2kcz::load_n2k_sites()
-sites_subjects <- openxlsx::read.xlsx("C:/Users/jonas.gaigr/N2K.CZ/seznam_predmetolokalit_Natura2000_440_2021.xlsx")
-colnames(sites_subjects) <- c("site_code", "site_name", "site_type", "feature_type", "feature_code", "nazev_cz", "nazev_lat")
+
 phengaris_data <- read.csv2("phengaris_23.csv",
                             stringsAsFactors = FALSE,
                             fileEncoding = "Windows-1250")
