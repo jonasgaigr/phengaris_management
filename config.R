@@ -102,8 +102,12 @@ sitmap <- sf::st_read("getfeature_url_sitmap1rad") %>%
               czechia_border
               )
 
-# Sites whhere 
+# Sites where 
 rn2kcz::load_n2k_sites()
+
+#--------------------------------------------------#
+## Load species data -----
+#--------------------------------------------------#
 
 phengaris_data <- read.csv2("phengaris_23.csv",
                             stringsAsFactors = FALSE,

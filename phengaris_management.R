@@ -116,10 +116,6 @@ phengaris <- phengaris_edit %>%
   dplyr::ungroup()
 
 phengaris %>%
-  dplyr::select(BIOTOP_SEZ, HET_OUT) %>%
-  arrange(-HET_OUT)
-
-phengaris %>%
   dplyr::filter(is.na(FSB)) %>%
   plot()
   
