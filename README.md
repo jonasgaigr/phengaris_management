@@ -1,2 +1,2 @@
-# phengaris_management
-Study of management effects on Phengaris nausithous and Phengaris teleius in Czechia
+# 🦋 phengaris_management 
+Study of management effects on <i>Phengaris nausithous</i> and <i>Phengaris teleius</i> in Czechia
