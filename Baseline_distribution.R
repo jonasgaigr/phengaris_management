@@ -63,6 +63,9 @@ data_new_sitmap_intersection <-
     sitmap
   ) %>%
   sf::st_drop_geometry() %>%
+  dplyr::filter(
+    ZDROJ %in% target_mon_zdroj
+  ) %>%
   dplyr::rowwise() %>%
   dplyr::mutate(
     old_Pnau = dplyr::case_when(
@@ -219,5 +222,5 @@ table(data_new_with_imputed$IMPUTED)
 # Export
 readr::write_csv(
   data_new_with_imputed,
-  "Data/Export/data_new_with_imputed.csv"
+  "Data/Processed/data_new_with_imputed.csv"
   )
