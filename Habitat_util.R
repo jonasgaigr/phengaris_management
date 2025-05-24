@@ -1,4 +1,33 @@
 # OBSERVED HABITATS 
+data %>%
+  mutate(
+    AREA_SITE = STEJ_PR/100*SHAPE_AREA,
+    HET_OUT = stringr::str_count(
+      BIOTOP_SEZ, 
+      "\\("
+    )
+  )
+
+phengaris <- 
+  phengaris_edit %>%
+  dplyr::mutate(
+    NATURAL = dplyr::case_when(
+      BIOTOP != "-1" &
+        grepl("X", BIOTOP) == FALSE &
+        is.na(BIOTOP) == FALSE ~ 1,
+      TRUE ~ 0
+    )
+  ) %>%
+  dplyr::group_by(
+    ID_NALEZ
+  ) %>%
+  dplyr::arrange(
+    NATURAL, 
+    AREA_SITE
+  ) %>%
+  dplyr::slice(1) %>%
+  dplyr::ungroup()
+
 sumob <- phengaris %>%
   st_drop_geometry() %>%
   filter(POSITIVE == 1) %>%
