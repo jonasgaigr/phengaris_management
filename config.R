@@ -1,7 +1,7 @@
 #----------------------------------------------------------#
 #
 #
-#                   Phengaris management
+#           Phengaris spp. management in Czechia
 #
 #                     Config file
 #
@@ -138,10 +138,10 @@ sitmap <- sf::st_read(getfeature_url_sitmap1rad) %>%
     ) %>%
   sf::st_crop(
     .,
-    czechia_border
+    czechia_border  # crop by the border of Czechia
     )
 
-# Sites where the spicies are target features
+# Sites where the species are target features
 rn2kcz::load_n2k_sites()
 
 #--------------------------------------------------#
