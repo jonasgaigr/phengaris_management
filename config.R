@@ -34,11 +34,6 @@ if(!isTRUE(require(proj4, quietly = TRUE))) {
 } else {
   require(proj4)}
 
-if(!isTRUE(require(leaflet, quietly = TRUE))) {
-  install.packages("leaflet", dependencies = TRUE); library(leaflet)
-} else {
-  require(leaflet)}
-
 if(!isTRUE(require(openxlsx, quietly = TRUE))) {
   install.packages("openxlsx", dependencies = TRUE); library(openxlsx)
 } else {
@@ -83,6 +78,11 @@ if(!isTRUE(require(rn2kcz, quietly = TRUE))) {
   remotes::install_github("jonasgaigr/rn2kcz", dependencies = TRUE); library(rn2kcz)
 } else {
   require(rn2kcz)}
+remotes::install_github("kalab-oto/rndop")
+
+library(rvest)
+library(httr)
+library(xml2)
 #----------------------------------------------------------#
 # Load data -----
 #----------------------------------------------------------#
@@ -323,6 +323,77 @@ phengaris_lokal_new <-
   sf::st_as_sf() %>%
   sf::st_make_valid()
 
+#--------------------------------------------------#
+## Load habitat layer -----
+#--------------------------------------------------#
+library(tools)
+rndop::isop_login()
+
+library(httr)
+library(tools)
+
+# Your login info (replace with your actual username and password)
+username <- "your_username"
+password <- "your_password"
+
+# Login URL (adjust if needed)
+login_url <- "https://cas.nature.cz/cas/login"
+
+# Log in and get cookies
+res_login <- POST(login_url, body = list(
+  username = username,
+  password = password
+), encode = "form")
+
+# Extract cookies from login response
+login_cookies <- cookies(res_login)
+
+# Base URL for ZIP files
+url_base <- "https://data.nature.cz/ds/21/download/kraj/"
+
+regions <- c(
+  "Jihocesky.zip", "Jihomoravsky.zip", "Karlovarsky.zip",
+  "Kralovehradecky.zip", "Liberecky.zip", "Moravskoslezsky.zip",
+  "Olomoucky.zip", "Pardubicky.zip","Plzensky.zip", "Praha.zip",
+  "Stredocesky.zip", "Ustecky.zip", "Vysocina.zip", "Zlinsky.zip"
+)
+
+# Destination directory
+dest_dir <- "Data/Temp/Habitats"
+if (!dir.exists(dest_dir)) dir.create(dest_dir)
+
+for (region in regions) {
+  file_url <- paste0(url_base, region)
+  dest_file <- file.path(dest_dir, region)
+  unzip_dir <- file.path(dest_dir, tools::file_path_sans_ext(region))
+  if (!dir.exists(unzip_dir)) dir.create(unzip_dir)
+  
+  cat("Downloading:", region, "...\n")
+  
+  # Download with cookies
+  res <- GET(
+    file_url, 
+    set_cookies(
+      .cookies = setNames(
+        login_cookies$value, 
+        login_cookies$name
+        )
+      ),
+    write_disk(
+      dest_file, 
+      overwrite = TRUE
+      )
+    )
+  
+  if (status_code(res) == 200) {
+    cat("Downloaded", region, "\nUnzipping...\n")
+    unzip(dest_file, exdir = unzip_dir)
+    cat("Done\n")
+  } else {
+    cat("Failed to download", region, "- HTTP status:", status_code(res), "\n")
+  }
+}
+
 #----------------------------------------------------------#
 # List ZDROJ for analyis -----
 #----------------------------------------------------------#
@@ -338,6 +409,27 @@ target_mon_zdroj <- c(
   "Kolektiv autorů (2023) Monitoring motýlů.",
   "Kolektiv autorů (2024) Monitoring motýlů."
   )
+
+#----------------------------------------------------------#
+# Delete Temp files -----
+#----------------------------------------------------------#
+temp_dir <- "Data/Temp"
+
+# List all files and folders inside, full paths
+files_to_delete <- list.files(temp_dir, full.names = TRUE, recursive = TRUE)
+
+# Delete all files and folders
+file.remove(files_to_delete[!dir.exists(files_to_delete)])  # Remove files only
+
+# Remove directories (empty after deleting files inside)
+dirs_to_delete <- list.dirs(temp_dir, recursive = TRUE, full.names = TRUE)
+# Sort in decreasing order to delete subfolders before parents
+dirs_to_delete <- dirs_to_delete[order(nchar(dirs_to_delete), decreasing = TRUE)]
+
+# Remove directories
+for (d in dirs_to_delete) {
+  unlink(d, recursive = TRUE, force = TRUE)
+}
 
 #----------------------------------------------------------#
 # End config -----
