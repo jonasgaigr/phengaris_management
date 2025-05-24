@@ -4,7 +4,6 @@
 
 data_new_with_imputed <- 
   readr::read_csv(
-    data_new_with_imputed,
     "Data/Processed/data_new_with_imputed.csv"
     )
 
@@ -48,7 +47,12 @@ phengaris_both_present <-
             SPEC_NUM = length(unique(DRUH))) %>%
   dplyr::filter(SPEC_NUM == 2)
 
-data <- 
+
+#----------------------------------------------------------#
+# Clean data -----
+#----------------------------------------------------------#
+
+data_clean <- 
   data_new_source %>%
   dplyr::filter(
     ZDROJ %in% target_mon_zdroj
@@ -308,7 +312,7 @@ data <-
       TRUE ~ 0
       ),
     SPEC_NUM = dplyr::case_when(
-      ID_NALEZ %in% phengaris_both ~ 1,
+      ID_NALEZ %in% phengaris_both_present ~ 1,
       TRUE ~ 0
       ),
     SITMAP = as.factor(SITMAP)
@@ -349,4 +353,11 @@ data <-
         "2017"
         )
     )
+#----------------------------------------------------------#
+# Export cleaned occurrence data -----
+#----------------------------------------------------------#
 
+readr::write_csv(
+  data_clean,
+  "Data/Processed/data_clean.csv"
+)
