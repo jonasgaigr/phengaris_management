@@ -1,8 +1,18 @@
 #--------------------------------------------------#
+## Load data with imputed negative records -----
+#--------------------------------------------------#
+
+data_new_with_imputed <- 
+  readr::read_csv(
+    data_new_with_imputed,
+    "Data/Processed/data_new_with_imputed.csv"
+    )
+
+#--------------------------------------------------#
 ## Filter only targeted monitoring -----
 #--------------------------------------------------#
 data_new_source <-
-  phengaris_lokal_new %>%
+  data_new_with_imputed %>%
   dplyr::filter(
     ZDROJ %in% target_mon_zdroj
   )
