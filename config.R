@@ -49,6 +49,11 @@ if(!isTRUE(require(lmerTest, quietly = TRUE))) {
 } else {
   require(lmerTest)}
 
+if(!isTRUE(require(Matrix, quietly = TRUE))) {
+  install.packages("Matrix", dependencies = TRUE); library(Matrix)
+} else {
+  require(Matrix)}
+
 if(!isTRUE(require(vegan, quietly = TRUE))) {
   install.packages("vegan", dependencies = TRUE); library(vegan)
 } else {
