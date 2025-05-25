@@ -358,10 +358,20 @@ login_cookies <- cookies(res_login)
 url_base <- "https://data.nature.cz/ds/21/download/kraj/"
 
 regions <- c(
-  "Jihocesky.zip", "Jihomoravsky.zip", "Karlovarsky.zip",
-  "Kralovehradecky.zip", "Liberecky.zip", "Moravskoslezsky.zip",
-  "Olomoucky.zip", "Pardubicky.zip","Plzensky.zip", "Praha.zip",
-  "Stredocesky.zip", "Ustecky.zip", "Vysocina.zip", "Zlinsky.zip"
+  "Jihocesky.zip", 
+  "Jihomoravsky.zip", 
+  "Karlovarsky.zip",
+  "Kralovehradecky.zip", 
+  "Liberecky.zip", 
+  "Moravskoslezsky.zip",
+  "Olomoucky.zip", 
+  "Pardubicky.zip",
+  "Plzensky.zip", 
+  "Praha.zip",
+  "Stredocesky.zip", 
+  "Ustecky.zip", 
+  "Vysocina.zip", 
+  "Zlinsky.zip"
 )
 
 # Destination directory
