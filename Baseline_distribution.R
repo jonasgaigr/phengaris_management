@@ -64,7 +64,7 @@ data_new_sitmap_intersection <-
   ) %>%
   sf::st_drop_geometry() %>%
   dplyr::filter(
-    ZDROJ %in% target_mon_zdroj
+    ZDROJ %in% target_mon_zdroj             # use only taget monitoring efforts
   ) %>%
   dplyr::rowwise() %>%
   dplyr::mutate(
@@ -212,15 +212,31 @@ data_new_with_imputed <-
     imputed_pnau
     )
 
-#----------------------------------------------------------#
-# Export imputed data -----
-#----------------------------------------------------------#
+#--------------------------------------------------#
+## Check original data with imputed values -----
+#--------------------------------------------------#
 
 # Check number of imputed records
 table(data_new_with_imputed$IMPUTED)
 
-# Export
+data_new_with_imputed %>%
+  group_by(
+    DRUH, 
+    NEGATIV
+    ) %>%
+  reframe(
+    number = n()
+  )
+
+#----------------------------------------------------------#
+# Export imputed data -----
+#----------------------------------------------------------#
+
 readr::write_csv(
   data_new_with_imputed,
   "Data/Processed/data_new_with_imputed.csv"
   )
+
+#----------------------------------------------------------#
+# End script -----
+#----------------------------------------------------------#
