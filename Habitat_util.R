@@ -8,6 +8,10 @@ data %>%
     )
   )
 
+phengaris %>%
+  dplyr::filter(is.na(FSB)) %>%
+  plot()
+
 phengaris <- 
   phengaris_edit %>%
   dplyr::mutate(
