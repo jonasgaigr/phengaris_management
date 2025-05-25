@@ -32,6 +32,15 @@ positivity <-
 ## Observation year -----
 #----------------------------------------------------------#
 
+data %>%
+  group_by(YEAR) %>%
+  summarise(length(unique(POLE)))
+
+data %>%
+  st_drop_geometry() %>% 
+  group_by(YEAR, POSITIVE) %>%
+  summarise(COUNT = n())
+
 #----------------------------------------------------------#
 ## Observers -----
 #----------------------------------------------------------#
@@ -59,9 +68,6 @@ observer_number <-
   observer_list %>%
   length()
 
-data %>%
-  group_by(YEAR) %>%
-  summarise(length(unique(POLE)))
 
 (histogram_observers <- 
     ggplot2::ggplot(
@@ -116,27 +122,61 @@ data %>%
 #----------------------------------------------------------#
 ## Observations -----
 #----------------------------------------------------------#
-nrow(data %>%
-       filter(DRUH == "Phengaris nausithous"))
-nrow(data %>%
-       filter(DRUH == "Phengaris nausithous" & POSITIVE == 1))
-nrow(data %>%
-       filter(DRUH == "Phengaris nausithous" & POSITIVE == 0))
-nrow(data %>% 
-       filter(DRUH == "Phengaris nausithous" & POSITIVE == 1))/
-nrow(data %>%
-       filter(DRUH == "Phengaris nausithous"))
+# P. nausithous
+Pnau_obs <- 
+  data %>%
+  filter(
+    DRUH == "Phengaris nausithous"
+    )
 
-nrow(data %>%
-       filter(DRUH == "Phengaris teleius"))
-nrow(data %>%
-       filter(DRUH == "Phengaris teleius" & POSITIVE == 1))
-nrow(data %>%
-       filter(DRUH == "Phengaris teleius" & POSITIVE == 0))
-nrow(data %>%
-       filter(DRUH == "Phengaris teleius" & POSITIVE == 1))/
-nrow(data %>%
-       filter(DRUH == "Phengaris teleius"))
+Pnau_obs_num <-
+  Pnau_obs %>%
+  nrow()
+
+Pnau_num_obs_pos <- 
+  Pnau_obs %>%
+  filter(
+    POSITIVE == 1
+  ) %>%
+  nrow()
+  
+Pnau_num_obs_neg <- 
+  Pnau_obs %>%
+  filter(
+    POSITIVE == 0
+  ) %>%
+  nrow()
+
+Pnau_num_obs_pos_perc <- 
+  Pnau_num_obs_pos/Pnau_obs_num
+
+# P. teleius
+Ptel_obs <- 
+  data %>%
+  filter(
+    DRUH == "Phengaris teleius"
+  )
+
+Ptel_obs_num <-
+  Ptel_obs %>%
+  nrow()
+
+Ptel_num_obs_pos <- 
+  Ptel_obs %>%
+  filter(
+    POSITIVE == 1
+  ) %>%
+  nrow()
+
+Ptel_num_obs_neg <- 
+  Ptel_obs %>%
+  filter(
+    POSITIVE == 0
+  ) %>%
+  nrow()
+
+Ptel_num_obs_pos_perc <- 
+  Ptel_num_obs_pos/Ptel_obs_num
 
 data_spe_sum <- data %>%
   st_drop_geometry() %>%
@@ -154,43 +194,44 @@ sum(data_sum$COUNT)
 sum(data_evl_sum$COUNT)
 
 #----------------------------------------------------------#
+## Mapping fields -----
+#----------------------------------------------------------#
+
+mapfield <- 
+  data %>%
+  dplyr::select(
+    DRUH, 
+    POSITIVE, 
+    POLE
+    ) %>%
+  dplyr::group_by(
+    DRUH, 
+    POLE
+    ) %>%
+  dplyr::arrange(
+    desc(
+      POSITIVE
+      )
+    ) %>%
+  dplyr::slice(
+    1
+    ) %>%
+  dplyr::ungroup()
+
+#----------------------------------------------------------#
 ## Habitats -----
 #----------------------------------------------------------#
-nrow(data %>%
-       filter(DRUH == "Phengaris nausithous" & 
-                POSITIVE == 1 &
-                TTP == 1))
-nrow(data %>%
-       filter(DRUH == "Phengaris nausithous" & 
-                POSITIVE == 1 &
-                ZARUST == 1))
-nrow(data %>%
-       filter(DRUH == "Phengaris nausithous" & 
-                POSITIVE == 1 &
-                PRIKOP == 1))
-nrow(data %>%
-       filter(DRUH == "Phengaris nausithous" & 
-                POSITIVE == 1 &
-                JINY == 1))
-
-nrow(data %>%
-       filter(DRUH == "Phengaris teleius" & 
-                POSITIVE == 1 &
-                TTP == 1))
-nrow(data %>%
-       filter(DRUH == "Phengaris teleius" & 
-                POSITIVE == 1 &
-                ZARUST == 1))
-nrow(data %>%
-       filter(DRUH == "Phengaris teleius" & 
-                POSITIVE == 1 &
-                PRIKOP == 1))
-data %>%
-  filter(DRUH == "Phengaris teleius" & 
-           POSITIVE == 1 &
-           JINY == 1) %>%
-  nrow()
-
+habitat_counts <- data %>%
+  dplyr::group_by(
+    DRUH,
+    POSITIVE
+    ) %>%
+  dplyr::reframe(
+    TTP = sum(TTP == 1, na.rm = TRUE),
+    ZARUST = sum(ZARUST == 1, na.rm = TRUE),
+    PRIKOP = sum(PRIKOP == 1, na.rm = TRUE),
+    JINY = sum(JINY == 1, na.rm = TRUE)
+  )
 
 #----------------------------------------------------------#
 ## Abundances -----
@@ -241,11 +282,7 @@ length(data %>%
          filter(DRUH == "Phengaris teleius") %>%
          pull(POCET) %>%
          na.omit())
-  
-data %>%
-  st_drop_geometry() %>% 
-  group_by(YEAR, POSITIVE) %>%
-  summarise(COUNT = n())
+
 
 
 data_evl_sum <- data %>%
@@ -385,76 +422,16 @@ roky
 
 kuk <- data %>%
   filter(DRUH == "Phengaris teleius") %>%
-  st_drop_geometry() %>%
   group_by(YEAR) %>%
   summarise(n())
 
 data %>%
   filter(DRUH == "Phengaris nausithous") %>%
-  st_drop_geometry() %>%
   group_by(PLANT_QUANT) %>%
   summarise(mean(POSITIVE)) %>%
   plot()
 
-phenpole <- data %>%
-  st_intersection(., sitmap)
-
-phenpole %>%
-  pull(POLE) %>%
-  unique() %>%
-  length()
-
-phenpole %>%
-  st_drop_geometry() %>%
-  group_by(YEAR) %>%
-  summarise(n())
-
-phenpole %>%
-  st_drop_geometry() %>%
-  filter(POSITIVE == 1) %>%
-  filter(DRUH == "Phengaris nausithous") %>%
-  pull(POLE) %>%
-  unique() %>%
-  length
-
-phenpole %>%
-  st_drop_geometry() %>%
-  filter(POSITIVE == 1) %>%
-  filter(DRUH == "Phengaris teleius") %>%
-  pull(POLE) %>%
-  unique() %>%
-  length
-
-phenpole %>%
-  st_drop_geometry() %>%
-  filter(SPEC_NUM == 1) %>%
-  pull(POLE) %>%
-  unique() %>%
-  length
 data %>%
-  st_drop_geometry() %>%
-  filter(POSITIVE == 1) %>%
-  filter(SPEC_NUM == 1) %>%
-  nrow()
-
-phenpole %>%
-  st_drop_geometry() %>%
-  filter(DRUH == "Phengaris nausithous") %>%
-  filter(SPEC_NUM == 1) %>%
-  nrow()
-
-phenpole_analysis <- phenpole %>%
-  dplyr::select(DRUH, POSITIVE, POLE) %>%
-  st_drop_geometry() %>%
-  group_by(DRUH, POLE) %>%
-  arrange(-POSITIVE) %>%
-  slice(1) %>%
-  ungroup()
-
-kukuk <- data %>%
-  dplyr::select(BIOTOP, NATURAL)
-kukukuk <- data %>%
-  st_drop_geometry() %>%
   filter(DRUH == "Phengaris nausithous") %>%
   group_by(TTP) %>%
   summarise(n())
