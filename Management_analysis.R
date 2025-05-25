@@ -412,10 +412,12 @@ kukukuk <- data %>%
 #----------------------------------------------------------#
 # Models -----
 #----------------------------------------------------------#
-# NAUSITHOUS ----
+#----------------------------------------------------------#
+## Phengaris nausithous -----
+#----------------------------------------------------------#
 # NULL
 model_null_phenau <- 
-  lme4::glmer(
+  glmer(
     data = data %>%
       filter(
         DRUH == "Phengaris nausithous"
@@ -1089,7 +1091,9 @@ model_tap_phenau <- glmer(data = data %>%
                              family ="binomial")
 summary(model_tap_phenau)
 
-# TELEIUS ----
+#----------------------------------------------------------#
+## Phengaris teleius -----
+#----------------------------------------------------------#
 # NULL
 model_null_phetel <- glm(data = data %>%
                              filter(DRUH == "Phengaris teleius"), 
@@ -1393,7 +1397,9 @@ data_sum %>%
 
 # procento varience z year random effects
 
-# BOTH SPECIES ----
+#----------------------------------------------------------#
+## Both species -----
+#----------------------------------------------------------#
 modelboth <- glmer(data = data, 
                           as.factor(POSITIVE) ~ as.factor(SPEC_NUM)*as.factor(DRUH) + (1 | YEAR) + (1 | (X:Y)),
                           family ="binomial")
@@ -1618,9 +1624,10 @@ phenpole %>%
   arrange(-pocet)
 
 
-# THREATS AND PRESSURES ----
+#----------------------------------------------------------#
+## Threats and pressures -----
+#----------------------------------------------------------#
 data_tap_all <- data %>%
-  sf::st_drop_geometry() %>%
   dplyr::filter(SUM_THREATS > 0) %>%
   dplyr::mutate(DRUH = dplyr::case_when(DRUH == "Phengaris nausithous" ~ "nausithous",
                                         DRUH == "Phengaris teleius" ~ "teleius")) %>%
@@ -1711,54 +1718,7 @@ speciesPCA
 biplot(PCA, choices = c(1,2))
 biplot(PCA, xlim = c(-0.3, 0.3), ylim = c(-0.45, 0.6))
 
-# MAPS ----
-hypso_read <- stars::read_stars("CRhypso100.tif") 
 
-
-data_map <- ggplot2::ggplot(data = data %>%
-                                   dplyr::mutate(geometry = sf::st_centroid(geometry))) +
-  #ggplot2::geom_raster(data = hypso_read) +
-  ggplot2::geom_sf(aes(color = as.factor(POSITIVE)),
-                   size = 0.5, show.legend = FALSE) +
-  ggplot2::geom_sf(data = czechia, fill = NA) +
-  ggplot2::scale_y_continuous(expand = expand_scale(mult = c(0.05, 0.05))) +
-  ggplot2::scale_x_continuous(expand = expand_scale(mult = c(0.05, 0.05))) +
-  ggplot2::theme_void()
-data_map
-
-phenau_dist <- data %>%
-  filter(DRUH == "Phengaris nausithous" & POSITIVE == 1) %>%
-  pull(SITMAP) %>%
-  unique()
-phetel_dist <- data %>%
-  filter(DRUH == "Phengaris teleius" & POSITIVE == 1) %>%
-  pull(SITMAP) %>%
-  unique()
-sample_dist <- data %>%
-  pull(SITMAP) %>%
-  unique()
-
-data_dist_map <- ggplot2::ggplot() +
-  ggplot2::geom_sf(data = czechia, fill = NA, size = 1.5) +
-  ggplot2::geom_sf(data = sitmap %>%
-                     dplyr::filter(POLE %in% sample_dist),
-                   fill = "light grey") +
-  ggplot2::geom_sf(data = sitmap %>%
-                     dplyr::filter(POLE %in% phenau_dist),
-                   fill = "blue",
-                   alpha = .5) +
-  ggplot2::geom_sf(data = sitmap %>%
-                     dplyr::filter(POLE %in% phetel_dist),
-                   fill = "red",
-                   alpha = .5) +
-  ggplot2::scale_y_continuous(expand = expand_scale(mult = c(0.05, 0.05))) +
-  ggplot2::scale_x_continuous(expand = expand_scale(mult = c(0.05, 0.05))) +
-  ggplot2::theme_void()
-data_dist_map
-
-phetel_dist
-
-both_dist
 
 # ZSUTIS SEMIKVANTATIVNĚ
 data %>%
