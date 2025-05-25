@@ -58,6 +58,10 @@ data_clean <-
     ZDROJ %in% target_mon_zdroj
     ) %>%
   dplyr::mutate(
+    POSITIVE = dplyr::case_when(
+      NEGATIV == 1 ~ 0,
+      NEGATIV == 0 ~ 1
+    ),
     YEAR = as.factor(
       substr(
         DATUM_OD, 
@@ -361,3 +365,7 @@ readr::write_csv(
   data_clean,
   "Data/Processed/data_clean.csv"
 )
+
+#----------------------------------------------------------#
+# End script -----
+#----------------------------------------------------------#
