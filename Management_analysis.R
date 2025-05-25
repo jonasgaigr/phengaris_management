@@ -1,15 +1,23 @@
-#---------------------------------
+#----------------------------------------------------------#
+# Load data -----
+#----------------------------------------------------------#
 
+data <- 
+  readr::read_csv(
+    "Data/Processed/data_clean.csv"
+    )
 
-phengaris %>%
-  dplyr::filter(is.na(FSB)) %>%
-  plot()
-  
+#----------------------------------------------------------#
+# Export cleaned occurrence data -----
+#----------------------------------------------------------#
+
 phengaris %>% 
   dplyr::filter(DRUH == "Phengaris teleius") %>%
   st_drop_geometry() %>%
-  dplyr::mutate(POSITIVE = dplyr::case_when(NEGATIV == 1 ~ 0,
-                                            NEGATIV == 0 ~ 1),
+  dplyr::mutate(POSITIVE = dplyr::case_when(
+    NEGATIV == 1 ~ 0,
+    NEGATIV == 0 ~ 1
+    ),
                 YEAR = as.factor(substr(DATUM_OD, 1, 4))) %>%
   group_by(YEAR) %>%
   summarise(n(),
