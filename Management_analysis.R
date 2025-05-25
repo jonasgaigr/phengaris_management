@@ -138,6 +138,20 @@ nrow(data %>%
 nrow(data %>%
        filter(DRUH == "Phengaris teleius"))
 
+data_spe_sum <- data %>%
+  st_drop_geometry() %>%
+  group_by(POSITIVE, DRUH, SPEC_NUM) %>%
+  summarise(COUNT = n()) %>%
+  ungroup()
+
+data_sum <- data %>%
+  st_drop_geometry() %>%
+  group_by(DRUH, POSITIVE) %>%
+  summarise(COUNT = n()) %>%
+  ungroup()
+
+sum(data_sum$COUNT)
+sum(data_evl_sum$COUNT)
 
 #----------------------------------------------------------#
 ## Habitats -----
@@ -208,6 +222,12 @@ data %>%
   group_by(PLANT_QUANT, DRUH, POSITIVE) %>%
   summarise(COUNT = n())
 
+data_plant_sum <- data %>%
+  st_drop_geometry() %>%
+  group_by(POSITIVE, DRUH, PLANT_QUANT) %>%
+  summarise(COUNT = n()) %>%
+  ungroup()
+
 #----------------------------------------------------------#
 ## Protected areas -----
 #----------------------------------------------------------#
@@ -226,7 +246,6 @@ data %>%
   st_drop_geometry() %>% 
   group_by(YEAR, POSITIVE) %>%
   summarise(COUNT = n())
-
 
 
 data_evl_sum <- data %>%
@@ -249,45 +268,77 @@ data_mzchu_sum <- data %>%
   group_by(MZCHU, POSITIVE, DRUH) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-data_plant_sum <- data %>%
-  st_drop_geometry() %>%
-  group_by(POSITIVE, DRUH, PLANT_QUANT) %>%
-  summarise(COUNT = n()) %>%
-  ungroup()
+
+ggplot(data = data_evl_sum %>%
+         filter(DRUH == "Phengaris nausithous"), 
+       aes(x = as.factor(EVL), 
+           y = COUNT,
+           fill = as.factor(POSITIVE))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
+  scale_fill_manual(labels = c("negative", "positive"),
+                    name = "site occupancy",
+                    values = c("grey", "#595959")) +
+  scale_x_discrete(labels = c("outside Natura 2000", "Natura 2000 sites")) +
+  xlab("\nPhengaris nausithous") +
+  ylab("number of sites\n") +
+  theme_classic() +
+  theme(text = element_text(size = 26),
+        legend.position="none")
+
+ggplot(data = data_evl_sum %>%
+         filter(DRUH == "Phengaris teleius"), 
+       aes(x = as.factor(EVL), 
+           y = COUNT,
+           fill = as.factor(POSITIVE))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
+  scale_fill_manual(labels = c("negative", "positive"),
+                    name = "site occupancy",
+                    values = c("grey", "#595959")) +
+  scale_x_discrete(labels = c("outside Natura 2000", "Natura 2000 sites")) +
+  xlab("\nPhengaris teleius") +
+  ylab("") +
+  theme_classic() +
+  theme(text = element_text(size = 26))
+
+#----------------------------------------------------------#
+## Management methods -----
+#----------------------------------------------------------#
+
 data_method_sum <- data %>%
   st_drop_geometry() %>%
   group_by(POSITIVE, DRUH, METHOD) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-data_time_sum <- data %>%
-  st_drop_geometry() %>%
-  group_by(POSITIVE, DRUH, TIMING) %>%
-  summarise(COUNT = n()) %>%
-  ungroup()
-data_man_sum <- data %>%
-  st_drop_geometry() %>%
-  mutate(MANAGEMENT = case_when(TIMING == 1 & METHOD == 1 ~ "appropriate mow and appropriate timing",
-                                TIMING == 0 & METHOD == 1 ~ "appropriate mow only",
-                                TIMING == 1 & METHOD == 0 ~ "appropriate timing only",
-                                TIMING == 0 & METHOD == 0 ~ "inappropriate mow and inappropriate timing")) %>%
-  group_by(POSITIVE, DRUH, MANAGEMENT) %>%
-  summarise(COUNT = n()) %>%
-  ungroup()
-data_spe_sum <- data %>%
-  st_drop_geometry() %>%
-  group_by(POSITIVE, DRUH, SPEC_NUM) %>%
-  summarise(COUNT = n()) %>%
-  ungroup()
-data_sum <- data %>%
-  st_drop_geometry() %>%
-  group_by(DRUH, POSITIVE) %>%
-  summarise(COUNT = n()) %>%
-  ungroup()
-sum(data_sum$COUNT)
-sum(data_evl_sum$COUNT)
 
-data_sum %>%
-  filter(DRUH == "Phengaris teleius")
+data_time_sum <- 
+  data %>%
+  dplyr::group_by(POSITIVE, DRUH, TIMING) %>%
+  dplyr::reframe(
+    COUNT = n()
+    ) %>%
+  dplyr::ungroup()
+
+data_man_sum <- 
+  data %>%
+  dplyr::mutate(
+    MANAGEMENT = dplyr::case_when(
+      TIMING == 1 & METHOD == 1 ~ "appropriate mow and appropriate timing",
+      TIMING == 0 & METHOD == 1 ~ "appropriate mow only",
+      TIMING == 1 & METHOD == 0 ~ "appropriate timing only",
+      TIMING == 0 & METHOD == 0 ~ "inappropriate mow and inappropriate timing"
+      )
+    ) %>%
+  dplyr::group_by(
+    POSITIVE, 
+    DRUH, 
+    MANAGEMENT
+    ) %>%
+  dplyr::reframe(
+    COUNT = n()
+    ) %>%
+  dplyr::ungroup()
 
 data %>%
   dplyr::filter(DRUH == "Phengaris nausithous")  %>%
@@ -1727,37 +1778,7 @@ data %>%
   hist
 
 # POSTER ----
-ggplot(data = data_evl_sum %>%
-         filter(DRUH == "Phengaris nausithous"), 
-       aes(x = as.factor(EVL), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("outside Natura 2000", "Natura 2000 sites")) +
-  xlab("\nPhengaris nausithous") +
-  ylab("number of sites\n") +
-  theme_classic() +
-  theme(text = element_text(size = 26),
-        legend.position="none")
-ggplot(data = data_evl_sum %>%
-         filter(DRUH == "Phengaris teleius"), 
-       aes(x = as.factor(EVL), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("outside Natura 2000", "Natura 2000 sites")) +
-  xlab("\nPhengaris teleius") +
-  ylab("") +
-  theme_classic() +
-  theme(text = element_text(size = 26))
+
 
 ggplot(data = data_spe_sum %>%
          filter(SPEC_NUM == 0), 
@@ -1776,45 +1797,6 @@ ggplot(data = data_spe_sum %>%
   theme_classic() +
   theme(text = element_text(size = 26))
 
-# INTERSECT ----
-# VMB
-vmb_shp_sjtsk_22_read <- sf::st_read("//bali.nature.cz/du/Mapovani/Biotopy/CR_2022/20220531_Segment.shp")
-#vmb_hab_dbf_22 <- sf::st_read("//bali.nature.cz/du/Mapovani/Biotopy/CR_2022/Biotop/HAB_BIOTOP.dbf")
-#vmb_pb_dbf_22 <- sf::st_read("//bali.nature.cz/du/Mapovani/Biotopy/CR_2022/Biotop/PB_BIOTOP.dbf")
-vmb_dbf_22 <- sf::st_read("//bali.nature.cz/du/Mapovani/Biotopy/CR_2022/Biotop/20220531_BIOTOP.dbf")
 
-vmb_shp_sjtsk_22 <- vmb_shp_sjtsk_22_read %>%
-  dplyr::left_join(vmb_dbf_22, by = "SEGMENT_ID") %>%
-  dplyr::group_by(SEGMENT_ID) %>%
-  dplyr::mutate(moz_num = n(),
-                FSB_EVAL_prep = dplyr::case_when(sum(STEJ_PR, na.rm = TRUE) < 50 ~ "X",
-                                                 sum(STEJ_PR, na.rm = TRUE) >= 50 &
-                                                   sum(STEJ_PR, na.rm = TRUE) < 200 ~ "moz.",
-                                                 sum(STEJ_PR, na.rm = TRUE) == 200 ~ NA_character_)) %>%
-  dplyr::ungroup() %>%
-  dplyr::mutate(FSB_EVAL = dplyr::case_when(FSB_EVAL_prep == "moz." ~ "moz.",
-                                            FSB_EVAL_prep == "X" ~ "X",
-                                            TRUE ~ FSB),
-                #HABITAT = dplyr::case_when(HABITAT == 6210 & HABIT_TYP == "p" ~ "6210p",
-                #                           TRUE ~ HABITAT)
-  )
-
-rm(vmb_shp_sjtsk_22_read, vmb_dbf_22)
-
-lokal_vmb <- lokal %>%
-  sf::st_intersection(., vmb_shp_sjtsk_22) %>%
-  dplyr::mutate(AREA_real = units::drop_units(sf::st_area(geometry)))
-
-st_write(lokal_vmb,
-         "lokal_vmb_2.gpkg")
-
-data_edit %>%
-  #filter(YEAR == 2022) %>%
-  nrow
-
-kukukuk <- data %>%
-  dplyr::select(geom)
-
-plot(filter(data, YEAR == 2022)$geom)
 
 
