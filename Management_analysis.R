@@ -8,178 +8,263 @@ data <-
     )
 
 #----------------------------------------------------------#
-# Export cleaned occurrence data -----
+# Data description and exploration -----
 #----------------------------------------------------------#
 
-phengaris %>% 
-  dplyr::filter(DRUH == "Phengaris teleius") %>%
-  st_drop_geometry() %>%
-  dplyr::mutate(POSITIVE = dplyr::case_when(
-    NEGATIV == 1 ~ 0,
-    NEGATIV == 0 ~ 1
-    ),
-                YEAR = as.factor(substr(DATUM_OD, 1, 4))) %>%
-  group_by(YEAR) %>%
-  summarise(n(),
-            mean_positive = mean(POSITIVE))
+occ_num <- 
+  nrow(
+    data
+    )
 
+positivity <-
+  data %>%
+  group_by(
+    DRUH,
+    YEAR
+    ) %>%
+  reframe(
+    n(),
+    mean_positive = mean(
+      POSITIVE
+      )
+    )
+#----------------------------------------------------------#
+## Observation year -----
+#----------------------------------------------------------#
 
-nrow(phengaris)
-nrow(phengaris %>%
-       filter(AREA_SITE > 0))
-nrow(phengaris %>%
-       filter(is.na(PROTECT) == FALSE))
-     
-sum(st_geometry_type(phengaris) == "POLYGON")
+#----------------------------------------------------------#
+## Observers -----
+#----------------------------------------------------------#
+observer_stats <-
+  data %>%
+  dplyr::group_by(
+    AUTOR
+  ) %>%
+  dplyr::reframe(
+    obs_num = n()
+  ) %>%
+  dplyr::ungroup() %>%
+  dplyr::arrange(
+    desc(
+      obs_num
+    )
+  )
 
-phengaris$AUTOR %>% 
-  unique() %>%
+observer_list <-
+  data %>%
+  dplyr::pull(AUTOR) %>% 
+  unique()
+
+observer_number <-
+  observer_list %>%
   length()
 
-phengaris %>%
-  st_drop_geometry() %>%
+data %>%
   group_by(YEAR) %>%
-  summarise(length(unique(SITMAP)))
+  summarise(length(unique(POLE)))
 
-phengaris %>%
-  st_drop_geometry() %>%
-  dplyr::filter(DRUH == "Phengaris nausithous") %>%
-  group_by(YEAR) %>%
-  summarise(mean(POSITIVE))
+(histogram_observers <- 
+    ggplot2::ggplot(
+      observer_stats, 
+      aes(
+        x = obs_num
+        )
+      ) +
+    ggplot2::geom_histogram(
+      alpha = 0.6,
+      breaks = seq(
+        0, 
+        max(
+          observer_stats$obs_num
+          ), 
+        by = 25
+        ),
+      fill = "steelblue"
+    ) +
+    theme_minimal(
+      base_size = 14
+      ) +
+    scale_y_continuous(
+      expand = expansion(mult = c(0, 0.1))
+      ) +
+    geom_vline(
+      xintercept = mean(observer_stats$obs_num),
+      linetype = "dotted",
+      colour = "steelblue", size = 1
+    ) +
+    annotate(
+      "text", x = mean(observer_stats$obs_num) + 220, y = 20,
+      label = paste0("Mean number of\nobservations: ", round(mean(observer_stats$obs_num), 1))
+    ) +
+    geom_curve(
+      aes(
+        x = mean(observer_stats$obs_num) + 100, y = 20,
+        xend = mean(observer_stats$obs_num) + 10, yend = 15
+      ),
+      arrow = arrow(length = unit(0.07, "inch")), size = 0.7,
+      color = "grey30", curvature = 0.3
+    ) +
+    labs(
+      x = "\nNumber of Observations",
+      y = "Number of Observers\n",
+      title = "Distribution of Observation Counts per Observer"
+    )
+  )
 
-phengaris %>%
-  st_drop_geometry() %>%
-  dplyr::filter(DRUH == "Phengaris teleius") %>%
-  group_by(YEAR) %>%
-  summarise(mean(POSITIVE))
 
 
-# SUMMARY
-nrow(phengaris)
-
-nrow(phengaris %>%
+#----------------------------------------------------------#
+## Observations -----
+#----------------------------------------------------------#
+nrow(data %>%
        filter(DRUH == "Phengaris nausithous"))
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris nausithous" & POSITIVE == 1))
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris nausithous" & POSITIVE == 0))
-nrow(phengaris %>% 
+nrow(data %>% 
        filter(DRUH == "Phengaris nausithous" & POSITIVE == 1))/
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris nausithous"))
 
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris teleius"))
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris teleius" & POSITIVE == 1))
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris teleius" & POSITIVE == 0))
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris teleius" & POSITIVE == 1))/
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris teleius"))
 
-# BIOTOPY
-nrow(phengaris %>%
+
+#----------------------------------------------------------#
+## Habitats -----
+#----------------------------------------------------------#
+nrow(data %>%
        filter(DRUH == "Phengaris nausithous" & 
                 POSITIVE == 1 &
                 TTP == 1))
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris nausithous" & 
                 POSITIVE == 1 &
                 ZARUST == 1))
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris nausithous" & 
                 POSITIVE == 1 &
                 PRIKOP == 1))
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris nausithous" & 
                 POSITIVE == 1 &
                 JINY == 1))
 
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris teleius" & 
                 POSITIVE == 1 &
                 TTP == 1))
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris teleius" & 
                 POSITIVE == 1 &
                 ZARUST == 1))
-nrow(phengaris %>%
+nrow(data %>%
        filter(DRUH == "Phengaris teleius" & 
                 POSITIVE == 1 &
                 PRIKOP == 1))
-phengaris %>%
+data %>%
   filter(DRUH == "Phengaris teleius" & 
            POSITIVE == 1 &
            JINY == 1) %>%
   nrow()
 
-phengaris %>%
+
+#----------------------------------------------------------#
+## Abundances -----
+#----------------------------------------------------------#
+Pnau_abund <- 
+  data %>%
   filter(DRUH == "Phengaris nausithous") %>%
   pull(POCET) %>%
-  na.omit() %>%
+  na.omit() 
+
+Pnau_abund_mean <-
+  Pnau_abund %>%
   median()
-length(phengaris %>%
-       filter(DRUH == "Phengaris nausithous") %>%
-       pull(POCET) %>%
-       na.omit())
-phengaris %>%
+
+Pnau_abund_median <-
+  Pnau_abund %>%
+  median()
+
+Pnau_abund_num <-
+  Pnau_abund %>%
+  length()
+
+#----------------------------------------------------------#
+## Host plant -----
+#----------------------------------------------------------#
+
+data %>%
+  st_drop_geometry() %>%
+  group_by(PLANT_QUANT, DRUH, POSITIVE) %>%
+  summarise(COUNT = n())
+
+#----------------------------------------------------------#
+## Protected areas -----
+#----------------------------------------------------------#
+
+data %>%
   filter(DRUH == "Phengaris teleius") %>%
   pull(POCET) %>%
   na.omit() %>%
   median()
-length(phengaris %>%
+length(data %>%
          filter(DRUH == "Phengaris teleius") %>%
          pull(POCET) %>%
          na.omit())
   
-phengaris %>%
+data %>%
   st_drop_geometry() %>% 
   group_by(YEAR, POSITIVE) %>%
-  summarise(pocet = n())
-
-phengaris %>%
-  st_drop_geometry() %>%
-  group_by(PLANT_QUAL, DRUH, POSITIVE) %>%
   summarise(COUNT = n())
 
-phengaris_evl_sum <- phengaris %>%
+
+
+data_evl_sum <- data %>%
   st_drop_geometry() %>%
   group_by(EVL, POSITIVE, DRUH) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-phengaris_evltar_sum <- phengaris %>%
+data_evltar_sum <- data %>%
   st_drop_geometry() %>%
   group_by(EVL_target, POSITIVE, DRUH) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-phengaris_evlcomb_sum <- phengaris %>%
+data_evlcomb_sum <- data %>%
   st_drop_geometry() %>%
   group_by(EVL_comb, POSITIVE, DRUH) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-phengaris_mzchu_sum <- phengaris %>%
+data_mzchu_sum <- data %>%
   st_drop_geometry() %>%
   group_by(MZCHU, POSITIVE, DRUH) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-phengaris_plant_sum <- phengaris %>%
+data_plant_sum <- data %>%
   st_drop_geometry() %>%
   group_by(POSITIVE, DRUH, PLANT_QUANT) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-phengaris_method_sum <- phengaris %>%
+data_method_sum <- data %>%
   st_drop_geometry() %>%
   group_by(POSITIVE, DRUH, METHOD) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-phengaris_time_sum <- phengaris %>%
+data_time_sum <- data %>%
   st_drop_geometry() %>%
   group_by(POSITIVE, DRUH, TIMING) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-phengaris_man_sum <- phengaris %>%
+data_man_sum <- data %>%
   st_drop_geometry() %>%
   mutate(MANAGEMENT = case_when(TIMING == 1 & METHOD == 1 ~ "appropriate mow and appropriate timing",
                                 TIMING == 0 & METHOD == 1 ~ "appropriate mow only",
@@ -188,79 +273,79 @@ phengaris_man_sum <- phengaris %>%
   group_by(POSITIVE, DRUH, MANAGEMENT) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-phengaris_spe_sum <- phengaris %>%
+data_spe_sum <- data %>%
   st_drop_geometry() %>%
   group_by(POSITIVE, DRUH, SPEC_NUM) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-phengaris_sum <- phengaris %>%
+data_sum <- data %>%
   st_drop_geometry() %>%
   group_by(DRUH, POSITIVE) %>%
   summarise(COUNT = n()) %>%
   ungroup()
-sum(phengaris_sum$COUNT)
-sum(phengaris_evl_sum$COUNT)
+sum(data_sum$COUNT)
+sum(data_evl_sum$COUNT)
 
-phengaris_sum %>%
+data_sum %>%
   filter(DRUH == "Phengaris teleius")
 
-phengaris %>%
+data %>%
   dplyr::filter(DRUH == "Phengaris nausithous")  %>%
   pull(POCET) %>%
   na.omit() %>%  
   mean()
-phengaris %>%
+data %>%
   dplyr::filter(DRUH == "Phengaris nausithous")  %>%
   pull(POCET) %>%
   na.omit() %>%  
   median()
-phengaris %>%
+data %>%
   dplyr::filter(DRUH == "Phengaris nausithous")  %>%
   pull(POCET) %>%
   na.omit() %>%  
   sd()
 
-phengaris %>%
+data %>%
   dplyr::filter(DRUH == "Phengaris teleius")  %>%
   pull(POCET) %>%
   na.omit() %>%  
   mean()
-phengaris %>%
+data %>%
   dplyr::filter(DRUH == "Phengaris teleius")  %>%
   pull(POCET) %>%
   na.omit() %>%  
   median()
-phengaris %>%
+data %>%
   dplyr::filter(DRUH == "Phengaris teleius")  %>%
   pull(POCET) %>%
   na.omit() %>%  
   sd()
 
-phengaris$UMIST_NAL %>% unique
-phengaris$POP_BIOT %>% unique
-phengaris$AREA_SITE %>% log10() %>% hist
+data$UMIST_NAL %>% unique
+data$POP_BIOT %>% unique
+data$AREA_SITE %>% log10() %>% hist
 
-roky <- phengaris %>%
+roky <- data %>%
   st_drop_geometry() %>%
   group_by(NAZ_LOKAL) %>%
   summarise(roky = length(unique(YEAR))) %>%
   arrange(-roky)
 roky
 
-kuk <- phengaris %>%
+kuk <- data %>%
   filter(DRUH == "Phengaris teleius") %>%
   st_drop_geometry() %>%
   group_by(YEAR) %>%
   summarise(n())
 
-phengaris %>%
+data %>%
   filter(DRUH == "Phengaris nausithous") %>%
   st_drop_geometry() %>%
   group_by(PLANT_QUANT) %>%
   summarise(mean(POSITIVE)) %>%
   plot()
 
-phenpole <- phengaris %>%
+phenpole <- data %>%
   st_intersection(., sitmap)
 
 phenpole %>%
@@ -295,7 +380,7 @@ phenpole %>%
   pull(POLE) %>%
   unique() %>%
   length
-phengaris %>%
+data %>%
   st_drop_geometry() %>%
   filter(POSITIVE == 1) %>%
   filter(SPEC_NUM == 1) %>%
@@ -315,63 +400,71 @@ phenpole_analysis <- phenpole %>%
   slice(1) %>%
   ungroup()
 
-kukuk <- phengaris %>%
+kukuk <- data %>%
   dplyr::select(BIOTOP, NATURAL)
-kukukuk <- phengaris %>%
+kukukuk <- data %>%
   st_drop_geometry() %>%
   filter(DRUH == "Phengaris nausithous") %>%
   group_by(TTP) %>%
   summarise(n())
 
 
-
+#----------------------------------------------------------#
+# Models -----
+#----------------------------------------------------------#
 # NAUSITHOUS ----
 # NULL
-model_null_phenau <- glmer(data = phengaris %>%
-                           filter(DRUH == "Phengaris nausithous"), 
-                         as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
-                         family ="binomial")
+model_null_phenau <- 
+  lme4::glmer(
+    data = data %>%
+      filter(
+        DRUH == "Phengaris nausithous"
+        ), 
+    as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
+    family ="binomial"
+    )
+
 summary(model_null_phenau)
 
-model_null_phetel <- glmer(data = phengaris %>%
+model_null_phetel <- glmer(data = data %>%
                            filter(DRUH == "Phengaris teleius"), 
                          as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
                          family ="binomial")
 summary(model_null_phetel)
 
 # TEST THE YEAR EFFECT
-model_nau_yf <- glm(data = phengaris %>%
+model_nau_yf <- glm(data = data %>%
                  filter(DRUH == "Phengaris nausithous"), 
                as.factor(POSITIVE) ~ as.factor(YEAR),
                family ="binomial")
 summary(model_nau_yf)
 
-model_nau_yl <- glm(data = phengaris %>%
+model_nau_yl <- glm(data = data %>%
                   filter(DRUH == "Phengaris nausithous"), 
                 as.factor(POSITIVE) ~ as.numeric(YEAR),
                 family ="binomial")
 summary(model_nau_yl)
 
-model_nau_pyl <- glm(data = phengaris %>%
+model_nau_pyl <- glm(data = data %>%
                   filter(DRUH == "Phengaris nausithous"), 
                 as.factor(POSITIVE) ~ poly(as.numeric(YEAR), 2),
                 family ="binomial")
 summary(model_nau_pyl)
 
 # tel
-model_tel_yf <- glm(data = phengaris %>%
+model_tel_yf <- glm(data = data %>%
                       filter(DRUH == "Phengaris teleius"), 
                     as.factor(POSITIVE) ~ as.factor(YEAR),
                     family ="binomial")
 summary(model_tel_yf)
 
-model_tel_yl <- glm(data = phengaris %>%
+model_tel_yl <- glm(data = data %>%
                       filter(DRUH == "Phengaris teleius"), 
                     as.factor(POSITIVE) ~ as.numeric(YEAR),
                     family ="binomial")
 summary(model_tel_yl)
 
-model_tel_pyl <- glm(data = phengaris %>%
+model_tel_pyl <- glm(data = data %>%
                        filter(DRUH == "Phengaris teleius"), 
                      as.factor(POSITIVE) ~ poly(as.numeric(YEAR), 2),
                      family ="binomial")
@@ -379,27 +472,27 @@ summary(model_tel_pyl)
 
 
 # SPATIAL NAUSITHOUS
-model_spat_phenau <- glm(data = phengaris %>%
+model_spat_phenau <- glm(data = data %>%
                            filter(DRUH == "Phengaris nausithous"), 
                          as.factor(POSITIVE) ~ X:Y,
                          family ="binomial")
 summary(model_spat_phenau)
 
 # SPATIAL TELEIUS
-model_spat_phetel <- glm(data = phengaris %>%
+model_spat_phetel <- glm(data = data %>%
                            filter(DRUH == "Phengaris teleius"), 
                          as.factor(POSITIVE) ~ X:Y,
                          family ="binomial")
 summary(model_spat_phetel)
 
 # SPATIOTEMT
-model_spatemp_phenau <- glm(data = phengaris %>%
+model_spatemp_phenau <- glm(data = data %>%
                            filter(DRUH == "Phengaris nausithous"), 
                          as.factor(POSITIVE) ~ as.factor(YEAR) + X:Y,
                          family ="binomial")
 summary(model_spatemp_phenau)
 
-model_spatemp_phetel <- glm(data = phengaris %>%
+model_spatemp_phetel <- glm(data = data %>%
                               filter(YEAR != "2018") %>%
                               filter(DRUH == "Phengaris teleius"), 
                             as.factor(POSITIVE) ~ as.numeric(YEAR) + X:Y,
@@ -407,14 +500,14 @@ model_spatemp_phetel <- glm(data = phengaris %>%
 summary(model_spatemp_phetel)
 
 # AREA NULL 
-model_arean_phenau <- glmer(data = phengaris %>%
+model_arean_phenau <- glmer(data = data %>%
                              filter(DRUH == "Phengaris nausithous") %>%
                              filter(AREA_SITE > 0), 
                            as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
                            family ="binomial")
 summary(model_arean_phenau)
 
-model_arean_phetel <- glmer(data = phengaris %>%
+model_arean_phetel <- glmer(data = data %>%
                               filter(DRUH == "Phengaris teleius") %>%
                               filter(AREA_SITE > 0), 
                             as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
@@ -423,14 +516,14 @@ summary(model_arean_phetel)
 
 
 # AREA
-model_area_phenau <- glmer(data = phengaris %>%
+model_area_phenau <- glmer(data = data %>%
                          filter(DRUH == "Phengaris nausithous") %>%
                          filter(AREA_SITE > 0), 
                        as.factor(POSITIVE) ~ log10(AREA_SITE) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model_area_phenau)
 
-model_area_phetel <- glmer(data = phengaris %>%
+model_area_phetel <- glmer(data = data %>%
                              filter(DRUH == "Phengaris teleius") %>%
                              filter(AREA_SITE > 0), 
                            as.factor(POSITIVE) ~ log10(AREA_SITE) + (1 | YEAR) + (1 | X:Y),
@@ -438,21 +531,21 @@ model_area_phetel <- glmer(data = phengaris %>%
 summary(model_area_phetel)
 
 
-model_arean_phenau <- glm(data = phengaris %>%
+model_arean_phenau <- glm(data = data %>%
                              filter(DRUH == "Phengaris nausithous") %>%
                              filter(is.na(AREA_SITE) == FALSE), 
                            as.factor(POSITIVE) ~ 1,
                            family ="binomial")
 summary(model_arean_phenau)
 
-model_arean_phetel <- glm(data = phengaris %>%
+model_arean_phetel <- glm(data = data %>%
                              filter(DRUH == "Phengaris teleius") %>%
                              filter(AREA_SITE > 0), 
                            as.factor(POSITIVE) ~ 1,
                            family ="binomial")
 summary(model_arean_phetel)
 
-ggplot(data = phengaris %>%
+ggplot(data = data %>%
          filter(DRUH == "Phengaris nausithous") %>%
          filter(AREA_SITE > 0), 
        aes(x = as.factor(POSITIVE), 
@@ -469,7 +562,7 @@ ggplot(data = phengaris %>%
   theme_classic() +
   theme(text = element_text(size = 20))
 
-ggplot(data = phengaris %>%
+ggplot(data = data %>%
          filter(DRUH == "Phengaris teleius") %>%
          filter(AREA_SITE > 0), 
        aes(x = as.factor(POSITIVE), 
@@ -487,7 +580,7 @@ ggplot(data = phengaris %>%
   theme(text = element_text(size = 20))
 
 # AREA POLY
-model_spatar_phenau <- glmer(data = phengaris %>%
+model_spatar_phenau <- glmer(data = data %>%
                          filter(DRUH == "Phengaris nausithous") %>%
                          filter(AREA_SITE > 0), 
                        as.factor(POSITIVE) ~ poly(log10(AREA_SITE), 2) + (1 | YEAR) + (1 | X:Y),
@@ -500,21 +593,21 @@ summary(model_spatar_phenau)
 
 
 # PLANT QUANTITY
-model_plant_phenau <- glmer(data = phengaris %>%
+model_plant_phenau <- glmer(data = data %>%
                   filter(DRUH == "Phengaris nausithous") %>%
                     filter(AREA_SITE > 0), 
                   as.factor(POSITIVE) ~ PLANT_QUANT + (1 | YEAR) + (1 | X:Y),
                 family ="binomial")
 summary(model_plant_phenau)
 
-model_plant_phetel <- glmer(data = phengaris %>%
+model_plant_phetel <- glmer(data = data %>%
                               filter(DRUH == "Phengaris teleius") %>%
                               filter(AREA_SITE > 0), 
                             as.factor(POSITIVE) ~ PLANT_QUANT + (1 | YEAR) + (1 | X:Y),
                             family ="binomial")
 summary(model_plant_phetel)
 
-ggplot(data = phengaris_plant_sum %>%
+ggplot(data = data_plant_sum %>%
          filter(DRUH == "Phengaris nausithous"), 
        aes(x = as.factor(PLANT_QUANT), 
            y = COUNT,
@@ -531,41 +624,41 @@ ggplot(data = phengaris_plant_sum %>%
 
 
 # PLANT QUANTITY POLY
-model_plantpoly_phenau <- glmer(data = phengaris %>%
+model_plantpoly_phenau <- glmer(data = data %>%
                               filter(DRUH == "Phengaris nausithous"), 
                             as.factor(POSITIVE) ~ poly(PLANT_QUANT, 2) + (1 | YEAR) + (1 | X:Y),
                             family ="binomial")
 summary(model_plantpoly_phenau)
 
-model_plantpoly_phetel <- glmer(data = phengaris %>%
+model_plantpoly_phetel <- glmer(data = data %>%
                                   filter(DRUH == "Phengaris teleius"), 
                                 as.factor(POSITIVE) ~ poly(PLANT_QUANT, 2) + (1 | YEAR) + (1 | X:Y),
                                 family ="binomial")
 summary(model_plantpoly_phetel)
 
 # RESOURCE DENSITY
-model_dens_phenau <- glmer(data = phengaris %>%
+model_dens_phenau <- glmer(data = data %>%
                              filter(DRUH == "Phengaris nausithous") %>%
                              filter(AREA_SITE > 0), 
                              as.factor(POSITIVE) ~ log(AREA_SITE)*as.numeric(PLANT_QUANT) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_dens_phenau)
 
-model_dens_phetel <- glmer(data = phengaris %>%
+model_dens_phetel <- glmer(data = data %>%
                              filter(DRUH == "Phengaris teleius"), 
                            as.factor(POSITIVE) ~ log(AREA_SITE)*as.numeric(PLANT_QUANT) + (1 | YEAR) + (1 | X:Y),
                            family ="binomial")
 summary(model_dens_phetel)
 
 # MOW NULL
-model_mann_phenau <- glmer(data = phengaris %>%
+model_mann_phenau <- glmer(data = data %>%
                             filter(DRUH == "Phengaris nausithous") %>%
                             filter(is.na(METHOD) == FALSE & is.na(TIMING) == FALSE), 
                           as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
                           family ="binomial")
 summary(model_mann_phenau)
 
-model_mann_phetel <- glmer(data = phengaris %>%
+model_mann_phetel <- glmer(data = data %>%
                              filter(DRUH == "Phengaris teleius") %>%
                              filter(is.na(METHOD) == FALSE & is.na(TIMING) == FALSE), 
                            as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
@@ -573,14 +666,14 @@ model_mann_phetel <- glmer(data = phengaris %>%
 summary(model_mann_phetel)
 
 # TIMING
-model_tim_phenau <- glmer(data = phengaris %>%
+model_tim_phenau <- glmer(data = data %>%
                   filter(DRUH == "Phengaris nausithous") %>%
                     filter(is.na(METHOD) == FALSE & is.na(TIMING) == FALSE), 
                   as.factor(POSITIVE) ~ as.factor(TIMING) + (1 | YEAR) + (1 | X:Y),
                 family ="binomial")
 summary(model_tim_phenau)
 
-model_tim_phetel <- glmer(data = phengaris %>%
+model_tim_phetel <- glmer(data = data %>%
                             filter(DRUH == "Phengaris teleius") %>%
                             filter(is.na(METHOD) == FALSE & is.na(TIMING) == FALSE), 
                           as.factor(POSITIVE) ~ as.factor(TIMING) + (1 | YEAR) + (1 | X:Y),
@@ -588,7 +681,7 @@ model_tim_phetel <- glmer(data = phengaris %>%
 summary(model_tim_phetel)
 
 # METHOD
-model_met_phenau <- glmer(data = phengaris %>%
+model_met_phenau <- glmer(data = data %>%
                             filter(DRUH == "Phengaris nausithous") %>%
                             filter(is.na(METHOD) == FALSE & is.na(TIMING) == FALSE), 
                           as.factor(POSITIVE) ~ as.factor(METHOD) + (1 | YEAR) + (1 | X:Y),
@@ -596,7 +689,7 @@ model_met_phenau <- glmer(data = phengaris %>%
 summary(model_met_phenau)
 summary(model_met_phenau)$AIC
 
-model_met_phetel <- glmer(data = phengaris %>%
+model_met_phetel <- glmer(data = data %>%
                             filter(DRUH == "Phengaris teleius") %>%
                             filter(is.na(METHOD) == FALSE & is.na(TIMING) == FALSE), 
                           as.factor(POSITIVE) ~ as.factor(METHOD) + (1 | YEAR) + (1 | X:Y),
@@ -604,7 +697,7 @@ model_met_phetel <- glmer(data = phengaris %>%
 summary(model_met_phetel)
 
 # METHOD & TIMING - SELECTED
-model_timmet_phenau <- glmer(data = phengaris %>%
+model_timmet_phenau <- glmer(data = data %>%
                             filter(DRUH == "Phengaris nausithous") %>%
                               filter(is.na(METHOD) == FALSE & is.na(TIMING) == FALSE), 
                           as.factor(POSITIVE) ~ as.factor(METHOD)*as.factor(TIMING) + (1 | YEAR) + (1 | X:Y),
@@ -612,14 +705,14 @@ model_timmet_phenau <- glmer(data = phengaris %>%
 summary(model_timmet_phenau)
 summary(model_timmet_phenau)$AIC
 
-model_timmet_phetel <- glmer(data = phengaris %>%
+model_timmet_phetel <- glmer(data = data %>%
                                filter(DRUH == "Phengaris teleius") %>%
                                filter(is.na(METHOD) == FALSE & is.na(TIMING) == FALSE), 
                              as.factor(POSITIVE) ~ as.factor(METHOD)*as.factor(TIMING) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_timmet_phetel)
 
-ggplot(data = phengaris_man_sum %>%
+ggplot(data = data_man_sum %>%
          filter(DRUH == "Phengaris nausithous") %>%
          filter(is.na(MANAGEMENT) == FALSE), 
        aes(x = as.factor(MANAGEMENT), 
@@ -638,7 +731,7 @@ ggplot(data = phengaris_man_sum %>%
   ylab("number of findings\n") +
   theme_classic()
 
-ggplot(data = phengaris_man_sum %>%
+ggplot(data = data_man_sum %>%
          filter(DRUH == "Phengaris teleius") %>%
          filter(is.na(MANAGEMENT) == FALSE), 
        aes(x = as.factor(MANAGEMENT), 
@@ -658,14 +751,14 @@ ggplot(data = phengaris_man_sum %>%
   theme_classic()
 
 # NULL MOW
-model_nullm_phenau <- glm(data = phengaris %>%
+model_nullm_phenau <- glm(data = data %>%
                            filter(DRUH == "Phengaris nausithous") %>%
                             filter(is.na(METHOD) == FALSE & is.na(TIMING) == FALSE), 
                          as.factor(POSITIVE) ~ 1,
                          family ="binomial")
 summary(model_nullm_phenau)
 
-model_nullm_phetel <- glm(data = phengaris %>%
+model_nullm_phetel <- glm(data = data %>%
                            filter(DRUH == "Phengaris teleius") %>%
                             filter(is.na(METHOD) == FALSE & is.na(TIMING) == FALSE), 
                          as.factor(POSITIVE) ~ 1,
@@ -673,56 +766,56 @@ model_nullm_phetel <- glm(data = phengaris %>%
 summary(model_nullm_phetel)
 
 # PASTVA
-model_grazen_phenau <- glmer(data = phengaris %>%
+model_grazen_phenau <- glmer(data = data %>%
                               filter(DRUH == "Phengaris nausithous") %>%
                              filter(is.na(GRAZE_MET) == FALSE), 
                             as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
                             family ="binomial")
 summary(model_grazen_phenau)
-model_graze_phenau <- glmer(data = phengaris %>%
+model_graze_phenau <- glmer(data = data %>%
                                filter(DRUH == "Phengaris nausithous"), 
                              as.factor(POSITIVE) ~ as.factor(GRAZE) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_graze_phenau)
 summary(model_timmet_phenau)$AIC
-model_grazemet_phenau <- glmer(data = phengaris %>%
+model_grazemet_phenau <- glmer(data = data %>%
                               filter(DRUH == "Phengaris nausithous"), 
                             as.factor(POSITIVE) ~ as.factor(GRAZE_MET) + (1 | YEAR) + (1 | X:Y),
                             family ="binomial")
 summary(model_grazemet_phenau)
 
-model_grazen_phetel <- glmer(data = phengaris %>%
+model_grazen_phetel <- glmer(data = data %>%
                              filter(DRUH == "Phengaris teleius") %>%
                              filter(is.na(GRAZE_MET) == FALSE), 
                            as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
                            family ="binomial")
 summary(model_grazen_phetel)
 
-model_graze_phetel <- glmer(data = phengaris %>%
+model_graze_phetel <- glmer(data = data %>%
                               filter(DRUH == "Phengaris teleius"), 
                             as.factor(POSITIVE) ~ as.factor(GRAZE) + (1 | YEAR) + (1 | X:Y),
                             family ="binomial")
 summary(model_graze_phetel)
-model_grazemet_phetel <- glmer(data = phengaris %>%
+model_grazemet_phetel <- glmer(data = data %>%
                               filter(DRUH == "Phengaris teleius"), 
                             as.factor(POSITIVE) ~ as.factor(GRAZE_MET) + (1 | YEAR) + (1 | X:Y),
                             family ="binomial")
 summary(model_grazemet_phetel)
 
-model_manage_phenau <- glmer(data = phengaris %>%
+model_manage_phenau <- glmer(data = data %>%
                                filter(DRUH == "Phengaris teleius"), 
                              as.factor(POSITIVE) ~ as.factor(GRAZE_MET) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_grazemet_phetel)
 
 # TYP MANAGEMENTU
-model_graze_both <- glmer(data = phengaris, 
+model_graze_both <- glmer(data = data, 
                             as.factor(POSITIVE) ~ as.factor(DRUH) + as.factor(MOW) + as.factor(GRAZE) + (1 | YEAR) + (1 | X:Y),
                             family ="binomial")
 
 
 # TIMING METHOD HETEROGENITA COMBINATION
-model_mancom_phenau <- glmer(data = phengaris %>%
+model_mancom_phenau <- glmer(data = data %>%
                   filter(DRUH == "Phengaris nausithous"), 
                   as.factor(POSITIVE) ~ as.factor(TIMING)*as.factor(METHOD)*HET_INN + (1 | YEAR) + (1 | X:Y),
                 family ="binomial")
@@ -733,7 +826,7 @@ summary(model_met_phenau)$AIC
 summary(model_timmet_phenau)$AIC
 summary(model_mancom_phenau)$AIC
 
-ggplot(data = phengaris_time_sum %>%
+ggplot(data = data_time_sum %>%
          filter(DRUH == "Phengaris nausithous"), 
        aes(x = as.factor(TIMING), 
            y = COUNT,
@@ -748,7 +841,7 @@ ggplot(data = phengaris_time_sum %>%
   ylab("number of findings\n") +
   theme_classic()
 
-ggplot(data = phengaris_method_sum %>%
+ggplot(data = data_method_sum %>%
          filter(DRUH == "Phengaris nausithous"), 
        aes(x = as.factor(METHOD), 
            y = COUNT,
@@ -764,26 +857,26 @@ ggplot(data = phengaris_method_sum %>%
   theme_classic()
 
 # PROTECTION
-model_pro_phenau <- glmer(data = phengaris %>%
+model_pro_phenau <- glmer(data = data %>%
                             filter(DRUH == "Phengaris nausithous"), 
                           as.factor(POSITIVE) ~ as.factor(PROTECT) + (1 | YEAR) + (1 | X:Y),
                           family ="binomial")
 summary(model_pro_phenau)
 
-model_pro_phetel <- glmer(data = phengaris %>%
+model_pro_phetel <- glmer(data = data %>%
                             filter(DRUH == "Phengaris teleius"), 
                           as.factor(POSITIVE) ~ as.factor(PROTECT) + (1 | YEAR) + (1 | X:Y),
                           family ="binomial")
 summary(model_pro_phetel)
 
 # EVL
-model_evl_phenau <- glmer(data = phengaris %>%
+model_evl_phenau <- glmer(data = data %>%
                          filter(DRUH == "Phengaris nausithous"), 
                        as.factor(POSITIVE) ~ as.factor(EVL) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model_evl_phenau)
 
-ggplot(data = phengaris_evl_sum %>%
+ggplot(data = data_evl_sum %>%
          filter(DRUH == "Phengaris nausithous"), 
        aes(x = as.factor(EVL), 
            y = COUNT,
@@ -799,13 +892,13 @@ ggplot(data = phengaris_evl_sum %>%
   theme_classic()
 
 # EVL TARGET
-model_evltar_phenau <- glmer(data = phengaris %>%
+model_evltar_phenau <- glmer(data = data %>%
                             filter(DRUH == "Phengaris nausithous"), 
                           as.factor(POSITIVE) ~ as.factor(EVL_target) + (1 | YEAR) + (1 | X:Y),
                           family ="binomial")
 summary(model_evltar_phenau)
 
-ggplot(data = phengaris_evltar_sum %>%
+ggplot(data = data_evltar_sum %>%
          filter(DRUH == "Phengaris nausithous"), 
        aes(x = as.factor(EVL_target), 
            y = COUNT,
@@ -822,13 +915,13 @@ ggplot(data = phengaris_evltar_sum %>%
   theme_classic()
 
 # EVL COMBINATION - SELECTED
-model_evlcom_phenau <- glmer(data = phengaris %>%
+model_evlcom_phenau <- glmer(data = data %>%
                                filter(DRUH == "Phengaris nausithous"), 
                              as.factor(POSITIVE) ~ as.factor(EVL) + as.factor(EVL_target) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_evlcom_phenau)
 
-model_evlcom_phetel <- glmer(data = phengaris %>%
+model_evlcom_phetel <- glmer(data = data %>%
                                filter(DRUH == "Phengaris teleius"), 
                              as.factor(POSITIVE) ~ as.factor(EVL) + as.factor(EVL_target) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
@@ -838,7 +931,7 @@ summary(model_evl_phenau)$AIC
 summary(model_evltar_phenau)$AIC
 summary(model_evlcom_phenau)$AIC
 
-ggplot(data = phengaris_evlcomb_sum %>%
+ggplot(data = data_evlcomb_sum %>%
          filter(DRUH == "Phengaris nausithous"), 
        aes(x = as.factor(EVL_comb), 
            y = COUNT,
@@ -855,7 +948,7 @@ ggplot(data = phengaris_evlcomb_sum %>%
   ylab("number of findings\n") +
   theme_classic()
 
-ggplot(data = phengaris_evlcomb_sum %>%
+ggplot(data = data_evlcomb_sum %>%
          filter(DRUH == "Phengaris teleius"), 
        aes(x = as.factor(EVL_comb), 
            y = COUNT,
@@ -873,26 +966,26 @@ ggplot(data = phengaris_evlcomb_sum %>%
   theme_classic()
 
 # EVL*ROK
-model_evly_phenau <- glmer(data = phengaris %>%
+model_evly_phenau <- glmer(data = data %>%
                             filter(DRUH == "Phengaris nausithous"), 
                           as.factor(POSITIVE) ~ as.factor(EVL)*as.numeric(YEAR) + (1 | X:Y),
                           family ="binomial")
 summary(model_evly_phenau)
 
 # MZCHU
-model_mzchu_phenau <- glmer(data = phengaris %>%
+model_mzchu_phenau <- glmer(data = data %>%
                          filter(DRUH == "Phengaris nausithous"), 
                        as.factor(POSITIVE) ~ as.factor(MZCHU) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model_mzchu_phenau)
 
-model_mzchu_phetel <- glmer(data = phengaris %>%
+model_mzchu_phetel <- glmer(data = data %>%
                               filter(DRUH == "Phengaris teleius"), 
                             as.factor(POSITIVE) ~ as.factor(MZCHU) + (1 | YEAR) + (1 | X:Y),
                             family ="binomial")
 summary(model_mzchu_phetel)
 
-ggplot(data = phengaris_mzchu_sum %>%
+ggplot(data = data_mzchu_sum %>%
          filter(DRUH == "Phengaris nausithous"), 
        aes(x = as.factor(MZCHU), 
            y = COUNT,
@@ -908,21 +1001,21 @@ ggplot(data = phengaris_mzchu_sum %>%
   theme_classic()
 
 # MZCHU & EVL
-model_mzevl_phenau <- glmer(data = phengaris %>%
+model_mzevl_phenau <- glmer(data = data %>%
                          filter(DRUH == "Phengaris nausithous"), 
                        as.factor(POSITIVE) ~ as.factor(MZCHU) * as.factor(EVL) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model_mzevl_phenau)
 
 # TTP
-model6_phenau <- glmer(data = phengaris %>%
+model6_phenau <- glmer(data = data %>%
                          filter(DRUH == "Phengaris nausithous"), 
                        as.factor(POSITIVE) ~ as.factor(TTP) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model6_phenau)
 
 # MANAGEMENT & TTP
-model7_phenau <- glmer(data = phengaris %>%
+model7_phenau <- glmer(data = data %>%
                          filter(DRUH == "Phengaris nausithous"), 
                        as.factor(POSITIVE) ~ as.factor(TIMING)*as.factor(METHOD)*as.factor(TTP) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
@@ -931,25 +1024,25 @@ summary(model6_phenau)$AIC
 summary(model7_phenau)$AIC
 
 # FSB
-model_fsb_phenau <- glmer(data = phengaris %>%
+model_fsb_phenau <- glmer(data = data %>%
                             filter(DRUH == "Phengaris nausithous"), 
                           as.factor(POSITIVE) ~ as.factor(FSB) + (1 | YEAR) + (1 | X:Y),
                           family ="binomial")
 summary(model_fsb_phenau)
 
-model_fsb_phetel <- glmer(data = phengaris %>%
+model_fsb_phetel <- glmer(data = data %>%
                             filter(DRUH == "Phengaris teleius"), 
                           as.factor(POSITIVE) ~ as.factor(FSB) + (1 | YEAR) + (1 | X:Y),
                           family ="binomial")
 summary(model_fsb_phetel)
 
 # BIOTOPY + DRUH
-model_biomap_both <- glmer(data = phengaris, 
+model_biomap_both <- glmer(data = data, 
                             as.factor(POSITIVE) ~ as.factor(DRUH) + as.factor(BIOTOP) + (1 | YEAR) + (1 | X:Y),
                             family ="binomial")
 summary(model_biomap_both)
 
-model_biorec_both <- glmer(data = phengaris, 
+model_biorec_both <- glmer(data = data, 
                             as.factor(POSITIVE) ~ as.factor(DRUH) + 
                              as.factor(TTP) + as.factor(ZARUST) + as.factor(PRIKOP) + as.factor(JINY) +
                              as.factor(MOW) + as.factor(ZARUST) + 
@@ -958,38 +1051,38 @@ model_biorec_both <- glmer(data = phengaris,
 summary(model_biorec_both)
 
 # VNITŘNÍ HETEROGENITA 
-model_hetinn_phenau <- glmer(data = phengaris %>%
+model_hetinn_phenau <- glmer(data = data %>%
                                filter(DRUH == "Phengaris nausithous"), 
                              as.factor(POSITIVE) ~ HET_INN + (1 | YEAR) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_hetinn_phenau)
 
-model_hetinn_phetel <- glmer(data = phengaris %>%
+model_hetinn_phetel <- glmer(data = data %>%
                                filter(DRUH == "Phengaris teleius"), 
                              as.factor(POSITIVE) ~ HET_INN + (1 | YEAR) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_hetinn_phetel)
 
 # VNĚJŠÍ  HETEROGENITA 
-model_hetout_phenau <- glmer(data = phengaris %>%
+model_hetout_phenau <- glmer(data = data %>%
                                filter(DRUH == "Phengaris nausithous"), 
                              as.factor(POSITIVE) ~ as.numeric(HET_OUT) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_hetout_phenau)
-model_hetout_phenau <- glmer(data = phengaris %>%
+model_hetout_phenau <- glmer(data = data %>%
                                filter(DRUH == "Phengaris nausithous"), 
                              as.factor(POSITIVE) ~ as.numeric(HET_OUT) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_hetout_phenau)
 
-model_hetout_phetel <- glmer(data = phengaris %>%
+model_hetout_phetel <- glmer(data = data %>%
                                filter(DRUH == "Phengaris teleius"), 
                              as.factor(POSITIVE) ~ HET_OUT + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_hetout_phetel)
 
 # THREATS
-model_tap_phenau <- glmer(data = phengaris %>%
+model_tap_phenau <- glmer(data = data %>%
                                filter(DRUH == "Phengaris nausithous") %>%
                              filter(AREA_SITE > 0), 
                              as.factor(POSITIVE) ~ SUM_THREATS + (1 | YEAR) + (1 | X:Y),
@@ -998,53 +1091,53 @@ summary(model_tap_phenau)
 
 # TELEIUS ----
 # NULL
-model_null_phetel <- glm(data = phengaris %>%
+model_null_phetel <- glm(data = data %>%
                              filter(DRUH == "Phengaris teleius"), 
                            as.factor(POSITIVE) ~ 1,
                            family ="binomial")
 summary(model_null_phetel)
 
 # TEST THE YEAR EFFECT
-model_y <- glm(data = phengaris %>%
+model_y <- glm(data = data %>%
                  filter(DRUH == "Phengaris teleius"), 
                as.factor(POSITIVE) ~ as.factor(YEAR),
                family ="binomial")
 summary(model_y)
 
-model_yl <- glm(data = phengaris %>%
+model_yl <- glm(data = data %>%
                  filter(DRUH == "Phengaris teleius"), 
                as.factor(POSITIVE) ~ as.numeric(YEAR),
                family ="binomial")
 summary(model_yl)
 
-model_pyl <- glm(data = phengaris %>%
+model_pyl <- glm(data = data %>%
                   filter(DRUH == "Phengaris teleius"), 
                 as.factor(POSITIVE) ~ poly(as.numeric(YEAR), 2),
                 family ="binomial")
 summary(model_pyl)
 
 # TEST THE SITE EFFECT
-model_p <- glm(data = phengaris %>%
+model_p <- glm(data = data %>%
                  filter(DRUH == "Phengaris teleius"), 
                as.factor(POSITIVE) ~ as.factor(SITMAP),
                family ="binomial")
 summary(model_p)
 
-model_xy <- glmer(data = phengaris %>%
+model_xy <- glmer(data = data %>%
                  filter(DRUH == "Phengaris teleius"), 
                as.factor(POSITIVE) ~ (1 | YEAR) + (1 | X:Y),
                family ="binomial")
 summary(model_xy)
 
 # AREA - SELECTED
-model0_phetel <- glmer(data = phengaris %>%
+model0_phetel <- glmer(data = data %>%
                          filter(DRUH == "Phengaris teleius") %>%
                          filter(AREA_SITE > 0), 
                        as.factor(POSITIVE) ~ log10(AREA_SITE) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model0_phetel)
 
-ggplot(data = phengaris %>%
+ggplot(data = data %>%
          filter(DRUH == "Phengaris nausithous") %>%
          filter(AREA_SITE > 0), 
        aes(x = as.factor(POSITIVE), 
@@ -1059,7 +1152,7 @@ ggplot(data = phengaris %>%
   theme_classic()
 
 # PLANT
-model1_phetel <- glmer(data = phengaris %>%
+model1_phetel <- glmer(data = data %>%
                          filter(DRUH == "Phengaris teleius"), 
                        as.factor(POSITIVE) ~ PLANT_QUANT + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
@@ -1067,7 +1160,7 @@ summary(model1_phetel)
 summary(model0_phetel)$AIC
 summary(model1_phetel)$AIC
 
-ggplot(data = phengaris_plant_sum %>%
+ggplot(data = data_plant_sum %>%
          filter(DRUH == "Phengaris teleius"), 
        aes(x = as.factor(PLANT_QUANT), 
            y = COUNT,
@@ -1083,35 +1176,35 @@ ggplot(data = phengaris_plant_sum %>%
   theme_classic()
 
 # PLANT QUANTITY POLY
-model_plantpoly_phetel <- glmer(data = phengaris %>%
+model_plantpoly_phetel <- glmer(data = data %>%
                                   filter(DRUH == "Phengaris teleius"), 
                                 as.factor(POSITIVE) ~ poly(PLANT_QUANT, 2) + (1 | YEAR) + (1 | X:Y),
                                 family ="binomial")
 summary(model_plantpoly_phetel)
 
 # RESOURCE DENSITY
-model_dens_phetel <- glmer(data = phengaris %>%
+model_dens_phetel <- glmer(data = data %>%
                              filter(DRUH == "Phengaris teleius"), 
                            as.factor(POSITIVE) ~ log(AREA_SITE)*as.numeric(PLANT_QUANT) + (1 | YEAR) + (1 | X:Y),
                            family ="binomial")
 summary(model_dens_phetel)
 
 # METHOD
-model2_phetel <- glmer(data = phengaris %>%
+model2_phetel <- glmer(data = data %>%
                          filter(DRUH == "Phengaris teleius"), 
                        as.factor(POSITIVE) ~ as.factor(METHOD) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model2_phetel)
 
 # TIMING
-model3_phetel <- glmer(data = phengaris %>%
+model3_phetel <- glmer(data = data %>%
                          filter(DRUH == "Phengaris teleius"), 
                        as.factor(POSITIVE) ~ as.factor(TIMING) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model3_phetel)
 
 # METHOD AND TIMING
-model_mancom_phetel <- glmer(data = phengaris %>%
+model_mancom_phetel <- glmer(data = data %>%
                          filter(DRUH == "Phengaris teleius"), 
                        as.factor(POSITIVE) ~ as.factor(METHOD)*as.factor(TIMING) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
@@ -1121,7 +1214,7 @@ summary(model3_phetel)$AIC
 summary(model2_phetel)$AIC
 summary(model_mancom_phetel)$AIC
 
-ggplot(data = phengaris_time_sum %>%
+ggplot(data = data_time_sum %>%
          filter(DRUH == "Phengaris teleius"), 
        aes(x = as.factor(TIMING), 
            y = COUNT,
@@ -1136,7 +1229,7 @@ ggplot(data = phengaris_time_sum %>%
   ylab("number of sites\n") +
   theme_classic()
 
-ggplot(data = phengaris_method_sum %>%
+ggplot(data = data_method_sum %>%
          filter(DRUH == "Phengaris teleius"), 
        aes(x = as.factor(METHOD), 
            y = COUNT,
@@ -1151,7 +1244,7 @@ ggplot(data = phengaris_method_sum %>%
   ylab("number of sites\n") +
   theme_classic()
 
-phengaris %>%
+data %>%
   filter(DRUH == "Phengaris teleius") %>%
   filter(POSITIVE == 1) %>%
   filter(METHOD == 1 & TIMING == 1) %>%
@@ -1159,13 +1252,13 @@ phengaris %>%
   nrow()
 
 # EVL
-model_evl_phetel <- glmer(data = phengaris %>%
+model_evl_phetel <- glmer(data = data %>%
                             filter(DRUH == "Phengaris teleius"), 
                           as.factor(POSITIVE) ~ as.factor(EVL) + (1 | YEAR) + (1 | X:Y),
                           family ="binomial")
 summary(model_evl_phetel)
 
-ggplot(data = phengaris_evl_sum %>%
+ggplot(data = data_evl_sum %>%
          filter(DRUH == "Phengaris teleius"), 
        aes(x = as.factor(EVL), 
            y = COUNT,
@@ -1181,13 +1274,13 @@ ggplot(data = phengaris_evl_sum %>%
   theme_classic()
 
 # EVL TARGET
-model_evltar_phetel <- glmer(data = phengaris %>%
+model_evltar_phetel <- glmer(data = data %>%
                                filter(DRUH == "Phengaris teleius"), 
                              as.factor(POSITIVE) ~ as.factor(EVL_target) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_evltar_phetel)
 
-ggplot(data = phengaris_evltar_sum %>%
+ggplot(data = data_evltar_sum %>%
          filter(DRUH == "Phengaris teleius"), 
        aes(x = as.factor(EVL_target), 
            y = COUNT,
@@ -1204,7 +1297,7 @@ ggplot(data = phengaris_evltar_sum %>%
   theme_classic()
 
 # EVL COMBINATION
-model_evlcom_phetel <- glmer(data = phengaris %>%
+model_evlcom_phetel <- glmer(data = data %>%
                                filter(DRUH == "Phengaris teleius"), 
                              as.factor(POSITIVE) ~ as.factor(EVL) + as.factor(EVL_target) + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
@@ -1214,7 +1307,7 @@ summary(model_evl_phetel)$AIC
 summary(model_evltar_phetel)$AIC
 summary(model_evlcom_phetel)$AIC
 
-ggplot(data = phengaris_evlcomb_sum %>%
+ggplot(data = data_evlcomb_sum %>%
          filter(DRUH == "Phengaris teleius"), 
        aes(x = as.factor(EVL_comb), 
            y = COUNT,
@@ -1231,19 +1324,19 @@ ggplot(data = phengaris_evlcomb_sum %>%
   ylab("number of sites\n") +
   theme_classic()
 
-model_procom_phetel <- glmer(data = phengaris %>%
+model_procom_phetel <- glmer(data = data %>%
                                filter(DRUH == "Phengaris teleius"), 
                              as.factor(POSITIVE) ~ as.factor(EVL) + as.factor(EVL_target) + as.factor(MZCHU)+ (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_procom_phetel)
 
 # MZCHU
-model_mzchu_phetel <- glmer(data = phengaris %>%
+model_mzchu_phetel <- glmer(data = data %>%
                          filter(DRUH == "Phengaris teleius"), 
                        as.factor(POSITIVE) ~ as.factor(MZCHU) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model_mzchu_phetel)
-ggplot(data = phengaris_mzchu_sum %>%
+ggplot(data = data_mzchu_sum %>%
          filter(DRUH == "Phengaris teleius"), 
        aes(x = as.factor(MZCHU), 
            y = COUNT,
@@ -1260,7 +1353,7 @@ ggplot(data = phengaris_mzchu_sum %>%
 
 
 # FSB
-model_fsb_phetel <- glmer(data = phengaris %>%
+model_fsb_phetel <- glmer(data = data %>%
                             filter(DRUH == "Phengaris teleius") %>%
                             filter(FSB %in% c("T", "X", "moz.")), 
                              as.factor(POSITIVE) ~ as.factor(FSB) + (1 | YEAR) + (1 | X:Y),
@@ -1268,20 +1361,20 @@ model_fsb_phetel <- glmer(data = phengaris %>%
 summary(model_fsb_phetel)
 
 # HETEROENITY
-model_hetinn_phetel <- glmer(data = phengaris %>%
+model_hetinn_phetel <- glmer(data = data %>%
                          filter(DRUH == "Phengaris teleius"), 
                        as.factor(POSITIVE) ~ HET_INN + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model_hetinn_phetel)
 
-model_hetout_phetel <- glmer(data = phengaris %>%
+model_hetout_phetel <- glmer(data = data %>%
                                filter(DRUH == "Phengaris teleius"), 
                              as.factor(POSITIVE) ~ HET_OUT + (1 | YEAR) + (1 | X:Y),
                              family ="binomial")
 summary(model_hetout_phetel)
 
 
-phengaris_sum %>%
+data_sum %>%
   filter(DRUH == "Phengaris teleius") %>%
   pull(COUNT) %>%
   sum()
@@ -1301,12 +1394,12 @@ phengaris_sum %>%
 # procento varience z year random effects
 
 # BOTH SPECIES ----
-modelboth <- glmer(data = phengaris, 
+modelboth <- glmer(data = data, 
                           as.factor(POSITIVE) ~ as.factor(SPEC_NUM)*as.factor(DRUH) + (1 | YEAR) + (1 | (X:Y)),
                           family ="binomial")
 summary(modelboth)
 
-ggplot(data = phengaris_spe_sum %>%
+ggplot(data = data_spe_sum %>%
          filter(DRUH == "Phengaris nausithous"), 
        aes(x = as.factor(SPEC_NUM), 
            y = COUNT,
@@ -1321,7 +1414,7 @@ ggplot(data = phengaris_spe_sum %>%
   ylab("number of sites\n") +
   theme_classic()
 
-ggplot(data = phengaris_spe_sum %>%
+ggplot(data = data_spe_sum %>%
          filter(DRUH == "Phengaris teleius"), 
        aes(x = as.factor(SPEC_NUM), 
            y = COUNT,
@@ -1336,7 +1429,7 @@ ggplot(data = phengaris_spe_sum %>%
   ylab("number of sites\n") +
   theme_classic()
 
-ggplot(data = phengaris_spe_sum %>%
+ggplot(data = data_spe_sum %>%
          filter(SPEC_NUM == 0), 
        aes(x = as.factor(DRUH), 
            y = COUNT,
@@ -1352,12 +1445,12 @@ ggplot(data = phengaris_spe_sum %>%
   ylab("number of sites\n") +
   theme_classic()
 
-model_species <- glmer(data = phengaris,
+model_species <- glmer(data = data,
                        as.factor(POSITIVE) ~ as.factor(DRUH) + (1 | YEAR) + (1 | X:Y),
                        family ="binomial")
 summary(model_species)
 
-ggplot(data = phengaris_sum, 
+ggplot(data = data_sum, 
        aes(x = as.factor(DRUH), 
            y = COUNT,
            fill = as.factor(POSITIVE))) +
@@ -1371,23 +1464,23 @@ ggplot(data = phengaris_sum,
   ylab("number of sites\n") +
   theme_classic()
 
-phengaris %>%
+data %>%
   filter(DRUH == "Phengaris nausithous" & POSITIVE == 1) %>%
   pull(SITMAP) %>%
   unique() %>%
   length()
 
-phengaris %>%
+data %>%
   filter(DRUH == "Phengaris teleius" & POSITIVE == 1) %>%
   pull(SITMAP) %>%
   unique() %>%
   length()
 
-phengaris %>%
+data %>%
   pull(SITMAP) %>%
   unique() %>%
   length()
-phengaris %>%
+data %>%
   pull(AUTOR) %>%
   unique() %>%
   length()
@@ -1396,13 +1489,13 @@ phengaris %>%
 
 
 # MANAGEMENT 
-summan <- phengaris %>%
+summan <- data %>%
   st_drop_geometry() %>%
   filter(POSITIVE == 1) %>%
   group_by(MOW, GRAZE, ZARUST) %>%
   summarise(n())
 
-summan_phenau <- phengaris %>%
+summan_phenau <- data %>%
   st_drop_geometry() %>%
   dplyr::select(DRUH, POSITIVE, MOW, GRAZE, ZARUST) %>%
   pivot_longer(.,
@@ -1413,7 +1506,7 @@ summan_phenau <- phengaris %>%
   filter(DRUH == "Phengaris nausithous") %>%
   group_by(name) %>%
   summarise(COUNT = n(),
-            PERC = n()/nrow(phengaris %>%
+            PERC = n()/nrow(data %>%
                               dplyr::filter(DRUH == "Phengaris nausithous") %>%
                               dplyr::filter(POSITIVE == 1))*100) %>%
   mutate(name = case_when(name == "MOW" ~ "mowing",
@@ -1421,7 +1514,7 @@ summan_phenau <- phengaris %>%
                           name == "GRAZE" ~ "grazing",
                           name == "PRIKOP" ~ "road verge,\nditch"))
 
-summan_phetel <- phengaris %>%
+summan_phetel <- data %>%
   st_drop_geometry() %>%
   dplyr::select(DRUH, POSITIVE, MOW, GRAZE, ZARUST) %>%
   pivot_longer(.,
@@ -1432,7 +1525,7 @@ summan_phetel <- phengaris %>%
   filter(DRUH == "Phengaris teleius") %>%
   group_by(name) %>%
   summarise(COUNT = n(),
-            PERC = n()/nrow(phengaris %>%
+            PERC = n()/nrow(data %>%
                               dplyr::filter(DRUH == "Phengaris teleius") %>%
                               dplyr::filter(POSITIVE == 1))*100) %>%
   mutate(name = case_when(name == "MOW" ~ "mowing",
@@ -1461,21 +1554,21 @@ ggplot(data = summan_phetel,
   theme(text = element_text(size = 20))
 
 # ABUNDANCE
-wilcox.test(phengaris %>%
+wilcox.test(data %>%
                filter(DRUH == "Phengaris nausithous") %>%
                pull(POCET),
-             phengaris %>%
+             data %>%
                filter(DRUH == "Phengaris teleius") %>%
                pull(POCET))
-kruskal.test(phengaris %>%
+kruskal.test(data %>%
          pull(POCET),
-       phengaris %>%
+       data %>%
          pull(DRUH))
 
-wilcox.test(phengaris %>%
+wilcox.test(data %>%
               filter(DRUH == "Phengaris nausithous") %>%
               pull(POSITIVE),
-            phengaris %>%
+            data %>%
               filter(DRUH == "Phengaris teleius") %>%
               pull(POSITIVE))
 kruskal.test(phenpole_analysis %>%
@@ -1483,7 +1576,7 @@ kruskal.test(phenpole_analysis %>%
              phenpole_analysis %>%
                pull(POSITIVE))
 
-ggplot(data = phengaris, 
+ggplot(data = data, 
        aes(x = as.factor(DRUH), 
            y = log(POCET))) +
   #geom_violin() +
@@ -1526,7 +1619,7 @@ phenpole %>%
 
 
 # THREATS AND PRESSURES ----
-phengaris_tap_all <- phengaris %>%
+data_tap_all <- data %>%
   sf::st_drop_geometry() %>%
   dplyr::filter(SUM_THREATS > 0) %>%
   dplyr::mutate(DRUH = dplyr::case_when(DRUH == "Phengaris nausithous" ~ "nausithous",
@@ -1577,7 +1670,7 @@ phengaris_tap_all <- phengaris %>%
                    Eutrophization = mean(Eutrophization), 
                    None = mean(None)) %>%
   dplyr::ungroup()
-phengaris_tap <- phengaris_tap_all %>%
+data_tap <- data_tap_all %>%
   tibble::column_to_rownames('ID') %>%
   dplyr::select(PLANT_QUANT, 
                 TTP, 
@@ -1602,16 +1695,16 @@ phengaris_tap <- phengaris_tap_all %>%
                 None
                 )
 
-write.csv2(phengaris_tap_all,
-           "phengaris_pca.csv",
+write.csv2(data_tap_all,
+           "data_pca.csv",
            fileEncoding = "Windows-1250")
-write.csv2(phengaris %>%
+write.csv2(data %>%
              st_drop_geometry(),
-           "phengaris_data_export.csv",
+           "data_data_export.csv",
            fileEncoding = "Windows-1250",
            row.names = FALSE)
 
-PCA <- rda(phengaris_tap, scale = FALSE)
+PCA <- rda(data_tap, scale = FALSE)
 plot(PCA, display = "species", type = "text")
 speciesPCA <- PCA$CA$v
 speciesPCA
@@ -1622,7 +1715,7 @@ biplot(PCA, xlim = c(-0.3, 0.3), ylim = c(-0.45, 0.6))
 hypso_read <- stars::read_stars("CRhypso100.tif") 
 
 
-phengaris_map <- ggplot2::ggplot(data = phengaris %>%
+data_map <- ggplot2::ggplot(data = data %>%
                                    dplyr::mutate(geometry = sf::st_centroid(geometry))) +
   #ggplot2::geom_raster(data = hypso_read) +
   ggplot2::geom_sf(aes(color = as.factor(POSITIVE)),
@@ -1631,21 +1724,21 @@ phengaris_map <- ggplot2::ggplot(data = phengaris %>%
   ggplot2::scale_y_continuous(expand = expand_scale(mult = c(0.05, 0.05))) +
   ggplot2::scale_x_continuous(expand = expand_scale(mult = c(0.05, 0.05))) +
   ggplot2::theme_void()
-phengaris_map
+data_map
 
-phenau_dist <- phengaris %>%
+phenau_dist <- data %>%
   filter(DRUH == "Phengaris nausithous" & POSITIVE == 1) %>%
   pull(SITMAP) %>%
   unique()
-phetel_dist <- phengaris %>%
+phetel_dist <- data %>%
   filter(DRUH == "Phengaris teleius" & POSITIVE == 1) %>%
   pull(SITMAP) %>%
   unique()
-sample_dist <- phengaris %>%
+sample_dist <- data %>%
   pull(SITMAP) %>%
   unique()
 
-phengaris_dist_map <- ggplot2::ggplot() +
+data_dist_map <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = czechia, fill = NA, size = 1.5) +
   ggplot2::geom_sf(data = sitmap %>%
                      dplyr::filter(POLE %in% sample_dist),
@@ -1661,20 +1754,20 @@ phengaris_dist_map <- ggplot2::ggplot() +
   ggplot2::scale_y_continuous(expand = expand_scale(mult = c(0.05, 0.05))) +
   ggplot2::scale_x_continuous(expand = expand_scale(mult = c(0.05, 0.05))) +
   ggplot2::theme_void()
-phengaris_dist_map
+data_dist_map
 
 phetel_dist
 
 both_dist
 
 # ZSUTIS SEMIKVANTATIVNĚ
-phengaris %>%
+data %>%
   filter(is.na(POCET) == FALSE) %>%
   pull(POCET) %>%
   hist
 
 # POSTER ----
-ggplot(data = phengaris_evl_sum %>%
+ggplot(data = data_evl_sum %>%
          filter(DRUH == "Phengaris nausithous"), 
        aes(x = as.factor(EVL), 
            y = COUNT,
@@ -1690,7 +1783,7 @@ ggplot(data = phengaris_evl_sum %>%
   theme_classic() +
   theme(text = element_text(size = 26),
         legend.position="none")
-ggplot(data = phengaris_evl_sum %>%
+ggplot(data = data_evl_sum %>%
          filter(DRUH == "Phengaris teleius"), 
        aes(x = as.factor(EVL), 
            y = COUNT,
@@ -1706,7 +1799,7 @@ ggplot(data = phengaris_evl_sum %>%
   theme_classic() +
   theme(text = element_text(size = 26))
 
-ggplot(data = phengaris_spe_sum %>%
+ggplot(data = data_spe_sum %>%
          filter(SPEC_NUM == 0), 
        aes(x = as.factor(DRUH), 
            y = COUNT,
@@ -1755,13 +1848,13 @@ lokal_vmb <- lokal %>%
 st_write(lokal_vmb,
          "lokal_vmb_2.gpkg")
 
-phengaris_edit %>%
+data_edit %>%
   #filter(YEAR == 2022) %>%
   nrow
 
-kukukuk <- phengaris %>%
+kukukuk <- data %>%
   dplyr::select(geom)
 
-plot(filter(phengaris, YEAR == 2022)$geom)
+plot(filter(data, YEAR == 2022)$geom)
 
 
