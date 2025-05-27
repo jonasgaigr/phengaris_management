@@ -28,6 +28,7 @@ positivity <-
       POSITIVE
       )
     )
+
 #----------------------------------------------------------#
 ## Observation year -----
 #----------------------------------------------------------#
@@ -36,10 +37,10 @@ data %>%
   group_by(YEAR) %>%
   summarise(length(unique(POLE)))
 
-data %>%
-  st_drop_geometry() %>% 
-  group_by(YEAR, POSITIVE) %>%
-  summarise(COUNT = n())
+year_stats <-
+  data %>%
+  dplyr::group_by(YEAR, POSITIVE) %>%
+  dplyr::summarise(COUNT = n())
 
 #----------------------------------------------------------#
 ## Observers -----
@@ -67,57 +68,6 @@ observer_list <-
 observer_number <-
   observer_list %>%
   length()
-
-
-(histogram_observers <- 
-    ggplot2::ggplot(
-      observer_stats, 
-      aes(
-        x = obs_num
-        )
-      ) +
-    ggplot2::geom_histogram(
-      alpha = 0.6,
-      breaks = seq(
-        0, 
-        max(
-          observer_stats$obs_num
-          ), 
-        by = 25
-        ),
-      fill = "steelblue"
-    ) +
-    theme_minimal(
-      base_size = 14
-      ) +
-    scale_y_continuous(
-      expand = expansion(mult = c(0, 0.1))
-      ) +
-    geom_vline(
-      xintercept = mean(observer_stats$obs_num),
-      linetype = "dotted",
-      colour = "steelblue", size = 1
-    ) +
-    annotate(
-      "text", x = mean(observer_stats$obs_num) + 220, y = 20,
-      label = paste0("Mean number of\nobservations: ", round(mean(observer_stats$obs_num), 1))
-    ) +
-    geom_curve(
-      aes(
-        x = mean(observer_stats$obs_num) + 100, y = 20,
-        xend = mean(observer_stats$obs_num) + 10, yend = 15
-      ),
-      arrow = arrow(length = unit(0.07, "inch")), size = 0.7,
-      color = "grey30", curvature = 0.3
-    ) +
-    labs(
-      x = "\nNumber of Observations",
-      y = "Number of Observers\n",
-      title = "Distribution of Observation Counts per Observer"
-    )
-  )
-
-
 
 #----------------------------------------------------------#
 ## Observations -----
@@ -191,7 +141,7 @@ data_sum <- data %>%
   ungroup()
 
 sum(data_sum$COUNT)
-sum(data_evl_sum$COUNT)
+
 
 #----------------------------------------------------------#
 ## Mapping fields -----
@@ -286,13 +236,14 @@ length(data %>%
 
 
 data_evl_sum <- data %>%
-  st_drop_geometry() %>%
-  group_by(EVL, POSITIVE, DRUH) %>%
-  summarise(COUNT = n()) %>%
-  ungroup()
-data_evltar_sum <- data %>%
-  st_drop_geometry() %>%
-  group_by(EVL_target, POSITIVE, DRUH) %>%
+  dplyr::group_by(
+    EVL, 
+    EVL_target, 
+    EVL_comb,
+    MZCHU,
+    POSITIVE, 
+    DRUH
+    ) %>%
   summarise(COUNT = n()) %>%
   ungroup()
 data_evlcomb_sum <- data %>%
@@ -420,10 +371,10 @@ roky <- data %>%
   arrange(-roky)
 roky
 
-kuk <- data %>%
-  filter(DRUH == "Phengaris teleius") %>%
-  group_by(YEAR) %>%
-  summarise(n())
+data %>%
+  group_by(DRUH,YEAR) %>%
+  summarise(n()) %>%
+  arrange(YEAR)
 
 data %>%
   filter(DRUH == "Phengaris nausithous") %>%
@@ -474,6 +425,12 @@ model_nau_yl <- glm(data = data %>%
                 as.factor(POSITIVE) ~ as.numeric(YEAR),
                 family ="binomial")
 summary(model_nau_yl)
+
+ggplot(
+  data = data %>%
+       filter(DRUH == "Phengaris nausithous"),
+     as.factor(POSITIVE) ~ YEAR
+     )
 
 model_nau_pyl <- glm(data = data %>%
                   filter(DRUH == "Phengaris nausithous"), 
@@ -637,21 +594,6 @@ model_plant_phetel <- glmer(data = data %>%
                             family ="binomial")
 summary(model_plant_phetel)
 
-ggplot(data = data_plant_sum %>%
-         filter(DRUH == "Phengaris nausithous"), 
-       aes(x = as.factor(PLANT_QUANT), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("single plants", "abundant", "dominant")) +
-  xlab("") +
-  ylab("number of findings\n") +
-  theme_classic()
-
 
 # PLANT QUANTITY POLY
 model_plantpoly_phenau <- glmer(data = data %>%
@@ -742,43 +684,7 @@ model_timmet_phetel <- glmer(data = data %>%
                              family ="binomial")
 summary(model_timmet_phetel)
 
-ggplot(data = data_man_sum %>%
-         filter(DRUH == "Phengaris nausithous") %>%
-         filter(is.na(MANAGEMENT) == FALSE), 
-       aes(x = as.factor(MANAGEMENT), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("appropriate mow and\nappropriate timing", 
-                              "appropriate mow only", 
-                              "appropriate timing only",
-                              "inappropriate mow and\ninappropriate timing")) +
-  xlab("\nrecorded management at managed sites with P. nausithous") +
-  ylab("number of findings\n") +
-  theme_classic()
 
-ggplot(data = data_man_sum %>%
-         filter(DRUH == "Phengaris teleius") %>%
-         filter(is.na(MANAGEMENT) == FALSE), 
-       aes(x = as.factor(MANAGEMENT), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("appropriate mow and\nappropriate timing", 
-                              "appropriate mow only", 
-                              "appropriate timing only",
-                              "inappropriate mow and\ninappropriate timing")) +
-  xlab("\nrecorded management at managed sites with P. teleius") +
-  ylab("number of findings\n") +
-  theme_classic()
 
 # NULL MOW
 model_nullm_phenau <- glm(data = data %>%
@@ -1015,21 +921,6 @@ model_mzchu_phetel <- glmer(data = data %>%
                             family ="binomial")
 summary(model_mzchu_phetel)
 
-ggplot(data = data_mzchu_sum %>%
-         filter(DRUH == "Phengaris nausithous"), 
-       aes(x = as.factor(MZCHU), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("outside small-scale\nprotected site", "within small-scale\nprotected sites")) +
-  xlab("") +
-  ylab("number of findings\n") +
-  theme_classic()
-
 # MZCHU & EVL
 model_mzevl_phenau <- glmer(data = data %>%
                          filter(DRUH == "Phengaris nausithous"), 
@@ -1192,21 +1083,6 @@ summary(model1_phetel)
 summary(model0_phetel)$AIC
 summary(model1_phetel)$AIC
 
-ggplot(data = data_plant_sum %>%
-         filter(DRUH == "Phengaris teleius"), 
-       aes(x = as.factor(PLANT_QUANT), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("single plants", "abundant", "dominant")) +
-  xlab("") +
-  ylab("number of sites\n") +
-  theme_classic()
-
 # PLANT QUANTITY POLY
 model_plantpoly_phetel <- glmer(data = data %>%
                                   filter(DRUH == "Phengaris teleius"), 
@@ -1290,20 +1166,7 @@ model_evl_phetel <- glmer(data = data %>%
                           family ="binomial")
 summary(model_evl_phetel)
 
-ggplot(data = data_evl_sum %>%
-         filter(DRUH == "Phengaris teleius"), 
-       aes(x = as.factor(EVL), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("outside Natura 2000", "within Natura 2000")) +
-  xlab("") +
-  ylab("number of findings\n") +
-  theme_classic()
+
 
 # EVL TARGET
 model_evltar_phetel <- glmer(data = data %>%
@@ -1433,51 +1296,6 @@ modelboth <- glmer(data = data,
                           family ="binomial")
 summary(modelboth)
 
-ggplot(data = data_spe_sum %>%
-         filter(DRUH == "Phengaris nausithous"), 
-       aes(x = as.factor(SPEC_NUM), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("without P. teleius", "with P. teleius")) +
-  xlab("") +
-  ylab("number of sites\n") +
-  theme_classic()
-
-ggplot(data = data_spe_sum %>%
-         filter(DRUH == "Phengaris teleius"), 
-       aes(x = as.factor(SPEC_NUM), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("without P. nausithous", "with P. nausithous")) +
-  xlab("") +
-  ylab("number of sites\n") +
-  theme_classic()
-
-ggplot(data = data_spe_sum %>%
-         filter(SPEC_NUM == 0), 
-       aes(x = as.factor(DRUH), 
-           y = COUNT,
-           fill = as.factor(POSITIVE))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
-  scale_fill_manual(labels = c("negative", "positive"),
-                    name = "site occupancy",
-                    values = c("grey", "#595959")) +
-  scale_x_discrete(labels = c("Phengaris nausithous\nwithout P. teleius",
-                              "Phengaris teleius\nwithout P. nausithous")) +
-  xlab("") +
-  ylab("number of sites\n") +
-  theme_classic()
 
 model_species <- glmer(data = data,
                        as.factor(POSITIVE) ~ as.factor(DRUH) + (1 | YEAR) + (1 | X:Y),
@@ -1754,8 +1572,56 @@ data %>%
   pull(POCET) %>%
   hist
 
-# POSTER ----
+#----------------------------------------------------------#
+# Plots -----
+#----------------------------------------------------------#
+#--------------------------------------------------#
+## Year effects -----
+#--------------------------------------------------#
 
+ggplot(data = year_stats, 
+       aes(y = as.numeric(COUNT), 
+           x = as.factor(YEAR),
+           fill = as.factor(POSITIVE))) +
+  geom_boxplot() 
+
+#--------------------------------------------------#
+## Protected areas -----
+#--------------------------------------------------#
+
+ggplot(data = data_evl_sum %>%
+         filter(DRUH == "Phengaris teleius"), 
+       aes(x = as.factor(EVL), 
+           y = COUNT,
+           fill = as.factor(POSITIVE))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
+  scale_fill_manual(labels = c("negative", "positive"),
+                    name = "site occupancy",
+                    values = c("grey", "#595959")) +
+  scale_x_discrete(labels = c("outside Natura 2000", "within Natura 2000")) +
+  xlab("") +
+  ylab("number of findings\n") +
+  theme_classic()
+
+ggplot(data = data_mzchu_sum %>%
+         filter(DRUH == "Phengaris nausithous"), 
+       aes(x = as.factor(MZCHU), 
+           y = COUNT,
+           fill = as.factor(POSITIVE))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
+  scale_fill_manual(labels = c("negative", "positive"),
+                    name = "site occupancy",
+                    values = c("grey", "#595959")) +
+  scale_x_discrete(labels = c("outside small-scale\nprotected site", "within small-scale\nprotected sites")) +
+  xlab("") +
+  ylab("number of findings\n") +
+  theme_classic()
+
+#--------------------------------------------------#
+## Occurrence patterns -----
+#--------------------------------------------------#
 
 ggplot(data = data_spe_sum %>%
          filter(SPEC_NUM == 0), 
@@ -1771,8 +1637,136 @@ ggplot(data = data_spe_sum %>%
                               "Phengaris teleius\nwithout P. nausithous")) +
   xlab("") +
   ylab("number of sites\n") +
-  theme_classic() +
-  theme(text = element_text(size = 26))
+  theme_classic()
+
+#--------------------------------------------------#
+## Host plant -----
+#--------------------------------------------------#
+
+ggplot(data = data_plant_sum %>%
+         filter(DRUH == "Phengaris nausithous"), 
+       aes(x = as.factor(PLANT_QUANT), 
+           y = COUNT,
+           fill = as.factor(POSITIVE))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
+  scale_fill_manual(labels = c("negative", "positive"),
+                    name = "site occupancy",
+                    values = c("grey", "#595959")) +
+  scale_x_discrete(labels = c("single plants", "abundant", "dominant")) +
+  xlab("") +
+  ylab("number of findings\n") +
+  theme_classic()
+
+ggplot(data = data_plant_sum %>%
+         filter(DRUH == "Phengaris teleius"), 
+       aes(x = as.factor(PLANT_QUANT), 
+           y = COUNT,
+           fill = as.factor(POSITIVE))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
+  scale_fill_manual(labels = c("negative", "positive"),
+                    name = "site occupancy",
+                    values = c("grey", "#595959")) +
+  scale_x_discrete(labels = c("single plants", "abundant", "dominant")) +
+  xlab("") +
+  ylab("number of sites\n") +
+  theme_classic()
+
+#--------------------------------------------------#
+## Observations plots -----
+#--------------------------------------------------#
+
+(histogram_observers <- 
+   ggplot2::ggplot(
+     observer_stats, 
+     aes(
+       x = obs_num
+     )
+   ) +
+   ggplot2::geom_histogram(
+     alpha = 0.6,
+     breaks = seq(
+       0, 
+       max(
+         observer_stats$obs_num
+       ), 
+       by = 25
+     ),
+     fill = "steelblue"
+   ) +
+   theme_minimal(
+     base_size = 14
+   ) +
+   scale_y_continuous(
+     expand = expansion(mult = c(0, 0.1))
+   ) +
+   geom_vline(
+     xintercept = mean(observer_stats$obs_num),
+     linetype = "dotted",
+     colour = "steelblue", size = 1
+   ) +
+   annotate(
+     "text", x = mean(observer_stats$obs_num) + 220, y = 20,
+     label = paste0("Mean number of\nobservations: ", round(mean(observer_stats$obs_num), 1))
+   ) +
+   geom_curve(
+     aes(
+       x = mean(observer_stats$obs_num) + 100, y = 20,
+       xend = mean(observer_stats$obs_num) + 10, yend = 15
+     ),
+     arrow = arrow(length = unit(0.07, "inch")), size = 0.7,
+     color = "grey30", curvature = 0.3
+   ) +
+   labs(
+     x = "\nNumber of Observations",
+     y = "Number of Observers\n",
+     title = "Distribution of Observation Counts per Observer"
+   )
+)
+
+#--------------------------------------------------#
+## Management plots -----
+#--------------------------------------------------#
+
+ggplot(data = data_man_sum %>%
+         filter(DRUH == "Phengaris nausithous") %>%
+         filter(is.na(MANAGEMENT) == FALSE), 
+       aes(x = as.factor(MANAGEMENT), 
+           y = COUNT,
+           fill = as.factor(POSITIVE))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
+  scale_fill_manual(labels = c("negative", "positive"),
+                    name = "site occupancy",
+                    values = c("grey", "#595959")) +
+  scale_x_discrete(labels = c("appropriate mow and\nappropriate timing", 
+                              "appropriate mow only", 
+                              "appropriate timing only",
+                              "inappropriate mow and\ninappropriate timing")) +
+  xlab("\nrecorded management at managed sites with P. nausithous") +
+  ylab("number of findings\n") +
+  theme_classic()
+
+ggplot(data = data_man_sum %>%
+         filter(DRUH == "Phengaris teleius") %>%
+         filter(is.na(MANAGEMENT) == FALSE), 
+       aes(x = as.factor(MANAGEMENT), 
+           y = COUNT,
+           fill = as.factor(POSITIVE))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.1))) +
+  scale_fill_manual(labels = c("negative", "positive"),
+                    name = "site occupancy",
+                    values = c("grey", "#595959")) +
+  scale_x_discrete(labels = c("appropriate mow and\nappropriate timing", 
+                              "appropriate mow only", 
+                              "appropriate timing only",
+                              "inappropriate mow and\ninappropriate timing")) +
+  xlab("\nrecorded management at managed sites with P. teleius") +
+  ylab("number of findings\n") +
+  theme_classic()
+
 
 
 

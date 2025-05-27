@@ -10,8 +10,16 @@ phengaris_evl_id <-
     ., 
     evl
     ) %>%
-  sf::st_make_valid() %>%
-  dplyr::pull(ID_LOKAL)
+  sf::st_make_valid()
+sf::st_drop_geometry() %>%
+  dplyr::mutate(
+    PA_TYPE = "EVL_both",
+    TARGET_GROUP = DRUH
+  ) %>%
+  dplyr::select(
+    ID_LOKAL,
+    DRUH
+  )
 
 #--------------------------------------------------#
 ## Natura 2000 - P. nausithous target feature  -----
@@ -29,7 +37,15 @@ evl_id_Pnau <-
         )
     ) %>%
   sf::st_make_valid() %>%
-  dplyr::pull(ID_LOKAL)
+  sf::st_drop_geometry() %>%
+  dplyr::mutate(
+    PA_TYPE = "EVL_target",
+    TARGET_GROUP = DRUH
+  ) %>%
+  dplyr::select(
+    ID_LOKAL,
+    DRUH
+  )
 
 #--------------------------------------------------#
 ## Natura 2000 - P. teleius target feature -----
@@ -46,8 +62,16 @@ evl_id_Ptel <-
         )$site_code
       )
   ) %>%
-  sf::st_make_valid() %>%
-  dplyr::pull(ID_LOKAL)
+  sf::st_make_valid()  %>%
+  sf::st_drop_geometry() %>%
+  dplyr::mutate(
+    PA_TYPE = "EVL_target",
+    TARGET_GROUP = DRUH
+  ) %>%
+  dplyr::select(
+    ID_LOKAL,
+    DRUH
+    )
 
 #--------------------------------------------------#
 ## National small scale protected areas -----
@@ -59,7 +83,31 @@ phengaris_mzchu_id <-
     mzchu
     ) %>%
   sf::st_make_valid() %>%
-  dplyr::pull(ID_LOKAL)
+  sf::st_drop_geometry() %>%
+  dplyr::mutate(
+    PA_TYPE = "MZCHU",
+    TARGET_GROUP = DRUH
+  )
+  dplyr::select(
+    ID_LOKAL,
+    DRUH
+  )
+
+#----------------------------------------------------------#
+# Export data -----
+#----------------------------------------------------------#
+
+protected_area_id <-
+  bind_rows(
+    evl_id_Pnau,
+    evl_id_Ptel,
+    phengaris_mzchu_id
+  )
+
+readr::write_csv(
+  protected_area_id,
+  "Data/Processed/protected_area_id.csv"
+)
 
 #----------------------------------------------------------#
 # End script -----
