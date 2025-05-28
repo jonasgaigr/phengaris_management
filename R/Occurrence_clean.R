@@ -7,6 +7,11 @@ data_new_with_imputed <-
     "Data/Processed/data_new_with_imputed.csv"
     )
 
+protected_area_id <- 
+  readr::read_csv(
+    "Data/Processed/protected_area_id.csv"
+  )
+
 #--------------------------------------------------#
 ## Filter only targeted monitoring -----
 #--------------------------------------------------#
