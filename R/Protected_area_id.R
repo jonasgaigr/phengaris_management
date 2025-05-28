@@ -13,7 +13,7 @@ phengaris_evl_id <-
   sf::st_make_valid() %>%
 sf::st_drop_geometry() %>%
   dplyr::mutate(
-    PA_TYPE = "EVL_both",
+    PA_TYPE = "EVL_any",
     TARGET_GROUP = DRUH
   ) %>%
   dplyr::select(
@@ -33,7 +33,7 @@ evl_id_Pnau <-
       dplyr::filter(
         SITECODE %in% filter(
           sites_subjects, 
-          nazev_lat == "Phengaris nausithous"
+          nazev_lat == "Maculinea nausithous"
           )$site_code
         )
     ) %>%
@@ -60,7 +60,7 @@ evl_id_Ptel <-
       dplyr::filter(
         SITECODE %in% filter(
           sites_subjects, 
-          nazev_lat == "Phengaris teleius"
+          nazev_lat == "Maculinea teleius"
         )$site_code
       )
   ) %>%
@@ -103,6 +103,7 @@ phengaris_mzchu_id <-
 
 protected_area_id <-
   bind_rows(
+    phengaris_evl_id,
     evl_id_Pnau,
     evl_id_Ptel,
     phengaris_mzchu_id
