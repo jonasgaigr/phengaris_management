@@ -10,7 +10,7 @@ phengaris_evl_id <-
     ., 
     evl
     ) %>%
-  sf::st_make_valid()
+  sf::st_make_valid() %>%
 sf::st_drop_geometry() %>%
   dplyr::mutate(
     PA_TYPE = "EVL_both",
@@ -18,7 +18,8 @@ sf::st_drop_geometry() %>%
   ) %>%
   dplyr::select(
     ID_LOKAL,
-    DRUH
+    DRUH,
+    PA_TYPE
   )
 
 #--------------------------------------------------#
@@ -44,7 +45,8 @@ evl_id_Pnau <-
   ) %>%
   dplyr::select(
     ID_LOKAL,
-    DRUH
+    DRUH,
+    PA_TYPE
   )
 
 #--------------------------------------------------#
@@ -70,7 +72,8 @@ evl_id_Ptel <-
   ) %>%
   dplyr::select(
     ID_LOKAL,
-    DRUH
+    DRUH,
+    PA_TYPE
     )
 
 #--------------------------------------------------#
@@ -87,10 +90,11 @@ phengaris_mzchu_id <-
   dplyr::mutate(
     PA_TYPE = "MZCHU",
     TARGET_GROUP = DRUH
-  )
+  ) %>%
   dplyr::select(
     ID_LOKAL,
-    DRUH
+    DRUH,
+    PA_TYPE
   )
 
 #----------------------------------------------------------#
