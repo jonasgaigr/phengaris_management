@@ -75,16 +75,25 @@ data_clean <-
         )
       ),
     EVL = dplyr::case_when(
-      ID_LOKAL %in% phengaris_evl_id ~ 1,
+      ID_LOKAL %in% (protected_area_id %>%
+        dplyr::filter(PA_TYPE == "EVL_any") %>%
+        dplyr::pull(ID_LOKAL))
+      ~ 1,
       TRUE ~ 0
       ),
     EVL_target = dplyr::case_when(
       # N2K site protected for Pnau
       DRUH == "Phengaris nausithous" &
-        ID_LOKAL %in% evl_id_Pnau ~ 1,
+        ID_LOKAL %in% (protected_area_id %>%
+        dplyr::filter(PA_TYPE == "EVL_target") %>%
+        dplyr::pull(ID_LOKAL))
+      ~ 1,
       # N2K site protected for Ptel
       DRUH == "Phengaris teleius" &
-        ID_LOKAL %in% evl_id_Ptel ~ 1,
+        ID_LOKAL %in% (protected_area_id %>%
+        dplyr::filter(PA_TYPE == "EVL_target") %>%
+        dplyr::pull(ID_LOKAL) )
+      ~ 1,
       TRUE ~ 0
       ),
     EVL_comb = dplyr::case_when(
