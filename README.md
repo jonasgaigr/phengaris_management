@@ -1,4 +1,4 @@
 # 💙🦋 phengaris_management 
-Study of management effects on <i>Phengaris nausithous</i> and <i>Phengaris teleius</i> in Czechia
+Study of management effects on <i>Phengaris nausithous</i> and <i>Phengaris teleius</i> in Czechia. Exploring the relationship between management and habitat utilisation of the two umbrella species.
 ## Laymen summary
 Researching the impacts of habitat management on the dusky large blue (*Phengaris nausithous*) and the scarce large blue (*Phengaris teleius*) is crucial for the effective conservation of these endangered butterfly species. Both depend on specific ecological interactions – primarily with the great burnet (*Sanguisorba officinalis*) and certain ant species – for their survival. Changes in mowing regimes, grazing intensity, or abandonment of traditional practices can disrupt these interactions, leading to local population declines. Understanding how different management actions influence their occurrence and persistence helps refine conservation strategies and supports the long-term viability of their populations within semi-natural grasslands.
