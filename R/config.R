@@ -335,6 +335,23 @@ phengaris_lokal_new <-
   sf::st_make_valid()
 
 #--------------------------------------------------#
+## Load range layers -----
+#--------------------------------------------------#
+range_nausithous <- 
+  sf::st_read(
+  "Data/Input/Reporting_range/nausithous.shp"
+  ) %>%
+  sf::st_transform(5514) %>%
+  sf::st_make_valid()
+
+range_teleius <- 
+  sf::st_read(
+    "Data/Input/Reporting_range/teleius.shp"
+  ) %>%
+  sf::st_transform(5514) %>%
+  sf::st_make_valid()
+
+#--------------------------------------------------#
 ## Load habitat layer -----
 #--------------------------------------------------#
 library(tools)
