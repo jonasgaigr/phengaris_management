@@ -155,6 +155,23 @@ sitmap <- sf::st_read(getfeature_url_sitmap1rad) %>%
 rn2kcz::load_n2k_sites()
 
 #--------------------------------------------------#
+## Load range layers -----
+#--------------------------------------------------#
+range_nausithous <- 
+  sf::st_read(
+    "Data/Input/Reporting_range/nausithous.shp"
+  ) %>%
+  sf::st_transform(5514) %>%
+  sf::st_make_valid()
+
+range_teleius <- 
+  sf::st_read(
+    "Data/Input/Reporting_range/teleius.shp"
+  ) %>%
+  sf::st_transform(5514) %>%
+  sf::st_make_valid()
+
+#--------------------------------------------------#
 ## Load species data 2012 - 2018 -----
 #--------------------------------------------------#
 
@@ -332,23 +349,6 @@ phengaris_lokal_new <-
     lokal_new
     ) %>%
   sf::st_as_sf() %>%
-  sf::st_make_valid()
-
-#--------------------------------------------------#
-## Load range layers -----
-#--------------------------------------------------#
-range_nausithous <- 
-  sf::st_read(
-  "Data/Input/Reporting_range/nausithous.shp"
-  ) %>%
-  sf::st_transform(5514) %>%
-  sf::st_make_valid()
-
-range_teleius <- 
-  sf::st_read(
-    "Data/Input/Reporting_range/teleius.shp"
-  ) %>%
-  sf::st_transform(5514) %>%
   sf::st_make_valid()
 
 #--------------------------------------------------#
