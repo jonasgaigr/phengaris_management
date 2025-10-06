@@ -1,7 +1,7 @@
 #----------------------------------------------------------#
 #
 #
-#           Phengaris spp. management in Czechia
+#       Sanguisorba Phengaris spp. management in Czechia
 #
 #                     Config file
 #
