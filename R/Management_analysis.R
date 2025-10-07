@@ -152,11 +152,11 @@ mapfield <-
   dplyr::select(
     DRUH, 
     POSITIVE, 
-    POLE
+    row_n
     ) %>%
   dplyr::group_by(
     DRUH, 
-    POLE
+    row_n
     ) %>%
   dplyr::arrange(
     desc(
@@ -228,11 +228,11 @@ data %>%
   pull(POCET) %>%
   na.omit() %>%
   median()
+
 length(data %>%
          filter(DRUH == "Phengaris teleius") %>%
          pull(POCET) %>%
          na.omit())
-
 
 
 data_evl_sum <- data %>%
@@ -396,7 +396,7 @@ data %>%
 #----------------------------------------------------------#
 # NULL
 model_null_phenau <- 
-  glmer(
+  lme4::glmer(
     data = data %>%
       filter(
         DRUH == "Phengaris nausithous"
