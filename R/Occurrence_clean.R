@@ -2,9 +2,9 @@
 ## Load data with imputed negative records -----
 #--------------------------------------------------#
 
-data_new_with_imputed <- 
+data_with_imputed <- 
   readr::read_csv(
-    "Data/Processed/data_new_with_imputed.csv"
+    "Data/Processed/data_with_imputed.csv"
     )
 
 protected_area_id <- 
@@ -16,7 +16,7 @@ protected_area_id <-
 ## Filter only targeted monitoring -----
 #--------------------------------------------------#
 data_new_source <-
-  data_new_with_imputed %>%
+  data_with_imputed %>%
   dplyr::filter(
     ZDROJ %in% target_mon_zdroj
   )
