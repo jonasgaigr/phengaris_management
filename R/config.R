@@ -11,36 +11,73 @@
 #
 #----------------------------------------------------------#
 
-#----------------------------------------------------------#
-# Load packages -----
-#----------------------------------------------------------#
-# Helper to safely install + load
-safe_load <- function(pkg, github = NULL) {
-  if (!require(pkg, character.only = TRUE, quietly = TRUE)) {
-    if (!is.null(github)) {
-      if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
-      remotes::install_github(github, dependencies = TRUE)
-    } else {
-      install.packages(pkg, dependencies = TRUE)
-    }
-  }
-  library(pkg, character.only = TRUE)
+# --- 1. Install and activate renv --------------------------------------------
+if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
+
+# Initialize or restore existing environment
+if (!file.exists("renv.lock")) {
+  message("🧩 Initializing new renv environment...")
+  renv::init(bare = TRUE)
+} else {
+  message("🔄 Restoring existing renv environment...")
+  renv::restore(prompt = FALSE)
 }
 
-# Core packages
-pkgs <- c("tidyverse", "sf", "sp", "proj4", "openxlsx",
-          "lme4", "lmerTest", "Matrix", "vegan", 
-          "GLMMadaptive", "RCzechia", "remotes")
+# --- 2. Install CRAN packages (only if missing) -------------------------------
+cran_pkgs <- c(
+  "tidyverse",
+  "sf",
+  "sp",
+  "proj4",
+  "openxlsx",
+  "lmerTest",
+  "vegan",
+  "GLMMadaptive",
+  "RCzechia",
+  "rvest",
+  "httr",
+  "xml2"
+)
 
-for (p in pkgs) safe_load(p)
+to_install <- cran_pkgs[!cran_pkgs %in% installed.packages()[, "Package"]]
+if (length(to_install) > 0) renv::install(to_install)
 
-# GitHub packages
-safe_load("rn2kcz", github = "jonasgaigr/rn2kcz")
-safe_load("rndop",  github = "kalab-oto/rndop")
+# --- 3. Enforce compatible Matrix / lme4 versions -----------------------------
+if (!"Matrix" %in% installed.packages()[, "Package"] ||
+    packageVersion("Matrix") != "1.6-4") {
+  renv::install("Matrix@1.6-4")
+}
 
-library(rvest)
-library(httr)
-library(xml2)
+if (!"lme4" %in% installed.packages()[, "Package"] ||
+    packageVersion("lme4") != "1.1-35.3") {
+  renv::install("lme4@1.1-35.3")
+}
+
+# --- 4. Install GitHub packages ----------------------------------------------
+if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+
+github_pkgs <- list(
+  rn2kcz = "jonasgaigr/rn2kcz",
+  rndop  = "kalab-oto/rndop"
+)
+
+for (pkg in names(github_pkgs)) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    renv::install(github_pkgs[[pkg]])
+  }
+}
+
+# --- 5. Snapshot environment (record exact versions) --------------------------
+renv::snapshot(prompt = FALSE)
+
+# --- 6. Load all packages -----------------------------------------------------
+pkg_list <- c(cran_pkgs, "lme4", names(github_pkgs))
+invisible(lapply(pkg_list, function(pkg) {
+  suppressPackageStartupMessages(library(pkg, character.only = TRUE))
+}))
+
+message("✅ All packages loaded successfully and environment is reproducible.")
+
 #----------------------------------------------------------#
 # Load data -----
 #----------------------------------------------------------#
