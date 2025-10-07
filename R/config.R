@@ -162,14 +162,20 @@ range_nausithous <-
     "Data/Input/Reporting_range/nausithous.shp"
   ) %>%
   sf::st_transform(5514) %>%
-  sf::st_make_valid()
+  sf::st_make_valid() %>%
+  dplyr::mutate(
+    row_n = dplyr::row_number()
+    )
 
 range_teleius <- 
   sf::st_read(
     "Data/Input/Reporting_range/teleius.shp"
   ) %>%
   sf::st_transform(5514) %>%
-  sf::st_make_valid()
+  sf::st_make_valid() %>%
+  dplyr::mutate(
+    row_n = dplyr::row_number()
+  )
 
 #--------------------------------------------------#
 ## Load species data 2012 - 2018 -----
@@ -208,6 +214,7 @@ lokal_Pnau_p_old <- sf::st_read(
   sf::st_transform(5514) %>%
   sf::st_cast("POLYGON") %>%
   sf::st_make_valid()
+
 lokal_Pnau_l_old <- sf::st_read(
   "Data/Input/Phengaris_nausithous_2012_2018/w03_nd_lokalizace_l.shp"
   ) %>%
@@ -231,6 +238,7 @@ lokal_Ptel_p_old <- sf::st_read(
   sf::st_transform(5514) %>%
   sf::st_cast("POLYGON") %>%
   sf::st_make_valid()
+
 lokal_Ptel_l_old <- sf::st_read(
   "Data/Input/Phengaris_teleius_2012_2018/w03_nd_lokalizace_l.shp"
   ) %>%
@@ -297,6 +305,7 @@ lokal_Pnau_p_new <- sf::st_read(
   sf::st_transform(5514) %>%
   sf::st_cast("POLYGON") %>%
   sf::st_make_valid()
+
 lokal_Pnau_l_new <- sf::st_read(
   "Data/Input/Phengaris_nausithous_2019_2024/w03_nd_lokalizace_l.shp"
   ) %>%
@@ -320,6 +329,7 @@ lokal_Ptel_p_new <- sf::st_read(
   sf::st_transform(5514) %>%
   sf::st_cast("POLYGON") %>%
   sf::st_make_valid()
+
 lokal_Ptel_l_new <- sf::st_read(
   "Data/Input/Phengaris_teleius_2019_2024/w03_nd_lokalizace_l.shp"
   ) %>%
