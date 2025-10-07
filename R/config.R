@@ -14,81 +14,29 @@
 #----------------------------------------------------------#
 # Load packages -----
 #----------------------------------------------------------#
-if(!isTRUE(require(tidyverse, quietly = TRUE))) {
-  install.packages("tidyverse", dependencies = TRUE); library(tidyverse)
-} else {
-  require(tidyverse)}
+# Helper to safely install + load
+safe_load <- function(pkg, github = NULL) {
+  if (!require(pkg, character.only = TRUE, quietly = TRUE)) {
+    if (!is.null(github)) {
+      if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+      remotes::install_github(github, dependencies = TRUE)
+    } else {
+      install.packages(pkg, dependencies = TRUE)
+    }
+  }
+  library(pkg, character.only = TRUE)
+}
 
-if(!isTRUE(require(sf, quietly = TRUE))) {
-  install.packages("sf", dependencies = TRUE); library(sf)
-} else {
-  require(sf)}
+# Core packages
+pkgs <- c("tidyverse", "sf", "sp", "proj4", "openxlsx",
+          "lme4", "lmerTest", "Matrix", "vegan", 
+          "GLMMadaptive", "RCzechia", "remotes")
 
-if(!isTRUE(require(sp, quietly = TRUE))) {
-  install.packages("sp", dependencies = TRUE); library(sp)
-} else {
-  require(sp)}
+for (p in pkgs) safe_load(p)
 
-if(!isTRUE(require(proj4, quietly = TRUE))) {
-  install.packages("proj4", dependencies = TRUE); library(proj4)
-} else {
-  require(proj4)}
-
-if(!isTRUE(require(openxlsx, quietly = TRUE))) {
-  install.packages("openxlsx", dependencies = TRUE); library(openxlsx)
-} else {
-  require(openxlsx)}
-
-if(!isTRUE(require(lme4, quietly = TRUE))) {
-  install.packages("lme4", dependencies = TRUE); library(lme4)
-} else {
-  require(lme4)}
-
-if(!isTRUE(require(lmerTest, quietly = TRUE))) {
-  install.packages("lmerTest", dependencies = TRUE); library(lmerTest)
-} else {
-  require(lmerTest)}
-
-if(!isTRUE(require(Matrix, quietly = TRUE))) {
-  install.packages("Matrix", dependencies = TRUE); library(Matrix)
-} else {
-  require(Matrix)}
-
-if(!isTRUE(require(vegan, quietly = TRUE))) {
-  install.packages("vegan", dependencies = TRUE); library(vegan)
-} else {
-  require(vegan)}
-
-if(!isTRUE(require(GLMMadaptive, quietly = TRUE))) {
-  install.packages("GLMMadaptive", dependencies = TRUE); library(GLMMadaptive)
-} else {
-  require(GLMMadaptive)}
-
-if(!isTRUE(require(RCzechia, quietly = TRUE))) {
-  install.packages("RCzechia", dependencies = TRUE); library(RCzechia)
-} else {
-  require(RCzechia)}
-
-if(!isTRUE(require(openxlsx, quietly = TRUE))) {
-  install.packages("openxlsx", dependencies = TRUE); library(openxlsx)
-} else {
-  require(openxlsx)}
-
-if(!isTRUE(require(remotes, quietly = TRUE))) {
-  install.packages("remotes", dependencies = TRUE); library(remotes)
-} else {
-  require(remotes)}
-
-if(!isTRUE(require(rn2kcz, quietly = TRUE))) {
-  remotes::install_github("jonasgaigr/rn2kcz", dependencies = TRUE); library(rn2kcz)
-} else {
-  require(rn2kcz)}
-
-if(!isTRUE(require(rndop, quietly = TRUE))) {
-  remotes::install_github("kalab-oto/rndop", dependencies = TRUE); library(rndop)
-} else {
-  require(rndop)}
-
+# GitHub packages
+safe_load("rn2kcz", github = "jonasgaigr/rn2kcz")
+safe_load("rndop",  github = "kalab-oto/rndop")
 
 library(rvest)
 library(httr)
