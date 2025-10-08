@@ -12,71 +12,43 @@
 #----------------------------------------------------------#
 
 # --- 1. Install and activate renv --------------------------------------------
-if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
+# setup_minimal.R — minimal, idempotent package loader (Windows: binary-first)
+pkgs <- c("tidyverse","sf","sp","proj4","openxlsx","lmerTest","vegan",
+          "GLMMadaptive","RCzechia","rvest","httr","xml2","Matrix","lme4","remotes")
+type <- if (.Platform$OS.type=="windows") "binary" else "source"
 
-# Initialize or restore existing environment
-if (!file.exists("renv.lock")) {
-  message("🧩 Initializing new renv environment...")
-  renv::init(bare = TRUE)
-} else {
-  message("🔄 Restoring existing renv environment...")
-  renv::restore(prompt = FALSE)
-}
-
-# --- 2. Install CRAN packages (only if missing) -------------------------------
-cran_pkgs <- c(
-  "tidyverse",
-  "sf",
-  "sp",
-  "proj4",
-  "openxlsx",
-  "lmerTest",
-  "vegan",
-  "GLMMadaptive",
-  "RCzechia",
-  "rvest",
-  "httr",
-  "xml2"
-)
-
-to_install <- cran_pkgs[!cran_pkgs %in% installed.packages()[, "Package"]]
-if (length(to_install) > 0) renv::install(to_install)
-
-# --- 3. Enforce compatible Matrix / lme4 versions -----------------------------
-if (!"Matrix" %in% installed.packages()[, "Package"] ||
-    packageVersion("Matrix") != "1.6-4") {
-  renv::install("Matrix@1.6-4")
-}
-
-if (!"lme4" %in% installed.packages()[, "Package"] ||
-    packageVersion("lme4") != "1.1-35.3") {
-  renv::install("lme4@1.1-35.3")
-}
-
-# --- 4. Install GitHub packages ----------------------------------------------
-if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
-
-github_pkgs <- list(
-  rn2kcz = "jonasgaigr/rn2kcz",
-  rndop  = "kalab-oto/rndop"
-)
-
-for (pkg in names(github_pkgs)) {
-  if (!requireNamespace(pkg, quietly = TRUE)) {
-    renv::install(github_pkgs[[pkg]])
+inst_if_missing <- function(pkg){
+  if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg, dependencies = TRUE, type = type)
+  ok <- tryCatch({ suppressPackageStartupMessages(library(pkg, character.only=TRUE)); TRUE },
+                 error = function(e) FALSE)
+  if (!ok) {
+    message("Broken install detected for ", pkg, " → reinstalling (", type, ").")
+    try(remove.packages(pkg), silent = TRUE)
+    install.packages(pkg, dependencies = TRUE, type = type)
+    suppressPackageStartupMessages(library(pkg, character.only=TRUE))
   }
 }
 
-# --- 5. Snapshot environment (record exact versions) --------------------------
-renv::snapshot(prompt = FALSE)
+invisible(lapply(pkgs, inst_if_missing))
 
-# --- 6. Load all packages -----------------------------------------------------
-pkg_list <- c(cran_pkgs, "lme4", names(github_pkgs))
-invisible(lapply(pkg_list, function(pkg) {
-  suppressPackageStartupMessages(library(pkg, character.only = TRUE))
-}))
+# GitHub packages (install only if missing)
+if (!requireNamespace("rn2kcz", quietly = TRUE)) remotes::install_github("jonasgaigr/rn2kcz")
+if (!requireNamespace("rndop", quietly = TRUE)) remotes::install_github("kalab-oto/rndop")
+suppressPackageStartupMessages(library(rn2kcz)); suppressPackageStartupMessages(library(rndop))
 
-message("✅ All packages loaded successfully and environment is reproducible.")
+# quick lme4 smoke test; if it fails, reinstall Matrix+lme4 (binary on Windows)
+test_ok <- tryCatch({
+  suppressMessages(lme4::glmer(cbind(incidence, size - incidence) ~ 1 + (1|group),
+                               data = lme4::cbpp, family = binomial)); TRUE
+}, error = function(e) {
+  message("lme4 test failed: ", conditionMessage(e), "\nReinstalling Matrix + lme4 (", type, ")...")
+  try(remove.packages(c("lme4","Matrix")), silent = TRUE)
+  install.packages(c("Matrix","lme4"), dependencies = TRUE, type = type)
+  suppressPackageStartupMessages(library(Matrix)); suppressPackageStartupMessages(library(lme4))
+  TRUE
+})
+
+message("Packages installed & loaded. (Binary on Windows: ", type == "binary", ")")
 
 #----------------------------------------------------------#
 # Load data -----

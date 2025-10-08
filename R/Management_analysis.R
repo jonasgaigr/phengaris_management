@@ -402,22 +402,24 @@ model_null_phenau <-
         DRUH == "Phengaris nausithous"
         ), 
     as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
-    family ="binomial"
+    family = "binomial"
     )
 
 summary(model_null_phenau)
 
-model_null_phetel <- glmer(data = data %>%
-                           filter(DRUH == "Phengaris teleius"), 
-                         as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
-                         family ="binomial")
+model_null_phetel <- lme4::glmer(
+  data = data %>%
+    filter(DRUH == "Phengaris teleius"), 
+    as.factor(POSITIVE) ~ 1 + (1 | YEAR) + (1 | X:Y),
+    family = "binomial"
+  )
 summary(model_null_phetel)
 
 # TEST THE YEAR EFFECT
 model_nau_yf <- glm(data = data %>%
                  filter(DRUH == "Phengaris nausithous"), 
                as.factor(POSITIVE) ~ as.factor(YEAR),
-               family ="binomial")
+               family = "binomial")
 summary(model_nau_yf)
 
 model_nau_yl <- glm(data = data %>%
@@ -1291,9 +1293,11 @@ data_sum %>%
 #----------------------------------------------------------#
 ## Both species -----
 #----------------------------------------------------------#
-modelboth <- glmer(data = data, 
-                          as.factor(POSITIVE) ~ as.factor(SPEC_NUM)*as.factor(DRUH) + (1 | YEAR) + (1 | (X:Y)),
-                          family ="binomial")
+modelboth <- glmer(
+  data = data, 
+  as.factor(POSITIVE) ~ as.factor(SPEC_NUM) * as.factor(DRUH) + (1 | YEAR) + (1 | (X:Y)),
+  family ="binomial"
+  )
 summary(modelboth)
 
 

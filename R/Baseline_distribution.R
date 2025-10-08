@@ -6,9 +6,10 @@
 # Get targeted monitoring occurrence -----
 #----------------------------------------------------------#
 
-data_report_intersection <-
+data_report_intersection_Pnau <-
   sf::st_intersection(
-    phengaris_lokal_new,
+    phengaris_lokal_new %>%
+      dplyr::filter(DRUH == "Phengaris nausithous"),
     range_nausithous
   ) %>%
   sf::st_drop_geometry() %>%
@@ -20,18 +21,39 @@ data_report_intersection <-
     range_Pnau = dplyr::case_when(
       row_n %in% range_nausithous$row_n ~ 1,
       TRUE ~ 0
-    ),
+    )
+  )
+
+data_report_intersection_Ptel <-
+  sf::st_intersection(
+    phengaris_lokal_new %>%
+      dplyr::filter(DRUH == "Phengaris teleius"),
+    range_teleius
+  ) %>%
+  sf::st_drop_geometry() %>%
+  dplyr::filter(
+    ZDROJ %in% target_mon_zdroj             # use only target monitoring efforts
+  ) %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(
     range_Ptel = dplyr::case_when(
       row_n %in% range_teleius$row_n ~ 1,
       TRUE ~ 0
-    ),
+    )
+  )
+
+data_report_intersection <-
+  dplyr::bind_rows(
+    data_report_intersection_Pnau,
+    data_report_intersection_Ptel
+  ) %>%
+  dplyr::mutate(
     range_both = sum(
       range_Pnau,
       range_Ptel,
       na.rm = TRUE
     )
   )
-
 
 #--------------------------------------------------#
 ## Get mapping fields with monitoring of P. nausithous -----
@@ -131,7 +153,7 @@ data_with_imputed %>%
   )
 
 #----------------------------------------------------------#
-# REP Export imputed data -----
+# Export imputed data -----
 #----------------------------------------------------------#
 
 readr::write_csv(
