@@ -14,6 +14,7 @@
 # --- 1. Install and activate renv --------------------------------------------
 # setup_minimal.R — minimal, idempotent package loader (Windows: binary-first)
 pkgs <- c("tidyverse","sf","sp","proj4","openxlsx","lmerTest","vegan",
+          "ggplot2", "ggrepel", "grid",
           "GLMMadaptive","RCzechia","rvest","httr","xml2","Matrix","lme4","remotes")
 type <- if (.Platform$OS.type=="windows") "binary" else "source"
 
