@@ -1,13 +1,13 @@
 #----------------------------------------------------------#
 #
 #
-#       Sanguisorba Phengaris spp. management in Czechia
+#       Phengaris spp. management in Czechia
 #
-#                     Config file
+#                   Config file
 #
 #
-#                      Jonáš Gaigr
-#                         2025
+#                   Jonáš Gaigr
+#                       2025
 #
 #----------------------------------------------------------#
 
@@ -260,40 +260,30 @@ lokal_Pnau_p_new <- sf::st_read(
   "Data/Input/Phengaris_nausithous_2019_2024/w03_nd_lokalizace_p.shp"
   ) %>%
   sf::st_set_crs(5514) %>%  # assign the correct CRS
-  sf::st_transform(5514) %>%
-  sf::st_cast("POLYGON") %>%
   sf::st_make_valid()
 
 lokal_Pnau_l_new <- sf::st_read(
   "Data/Input/Phengaris_nausithous_2019_2024/w03_nd_lokalizace_l.shp"
   ) %>%
   sf::st_set_crs(5514) %>%  # assign the correct CRS
-  sf::st_transform(5514) %>%
-  sf::st_cast("LINESTRING") %>%
   sf::st_make_valid()
 
 lokal_Ptel_b_new <- sf::st_read(
   "Data/Input/Phengaris_teleius_2019_2024/w03_nd_lokalizace_b.shp"
   ) %>%
   sf::st_set_crs(5514) %>%  # assign the correct CRS
-  sf::st_transform(5514) %>%
-  sf::st_cast("POINT") %>%
   sf::st_make_valid()
 
 lokal_Ptel_p_new <- sf::st_read(
   "Data/Input/Phengaris_teleius_2019_2024/w03_nd_lokalizace_p.shp"
   ) %>%
   sf::st_set_crs(5514) %>%  # assign the correct CRS
-  sf::st_transform(5514) %>%
-  sf::st_cast("POLYGON") %>%
   sf::st_make_valid()
 
 lokal_Ptel_l_new <- sf::st_read(
   "Data/Input/Phengaris_teleius_2019_2024/w03_nd_lokalizace_l.shp"
   ) %>%
   sf::st_set_crs(5514) %>%  # assign the correct CRS
-  sf::st_transform(5514) %>%
-  sf::st_cast("LINESTRING") %>%
   sf::st_make_valid()
 
 lokal_new <- dplyr::bind_rows(
@@ -308,17 +298,57 @@ lokal_new <- dplyr::bind_rows(
     ID_LOKAL = idx_nd_lok
     ) %>%
   sf::st_as_sf() %>%
-  sf::st_make_valid()
+  sf::st_make_valid() %>%
+  dplyr::distinct()
 
 phengaris_lokal_new <- 
   data_new %>%
   dplyr::left_join(
     ., 
-    lokal_new
+    lokal_new,
+    by = "ID_LOKAL"
     ) %>%
   sf::st_as_sf() %>%
   sf::st_make_valid()
 
+#----------------------------------------------------------#
+# List ZDROJ for analyis -----
+#----------------------------------------------------------#
+target_mon_zdroj <- c(
+  "Kolektiv autorů (2017) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2018) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2021) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
+  "Kolektiv autorů (2022) Monitoring motýlů.",
+  "Kolektiv autorů (2023) Monitoring motýlů.",
+  "Kolektiv autorů (2024) Monitoring motýlů."
+  )
+
+#----------------------------------------------------------#
+# Delete Temp files -----
+#----------------------------------------------------------#
+temp_dir <- "Data/Temp"
+
+# List all files and folders inside, full paths
+files_to_delete <- list.files(temp_dir, full.names = TRUE, recursive = TRUE)
+
+# Delete all files and folders
+file.remove(files_to_delete[!dir.exists(files_to_delete)])  # Remove files only
+
+# Remove directories (empty after deleting files inside)
+dirs_to_delete <- list.dirs(temp_dir, recursive = TRUE, full.names = TRUE)
+# Sort in decreasing order to delete subfolders before parents
+dirs_to_delete <- dirs_to_delete[order(nchar(dirs_to_delete), decreasing = TRUE)]
+
+# Remove directories
+for (d in dirs_to_delete) {
+  unlink(d, recursive = TRUE, force = TRUE)
+}
+
+# DEV ----
 #--------------------------------------------------#
 ## Load habitat layer -----
 #--------------------------------------------------#
@@ -383,13 +413,13 @@ for (region in regions) {
       .cookies = setNames(
         login_cookies$value, 
         login_cookies$name
-        )
-      ),
+      )
+    ),
     write_disk(
       dest_file, 
       overwrite = TRUE
-      )
     )
+  )
   
   if (status_code(res) == 200) {
     cat("Downloaded", region, "\nUnzipping...\n")
@@ -398,43 +428,6 @@ for (region in regions) {
   } else {
     cat("Failed to download", region, "- HTTP status:", status_code(res), "\n")
   }
-}
-
-#----------------------------------------------------------#
-# List ZDROJ for analyis -----
-#----------------------------------------------------------#
-target_mon_zdroj <- c(
-  "Kolektiv autorů (2017) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2018) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2021) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2022) Monitoring motýlů.",
-  "Kolektiv autorů (2023) Monitoring motýlů.",
-  "Kolektiv autorů (2024) Monitoring motýlů."
-  )
-
-#----------------------------------------------------------#
-# Delete Temp files -----
-#----------------------------------------------------------#
-temp_dir <- "Data/Temp"
-
-# List all files and folders inside, full paths
-files_to_delete <- list.files(temp_dir, full.names = TRUE, recursive = TRUE)
-
-# Delete all files and folders
-file.remove(files_to_delete[!dir.exists(files_to_delete)])  # Remove files only
-
-# Remove directories (empty after deleting files inside)
-dirs_to_delete <- list.dirs(temp_dir, recursive = TRUE, full.names = TRUE)
-# Sort in decreasing order to delete subfolders before parents
-dirs_to_delete <- dirs_to_delete[order(nchar(dirs_to_delete), decreasing = TRUE)]
-
-# Remove directories
-for (d in dirs_to_delete) {
-  unlink(d, recursive = TRUE, force = TRUE)
 }
 
 #----------------------------------------------------------#
