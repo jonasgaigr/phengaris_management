@@ -31,9 +31,13 @@ phengaris_both_monitored <-
     NAZ_LOKAL, 
     DATUM_OD
   ) %>%
-  summarise(ID_NALEZ = unique(ID_NALEZ),
-            SPEC_NUM = length(unique(DRUH))) %>%
-  dplyr::filter(SPEC_NUM == 2)
+  summarise(
+    ID_NALEZ = unique(ID_NALEZ)[1],
+    SPEC_NUM = length(unique(DRUH))
+    ) %>%
+  dplyr::filter(
+    SPEC_NUM == 2
+    )
 
 #--------------------------------------------------#
 ## Sites with both species present -----
@@ -48,9 +52,13 @@ phengaris_both_present <-
     NAZ_LOKAL, 
     DATUM_OD
     ) %>%
-  summarise(ID_NALEZ = unique(ID_NALEZ),
-            SPEC_NUM = length(unique(DRUH))) %>%
-  dplyr::filter(SPEC_NUM == 2)
+  summarise(
+    ID_NALEZ = unique(ID_NALEZ)[1],
+    SPEC_NUM = length(unique(DRUH))
+    ) %>%
+  dplyr::filter(
+    SPEC_NUM == 2
+    )
 
 
 #----------------------------------------------------------#
