@@ -35,7 +35,7 @@ positivity <-
 
 data %>%
   group_by(YEAR) %>%
-  summarise(length(unique(POLE)))
+  summarise(length(unique(row_n)))
 
 year_stats <-
   data %>%
@@ -428,11 +428,6 @@ model_nau_yl <- glm(data = data %>%
                 family ="binomial")
 summary(model_nau_yl)
 
-ggplot(
-  data = data %>%
-       filter(DRUH == "Phengaris nausithous"),
-     as.factor(POSITIVE) ~ YEAR
-     )
 
 model_nau_pyl <- glm(data = data %>%
                   filter(DRUH == "Phengaris nausithous"), 
@@ -1487,11 +1482,14 @@ data %>%
 ## Year effects -----
 #--------------------------------------------------#
 
-ggplot(data = year_stats, 
-       aes(y = as.numeric(COUNT), 
-           x = as.factor(YEAR),
-           fill = as.factor(POSITIVE))) +
-  geom_boxplot() 
+ggplot(
+  data = year_stats, 
+  aes(y = as.numeric(COUNT), 
+      x = as.factor(YEAR),
+      color = as.factor(POSITIVE)
+      )
+  ) +
+  geom_point() 
 
 #--------------------------------------------------#
 ## Protected areas -----
@@ -1674,8 +1672,3 @@ ggplot(data = data_man_sum %>%
   xlab("\nrecorded management at managed sites with P. teleius") +
   ylab("number of findings\n") +
   theme_classic()
-
-
-
-
-
