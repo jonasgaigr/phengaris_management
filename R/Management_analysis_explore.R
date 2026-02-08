@@ -400,3 +400,97 @@ ggplot(data = data_evl_sum %>%
 data$UMIST_NAL %>% unique
 data$POP_BIOT %>% unique
 data$AREA_SITE %>% log10() %>% hist
+
+#----------------------------------------------------------#
+# 11. Save Results (DOCX & CSV) -----
+#----------------------------------------------------------#
+# This section requires 'officer' and 'flextable' packages
+# Creates an 'Output' folder if it doesn't exist
+
+if(!dir.exists("Outputs")) {
+  dir.create("Outputs")
+}
+
+# Helper function to save CSV in Windows-1250 encoding
+save_win_csv <- function(data_obj, filename) {
+  write.csv(
+    data_obj, 
+    file = file.path("Outputs", filename), 
+    fileEncoding = "Windows-1250", 
+    row.names = FALSE
+  )
+}
+
+# Helper function to add table to docx
+add_flex <- function(doc, title, data) {
+  doc %>% 
+    officer::body_add_par(title, style = "heading 1") %>% 
+    flextable::body_add_flextable(flextable::flextable(data)) %>%
+    officer::body_add_par("", style = "Normal") # Spacer
+}
+
+# --- A. Save General & Temporal Stats ---
+save_win_csv(positivity, "01_General_Positivity.csv")
+save_win_csv(data_sum, "01_General_DataSum.csv")
+save_win_csv(roky, "01_General_YearsPerLoc.csv")
+save_win_csv(year_stats, "02_Temporal_YearStats.csv")
+
+doc_general <- officer::read_docx() %>%
+  add_flex("Positivity by Year/Species", positivity) %>%
+  add_flex("Data Summary", data_sum) %>%
+  add_flex("Years per Location", roky) %>%
+  add_flex("Observation Counts per Year", year_stats)
+
+print(doc_general, target = "Outputs/01_General_and_Temporal.docx")
+
+# --- B. Save Observer Stats ---
+save_win_csv(observer_stats, "03_Observer_Stats.csv")
+
+doc_obs <- officer::read_docx() %>%
+  add_flex("Observer Activity", observer_stats)
+
+print(doc_obs, target = "Outputs/02_Observers.docx")
+
+# --- C. Save Species & Abundance Summaries ---
+save_win_csv(data_spe_sum, "04_Species_Specimen_Count.csv")
+
+doc_spec <- officer::read_docx() %>%
+  add_flex("Specimen Counts by Species", data_spe_sum)
+
+print(doc_spec, target = "Outputs/03_Species_Abundance.docx")
+
+# --- D. Save Habitat & Plant Stats ---
+save_win_csv(habitat_counts, "05_Habitat_Counts.csv")
+save_win_csv(data_plant_sum, "05_Plant_Summary.csv")
+
+doc_hab <- officer::read_docx() %>%
+  add_flex("Habitat Type Counts", habitat_counts) %>%
+  add_flex("Host Plant Abundance", data_plant_sum)
+
+print(doc_hab, target = "Outputs/04_Habitat_Plants.docx")
+
+# --- E. Save Management Stats ---
+save_win_csv(data_method_sum, "06_Management_Method.csv")
+save_win_csv(data_time_sum, "06_Management_Timing.csv")
+save_win_csv(data_man_sum, "06_Management_Combined.csv")
+
+doc_man <- officer::read_docx() %>%
+  add_flex("Management Methods", data_method_sum) %>%
+  add_flex("Management Timing", data_time_sum) %>%
+  add_flex("Combined Management Assessment", data_man_sum)
+
+print(doc_man, target = "Outputs/05_Management.docx")
+
+# --- F. Save Protected Areas & Mapping ---
+save_win_csv(data_evl_sum, "07_Protected_EVL_Summary.csv")
+save_win_csv(data_evlcomb_sum, "07_Protected_EVL_Combined.csv")
+save_win_csv(data_mzchu_sum, "07_Protected_MZCHU_Summary.csv")
+save_win_csv(mapfield, "08_Mapping_Field.csv")
+
+doc_prot <- officer::read_docx() %>%
+  add_flex("EVL Sites Summary", data_evl_sum) %>%
+  add_flex("EVL Combined Stats", data_evlcomb_sum) %>%
+  add_flex("MZCHU Sites Summary", data_mzchu_sum) %>%
+  add_flex("Mapping Field Data", mapfield)
+
+print(doc_prot, target = "Outputs/06_Protected_Areas_Mapping.docx")
