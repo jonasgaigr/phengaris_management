@@ -931,7 +931,7 @@ phenpole %>%
   arrange(-pocet)
 
 
-# ZSUTIS SEMIKVANTATIVNĚ
+# ZKUSIT SEMIKVANTATIVNĚ
 data %>%
   filter(is.na(POCET) == FALSE) %>%
   pull(POCET) %>%
