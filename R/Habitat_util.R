@@ -1,34 +1,32 @@
-# INTERSECT ----
-# VMB
-vmb_shp_sjtsk_22_read <- sf::st_read("//bali.nature.cz/du/Mapovani/Biotopy/CR_2022/20220531_Segment.shp")
-#vmb_hab_dbf_22 <- sf::st_read("//bali.nature.cz/du/Mapovani/Biotopy/CR_2022/Biotop/HAB_BIOTOP.dbf")
-#vmb_pb_dbf_22 <- sf::st_read("//bali.nature.cz/du/Mapovani/Biotopy/CR_2022/Biotop/PB_BIOTOP.dbf")
-vmb_dbf_22 <- sf::st_read("//bali.nature.cz/du/Mapovani/Biotopy/CR_2022/Biotop/20220531_BIOTOP.dbf")
+#----------------------------------------------------------#
+# 1. Load data -----
+#----------------------------------------------------------#
 
-vmb_shp_sjtsk_22 <- vmb_shp_sjtsk_22_read %>%
-  dplyr::left_join(vmb_dbf_22, by = "SEGMENT_ID") %>%
-  dplyr::group_by(SEGMENT_ID) %>%
-  dplyr::mutate(moz_num = n(),
-                FSB_EVAL_prep = dplyr::case_when(sum(STEJ_PR, na.rm = TRUE) < 50 ~ "X",
-                                                 sum(STEJ_PR, na.rm = TRUE) >= 50 &
-                                                   sum(STEJ_PR, na.rm = TRUE) < 200 ~ "moz.",
-                                                 sum(STEJ_PR, na.rm = TRUE) == 200 ~ NA_character_)) %>%
-  dplyr::ungroup() %>%
-  dplyr::mutate(FSB_EVAL = dplyr::case_when(FSB_EVAL_prep == "moz." ~ "moz.",
-                                            FSB_EVAL_prep == "X" ~ "X",
-                                            TRUE ~ FSB),
-                #HABITAT = dplyr::case_when(HABITAT == 6210 & HABIT_TYP == "p" ~ "6210p",
-                #                           TRUE ~ HABITAT)
+data <- 
+  readr::read_csv(
+    "Data/Processed/data_clean.csv"
   )
 
-rm(vmb_shp_sjtsk_22_read, vmb_dbf_22)
+lokal_new <-
+  sf::st_read("Data/Processed/lokal_new.gpkg")
 
-lokal_vmb <- lokal %>%
-  sf::st_intersection(., vmb_shp_sjtsk_22) %>%
-  dplyr::mutate(AREA_real = units::drop_units(sf::st_area(geometry)))
+habitat_layer <- load_vmb(vmb_x = 0)
 
-st_write(lokal_vmb,
-         "lokal_vmb_2.gpkg")
+# INTERSECT ----
+
+lokal_vmb <- 
+  sf::st_intersection(
+    data,
+    vmb_shp_sjtsk_22
+    ) %>%
+  dplyr::mutate(
+    AREA_real = units::drop_units(sf::st_area(geometry))
+    )
+
+sf::st_write(
+  data_habitat,
+  "Data/Processed/lokal_vmb_2.gpkg"
+  )
 
 # OBSERVED HABITATS 
 data %>%
