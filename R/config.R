@@ -311,6 +311,11 @@ phengaris_lokal_new <-
   sf::st_as_sf() %>%
   sf::st_make_valid()
 
+sf::st_write(
+  lokal_new,
+  "Data/Processed/lokal_new.gpkg"
+)
+
 #----------------------------------------------------------#
 # List ZDROJ for analyis -----
 #----------------------------------------------------------#
@@ -669,8 +674,6 @@ load_vmb <- function(vmb_x = 1, clean = TRUE) {
   
   return(output)
 }
-
-load_vmb(vmb_x = 0)
 
 # DEV ----
 #--------------------------------------------------#
