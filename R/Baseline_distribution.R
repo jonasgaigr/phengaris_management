@@ -76,53 +76,66 @@ data_mon_Ptel <-
   )
 
 #--------------------------------------------------#
-## Impute P. nausithous -----
+## Impute P. nausithous (Logic Corrected) -----
 #--------------------------------------------------#
 
 imputed_pnau <- 
-  data_report_intersection %>%
+  sf::st_intersection(
+    # 1. Take ALL unfiltered P. teleius target records as proof of survey
+    phengaris_lokal_new %>% 
+      dplyr::filter(DRUH == "Phengaris teleius", ZDROJ %in% target_mon_zdroj),
+    # 2. Intersect with the target range (this also grabs range attributes)
+    range_nausithous 
+  ) %>%
+  sf::st_drop_geometry() %>%
   dplyr::filter(
-    range_Pnau == 1,                         # P. nausithous present in the past
-    !row_n %in% data_mon_Pnau$row_n     # no recent *positive* record
+    # 3. Ensure no data for P. nausithous already exists here
+    !row_n %in% data_mon_Pnau$row_n     
   ) %>%
   dplyr::mutate(
     DRUH = "Phengaris nausithous",
     NEGATIV = 1,
-    IMPUTED = TRUE
+    IMPUTED = TRUE,
+    # 4. Rebuild the range flags for consistency in the final bind
+    range_Pnau = 1,
+    range_Ptel = dplyr::case_when(row_n %in% range_teleius$row_n ~ 1, TRUE ~ 0),
+    range_both = range_Pnau + range_Ptel
   ) %>%
   dplyr::select(
-    ID_LOKAL, 
-    row_n, 
-    DRUH, 
-    NEGATIV, 
-    IMPUTED,
-    dplyr::everything()
+    ID_LOKAL, row_n, DRUH, NEGATIV, IMPUTED, range_Pnau, range_Ptel, range_both, dplyr::everything()
   )
 
 #--------------------------------------------------#
-## Impute P. teleius -----
+## Impute P. teleius (Logic Corrected) -----
 #--------------------------------------------------#
 
 imputed_ptel <- 
-  data_mon_Pnau %>%
+  sf::st_intersection(
+    # 1. Take ALL unfiltered P. nausithous target records as proof of survey
+    phengaris_lokal_new %>% 
+      dplyr::filter(DRUH == "Phengaris nausithous", ZDROJ %in% target_mon_zdroj),
+    # 2. Intersect with the target range
+    range_teleius 
+  ) %>%
+  sf::st_drop_geometry() %>%
   dplyr::filter(
-    range_Ptel == 1,                         # P. teleius present in the past
-    !row_n %in% data_mon_Ptel$row_n     # no recent *positive* record
+    # 3. Ensure no data for P. teleius already exists here
+    !row_n %in% data_mon_Ptel$row_n     
   ) %>%
   dplyr::mutate(
     DRUH = "Phengaris teleius",
     NEGATIV = 1,
-    IMPUTED = TRUE
+    IMPUTED = TRUE,
+    # 4. Rebuild the range flags for consistency in the final bind
+    range_Ptel = 1,
+    range_Pnau = dplyr::case_when(row_n %in% range_nausithous$row_n ~ 1, TRUE ~ 0),
+    range_both = range_Pnau + range_Ptel
   ) %>%
   dplyr::select(
-    ID_LOKAL, 
-    row_n, 
-    DRUH, 
-    NEGATIV, 
-    IMPUTED,
-    dplyr::everything()
+    ID_LOKAL, row_n, DRUH, NEGATIV, IMPUTED, range_Pnau, range_Ptel, range_both, dplyr::everything()
   )
 
+#----------------------------------------------------------#
 # Combine original data with imputed values -----
 #----------------------------------------------------------#
 
@@ -144,12 +157,13 @@ data_with_imputed <-
 table(data_with_imputed$IMPUTED)
 
 data_with_imputed %>%
-  group_by(
+  dplyr::group_by(
     DRUH, 
-    NEGATIV
+    NEGATIV,
+    IMPUTED
   ) %>%
-  reframe(
-    number = n()
+  dplyr::reframe(
+    number = dplyr::n()
   )
 
 #----------------------------------------------------------#
