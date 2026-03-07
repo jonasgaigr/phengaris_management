@@ -28,6 +28,11 @@ sf::st_write(
   "Data/Processed/lokal_vmb_2.gpkg"
   )
 
+lokal_new_vmb <- 
+  sf::st_read(
+    "Data/Processed/lokal_new.gpkg"
+  )
+
 # OBSERVED HABITATS 
 data %>%
   mutate(
