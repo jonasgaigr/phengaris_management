@@ -1,3 +1,11 @@
+#----------------------------------------------------------#
+# 1. Load data -----
+#----------------------------------------------------------#
+
+data <- 
+  readr::read_csv(
+    "Data/Processed/data_clean.csv"
+  )
 
 #----------------------------------------------------------#
 ## Threats and pressures -----
@@ -87,16 +95,19 @@ data_tap <- data_tap_all %>%
                 None
   )
 
-write.csv2(data_tap_all,
-           "data_pca.csv",
-           fileEncoding = "Windows-1250")
-write.csv2(data %>%
-             st_drop_geometry(),
-           "data_data_export.csv",
-           fileEncoding = "Windows-1250",
-           row.names = FALSE)
+write.csv2(
+  data_tap_all,
+  "Outputs/data_pca.csv",
+  fileEncoding = "Windows-1250"
+  )
 
-
+write.csv2(
+  data %>%
+    st_drop_geometry(),
+  "Outputs/data_data_export.csv",
+  fileEncoding = "Windows-1250",
+  row.names = FALSE
+  )
 
 # ---- 0) Prepare response matrix (Y) and metadata (meta) ----
 # assume `data_tap_all` and `data_tap` are already produced by your snippet.
@@ -195,7 +206,7 @@ pca_gg <- ggplot(scores_df, aes(x = PC1, y = PC2, color = DRUH, shape = POSITIVE
 
 # print/inspect
 print(pca_gg)
-# ggsave("PCA_threats_biplot.png", pca_gg, width = 8, height = 6, dpi = 300)
+ggsave("Outputs/Plots/PCA_threats_biplot.png", pca_gg, width = 8, height = 6, dpi = 300)
 
 
 # -----------------------
