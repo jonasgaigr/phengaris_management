@@ -11,26 +11,41 @@ lokal_new <-
   sf::st_read("Data/Processed/lokal_new.gpkg")
 
 habitat_layer <- load_vmb(vmb_x = 0)
+habitat_layer_shape <- habitat_layer$vmb_shp_sjtsk_akt
 
 # INTERSECT ----
 
-lokal_vmb <- 
-  sf::st_intersection(
-    data,
-    vmb_shp_sjtsk_22
-    ) %>%
-  dplyr::mutate(
-    AREA_real = units::drop_units(sf::st_area(geometry))
-    )
+# 1. Transform the habitat layer to match the CRS of lokal_new
+habitat_layer_transformed <- sf::st_transform(
+  habitat_layer_shape, 
+  crs = sf::st_crs(lokal_new)
+)
 
-sf::st_write(
-  data_habitat,
-  "Data/Processed/lokal_vmb_2.gpkg"
+# 2. Run the intersection with the matching layers
+lokal_vmb <- sf::st_intersection(
+  lokal_new,
+  habitat_layer_transformed
+  ) %>%
+  dplyr::mutate(
+    AREA_real = units::drop_units(sf::st_area(geom)),
+    LENGTH_real = units::drop_units(sf::st_length(geom))
   )
 
-lokal_new_vmb <- 
+sf::st_write(
+  lokal_vmb,
+  "Data/Processed/lokal_vmb.gpkg",
+  delete_dsn = TRUE
+  )
+write.csv2(
+  lokal_vmb %>%
+    sf::st_drop_geometry(),
+  "Data/Processed/data_lokal_vmb.csv",
+  row.names = FALSE
+  )
+
+lokal_vmb <- 
   sf::st_read(
-    "Data/Processed/lokal_new.gpkg"
+    "Data/Processed/lokal_vmb.gpkg"
   )
 
 # OBSERVED HABITATS 
