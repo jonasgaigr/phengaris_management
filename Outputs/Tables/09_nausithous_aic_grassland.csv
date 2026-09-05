@@ -1,0 +1,3 @@
+"model","label","n_obs","df","AIC","BIC","logLik","delta_AIC"
+"nau_management_ttp","Mowing timing by method by grassland type",1752,7,2291.90962701075,2330.18921991123,-1138.95481350538,0
+"nau_ttp","Regularly managed grassland",3195,4,4283.39885676178,4307.67622622903,-2137.69942838089,1991.48922975103

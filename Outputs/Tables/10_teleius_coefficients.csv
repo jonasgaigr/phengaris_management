@@ -1,0 +1,310 @@
+"model","label","term","estimate","std_error","statistic","p_value"
+"tel_null","Null model with year and site random effects","(Intercept)",-1.89521921836391,0.214979455121019,-8.81581552663732,1.18816981276946e-18
+"tel_null_glm","Intercept-only model","(Intercept)",-1.71460037336851,0.0764258366462766,-22.4348263441881,1.80010661714088e-111
+"tel_year_factor","Year as a factor","(Intercept)",-1.45278410238872,0.175635854017262,-8.27156909685386,1.32207371844499e-16
+"tel_year_factor","Year as a factor","as.factor(YEAR)2020",-0.285666813384833,0.223882201659102,-1.27596928772305,0.201966376015557
+"tel_year_factor","Year as a factor","as.factor(YEAR)2021",0.251314428280883,0.251727531686182,0.99835892640534,0.318105343052813
+"tel_year_factor","Year as a factor","as.factor(YEAR)2022",-0.437556195511783,0.248910853311633,-1.75788315250347,0.0787673929939823
+"tel_year_factor","Year as a factor","as.factor(YEAR)2023",-0.552549467137428,0.334502480178863,-1.65185461955909,0.0985641910246038
+"tel_year_factor","Year as a factor","as.factor(YEAR)2024",-1.04865184934943,0.372886749526547,-2.81225291775828,0.00491958036726698
+"tel_year_linear","Year as a linear trend","(Intercept)",299.162489848539,104.359776122422,2.86664556943471,0.00414847323722552
+"tel_year_linear","Year as a linear trend","as.numeric(YEAR)",-0.148879719536778,0.051642266372562,-2.88290445006261,0.00394026941400727
+"tel_year_poly","Year as a quadratic trend","(Intercept)",-1.7411346801382,0.078472772382912,-22.1877554120586,4.50945818364554e-109
+"tel_year_poly","Year as a quadratic trend","poly(as.numeric(YEAR), 2)1",-9.28807986557777,3.13041135915662,-2.96704771352482,0.00300674294829292
+"tel_year_poly","Year as a quadratic trend","poly(as.numeric(YEAR), 2)2",-4.63154248391773,3.04098572019343,-1.52303986604157,0.127748731855763
+"tel_spatial","Spatial position","(Intercept)",-1.67460371156174,0.170936456092628,-9.79664461192703,1.1638772360848e-22
+"tel_spatial","Spatial position","X:Y",-6.57358216586251e-18,2.52147022971543e-17,-0.260704333860185,0.794320523672262
+"tel_spatiotemporal","Year and spatial position, 2018 excluded","(Intercept)",300.325927793069,104.44096408664,2.87555683174212,0.00403315532771732
+"tel_spatiotemporal","Year and spatial position, 2018 excluded","as.numeric(YEAR)",-0.149429248644591,0.0516801346228729,-2.89142529784464,0.00383498752034612
+"tel_spatiotemporal","Year and spatial position, 2018 excluded","X:Y",-8.68979637658967e-18,2.49767439972681e-17,-0.347915500016341,0.727903644313244
+"tel_mapping_field","Mapping field as a fixed effect","(Intercept)",-21.5661150571776,29233.174651197,-0.000737727438586439,0.999411378720063
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5056",43.1321836924634,35802.8804265328,0.00120471267056208,0.999038778592464
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5152",22.2592622377387,29233.1746768544,0.000761438416586434,0.999392460102111
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5153",4.65361698932431e-05,31575.3237825914,1.47381449557455e-09,0.999999998824066
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5154",4.65338240248522e-05,41341.4311949791,1.12559780055471e-09,0.999999999101903
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5155",4.65365061824696e-05,30336.6444293282,1.53400308629652e-09,0.999999998776043
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5156",21.5661150571783,29233.1746854058,0.00073772743772317,0.999411378720752
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5250",21.2296428205561,29233.174657061,0.000726217493296723,0.999420562325245
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5252",22.2592622377361,29233.1746768511,0.000761438416586433,0.999392460102111
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5253",4.65372253266738e-05,30532.9910046349,1.52416202263347e-09,0.999999998783895
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5254",20.4675027685095,29233.1746740025,0.000700146425995656,0.999441364022038
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5255",4.65349008735523e-05,30426.7938848016,1.52940533431611e-09,0.999999998779711
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5256",4.65336361862718e-05,33755.3498573947,1.3785558847075e-09,0.999999998900072
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5257",21.5661150571785,29233.1746854061,0.000737727437723169,0.999411378720752
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5351",43.1321835914452,41341.4312953276,0.00104331616588998,0.999167554290221
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5352",21.8537971296295,29233.1746611746,0.000747568383623218,0.99940352678412
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5353",23.6455565988587,29233.1746704404,0.000808860374058799,0.999354622866067
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5354",20.4675027685091,29233.1746568979,0.000700146426405304,0.999441364021711
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5355",4.65344627948552e-05,30336.6444233945,1.5339357295222e-09,0.999999998776096
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5356",4.65340768043209e-05,41341.4311790002,1.12560391542416e-09,0.999999999101898
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5357",4.65342677320382e-05,30659.9419979354,1.5177545911591e-09,0.999999998789007
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5361",4.65343146127344e-05,31006.3772329694,1.50079818300262e-09,0.999999998802536
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5445",4.65345622341496e-05,35802.8799929631,1.2997435469799e-09,0.999999998962955
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5453",4.65289984519058e-05,35802.8800042333,1.29958814616043e-09,0.999999998963079
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5454",19.486673515498,29233.1746704394,0.0006665945021429,0.999468134577813
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5455",4.65355570206671e-05,31575.3237850594,1.47379508560057e-09,0.999999998824082
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5456",20.8729678766173,29233.1746768523,0.000714016459291542,0.99943029733938
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5457",4.65340428673423e-05,30426.7938857458,1.52937713523417e-09,0.999999998779734
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5458",4.65344663220928e-05,30080.6464402085,1.54699023555194e-09,0.99999999876568
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5459",4.65347221378015e-05,32023.2038747707,1.453156352493e-09,0.999999998840549
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5545",4.65341732952777e-05,31575.323783198,1.47375126268823e-09,0.999999998824117
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5552",4.65333536327902e-05,35802.8799906969,1.29970978996331e-09,0.999999998962982
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5553",4.65337718216911e-05,35802.8799990666,1.29972146997404e-09,0.999999998962972
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5554",4.65342191376162e-05,31251.4798107921,1.48902450121887e-09,0.99999999881193
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5555",4.653432461096e-05,30336.6444238875,1.53393117448146e-09,0.9999999987761
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5556",4.6534974026346e-05,32683.5181401968,1.42380553484888e-09,0.999999998863968
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5557",4.65346503047994e-05,32023.2038750984,1.45315410932337e-09,0.999999998840551
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5558",4.65343767305568e-05,31575.3237838907,1.47375770551236e-09,0.999999998824112
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5642",21.2784329847259,29233.1746611746,0.000727886493046081,0.999419230656465
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5643",4.65342242512507e-05,30426.7938851544,1.52938309658565e-09,0.999999998779729
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5644",4.65342570992726e-05,29921.0739042343,1.55523352030113e-09,0.999999998759103
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5652",4.65340388886682e-05,32683.5181405708,1.42377692292876e-09,0.99999999886399
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5653",21.5661150571779,29233.1746854052,0.000737727437723174,0.999411378720752
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5655",4.65343102324445e-05,35802.8799940498,1.29973650835291e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5656",4.65342018475116e-05,33755.3498569239,1.37857264240342e-09,0.999999998900058
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5742",21.0552894334125,29233.1746603206,0.000720253262879169,0.999425321091368
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5743",19.4260488936824,29233.1746607566,0.000664520672801252,0.99946978925386
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5744",4.65345324359137e-05,33755.3498554167,1.37858243612446e-09,0.99999999890005
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5753",4.65344586515146e-05,41341.4311712896,1.12561315206309e-09,0.999999999101891
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5754",4.6534354045272e-05,30532.9909999379,1.5240679842131e-09,0.99999999878397
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5755",4.65355074097003e-05,41341.4311664755,1.12563852040606e-09,0.99999999910187
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5757",4.65357622159462e-05,41341.4311633905,1.12564468394978e-09,0.999999999101865
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5758",4.65341279270807e-05,32023.2038758294,1.45313779681501e-09,0.999999998840564
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5843",43.1321835759758,41341.4311011665,0.00104331617041576,0.99916755428661
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5844",20.8729678766178,29233.1746768532,0.000714016459291541,0.99943029733938
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5853",4.65354919834253e-05,41341.4311665338,1.12563814726124e-09,0.999999999101871
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5854",20.8729678766173,29233.1746768524,0.00071401645929154,0.99943029733938
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5855",4.65343558055425e-05,30814.3940624275,1.51014995496155e-09,0.999999998795075
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5856",4.65343959857579e-05,33755.3498567176,1.37857839374452e-09,0.999999998900054
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5857",4.65342227125777e-05,32023.2038759464,1.4531407567102e-09,0.999999998840561
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5866",4.65345305177304e-05,32023.2038751838,1.453150368686e-09,0.999999998840554
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5867",4.65333451658578e-05,41341.4311815618,1.12558621789106e-09,0.999999999101912
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5943",4.65345429641596e-05,32023.2038750473,1.45315075736128e-09,0.999999998840553
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5944",4.65339334527732e-05,41341.4311752255,1.12560044802366e-09,0.999999999101901
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5952",4.65342207445182e-05,33755.3498574256,1.3785732022055e-09,0.999999998900058
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5953",4.65343065853205e-05,31575.3237843867,1.47375548396849e-09,0.999999998824113
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5957",4.65343435392874e-05,35802.8799938081,1.29973743864559e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5960",4.65343043918462e-05,35802.8799940078,1.29973634522235e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)5967",43.1321835974493,41341.4313554941,0.00104331616451682,0.999167554291317
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6052",4.65340245211913e-05,31251.4798110435,1.48901827377618e-09,0.999999998811935
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6058",4.65339796768132e-05,41341.4311741107,1.12560156615851e-09,0.9999999991019
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6059",4.65343582312527e-05,31006.3772327831,1.50079958977122e-09,0.999999998802535
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6060",4.65339905684777e-05,31575.3237851471,1.47374547558455e-09,0.999999998824121
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6065",4.65339786576069e-05,41341.4311739263,1.12560154151014e-09,0.9999999991019
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6066",4.65344695864347e-05,31575.3237840596,1.47376064627806e-09,0.999999998824109
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6067",43.1321835919132,41341.4312995411,0.00104331616579497,0.999167554290297
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6073",4.65334904624324e-05,35802.8799941554,1.29971361158735e-09,0.999999998962979
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6074",4.65343233110567e-05,41341.4311741871,1.12560987825966e-09,0.999999999101893
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6146",4.65342840507721e-05,29790.0192605807,1.56207633314115e-09,0.999999998753643
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6147",4.65343584955591e-05,31006.3772327432,1.50079959829741e-09,0.999999998802535
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6148",18.3472392323098,29233.1746689856,0.000627617063150345,0.999499234068091
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6149",4.6534335377403e-05,30336.6444238981,1.53393152937986e-09,0.9999999987761
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6151",20.8729678766184,29233.174676854,0.00071401645929154,0.99943029733938
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6152",4.65342796776371e-05,32683.5181402083,1.42378429023494e-09,0.999999998863984
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6158",4.65344581452204e-05,35802.8799932106,1.29974063969281e-09,0.999999998962957
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6159",4.65347244328486e-05,30659.9419975496,1.5177694868623e-09,0.999999998788995
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6160",4.65347711595576e-05,32683.5181399994,1.42379932785163e-09,0.999999998863973
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6161",4.65348026481904e-05,32683.5181398785,1.42380029129763e-09,0.999999998863972
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6165",4.6533996688919e-05,33755.3498578872,1.37856656455439e-09,0.999999998900063
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6166",4.65343205611913e-05,30080.6464402563,1.54698538987897e-09,0.999999998765684
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6167",4.65342879909715e-05,33755.3498566598,1.37857519440849e-09,0.999999998900056
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6171",4.65344279357206e-05,35802.8799932997,1.29973979591668e-09,0.999999998962958
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6172",4.65342832083901e-05,32683.5181401824,1.42378439826461e-09,0.999999998863984
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6173",4.65341534181672e-05,32683.5181405585,1.42378042712669e-09,0.999999998863988
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6174",4.65343613360594e-05,31575.3237840742,1.47375721795544e-09,0.999999998824112
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6243",4.65343956797201e-05,30814.3940624551,1.51015124897161e-09,0.999999998795074
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6244",4.65343056566068e-05,29992.5665658364,1.55152796125199e-09,0.99999999876206
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6245",4.65343383028968e-05,30132.8220491005,1.54430734124638e-09,0.999999998767821
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6246",4.65345481689481e-05,35802.8799929457,1.29974315412941e-09,0.999999998962955
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6247",4.65343599024685e-05,30426.793885035,1.52938755487333e-09,0.999999998779725
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6249",43.132183563486,41341.4310027467,0.00104331617259742,0.999167554284869
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6250",4.6534187634197e-05,41341.4311749,1.12560659637854e-09,0.999999999101896
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6257",4.65342965388739e-05,32023.2038754075,1.45314306213471e-09,0.99999999884056
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6258",4.65341772853752e-05,41341.4311750324,1.12560634604926e-09,0.999999999101896
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6260",4.65345386733308e-05,31575.3237840533,1.47376283428113e-09,0.999999998824107
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6261",43.1321835630783,31251.4797779581,0.00138016451923341,0.998898788388344
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6262",4.65346846422402e-05,41341.4311662024,1.1256186186482e-09,0.999999999101886
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6263",4.65347960698553e-05,41341.431165892,1.12562131395799e-09,0.999999999101884
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6264",20.8729678766183,29233.174664026,0.00071401645960486,0.99943029733913
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6265",4.65343377819133e-05,31251.4798112617,1.48902829763423e-09,0.999999998811927
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6266",4.65338494735062e-05,30532.9910003159,1.52405145873278e-09,0.999999998783983
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6267",4.65343282603621e-05,30659.9419979542,1.51775656534077e-09,0.999999998789005
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6268",4.65342219164464e-05,33755.3498570894,1.37857323693753e-09,0.999999998900058
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6269",4.65343456029062e-05,35802.8799937038,1.29973749628772e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6271",4.65342174823384e-05,33755.3498571129,1.37857310557641e-09,0.999999998900058
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6272",4.65342867665471e-05,31006.3772327654,1.50079728493314e-09,0.999999998802537
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6273",4.65342810574277e-05,31006.3772327747,1.50079710080543e-09,0.999999998802537
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6274",4.65343524397034e-05,30191.8454046759,1.5412887756936e-09,0.999999998770229
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6345",4.65342543179991e-05,41341.4311741631,1.12560820940039e-09,0.999999999101895
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6347",20.8729678766179,29233.1746768533,0.00071401645929154,0.99943029733938
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6348",20.8729678766181,29233.1746768536,0.00071401645929154,0.99943029733938
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6349",43.1321835902473,41341.4312784277,0.0010433161662875,0.999167554289904
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6350",4.65341652825152e-05,32023.2038762023,1.45313896330955e-09,0.999999998840563
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6357",4.65342970821965e-05,32023.2038754863,1.45314307909766e-09,0.99999999884056
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6358",4.65343199713958e-05,30426.7938851576,1.52938624250173e-09,0.999999998779726
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6359",4.65344398212952e-05,41341.4311732291,1.12561269652969e-09,0.999999999101891
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6360",4.65344552832189e-05,41341.4311730541,1.12561307053999e-09,0.999999999101891
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6362",4.65344454359697e-05,41341.4311731294,1.1256128323447e-09,0.999999999101891
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6363",4.65341702026431e-05,41341.4311744326,1.12560617474273e-09,0.999999999101896
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6365",4.6534327629162e-05,30426.7938851181,1.5293864941821e-09,0.999999998779726
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6366",4.65343198866216e-05,31251.4798109746,1.48902772502568e-09,0.999999998811928
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6367",4.65342721794621e-05,32683.5181400796,1.42378406082292e-09,0.999999998863985
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6368",4.65343078891115e-05,33755.3498567453,1.37857578388608e-09,0.999999998900056
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6369",4.65342540346493e-05,32683.5181400607,1.42378350565668e-09,0.999999998863985
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6370",4.65334772578132e-05,33755.3498589035,1.37855117640084e-09,0.999999998900075
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6371",43.132183595373,35802.8800775209,0.00120471267959401,0.999038778585257
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6373",4.65342329846912e-05,31575.3237842105,1.47375315302265e-09,0.999999998824115
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6374",4.6534545185764e-05,32683.5181406159,1.42379241382632e-09,0.999999998863978
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6444",4.65342849601444e-05,29625.5641698828,1.57074763853614e-09,0.999999998746725
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6445",4.65343192262724e-05,29467.9712522701,1.57914906417888e-09,0.999999998740021
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6448",4.65343417750221e-05,35802.8799936501,1.29973738937413e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6449",4.6534326977287e-05,29955.0541937754,1.55347163374376e-09,0.999999998760509
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6450",4.65343984632909e-05,41341.4311733305,1.12561169612605e-09,0.999999999101892
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6460",4.65344233828267e-05,41341.4311730507,1.12561229890757e-09,0.999999999101891
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6464",4.65343461161366e-05,35802.8799936162,1.29973751062579e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6465",4.65344101499391e-05,41341.4311732261,1.125611978815e-09,0.999999999101892
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6466",20.6498243253041,29233.1746631708,0.000706383229438288,0.999436387774093
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6470",4.65343289847847e-05,31575.3237841335,1.47375619337807e-09,0.999999998824113
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6472",23.1755529696124,29233.1746717228,0.000792782625556921,0.999367451049255
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6473",4.65343482413675e-05,31575.3237840735,1.47375680324264e-09,0.999999998824112
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6474",20.4675027685101,29233.1746740032,0.000700146425995659,0.999441364022038
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6475",21.2784329847263,29233.1746611751,0.000727886493046082,0.999419230656465
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6542",4.65342115172497e-05,41341.4311740073,1.12560717410546e-09,0.999999999101895
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6544",4.65342692261975e-05,30814.3940626417,1.51014714524645e-09,0.999999998795077
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6545",4.65342985055199e-05,31251.4798110061,1.48902704086133e-09,0.999999998811928
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6565",4.653442047846e-05,35802.8799936916,1.29973958761584e-09,0.999999998962958
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6566",4.65343179088765e-05,41341.4311735288,1.12560974760527e-09,0.999999999101893
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6567",4.65342715863695e-05,30814.3940626164,1.51014722184085e-09,0.999999998795077
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6568",4.65344935339252e-05,35802.8799934763,1.29974162811495e-09,0.999999998962956
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6569",4.65343206641689e-05,32023.2038754365,1.45314381550258e-09,0.999999998840559
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6571",4.6534320732001e-05,32023.2038754361,1.45314381762082e-09,0.999999998840559
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6572",4.65343197288107e-05,32023.2038754402,1.45314378629365e-09,0.999999998840559
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6573",4.65343169069633e-05,31251.479810947,1.48902762968245e-09,0.999999998811928
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6574",21.566115057178,29233.1746854054,0.000737727437723172,0.999411378720752
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6575",22.2592622377378,29233.1746768533,0.000761438416586434,0.999392460102111
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6576",4.65343128429281e-05,35802.8799936813,1.29973658127896e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6643",4.65343171203032e-05,30532.9909998543,1.52406677487067e-09,0.999999998783971
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6644",4.65343163813841e-05,30659.9419979575,1.51775617789767e-09,0.999999998789006
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6645",4.65343171708051e-05,30532.9909998519,1.5240667765248e-09,0.999999998783971
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6666",4.65343146176368e-05,35802.8799936792,1.29973663084792e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6669",4.65343166386443e-05,35802.8799936692,1.29973668729646e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6670",4.65343161429191e-05,35802.8799936816,1.29973667345005e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6672",22.6647273458462,29233.174674003,0.000775308450026194,0.999381393419838
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6674",43.1321835889412,35802.8800467554,0.00120471268044957,0.999038778584575
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6675",19.6202049081226,29233.1746707448,0.000671162305466521,0.99946448999888
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6676",20.4675027685102,29233.1746740032,0.000700146425995659,0.999441364022038
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6770",4.65343184116577e-05,33755.3498568041,1.37857609561341e-09,0.999999998900055
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6771",4.65343159720195e-05,32023.2038754498,1.45314366897856e-09,0.999999998840559
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6772",21.1606499490699,29233.174665451,0.000723857404857176,0.999422445402879
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6773",21.566115057178,29233.1746683015,0.000737727438154804,0.999411378720408
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6774",24.2741652582803,29233.1746694419,0.000830363637639897,0.999337465749812
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6851",20.8729678766181,29233.1746768535,0.000714016459291541,0.99943029733938
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6853",4.65343435529485e-05,41341.4311734484,1.12561036790703e-09,0.999999999101893
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6870",4.65343176121486e-05,35802.8799936405,1.29973671448817e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6871",20.1798206960581,29233.1746725775,0.000690305480745066,0.999449215958419
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6872",43.1321835656418,32683.5180930235,0.00131969218989459,0.998947038282308
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6873",43.1321835891421,41341.4312678219,0.00104331616652842,0.999167554289712
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6874",43.1321835962577,41341.4313405314,0.0010433161648656,0.999167554291038
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6949",4.65343180614993e-05,35802.8799936605,1.29973672703813e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6950",4.65343137880677e-05,41341.4311737709,1.12560964792122e-09,0.999999999101893
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6953",4.65343234700036e-05,41341.4311737261,1.12560988211694e-09,0.999999999101893
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6971",4.65343131792589e-05,35802.8799936866,1.29973659067272e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6972",21.566115057178,29233.1746854054,0.000737727437723171,0.999411378720752
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)6973",43.1321835898274,35802.8800520658,0.00120471268029564,0.999038778584697
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7049",4.65342958644173e-05,35802.8799936881,1.29973610705678e-09,0.999999998962961
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7050",21.566115057178,29233.1746854054,0.000737727437723171,0.999411378720752
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7051",21.8537971296298,29233.1746611749,0.000747568383623219,0.99940352678412
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7052",4.65343149680471e-05,32023.2038754529,1.45314363762701e-09,0.999999998840559
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7053",22.259262237738,29233.1746768536,0.000761438416586434,0.999392460102111
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7069",18.9270577275628,29233.1746695233,0.000647451326841178,0.999483408618534
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7070",4.65341698831613e-05,30336.6444238822,1.53392607412202e-09,0.999999998776104
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7072",4.65343158414969e-05,32683.5181400713,1.42378539672704e-09,0.999999998863984
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7073",4.65343191917067e-05,35802.8799936567,1.29973675860577e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7151",23.2400914907497,29233.174657968,0.000794990341030758,0.999365689547719
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7152",43.1321835592293,31575.3237371857,0.00136600922664281,0.998910082667108
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7153",22.0361186864238,29233.1746567566,0.000753805186920767,0.999398550536462
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7154",23.1755529696122,29233.1746717225,0.000792782625556921,0.999367451049255
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7155",43.1321835593076,41341.4309594649,0.00104331617358863,0.999167554284078
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7169",21.1606499490698,29233.1746654508,0.000723857404857176,0.999422445402879
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7170",21.2784329847262,29233.1746611749,0.000727886493046082,0.999419230656465
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7171",4.6534293924212e-05,31006.3772327834,1.5007975157772e-09,0.999999998802537
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7249",4.65343254267669e-05,35802.8799936102,1.29973693275714e-09,0.99999999896296
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7250",43.1321835958472,35802.8800879493,0.00120471267925635,0.999038778585527
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7251",43.1321835891588,31575.3238046759,0.00136600922467093,0.998910082668682
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7252",4.65343223000021e-05,31251.4798109383,1.48902780225193e-09,0.999999998811928
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7253",21.7202657370053,29233.1746564918,0.000743000580410171,0.999407171362768
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7254",22.6647273458461,29233.1746587995,0.000775308450429411,0.999381393419517
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7350",43.1321835958747,41341.4313373934,0.00104331616493553,0.999167554290983
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7351",20.0620376604018,29233.1746616501,0.000686276392920144,0.999452430704628
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7352",43.1321835598903,31575.3237386814,0.00136600922659903,0.998910082667143
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7353",43.1321835898622,32683.5181721559,0.00131969218744045,0.998947038284267
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7451",4.65342963540694e-05,31575.3237841377,1.47375515995331e-09,0.999999998824114
+"tel_mapping_field","Mapping field as a fixed effect","as.factor(SITMAP)7452",43.1321835906064,41341.4312817457,0.00104331616621245,0.999167554289964
+"tel_random_only","Year and site random effects only","(Intercept)",-1.89521921836391,0.214979455121019,-8.81581552663732,1.18816981276946e-18
+"tel_area_null","Null model on records with a positive site area","(Intercept)",-2.06676664648751,0.312816147395633,-6.60696918523704,3.92267648573526e-11
+"tel_area","Site area (selected habitat model)","(Intercept)",-2.00960559823979,0.384601937330545,-5.22515724228565,1.74007172998508e-07
+"tel_area","Site area (selected habitat model)","log10(AREA_SITE)",-0.0241453180700843,0.0967757282588427,-0.249497663355254,0.802975848140845
+"tel_area_null_glm","Intercept-only model on records with a positive site area","(Intercept)",-1.79012414588723,0.106960645939925,-16.7362877267277,7.12983431226553e-63
+"tel_plant_area_subset","Host plant abundance, records with a positive site area","(Intercept)",-12.7126711012961,10.9657461038025,-1.15930744528982,0.246330888019761
+"tel_plant_area_subset","Host plant abundance, records with a positive site area","PLANT_QUANT",0.616797167927705,6.06293090704706,0.101732508152252,0.918968998226598
+"tel_plant","Host plant abundance, all records","(Intercept)",-12.5543754946489,7.83956509132178,-1.60141224014408,0.109285643482298
+"tel_plant","Host plant abundance, all records","PLANT_QUANT",0.495457516725111,4.45364257423028,0.111247705325958,0.911419923000058
+"tel_plant_poly","Host plant abundance, quadratic","(Intercept)",-11.8321828411371,3.04556360312552,-3.8850552419901,0.000102306622975093
+"tel_plant_poly","Host plant abundance, quadratic","poly(PLANT_QUANT, 2)1",11.7082745002532,101.605351964195,0.115232852147189,0.908260559861721
+"tel_plant_poly","Host plant abundance, quadratic","poly(PLANT_QUANT, 2)2",-2.91168183098663,92.3807023397678,-0.0315182906953633,0.974856205525517
+"tel_mow_null","Null model on records where mowing was assessed","(Intercept)",-1.78405686435838,0.268493039568035,-6.64470433657668,3.03826339100653e-11
+"tel_timing_mow_subset","Mowing timing, records where mowing was assessed","(Intercept)",-2.462694713374,0.383719632975098,-6.41795337465523,1.3811854023957e-10
+"tel_timing_mow_subset","Mowing timing, records where mowing was assessed","as.factor(TIMING)1",0.865745807471508,0.29511425282237,2.93359537600037,0.00335060692825481
+"tel_method_mow_subset","Mowing method, records where mowing was assessed","(Intercept)",-1.99388757563666,0.302871323350773,-6.58328280663078,4.60172634125503e-11
+"tel_method_mow_subset","Mowing method, records where mowing was assessed","as.factor(METHOD)1",0.423578135568998,0.223380553345119,1.89621759470968,0.0579312775354967
+"tel_method_timing_mow_subset","Mowing method by timing, records where mowing was assessed","(Intercept)",-2.49207367664407,0.412158930050027,-6.04639010573321,1.48127185978474e-09
+"tel_method_timing_mow_subset","Mowing method by timing, records where mowing was assessed","as.factor(METHOD)1",0.176051097724409,0.583136610229003,0.301903695697089,0.762725478384832
+"tel_method_timing_mow_subset","Mowing method by timing, records where mowing was assessed","as.factor(TIMING)1",0.75712612622419,0.372152689177944,2.03445023572616,0.0419062212351878
+"tel_method_timing_mow_subset","Mowing method by timing, records where mowing was assessed","as.factor(METHOD)1:as.factor(TIMING)1",0.0654355809412374,0.637773502584031,0.102600030694464,0.918280418478812
+"tel_mow_null_glm","Intercept-only model on records where mowing was assessed","(Intercept)",-1.6548209182771,0.103126276762962,-16.046549630418,6.04315395612616e-58
+"tel_graze_null","Null model on records where grazing was assessed","(Intercept)",-0.117783026852865,0.485912659374214,-0.2423954687753,0.808473745100528
+"tel_graze","Grazing present","(Intercept)",-11.841937571934,3.01585816343507,-3.92655653223624,8.61706462154383e-05
+"tel_graze","Grazing present","as.factor(GRAZE)1",21.6189495273039,14.126770256465,1.53035330332566,0.125929300951419
+"tel_graze_method","Grazing intensity","(Intercept)",-0.405465107754725,0.912870929143016,-0.444164771612748,0.656923459977746
+"tel_graze_method","Grazing intensity","as.factor(GRAZE_MET)1",0.405465107754725,1.08012344970738,0.375387746525243,0.707372116584966
+"tel_method","Mowing method, all records","(Intercept)",-2.01068638074631,0.299802701022124,-6.70669868513937,1.99076732454163e-11
+"tel_method","Mowing method, all records","as.factor(METHOD)1",0.46102287113587,0.222106241252629,2.07568625057903,0.0379229784156924
+"tel_timing","Mowing timing, all records","(Intercept)",-2.40929993056745,0.346911743907458,-6.94499385760243,3.78476791599391e-12
+"tel_timing","Mowing timing, all records","as.factor(TIMING)1",0.941017050170816,0.27132606515281,3.46821470926812,0.000523928500728226
+"tel_method_timing","Mowing method by timing, all records","(Intercept)",-2.49207367664407,0.412158930050027,-6.04639010573321,1.48127185978474e-09
+"tel_method_timing","Mowing method by timing, all records","as.factor(METHOD)1",0.176051097724409,0.583136610229003,0.301903695697089,0.762725478384832
+"tel_method_timing","Mowing method by timing, all records","as.factor(TIMING)1",0.75712612622419,0.372152689177944,2.03445023572616,0.0419062212351878
+"tel_method_timing","Mowing method by timing, all records","as.factor(METHOD)1:as.factor(TIMING)1",0.0654355809412374,0.637773502584031,0.102600030694464,0.918280418478812
+"tel_protect","Any protection","(Intercept)",-2.3681530020814,0.251043519292879,-9.43323694932191,3.97624693494835e-21
+"tel_protect","Any protection","as.factor(PROTECT)1",1.6059561687564,0.189425314096943,8.47804411154105,2.2901114595479e-17
+"tel_evl","Natura 2000 membership","(Intercept)",-2.30328482697898,0.24329022387967,-9.46723131841981,2.87359204328436e-21
+"tel_evl","Natura 2000 membership","as.factor(EVL)1",1.53155093354356,0.189899038875115,8.06507996362621,7.31879466957421e-16
+"tel_evl_target","Natura 2000 designated for Phengaris","(Intercept)",-2.10883842998229,0.239988395222721,-8.7872516836707,1.53263160847784e-18
+"tel_evl_target","Natura 2000 designated for Phengaris","as.factor(EVL_target)1",1.47925298483583,0.258428029840921,5.72404234071051,1.04018807822295e-08
+"tel_evl_combined","Natura 2000 membership and designation (selected protection model)","(Intercept)",-2.31531372293198,0.247962764813319,-9.33734435763003,9.87805688800829e-21
+"tel_evl_combined","Natura 2000 membership and designation (selected protection model)","as.factor(EVL)1",1.41097598909201,0.221912592505484,6.3582511166289,2.04063681330026e-10
+"tel_evl_combined","Natura 2000 membership and designation (selected protection model)","as.factor(EVL_target)1",0.285961594622915,0.281820299366584,1.01469480823645,0.310251329723213
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","(Intercept)",-2.34950348880035,0.00105805010117431,-2220.59757490942,0
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","as.factor(EVL)1",1.31255019823849,0.00105820132969316,1240.35961910867,0
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","as.factor(EVL_target)1",0.306724813656707,0.00105802254673977,289.903853752322,0
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","as.factor(MZCHU)1",0.376004526095059,0.00105799863799423,355.392259112824,0
+"tel_mzchu","Small-scale protected area","(Intercept)",-2.00338169958991,0.21715628063165,-9.22552962208877,2.82162989943422e-20
+"tel_mzchu","Small-scale protected area","as.factor(MZCHU)1",1.22281655104445,0.261943665760391,4.66824249212042,3.0378722220321e-06
+"tel_fsb","Habitat quality evaluation, all levels","(Intercept)",-2.26350677269093,0.184268286021431,-12.2837565897133,1.10734482847206e-34
+"tel_fsb","Habitat quality evaluation, all levels","as.factor(FSB)K",0.690768609845268,0.461371291899237,1.49720761125322,0.134339245522825
+"tel_fsb","Habitat quality evaluation, all levels","as.factor(FSB)L",-0.209090445260294,0.788835834149305,-0.265062052468472,0.790961659779615
+"tel_fsb","Habitat quality evaluation, all levels","as.factor(FSB)M",-21.8644566200765,36571.849339614,-0.000597849357221137,0.999522985256603
+"tel_fsb","Habitat quality evaluation, all levels","as.factor(FSB)moz.",0.528820661945101,0.334575514855492,1.58057191415668,0.113975951807845
+"tel_fsb","Habitat quality evaluation, all levels","as.factor(FSB)R",1.50069814017301,1.27573940719142,1.17633595992526,0.239460651396492
+"tel_fsb","Habitat quality evaluation, all levels","as.factor(FSB)T",0.910257581861419,0.206733094221881,4.40305692365087,1.06736145676974e-05
+"tel_fsb","Habitat quality evaluation, all levels","as.factor(FSB)V",0.183446200076849,1.13096027261374,0.162203929279399,0.871145265659835
+"tel_fsb","Habitat quality evaluation, all levels","as.factor(FSB)X",0.60744342439012,0.2156370105973,2.81697201564584,0.00484787494735096
+"tel_fsb_subset","Habitat quality evaluation, T / X / mosaic only","(Intercept)",-1.73605177196386,0.37518443172273,-4.62719565412788,3.70650327890416e-06
+"tel_fsb_subset","Habitat quality evaluation, T / X / mosaic only","as.factor(FSB)T",0.367202248321882,0.337860554890517,1.0868455728455,0.277105063320668
+"tel_fsb_subset","Habitat quality evaluation, T / X / mosaic only","as.factor(FSB)X",0.049478153232944,0.344657117935167,0.143557613228378,0.885849813603279
+"tel_het_inner","Within-site habitat heterogeneity","(Intercept)",-1.89239842485297,0.264395257696174,-7.15745978707226,8.21856868885468e-13
+"tel_het_inner","Within-site habitat heterogeneity","HET_INN",-0.00257940452500155,0.140817180105091,-0.0183173993618999,0.985385647111604
+"tel_het_inner_dup_year","Within-site habitat heterogeneity, year term repeated","(Intercept)",-1.89239491223132,0.264402476508496,-7.15725108637743,8.23108574728094e-13
+"tel_het_inner_dup_year","Within-site habitat heterogeneity, year term repeated","HET_INN",-0.00257643689313889,0.140817382554175,-0.018296298698406,0.985402480184268
+"tel_het_outer","Between-habitat heterogeneity","(Intercept)",-1.852274361007,0.368670324898422,-5.0242024809492,5.05528810370084e-07
+"tel_het_outer","Between-habitat heterogeneity","HET_OUT",-0.0401688019872918,0.281769545323086,-0.142559061665919,0.886638431215044

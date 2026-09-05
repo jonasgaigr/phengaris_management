@@ -1,0 +1,6 @@
+"model","label","n_obs","df","AIC","BIC","logLik","delta_AIC"
+"both_mapped_habitat","Species and mapped habitat code",684,27,907.025526799052,1029.28039057486,-426.512763399526,0
+"both_cooccurrence","Co-occurrence of the two species by species",4540,5,5286.22596070081,5318.32937215598,-2638.1129803504,4379.20043390175
+"both_recorded_habitat","Species and recorded habitat types",4514,9,5382.38249852674,5440.11694914314,-2682.19124926337,4475.35697172769
+"both_management_type","Species, mowing and grazing",4540,6,5420.32842762417,5458.85252137038,-2704.16421381209,4513.30290082512
+"both_species","Species only",4540,4,5425.52476733372,5451.20749649786,-2708.76238366686,4518.49924053467

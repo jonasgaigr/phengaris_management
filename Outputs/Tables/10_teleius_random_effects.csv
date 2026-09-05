@@ -1,0 +1,58 @@
+"model","label","group","term","variance","sd"
+"tel_null","Null model with year and site random effects","X:Y","(Intercept)",0.413733698151345,0.643221344601798
+"tel_null","Null model with year and site random effects","YEAR","(Intercept)",0.0767959833463402,0.27712088219104
+"tel_random_only","Year and site random effects only","X:Y","(Intercept)",0.413733698151345,0.643221344601798
+"tel_random_only","Year and site random effects only","YEAR","(Intercept)",0.0767959833463402,0.27712088219104
+"tel_area_null","Null model on records with a positive site area","X:Y","(Intercept)",0.568088913740002,0.753716733090092
+"tel_area_null","Null model on records with a positive site area","YEAR","(Intercept)",0.132599153081387,0.364141666225368
+"tel_area","Site area (selected habitat model)","X:Y","(Intercept)",0.567269769905924,0.753173134084006
+"tel_area","Site area (selected habitat model)","YEAR","(Intercept)",0.132845932793258,0.364480359955455
+"tel_plant_area_subset","Host plant abundance, records with a positive site area","X:Y","(Intercept)",1575.75083848849,39.6957282146139
+"tel_plant_area_subset","Host plant abundance, records with a positive site area","YEAR","(Intercept)",0,0
+"tel_plant","Host plant abundance, all records","X:Y","(Intercept)",1744.56755785009,41.7680207557181
+"tel_plant","Host plant abundance, all records","YEAR","(Intercept)",0,0
+"tel_plant_poly","Host plant abundance, quadratic","X:Y","(Intercept)",1743.32229385684,41.7531111877527
+"tel_plant_poly","Host plant abundance, quadratic","YEAR","(Intercept)",0,0
+"tel_mow_null","Null model on records where mowing was assessed","X:Y","(Intercept)",0.375602112825028,0.612863861575332
+"tel_mow_null","Null model on records where mowing was assessed","YEAR","(Intercept)",0.161079514418642,0.401347124592468
+"tel_timing_mow_subset","Mowing timing, records where mowing was assessed","X:Y","(Intercept)",0.424314358035834,0.651394164877023
+"tel_timing_mow_subset","Mowing timing, records where mowing was assessed","YEAR","(Intercept)",0.145499353692391,0.381443775270211
+"tel_method_mow_subset","Mowing method, records where mowing was assessed","X:Y","(Intercept)",0.31911630165534,0.564903798584626
+"tel_method_mow_subset","Mowing method, records where mowing was assessed","YEAR","(Intercept)",0.179126429573166,0.423233303950866
+"tel_method_timing_mow_subset","Mowing method by timing, records where mowing was assessed","X:Y","(Intercept)",0.382148089249815,0.618181275395668
+"tel_method_timing_mow_subset","Mowing method by timing, records where mowing was assessed","YEAR","(Intercept)",0.159492969088267,0.399365708453126
+"tel_graze_null","Null model on records where grazing was assessed","X:Y","(Intercept)",2.63717793287912e-08,0.000162393901759861
+"tel_graze_null","Null model on records where grazing was assessed","YEAR","(Intercept)",0,0
+"tel_graze","Grazing present","X:Y","(Intercept)",1745.45514369074,41.7786445889613
+"tel_graze","Grazing present","YEAR","(Intercept)",0,0
+"tel_graze_method","Grazing intensity","X:Y","(Intercept)",4e-14,2e-07
+"tel_graze_method","Grazing intensity","YEAR","(Intercept)",0,0
+"tel_method","Mowing method, all records","X:Y","(Intercept)",0.32276385050029,0.56812309449651
+"tel_method","Mowing method, all records","YEAR","(Intercept)",0.159107425756334,0.398882721807217
+"tel_timing","Mowing timing, all records","X:Y","(Intercept)",0.306601560035929,0.553716136694542
+"tel_timing","Mowing timing, all records","YEAR","(Intercept)",0.214162337128298,0.462776768138049
+"tel_method_timing","Mowing method by timing, all records","X:Y","(Intercept)",0.382148089249815,0.618181275395668
+"tel_method_timing","Mowing method by timing, all records","YEAR","(Intercept)",0.159492969088267,0.399365708453126
+"tel_protect","Any protection","X:Y","(Intercept)",0.172148224929303,0.414907489603771
+"tel_protect","Any protection","YEAR","(Intercept)",0.177095222121953,0.42082683151381
+"tel_evl","Natura 2000 membership","X:Y","(Intercept)",0.179980820628624,0.424241465003864
+"tel_evl","Natura 2000 membership","YEAR","(Intercept)",0.164809984752952,0.405967960254196
+"tel_evl_target","Natura 2000 designated for Phengaris","X:Y","(Intercept)",0.354917778121446,0.595749761327225
+"tel_evl_target","Natura 2000 designated for Phengaris","YEAR","(Intercept)",0.160754619530818,0.400942164820337
+"tel_evl_combined","Natura 2000 membership and designation (selected protection model)","X:Y","(Intercept)",0.187290339613504,0.432770539216227
+"tel_evl_combined","Natura 2000 membership and designation (selected protection model)","YEAR","(Intercept)",0.179243753097485,0.423371885105146
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","X:Y","(Intercept)",0.24638138510569,0.49636819509885
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","YEAR","(Intercept)",0.173835158674571,0.416935437057791
+"tel_mzchu","Small-scale protected area","X:Y","(Intercept)",0.310678322143112,0.557385254687557
+"tel_mzchu","Small-scale protected area","YEAR","(Intercept)",0.104591956220931,0.323406796806948
+"tel_fsb","Habitat quality evaluation, all levels","X:Y","(Intercept)",0.333216270359271,0.577248880777842
+"tel_fsb","Habitat quality evaluation, all levels","YEAR","(Intercept)",0.0843130296559147,0.290367060211579
+"tel_fsb_subset","Habitat quality evaluation, T / X / mosaic only","X:Y","(Intercept)",0.220163017107918,0.469215320623611
+"tel_fsb_subset","Habitat quality evaluation, T / X / mosaic only","YEAR","(Intercept)",0.184676902535204,0.429740506044292
+"tel_het_inner","Within-site habitat heterogeneity","X:Y","(Intercept)",0.413741805572969,0.643227646772874
+"tel_het_inner","Within-site habitat heterogeneity","YEAR","(Intercept)",0.0768318055000106,0.277185507377299
+"tel_het_inner_dup_year","Within-site habitat heterogeneity, year term repeated","X.Y","(Intercept)",0.413737666494283,0.643224429335736
+"tel_het_inner_dup_year","Within-site habitat heterogeneity, year term repeated","YEAR","(Intercept)",0.0747612143051193,0.273424970156567
+"tel_het_inner_dup_year","Within-site habitat heterogeneity, year term repeated","YEAR.1","(Intercept)",0.00206913820252059,0.0454877808045258
+"tel_het_outer","Between-habitat heterogeneity","X:Y","(Intercept)",0.413949235106054,0.643388867720024
+"tel_het_outer","Between-habitat heterogeneity","YEAR","(Intercept)",0.0768049442403351,0.27713704956273

@@ -1,0 +1,6 @@
+"model","label","n_obs","df","AIC","BIC","logLik","delta_AIC"
+"nau_method_timing","Mowing method by timing (selected management model)",1753,6,2294.86936954348,2327.683872853,-1141.43468477174,0
+"nau_timing","Mowing timing",1753,4,2296.03878365511,2317.91511919479,-1144.01939182755,1.16941411162952
+"nau_management_het","Mowing timing by method by within-site heterogeneity",1753,10,2300.60425500448,2355.29509385369,-1140.30212750224,5.7348854610018
+"nau_method","Mowing method",1753,4,2356.08276928848,2377.95910482817,-1174.04138464424,61.2133997450055
+"nau_mow_null","Null model on records where mowing was assessed",1753,3,2363.42783466468,2379.83508631944,-1178.71391733234,68.5584651212007

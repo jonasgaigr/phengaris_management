@@ -1,0 +1,9 @@
+"model","label","status","message"
+"nau_management_het","Mowing timing by method by within-site heterogeneity","warning","Model failed to converge with max|grad| = 0.0263658 (tol = 0.002, component 1)
+  See ?lme4::convergence and ?lme4::troubleshooting."
+"nau_evl_year","Natura 2000 membership by year","warning","Model failed to converge with max|grad| = 0.285738 (tol = 0.002, component 1)
+  See ?lme4::convergence and ?lme4::troubleshooting. | Model is nearly unidentifiable: very large eigenvalue
+ - Rescale variables?;Model is nearly unidentifiable: large eigenvalue ratio
+ - Rescale variables?"
+"nau_management_ttp","Mowing timing by method by grassland type","warning","unable to evaluate scaled gradient | Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+  See ?lme4::convergence and ?lme4::troubleshooting."

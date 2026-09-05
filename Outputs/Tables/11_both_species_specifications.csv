@@ -1,0 +1,6 @@
+"model","label","engine","formula"
+"both_species","Species only","glmer","as.factor(POSITIVE) ~ as.factor(DRUH) + (1 | YEAR) + (1 | X:Y)"
+"both_management_type","Species, mowing and grazing","glmer","as.factor(POSITIVE) ~ as.factor(DRUH) + as.factor(MOW) + as.factor(GRAZE) +      (1 | YEAR) + (1 | X:Y)"
+"both_mapped_habitat","Species and mapped habitat code","glmer","as.factor(POSITIVE) ~ as.factor(DRUH) + as.factor(BIOTOP) + (1 |      YEAR) + (1 | X:Y)"
+"both_recorded_habitat","Species and recorded habitat types","glmer","as.factor(POSITIVE) ~ as.factor(DRUH) + as.factor(TTP) + as.factor(ZARUST) +      as.factor(PRIKOP) + as.factor(JINY) + as.factor(MOW) + as.factor(ZARUST) +      (1 | YEAR) + (1 | X:Y)"
+"both_cooccurrence","Co-occurrence of the two species by species","glmer","as.factor(POSITIVE) ~ as.factor(SPEC_NUM) * as.factor(DRUH) +      (1 | YEAR) + (1 | (X:Y))"

@@ -1,0 +1,5 @@
+"model","label","n_obs","df","AIC","BIC","logLik","delta_AIC"
+"tel_evl","Natura 2000 membership",1324,4,1058.94362747497,1079.69727842095,-525.471813737483,0
+"tel_evl_combined","Natura 2000 membership and designation (selected protection model)",1324,5,1059.91849109795,1085.86055478043,-524.959245548974,0.974863622980592
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection",1324,6,1060.09322006884,1091.22369648782,-524.046610034418,1.1495925938691
+"tel_evl_target","Natura 2000 designated for Phengaris",1324,4,1097.26197807509,1118.01562902108,-544.630989037546,38.3183506001258

@@ -1,0 +1,6 @@
+"model","label","group","engine","n_obs","AIC","BIC","logLik","deviance","df","status"
+"both_species","Species only","Both species","glmer",4540,5425.52476733372,5451.20749649786,-2708.76238366686,4445.55115717518,4,"ok"
+"both_management_type","Species, mowing and grazing","Both species","glmer",4540,5420.32842762417,5458.85252137038,-2704.16421381209,4437.81889395935,6,"ok"
+"both_mapped_habitat","Species and mapped habitat code","Both species","glmer",684,907.025526799052,1029.28039057486,-426.512763399526,762.123568065944,27,"ok"
+"both_recorded_habitat","Species and recorded habitat types","Both species","glmer",4514,5382.38249852674,5440.11694914314,-2682.19124926337,4401.24414435952,9,"fitted with warnings"
+"both_cooccurrence","Co-occurrence of the two species by species","Both species","glmer",4540,5286.22596070081,5318.32937215598,-2638.1129803504,4957.41677173861,5,"ok"

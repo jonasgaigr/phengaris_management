@@ -1,0 +1,4 @@
+"model","label","n_obs","df","AIC","BIC","logLik","delta_AIC"
+"tel_method_timing","Mowing method by timing, all records",698,6,611.025689434815,638.315004051389,-299.512844717407,0
+"tel_method","Mowing method, all records",706,4,624.035582795118,642.274043745091,-308.017791397559,13.0098933603028
+"tel_timing","Mowing timing, all records",754,4,689.56036529844,708.061934770472,-340.78018264922,78.5346758636249

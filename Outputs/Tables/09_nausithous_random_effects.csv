@@ -1,0 +1,57 @@
+"model","label","group","term","variance","sd"
+"nau_null","Null model with year and site random effects","X:Y","(Intercept)",0.260824320033709,0.51070962398775
+"nau_null","Null model with year and site random effects","YEAR","(Intercept)",0.279692284913595,0.52885941885684
+"nau_area_null","Null model on records with a positive site area","X:Y","(Intercept)",0.400406184678345,0.632776567738048
+"nau_area_null","Null model on records with a positive site area","YEAR","(Intercept)",3.73420076574567,1.93240802258365
+"nau_area","Site area","X:Y","(Intercept)",0.393225467807454,0.627076923357457
+"nau_area","Site area","YEAR","(Intercept)",3.75446973919455,1.93764541110972
+"nau_area_poly","Site area, quadratic","X:Y","(Intercept)",0.392682059786852,0.626643486989893
+"nau_area_poly","Site area, quadratic","YEAR","(Intercept)",3.76793342136754,1.94111653987274
+"nau_plant","Host plant abundance","X:Y","(Intercept)",0.484332795363991,0.695940223987657
+"nau_plant","Host plant abundance","YEAR","(Intercept)",3.53053645138311,1.87897217951281
+"nau_plant_poly","Host plant abundance, quadratic","X:Y","(Intercept)",0.305117747088309,0.55237464377749
+"nau_plant_poly","Host plant abundance, quadratic","YEAR","(Intercept)",0.252475260053194,0.502469163285862
+"nau_resource_density","Site area by host plant abundance","X:Y","(Intercept)",0.484472145086519,0.696040332945239
+"nau_resource_density","Site area by host plant abundance","YEAR","(Intercept)",3.55157287723066,1.88456172019668
+"nau_mow_null","Null model on records where mowing was assessed","X:Y","(Intercept)",0.322325963083308,0.567737582940665
+"nau_mow_null","Null model on records where mowing was assessed","YEAR","(Intercept)",0.270522488882198,0.520117764436284
+"nau_timing","Mowing timing","X:Y","(Intercept)",0.388868331115154,0.623593081356067
+"nau_timing","Mowing timing","YEAR","(Intercept)",0.271868296200593,0.521409911874134
+"nau_method","Mowing method","X:Y","(Intercept)",0.328300744617241,0.572975343812664
+"nau_method","Mowing method","YEAR","(Intercept)",0.276715038610852,0.526037107636764
+"nau_method_timing","Mowing method by timing (selected management model)","X:Y","(Intercept)",0.400313425636984,0.63270326823637
+"nau_method_timing","Mowing method by timing (selected management model)","YEAR","(Intercept)",0.274513036126224,0.523939916523092
+"nau_graze_null","Null model on records where grazing was assessed","X:Y","(Intercept)",0.275229602496129,0.524623295800071
+"nau_graze_null","Null model on records where grazing was assessed","YEAR","(Intercept)",0,0
+"nau_graze","Grazing present","X:Y","(Intercept)",0.261582069833117,0.511450945676237
+"nau_graze","Grazing present","YEAR","(Intercept)",0.280744094939797,0.529852899340748
+"nau_graze_method","Grazing intensity","X:Y","(Intercept)",0.25981365668523,0.509719193954112
+"nau_graze_method","Grazing intensity","YEAR","(Intercept)",0.00953697188555439,0.0976574210470171
+"nau_management_het","Mowing timing by method by within-site heterogeneity","X:Y","(Intercept)",0.403939951546468,0.635562704653497
+"nau_management_het","Mowing timing by method by within-site heterogeneity","YEAR","(Intercept)",0.275286644707934,0.524677657908105
+"nau_protect","Any protection","X:Y","(Intercept)",0.268383431573355,0.518057363207352
+"nau_protect","Any protection","YEAR","(Intercept)",0.283255743269614,0.532217759258008
+"nau_evl","Natura 2000 membership","X:Y","(Intercept)",0.266453049296533,0.516190903926574
+"nau_evl","Natura 2000 membership","YEAR","(Intercept)",0.282361793112391,0.531377260627881
+"nau_evl_target","Natura 2000 designated for Phengaris","X:Y","(Intercept)",0.264436270268699,0.514233672826565
+"nau_evl_target","Natura 2000 designated for Phengaris","YEAR","(Intercept)",0.282210215806103,0.531234614653547
+"nau_evl_combined","Natura 2000 membership and designation (selected protection model)","X:Y","(Intercept)",0.266860026966326,0.516584965873308
+"nau_evl_combined","Natura 2000 membership and designation (selected protection model)","YEAR","(Intercept)",0.282769805179447,0.531761041426924
+"nau_evl_year","Natura 2000 membership by year","X:Y","(Intercept)",0.26658240191387,0.516316184051856
+"nau_mzchu","Small-scale protected area","X:Y","(Intercept)",0.261782356320345,0.511646710455901
+"nau_mzchu","Small-scale protected area","YEAR","(Intercept)",0.279917038357878,0.52907186502202
+"nau_mzchu_evl","Small-scale protected area by Natura 2000","X:Y","(Intercept)",0.267067807246398,0.51678603623395
+"nau_mzchu_evl","Small-scale protected area by Natura 2000","YEAR","(Intercept)",0.283906684574102,0.532828944947722
+"nau_ttp","Regularly managed grassland","X:Y","(Intercept)",0.263994888836316,0.513804329328117
+"nau_ttp","Regularly managed grassland","YEAR","(Intercept)",0.279732260775855,0.528897211919154
+"nau_management_ttp","Mowing timing by method by grassland type","X:Y","(Intercept)",0.400664223071804,0.632980428664113
+"nau_management_ttp","Mowing timing by method by grassland type","YEAR","(Intercept)",0.274808978001357,0.524222260116219
+"nau_fsb","Habitat quality evaluation","X:Y","(Intercept)",0.264657643529546,0.514448873581764
+"nau_fsb","Habitat quality evaluation","YEAR","(Intercept)",0.261349982678329,0.51122400440348
+"nau_het_inner","Within-site habitat heterogeneity","X.Y","(Intercept)",0.261598623169915,0.511467128142088
+"nau_het_inner","Within-site habitat heterogeneity","YEAR","(Intercept)",0.221582184419064,0.470725168669643
+"nau_het_inner","Within-site habitat heterogeneity","YEAR.1","(Intercept)",0.0597336020728377,0.244404586849015
+"nau_het_outer","Between-habitat heterogeneity","X:Y","(Intercept)",0.261396847340312,0.511269838089743
+"nau_het_outer","Between-habitat heterogeneity","YEAR","(Intercept)",0.280193750100254,0.529333307189576
+"nau_threats","Number of threats and pressures","X:Y","(Intercept)",0.418393331384476,0.646833310354743
+"nau_threats","Number of threats and pressures","YEAR","(Intercept)",3.58047025058067,1.89221305633924

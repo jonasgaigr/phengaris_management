@@ -1,0 +1,25 @@
+"EVL","EVL_target","EVL_comb","MZCHU","POSITIVE","DRUH","COUNT"
+0,0,0,0,0,"Phengaris nausithous",1439
+0,0,0,0,0,"Phengaris teleius",929
+0,0,0,0,1,"Phengaris nausithous",1139
+0,0,0,0,1,"Phengaris teleius",105
+0,0,0,1,0,"Phengaris nausithous",30
+0,0,0,1,0,"Phengaris teleius",14
+0,0,0,1,1,"Phengaris nausithous",30
+0,0,0,1,1,"Phengaris teleius",8
+1,0,0.5,0,0,"Phengaris nausithous",109
+1,0,0.5,0,0,"Phengaris teleius",70
+1,0,0.5,0,1,"Phengaris nausithous",131
+1,0,0.5,0,1,"Phengaris teleius",33
+1,0,0.5,1,0,"Phengaris nausithous",51
+1,0,0.5,1,0,"Phengaris teleius",31
+1,0,0.5,1,1,"Phengaris nausithous",35
+1,0,0.5,1,1,"Phengaris teleius",14
+1,1,1,0,0,"Phengaris nausithous",100
+1,1,1,0,0,"Phengaris teleius",56
+1,1,1,0,1,"Phengaris nausithous",111
+1,1,1,0,1,"Phengaris teleius",31
+1,1,1,1,0,"Phengaris nausithous",18
+1,1,1,1,0,"Phengaris teleius",22
+1,1,1,1,1,"Phengaris nausithous",23
+1,1,1,1,1,"Phengaris teleius",11

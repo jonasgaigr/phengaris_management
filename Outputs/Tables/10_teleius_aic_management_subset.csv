@@ -1,0 +1,5 @@
+"model","label","n_obs","df","AIC","BIC","logLik","delta_AIC"
+"tel_timing_mow_subset","Mowing timing, records where mowing was assessed",698,4,608.001130754516,626.194007165566,-300.000565377258,0
+"tel_method_timing_mow_subset","Mowing method by timing, records where mowing was assessed",698,6,611.025689434815,638.315004051389,-299.512844717407,3.02455868029847
+"tel_method_mow_subset","Mowing method, records where mowing was assessed",698,4,614.423558483712,632.616434894761,-303.211779241856,6.42242772919508
+"tel_mow_null","Null model on records where mowing was assessed",698,3,616.079672874575,629.724330182862,-305.039836437288,8.07854212005861

@@ -1,0 +1,4 @@
+"comparison","method","statistic","parameter","p_value"
+"Counted specimens, P. nausithous vs P. teleius","Wilcoxon rank sum test with continuity correction",408845,NA,0.678536042859397
+"Counted specimens by species","Kruskal-Wallis rank sum test",0.171813895346869,1,0.678504747354708
+"Site occupancy, P. nausithous vs P. teleius","Wilcoxon rank sum test with continuity correction",2776654,NA,0

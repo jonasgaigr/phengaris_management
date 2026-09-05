@@ -1,0 +1,42 @@
+"model","label","term","estimate","std_error","statistic","p_value"
+"both_species","Species only","(Intercept)",-0.294512812964914,0.216407548198449,-1.3609174699158,0.173539772022154
+"both_species","Species only","as.factor(DRUH)Phengaris teleius",-1.78736250840443,0.105031712026705,-17.0173605087002,6.10618678815089e-65
+"both_management_type","Species, mowing and grazing","(Intercept)",-0.416265801729497,0.222748690186848,-1.86876879671131,0.0616549878297385
+"both_management_type","Species, mowing and grazing","as.factor(DRUH)Phengaris teleius",-1.78856110501958,0.105239488942107,-16.9951519434257,8.91989400356563e-65
+"both_management_type","Species, mowing and grazing","as.factor(MOW)1",0.187593619392847,0.0773835902552705,2.42420413389995,0.0153419788957283
+"both_management_type","Species, mowing and grazing","as.factor(GRAZE)1",0.476468796788177,0.254227196007596,1.87418499779206,0.0609049311634968
+"both_mapped_habitat","Species and mapped habitat code","(Intercept)",-15.9798855960462,2641.93458746877,-0.00604855459777167,0.995173981097943
+"both_mapped_habitat","Species and mapped habitat code","as.factor(DRUH)Phengaris teleius",-1.39527114701413,0.208115278160904,-6.70431868022386,2.02348234300749e-11
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)L10.2",16.6764929716442,2641.93507776425,0.00631222663721045,0.994963605267094
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)L2.2",15.6401058201974,2641.93461200765,0.00591994432758206,0.995276595409428
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)L2.3",14.9516055148929,2641.93487155704,0.00565933917442905,0.995484524752086
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)L2.4",16.6777804757397,2641.93483282788,0.00631271455620581,0.994963215971817
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)L3.1",14.580237361443,2641.93485692851,0.005518772472079,0.995596679001837
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)L3.3A",-0.642073281820353,4850.85904296395,-0.000132362799276071,0.999894389766341
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)L3.3B",15.0857655147994,2641.93488171153,0.00571012011659666,0.995444008077029
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)L4",34.4901324271476,10786.5580635115,0.00319751047776954,0.997448760104127
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)L5.1",16.0591256622835,2641.9347230619,0.00607854748344108,0.995150050677459
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)L5.4",-0.151965681685808,3060.49121928002,-4.96540165606348e-05,0.999960381826821
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)R2.1",16.4215002086332,2641.93474497962,0.00621570999807561,0.99504061289249
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)R2.2",15.7833709789003,2641.93467975772,0.00597417154172324,0.995233329117612
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)R2.3",1.20141314124419,3013.1589730219,0.000398722122530193,0.999681865782812
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)T1.1",16.0126646663433,2641.93458944216,0.00606096181575955,0.995164081751725
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)T1.2",15.6540719922888,2641.93465703748,0.00592523056942008,0.995272377672654
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)T1.6",16.2363830567466,2641.93460215175,0.00614564154749431,0.995096518359571
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)T1.7",-0.739395180728918,5022.2101520517,-0.000147225057961156,0.999882531399714
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)T1.9",15.8297831021662,2641.93459870844,0.00599173920122961,0.995219312404194
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)T2.3B",16.449921675853,2641.93471404781,0.0062264678942991,0.995032029499285
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)T3.4C",-0.0644056702386779,3797.88778111979,-1.6958286803221e-05,0.999986469244783
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)T3.4D",15.6182167006175,2641.93475912307,0.00591165873672126,0.995283206238773
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)V1F",32.8816194247758,5373.46068859645,0.00611926304672836,0.995117564962316
+"both_mapped_habitat","Species and mapped habitat code","as.factor(BIOTOP)V4A",15.9791906998461,2641.93499995095,0.00604829062794612,0.995174191711539
+"both_recorded_habitat","Species and recorded habitat types","(Intercept)",-0.38771250883744,0.239231673716972,-1.62065709282347,0.105091200496913
+"both_recorded_habitat","Species and recorded habitat types","as.factor(DRUH)Phengaris teleius",-1.79942433900868,0.105882341837242,-16.9945649839771,9.00962687657919e-65
+"both_recorded_habitat","Species and recorded habitat types","as.factor(TTP)1",0.226801217821961,0.1721684397364,1.31732167735972,0.187730822007084
+"both_recorded_habitat","Species and recorded habitat types","as.factor(ZARUST)1",0.044495519727671,0.0985475645419259,0.451513134134745,0.651619761054949
+"both_recorded_habitat","Species and recorded habitat types","as.factor(PRIKOP)1",-0.194165396912163,0.132266282266405,-1.46798861799929,0.142107314659804
+"both_recorded_habitat","Species and recorded habitat types","as.factor(JINY)1",-0.281007123703786,0.121889913714171,-2.30541736507206,0.021143209880353
+"both_recorded_habitat","Species and recorded habitat types","as.factor(MOW)1",-0.0410769019936928,0.160926231603967,-0.255252991288464,0.79852770505484
+"both_cooccurrence","Co-occurrence of the two species by species","(Intercept)",-0.355461428614537,0.197520301297973,-1.79961971644778,0.0719207056737494
+"both_cooccurrence","Co-occurrence of the two species by species","as.factor(SPEC_NUM)1",21.942187869448,54.5797341211774,0.402020790734014,0.687668725401881
+"both_cooccurrence","Co-occurrence of the two species by species","as.factor(DRUH)Phengaris teleius",-1.55273689814351,0.0945760206469619,-16.4178709097906,1.42479087815402e-60

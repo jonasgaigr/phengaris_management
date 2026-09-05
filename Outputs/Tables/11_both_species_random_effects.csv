@@ -1,0 +1,11 @@
+"model","label","group","term","variance","sd"
+"both_species","Species only","X:Y","(Intercept)",0.598552889716652,0.773661999659187
+"both_species","Species only","YEAR","(Intercept)",0.269126348398114,0.5187738894722
+"both_management_type","Species, mowing and grazing","X:Y","(Intercept)",0.598860995641538,0.773861095831505
+"both_management_type","Species, mowing and grazing","YEAR","(Intercept)",0.273508252953323,0.522980164971219
+"both_mapped_habitat","Species and mapped habitat code","X:Y","(Intercept)",0.335054178752555,0.578838646560987
+"both_mapped_habitat","Species and mapped habitat code","YEAR","(Intercept)",3.36547964025364e-07,0.000580127541171219
+"both_recorded_habitat","Species and recorded habitat types","X:Y","(Intercept)",0.599325465249938,0.774161136488999
+"both_recorded_habitat","Species and recorded habitat types","YEAR","(Intercept)",0.28990629309154,0.538429469003638
+"both_cooccurrence","Co-occurrence of the two species by species","X:Y","(Intercept)",0.168942348265855,0.411025970305837
+"both_cooccurrence","Co-occurrence of the two species by species","YEAR","(Intercept)",0.223768348676793,0.473041592967038
