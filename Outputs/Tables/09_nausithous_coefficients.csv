@@ -72,12 +72,12 @@
 "nau_evl_year","Natura 2000 membership by year","as.factor(EVL)1",-100.953371899084,1.56533235550172,-64.4932506149634,0
 "nau_evl_year","Natura 2000 membership by year","as.numeric(YEAR)",-0.178505860699851,0.000323949143204501,-551.030507239726,0
 "nau_evl_year","Natura 2000 membership by year","as.factor(EVL)1:as.numeric(YEAR)",0.0501078420863621,0.000774657657314593,64.6838530713871,0
-"nau_mzchu","Small-scale protected area","(Intercept)",-0.302590518617251,0.220323835336821,-1.37338984751543,0.169631184253065
-"nau_mzchu","Small-scale protected area","as.factor(MZCHU)1",0.085065256200305,0.164741932467923,0.516354609454809,0.605606761760789
-"nau_mzchu_evl","Small-scale protected area by Natura 2000","(Intercept)",-0.364137524890115,0.222486834587436,-1.63666998798084,0.101699443132595
-"nau_mzchu_evl","Small-scale protected area by Natura 2000","as.factor(MZCHU)1",0.304241641560941,0.283526571674268,1.07306218166554,0.28324321768516
-"nau_mzchu_evl","Small-scale protected area by Natura 2000","as.factor(EVL)1",0.418875496706243,0.112886229716887,3.71059869531264,0.000206769663225603
-"nau_mzchu_evl","Small-scale protected area by Natura 2000","as.factor(MZCHU)1:as.factor(EVL)1",-0.653986246102129,0.359688750514244,-1.81820044459865,0.0690335020926425
+"nau_mzchu","Small-scale protected area","(Intercept)",-0.299162554118325,0.220286217433315,-1.35806296737056,0.174443704780349
+"nau_mzchu","Small-scale protected area","as.factor(MZCHU)1",0.0280005819379563,0.161449851155128,0.173432070315457,0.86231181857884
+"nau_mzchu_evl","Small-scale protected area by Natura 2000","(Intercept)",-0.36295695986307,0.221808148769474,-1.63635539035264,0.101765229735536
+"nau_mzchu_evl","Small-scale protected area by Natura 2000","as.factor(MZCHU)1",0.304075095664818,0.283991600597452,1.07071862345617,0.284295966371909
+"nau_mzchu_evl","Small-scale protected area by Natura 2000","as.factor(EVL)1",0.448767709343973,0.11414327772293,3.93161750999745,8.43762355948534e-05
+"nau_mzchu_evl","Small-scale protected area by Natura 2000","as.factor(MZCHU)1:as.factor(EVL)1",-0.758212564227358,0.357907906542432,-2.11845715159541,0.0341363700847997
 "nau_ttp","Regularly managed grassland","(Intercept)",-0.348236885437304,0.226384449642532,-1.53825444277282,0.12398641404119
 "nau_ttp","Regularly managed grassland","as.factor(TTP)1",0.073934011268347,0.0808946206024247,0.913954608078486,0.36074069764009
 "nau_management_ttp","Mowing timing by method by grassland type","(Intercept)",12.0637435540629,627.984975290071,0.0192102423286331,0.984673386914549

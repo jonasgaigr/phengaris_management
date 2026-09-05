@@ -141,6 +141,9 @@ report_bullets <- function(items) {
 #' Add a callout for something the reader must be aware of.
 report_warning <- function(...) {
   txt <- paste(unlist(list(...), use.names = FALSE), collapse = " ")
+  # Fragments are often written across several source lines, which would leave
+  # the indentation of the R file inside the rendered note.
+  txt <- gsub("\\s+", " ", trimws(txt))
   report_note(paste0("> **Note.** ", txt))
 }
 

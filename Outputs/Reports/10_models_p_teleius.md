@@ -1,6 +1,6 @@
 # Step 10 - Models P teleius
 
-_Generated 2026-09-05 11:00:12_
+_Generated 2026-09-05 23:08:59_
 
 Binomial occupancy models for Phengaris teleius, in the same four groups as for P. nausithous: baseline space and time, habitat extent and host plant, management, and conservation status.
 
@@ -39,8 +39,8 @@ Binomial occupancy models for Phengaris teleius, in the same four groups as for 
 | tel_evl | Natura 2000 membership | Conservation | glmer | 1324 | 1059 | 1080 | -525.5 | 981.8 | 4 | ok |
 | tel_evl_target | Natura 2000 designated for Phengaris | Conservation | glmer | 1324 | 1097 | 1118 | -544.6 | 965.5 | 4 | ok |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | Conservation | glmer | 1324 | 1060 | 1086 | -525 | 978.3 | 5 | ok |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | Conservation | glmer | 1324 | 1060 | 1091 | -524 | 959.6 | 6 | fitted with warnings |
-| tel_mzchu | Small-scale protected area | Conservation | glmer | 1324 | 1111 | 1132 | -551.6 | 993.4 | 4 | ok |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | Conservation | glmer | 1324 | 1061 | 1092 | -524.6 | 975.3 | 6 | ok |
+| tel_mzchu | Small-scale protected area | Conservation | glmer | 1324 | 1113 | 1134 | -552.4 | 1010 | 4 | ok |
 | tel_fsb | Habitat quality evaluation, all levels | Conservation | glmer | 1324 | 1118 | 1175 | -548 | 980.5 | 11 | fitted with warnings |
 | tel_fsb_subset | Habitat quality evaluation, T / X / mosaic only | Conservation | glmer | 633 | 633.3 | 655.6 | -311.7 | 569.8 | 5 | ok |
 | tel_het_inner | Within-site habitat heterogeneity | Conservation | glmer | 1324 | 1133 | 1154 | -562.6 | 983.5 | 4 | ok |
@@ -338,12 +338,12 @@ Full table: [`10_teleius_fit_statistics.csv`](../Tables/10_teleius_fit_statistic
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | (Intercept) | -2.315 | 0.248 | -9.337 | 9.878e-21 |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | as.factor(EVL)1 | 1.411 | 0.2219 | 6.358 | 2.041e-10 |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | as.factor(EVL_target)1 | 0.286 | 0.2818 | 1.015 | 0.3103 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | (Intercept) | -2.35 | 0.001058 | -2221 | 0 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(EVL)1 | 1.313 | 0.001058 | 1240 | 0 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(EVL_target)1 | 0.3067 | 0.001058 | 289.9 | 0 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(MZCHU)1 | 0.376 | 0.001058 | 355.4 | 0 |
-| tel_mzchu | Small-scale protected area | (Intercept) | -2.003 | 0.2172 | -9.226 | 2.822e-20 |
-| tel_mzchu | Small-scale protected area | as.factor(MZCHU)1 | 1.223 | 0.2619 | 4.668 | 3.038e-06 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | (Intercept) | -2.329 | 0.251 | -9.279 | 1.704e-20 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(EVL)1 | 1.344 | 0.2336 | 5.754 | 8.693e-09 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(EVL_target)1 | 0.2803 | 0.2826 | 0.9918 | 0.3213 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(MZCHU)1 | 0.2413 | 0.2686 | 0.8984 | 0.369 |
+| tel_mzchu | Small-scale protected area | (Intercept) | -1.994 | 0.2083 | -9.575 | 1.016e-21 |
+| tel_mzchu | Small-scale protected area | as.factor(MZCHU)1 | 1.143 | 0.2443 | 4.68 | 2.874e-06 |
 | tel_fsb | Habitat quality evaluation, all levels | (Intercept) | -2.264 | 0.1843 | -12.28 | 1.107e-34 |
 | tel_fsb | Habitat quality evaluation, all levels | as.factor(FSB)K | 0.6908 | 0.4614 | 1.497 | 0.1343 |
 | tel_fsb | Habitat quality evaluation, all levels | as.factor(FSB)L | -0.2091 | 0.7888 | -0.2651 | 0.791 |
@@ -411,10 +411,10 @@ Full table: [`10_teleius_coefficients.csv`](../Tables/10_teleius_coefficients.cs
 | tel_evl_target | Natura 2000 designated for Phengaris | YEAR | (Intercept) | 0.1608 | 0.4009 |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | X:Y | (Intercept) | 0.1873 | 0.4328 |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | YEAR | (Intercept) | 0.1792 | 0.4234 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | X:Y | (Intercept) | 0.2464 | 0.4964 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | YEAR | (Intercept) | 0.1738 | 0.4169 |
-| tel_mzchu | Small-scale protected area | X:Y | (Intercept) | 0.3107 | 0.5574 |
-| tel_mzchu | Small-scale protected area | YEAR | (Intercept) | 0.1046 | 0.3234 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | X:Y | (Intercept) | 0.1942 | 0.4406 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | YEAR | (Intercept) | 0.1872 | 0.4326 |
+| tel_mzchu | Small-scale protected area | X:Y | (Intercept) | 0.2556 | 0.5056 |
+| tel_mzchu | Small-scale protected area | YEAR | (Intercept) | 0.1256 | 0.3544 |
 | tel_fsb | Habitat quality evaluation, all levels | X:Y | (Intercept) | 0.3332 | 0.5772 |
 | tel_fsb | Habitat quality evaluation, all levels | YEAR | (Intercept) | 0.08431 | 0.2904 |
 | tel_fsb_subset | Habitat quality evaluation, T / X / mosaic only | X:Y | (Intercept) | 0.2202 | 0.4692 |
@@ -434,7 +434,6 @@ Full table: [`10_teleius_random_effects.csv`](../Tables/10_teleius_random_effect
 | model | label | status | message |
 |---|---|---|---|
 | tel_resource_density | Site area by host plant abundance | failed | NA/NaN/Inf in foreign function call (arg 1) |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | warning | Model failed to converge with max\|grad\| = 0.0669092 (tol = 0.002, component 1)   See ?lme4::convergence and ?lme4::troubleshooting. \| Model is nearly unidentifiable: very large eigenvalue  - Rescale variables? |
 | tel_fsb | Habitat quality evaluation, all levels | warning | unable to evaluate scaled gradient \| Model failed to converge: degenerate  Hessian with 1 negative eigenvalues   See ?lme4::convergence and ?lme4::troubleshooting. |
 
 Full table: [`10_teleius_fitting_issues.csv`](../Tables/10_teleius_fitting_issues.csv)
@@ -515,7 +514,7 @@ Full table: [`10_teleius_aic_management_subset.csv`](../Tables/10_teleius_aic_ma
 |---|---|---|---|---|---|---|---|
 | tel_evl | Natura 2000 membership | 1324 | 4 | 1059 | 1080 | -525.5 | 0 |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | 1324 | 5 | 1060 | 1086 | -525 | 0.9749 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | 1324 | 6 | 1060 | 1091 | -524 | 1.15 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | 1324 | 6 | 1061 | 1092 | -524.6 | 2.186 |
 | tel_evl_target | Natura 2000 designated for Phengaris | 1324 | 4 | 1097 | 1118 | -544.6 | 38.32 |
 
 Full table: [`10_teleius_aic_protection.csv`](../Tables/10_teleius_aic_protection.csv)

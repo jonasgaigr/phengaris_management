@@ -1,6 +1,6 @@
 # Step 07 - Descriptive summaries
 
-_Generated 2026-09-05 10:58:55_
+_Generated 2026-09-05 23:07:36_
 
 Extent of the monitoring effort and the distribution of the analysis variables across records, species, years, observers, habitats, management and protection categories.
 
@@ -405,14 +405,14 @@ Full table: [`07_management_types_teleius.csv`](../Tables/07_management_types_te
 | 1 | 0 | 0.5 | 1 | 0 | Phengaris teleius | 31 |
 | 1 | 0 | 0.5 | 1 | 1 | Phengaris nausithous | 35 |
 | 1 | 0 | 0.5 | 1 | 1 | Phengaris teleius | 14 |
-| 1 | 1 | 1 | 0 | 0 | Phengaris nausithous | 100 |
-| 1 | 1 | 1 | 0 | 0 | Phengaris teleius | 56 |
-| 1 | 1 | 1 | 0 | 1 | Phengaris nausithous | 111 |
-| 1 | 1 | 1 | 0 | 1 | Phengaris teleius | 31 |
-| 1 | 1 | 1 | 1 | 0 | Phengaris nausithous | 18 |
-| 1 | 1 | 1 | 1 | 0 | Phengaris teleius | 22 |
-| 1 | 1 | 1 | 1 | 1 | Phengaris nausithous | 23 |
-| 1 | 1 | 1 | 1 | 1 | Phengaris teleius | 11 |
+| 1 | 1 | 1 | 0 | 0 | Phengaris nausithous | 91 |
+| 1 | 1 | 1 | 0 | 0 | Phengaris teleius | 47 |
+| 1 | 1 | 1 | 0 | 1 | Phengaris nausithous | 110 |
+| 1 | 1 | 1 | 0 | 1 | Phengaris teleius | 30 |
+| 1 | 1 | 1 | 1 | 0 | Phengaris nausithous | 27 |
+| 1 | 1 | 1 | 1 | 0 | Phengaris teleius | 31 |
+| 1 | 1 | 1 | 1 | 1 | Phengaris nausithous | 24 |
+| 1 | 1 | 1 | 1 | 1 | Phengaris teleius | 12 |
 
 Full table: [`07_protection_full.csv`](../Tables/07_protection_full.csv)
 
@@ -469,14 +469,14 @@ Full table: [`07_protection_evl_combined.csv`](../Tables/07_protection_evl_combi
 
 | MZCHU | POSITIVE | DRUH | COUNT |
 |---|---|---|---|
-| 0 | 0 | Phengaris nausithous | 1648 |
-| 0 | 0 | Phengaris teleius | 1055 |
-| 0 | 1 | Phengaris nausithous | 1381 |
-| 0 | 1 | Phengaris teleius | 169 |
-| 1 | 0 | Phengaris nausithous | 99 |
-| 1 | 0 | Phengaris teleius | 67 |
-| 1 | 1 | Phengaris nausithous | 88 |
-| 1 | 1 | Phengaris teleius | 33 |
+| 0 | 0 | Phengaris nausithous | 1639 |
+| 0 | 0 | Phengaris teleius | 1046 |
+| 0 | 1 | Phengaris nausithous | 1380 |
+| 0 | 1 | Phengaris teleius | 168 |
+| 1 | 0 | Phengaris nausithous | 108 |
+| 1 | 0 | Phengaris teleius | 76 |
+| 1 | 1 | Phengaris nausithous | 89 |
+| 1 | 1 | Phengaris teleius | 34 |
 
 Full table: [`07_protection_mzchu.csv`](../Tables/07_protection_mzchu.csv)
 

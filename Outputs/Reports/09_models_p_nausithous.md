@@ -1,6 +1,6 @@
 # Step 09 - Models P nausithous
 
-_Generated 2026-09-05 10:59:06_
+_Generated 2026-09-05 23:07:48_
 
 Binomial occupancy models for Phengaris nausithous, grouped by the hypothesis each set addresses: baseline space and time, habitat extent and host plant, management, and conservation status.
 
@@ -35,8 +35,8 @@ Binomial occupancy models for Phengaris nausithous, grouped by the hypothesis ea
 | nau_evl_target | Natura 2000 designated for Phengaris | Conservation | glmer | 3216 | 4307 | 4331 | -2149 | 3892 | 4 | ok |
 | nau_evl_combined | Natura 2000 membership and designation (selected protection model) | Conservation | glmer | 3216 | 4303 | 4334 | -2147 | 3884 | 5 | ok |
 | nau_evl_year | Natura 2000 membership by year | Conservation | glmer | 3216 | 4373 | 4404 | -2182 | 3971 | 5 | fitted with warnings |
-| nau_mzchu | Small-scale protected area | Conservation | glmer | 3216 | 4312 | 4337 | -2152 | 3900 | 4 | ok |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | Conservation | glmer | 3216 | 4302 | 4338 | -2145 | 3881 | 6 | ok |
+| nau_mzchu | Small-scale protected area | Conservation | glmer | 3216 | 4313 | 4337 | -2152 | 3902 | 4 | ok |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | Conservation | glmer | 3216 | 4300 | 4337 | -2144 | 3878 | 6 | ok |
 | nau_ttp | Regularly managed grassland | Conservation | glmer | 3195 | 4283 | 4308 | -2138 | 3871 | 4 | ok |
 | nau_management_ttp | Mowing timing by method by grassland type | Conservation | glmer | 1752 | 2292 | 2330 | -1139 | 1964 | 7 | fitted with warnings |
 | nau_fsb | Habitat quality evaluation | Conservation | glmer | 3216 | 4299 | 4366 | -2139 | 3873 | 11 | ok |
@@ -123,12 +123,12 @@ Full table: [`09_nausithous_fit_statistics.csv`](../Tables/09_nausithous_fit_sta
 | nau_evl_year | Natura 2000 membership by year | as.factor(EVL)1 | -101 | 1.565 | -64.49 | 0 |
 | nau_evl_year | Natura 2000 membership by year | as.numeric(YEAR) | -0.1785 | 0.0003239 | -551 | 0 |
 | nau_evl_year | Natura 2000 membership by year | as.factor(EVL)1:as.numeric(YEAR) | 0.05011 | 0.0007747 | 64.68 | 0 |
-| nau_mzchu | Small-scale protected area | (Intercept) | -0.3026 | 0.2203 | -1.373 | 0.1696 |
-| nau_mzchu | Small-scale protected area | as.factor(MZCHU)1 | 0.08507 | 0.1647 | 0.5164 | 0.6056 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | (Intercept) | -0.3641 | 0.2225 | -1.637 | 0.1017 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(MZCHU)1 | 0.3042 | 0.2835 | 1.073 | 0.2832 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(EVL)1 | 0.4189 | 0.1129 | 3.711 | 0.0002068 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(MZCHU)1:as.factor(EVL)1 | -0.654 | 0.3597 | -1.818 | 0.06903 |
+| nau_mzchu | Small-scale protected area | (Intercept) | -0.2992 | 0.2203 | -1.358 | 0.1744 |
+| nau_mzchu | Small-scale protected area | as.factor(MZCHU)1 | 0.028 | 0.1614 | 0.1734 | 0.8623 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | (Intercept) | -0.363 | 0.2218 | -1.636 | 0.1018 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(MZCHU)1 | 0.3041 | 0.284 | 1.071 | 0.2843 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(EVL)1 | 0.4488 | 0.1141 | 3.932 | 8.438e-05 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(MZCHU)1:as.factor(EVL)1 | -0.7582 | 0.3579 | -2.118 | 0.03414 |
 | nau_ttp | Regularly managed grassland | (Intercept) | -0.3482 | 0.2264 | -1.538 | 0.124 |
 | nau_ttp | Regularly managed grassland | as.factor(TTP)1 | 0.07393 | 0.08089 | 0.914 | 0.3607 |
 | nau_management_ttp | Mowing timing by method by grassland type | (Intercept) | 12.06 | 628 | 0.01921 | 0.9847 |
@@ -197,10 +197,10 @@ Full table: [`09_nausithous_coefficients.csv`](../Tables/09_nausithous_coefficie
 | nau_evl_combined | Natura 2000 membership and designation (selected protection model) | X:Y | (Intercept) | 0.2669 | 0.5166 |
 | nau_evl_combined | Natura 2000 membership and designation (selected protection model) | YEAR | (Intercept) | 0.2828 | 0.5318 |
 | nau_evl_year | Natura 2000 membership by year | X:Y | (Intercept) | 0.2666 | 0.5163 |
-| nau_mzchu | Small-scale protected area | X:Y | (Intercept) | 0.2618 | 0.5116 |
+| nau_mzchu | Small-scale protected area | X:Y | (Intercept) | 0.2611 | 0.511 |
 | nau_mzchu | Small-scale protected area | YEAR | (Intercept) | 0.2799 | 0.5291 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | X:Y | (Intercept) | 0.2671 | 0.5168 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | YEAR | (Intercept) | 0.2839 | 0.5328 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | X:Y | (Intercept) | 0.268 | 0.5177 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | YEAR | (Intercept) | 0.2818 | 0.5308 |
 | nau_ttp | Regularly managed grassland | X:Y | (Intercept) | 0.264 | 0.5138 |
 | nau_ttp | Regularly managed grassland | YEAR | (Intercept) | 0.2797 | 0.5289 |
 | nau_management_ttp | Mowing timing by method by grassland type | X:Y | (Intercept) | 0.4007 | 0.633 |

@@ -1,27 +1,85 @@
 # Phengaris spp. management in Czechia - analysis report
 
-_Compiled 2026-09-05 11:02:09_
+_Compiled 2026-09-05 23:13:49_
 
 Effects of grassland management on the occupancy of *Phengaris nausithous* and *Phengaris teleius* at monitored sites in Czechia, 2019-2024. Every table below is also written to `Outputs/Tables` as CSV and every figure to `Outputs/Figures` as PNG.
 
 ## Contents
 
-1. [Step 04 - Cleaned occurrence data](#step-04---cleaned-occurrence-data)
-2. [Step 06 - Habitat attributes](#step-06---habitat-attributes)
-3. [Step 07 - Descriptive summaries](#step-07---descriptive-summaries)
-4. [Step 08 - Descriptive figures](#step-08---descriptive-figures)
-5. [Step 09 - Models P nausithous](#step-09---models-p-nausithous)
-6. [Step 10 - Models P teleius](#step-10---models-p-teleius)
-7. [Step 11 - Models both species](#step-11---models-both-species)
-8. [Step 12 - Model figures](#step-12---model-figures)
-9. [Step 13 - Threats and pressures](#step-13---threats-and-pressures)
-10. [Step 14 - Maps](#step-14---maps)
+1. [Step 02 - Imputed absences](#step-02---imputed-absences)
+2. [Step 03 - Protected area membership](#step-03---protected-area-membership)
+3. [Step 04 - Cleaned occurrence data](#step-04---cleaned-occurrence-data)
+4. [Step 05 - Habitat layer intersection](#step-05---habitat-layer-intersection)
+5. [Step 06 - Habitat attributes](#step-06---habitat-attributes)
+6. [Step 07 - Descriptive summaries](#step-07---descriptive-summaries)
+7. [Step 08 - Descriptive figures](#step-08---descriptive-figures)
+8. [Step 09 - Models P nausithous](#step-09---models-p-nausithous)
+9. [Step 10 - Models P teleius](#step-10---models-p-teleius)
+10. [Step 11 - Models both species](#step-11---models-both-species)
+11. [Step 12 - Model figures](#step-12---model-figures)
+12. [Step 13 - Threats and pressures](#step-13---threats-and-pressures)
+13. [Step 14 - Maps](#step-14---maps)
+
+---
+
+# Step 02 - Imputed absences
+
+_Generated 2026-09-05 23:07:12_
+
+Absence records inferred from the joint monitoring of the two species. A targeted record of one species inside the other species' reporting range, where the other species has no record, is entered as an absence of that other species.
+
+**Table - Observed and imputed records**
+
+| IMPUTED | records |
+|---|---|
+| FALSE | 4564 |
+| TRUE | 845 |
+
+Full table: [`02_imputation_totals.csv`](Tables/02_imputation_totals.csv)
+
+**Table - Records by species, presence/absence and imputation status**
+
+| DRUH | NEGATIV | IMPUTED | number |
+|---|---|---|---|
+| Phengaris nausithous | 0 | FALSE | 1620 |
+| Phengaris nausithous | 1 | FALSE | 2222 |
+| Phengaris nausithous | 1 | TRUE | 2 |
+| Phengaris teleius | 0 | FALSE | 215 |
+| Phengaris teleius | 1 | FALSE | 507 |
+| Phengaris teleius | 1 | TRUE | 843 |
+
+Full table: [`02_imputation_by_species.csv`](Tables/02_imputation_by_species.csv)
+
+The imputation produced 845 absence records out of 5409 records in total.
+
+
+---
+
+# Step 03 - Protected area membership
+
+_Generated 2026-09-05 23:07:17_
+
+Monitoring sites intersected with Natura 2000 sites and small-scale specially protected areas. A site counts as EVL_target when the Natura 2000 site it falls in was designated for that particular species.
+
+**Table - Records and distinct sites by protection category**
+
+| PA_TYPE | DRUH | records | sites |
+|---|---|---|---|
+| EVL_any | Phengaris nausithous | 1841 | 1739 |
+| EVL_any | Phengaris teleius | 748 | 681 |
+| EVL_target | Phengaris nausithous | 976 | 672 |
+| EVL_target | Phengaris teleius | 481 | 252 |
+| MZCHU | Phengaris nausithous | 820 | 740 |
+| MZCHU | Phengaris teleius | 407 | 352 |
+
+Full table: [`03_protection_summary.csv`](Tables/03_protection_summary.csv)
+
 
 ---
 
 # Step 04 - Cleaned occurrence data
 
-_Generated 2026-09-05 10:53:50_
+_Generated 2026-09-05 23:07:29_
 
 Derivation of the analysis variables from the targeted monitoring records. Only records from the targeted monitoring campaigns are kept, only records with the host plant present, and the two years with insufficient coverage are dropped.
 
@@ -41,7 +99,7 @@ Full table: [`04_cleaning_summary.csv`](Tables/04_cleaning_summary.csv)
 |---|---|---|---|
 | EVL | 846 | 4540 | 18.6 |
 | EVL_target | 372 | 4540 | 8.2 |
-| MZCHU | 287 | 4540 | 6.3 |
+| MZCHU | 307 | 4540 | 6.8 |
 | PROTECT | 928 | 4540 | 20.4 |
 | SPEC_NUM | 105 | 4540 | 2.3 |
 
@@ -60,18 +118,57 @@ Full table: [`04_both_species_visits.csv`](Tables/04_both_species_visits.csv)
 
 > **Note.** MZCHU and SPEC_NUM were previously derived with `ID %in% <data frame>` rather than `ID %in% <vector of ids>`. Comparing against a data frame made both variables constant: in the previous `data_clean.csv` all 4540 records had MZCHU = 0 and SPEC_NUM = 0, and PROTECT was therefore an exact copy of EVL. Every model and figure using MZCHU, PROTECT or SPEC_NUM was fitted on a constant. Both now compare against the identifier vector.
 
-The MZCHU flag now marks 287 of 4540 records as lying inside a small-scale specially protected area, and PROTECT is no longer identical to EVL.
+The MZCHU flag now marks 307 of 4540 records as lying inside a small-scale specially protected area, and PROTECT is no longer identical to EVL.
 
 > **Note.** SPEC_NUM keeps the original definition, which takes one ID_NALEZ per both-species visit, and so now flags 105 records. Defining it at the visit level instead, by matching site and date, would flag 239 records. Decide which of the two the co-occurrence model should use before the manuscript is finalised.
 
-> **Note.** EVL_target keeps the original definition, under which a record is flagged when its site lies in a Natura 2000 site designated for either Phengaris species. It flags 372 records. The species-specific alternative could not be quantified because protected_area_id.csv predates the PA_SPECIES column; re-run step 03 to get that comparison.
+> **Note.** EVL_target keeps the original definition, under which a record is flagged when its site lies in a Natura 2000 site designated for either Phengaris species. It flags 372 records. Matching the designation to the species of the record instead would flag 312 records. This was left unchanged because it is an interpretation of the variable, not a coding error.
+
+
+---
+
+# Step 05 - Habitat layer intersection
+
+_Generated 2026-09-05 23:07:32_
+
+Monitoring site geometries overlaid on the national habitat mapping layer. One row per site x habitat segment overlap, with the real area and length of each overlap.
+
+> **Note.** The habitat mapping share //bali.nature.cz was not reachable, so the intersection was not recomputed. The previously written Data/Processed/data_lokal_vmb.csv is reused, so the habitat variables in step 06 may be out of date relative to the current site geometries.
+
+**Table - Extent of the habitat intersection**
+
+| measure | value |
+|---|---|
+| site x segment overlaps | 18816 |
+| distinct sites covered | 8678 |
+| median segments per site | 1 |
+| largest number of segments on one site | 234 |
+
+Full table: [`05_habitat_intersection_summary.csv`](Tables/05_habitat_intersection_summary.csv)
+
+**Table - Overlaps and area by habitat quality evaluation (FSB)**
+
+| FSB | overlaps | area_ha |
+|---|---|---|
+| T | 5456 | 2746 |
+| - | 4172 | 4472 |
+| X | 3406 | 2451 |
+| moz. | 2925 | 1661 |
+| L | 1606 | 570.8 |
+| K | 463 | 70.41 |
+| M | 353 | 103.6 |
+| V | 255 | 195 |
+| R | 171 | 95.43 |
+| S | 9 | 0.1813 |
+
+Full table: [`05_habitat_by_fsb.csv`](Tables/05_habitat_by_fsb.csv)
 
 
 ---
 
 # Step 06 - Habitat attributes
 
-_Generated 2026-09-05 10:58:50_
+_Generated 2026-09-05 23:07:33_
 
 The cleaned occurrence records joined to the habitat mapping layer, one habitat segment per record. This produces data_analysis.csv, the table every model in steps 09 to 11 is fitted on.
 
@@ -173,7 +270,7 @@ Full table: [`06_natural_habitat_share.csv`](Tables/06_natural_habitat_share.csv
 
 # Step 07 - Descriptive summaries
 
-_Generated 2026-09-05 10:58:55_
+_Generated 2026-09-05 23:07:36_
 
 Extent of the monitoring effort and the distribution of the analysis variables across records, species, years, observers, habitats, management and protection categories.
 
@@ -578,14 +675,14 @@ Full table: [`07_management_types_teleius.csv`](Tables/07_management_types_telei
 | 1 | 0 | 0.5 | 1 | 0 | Phengaris teleius | 31 |
 | 1 | 0 | 0.5 | 1 | 1 | Phengaris nausithous | 35 |
 | 1 | 0 | 0.5 | 1 | 1 | Phengaris teleius | 14 |
-| 1 | 1 | 1 | 0 | 0 | Phengaris nausithous | 100 |
-| 1 | 1 | 1 | 0 | 0 | Phengaris teleius | 56 |
-| 1 | 1 | 1 | 0 | 1 | Phengaris nausithous | 111 |
-| 1 | 1 | 1 | 0 | 1 | Phengaris teleius | 31 |
-| 1 | 1 | 1 | 1 | 0 | Phengaris nausithous | 18 |
-| 1 | 1 | 1 | 1 | 0 | Phengaris teleius | 22 |
-| 1 | 1 | 1 | 1 | 1 | Phengaris nausithous | 23 |
-| 1 | 1 | 1 | 1 | 1 | Phengaris teleius | 11 |
+| 1 | 1 | 1 | 0 | 0 | Phengaris nausithous | 91 |
+| 1 | 1 | 1 | 0 | 0 | Phengaris teleius | 47 |
+| 1 | 1 | 1 | 0 | 1 | Phengaris nausithous | 110 |
+| 1 | 1 | 1 | 0 | 1 | Phengaris teleius | 30 |
+| 1 | 1 | 1 | 1 | 0 | Phengaris nausithous | 27 |
+| 1 | 1 | 1 | 1 | 0 | Phengaris teleius | 31 |
+| 1 | 1 | 1 | 1 | 1 | Phengaris nausithous | 24 |
+| 1 | 1 | 1 | 1 | 1 | Phengaris teleius | 12 |
 
 Full table: [`07_protection_full.csv`](Tables/07_protection_full.csv)
 
@@ -642,14 +739,14 @@ Full table: [`07_protection_evl_combined.csv`](Tables/07_protection_evl_combined
 
 | MZCHU | POSITIVE | DRUH | COUNT |
 |---|---|---|---|
-| 0 | 0 | Phengaris nausithous | 1648 |
-| 0 | 0 | Phengaris teleius | 1055 |
-| 0 | 1 | Phengaris nausithous | 1381 |
-| 0 | 1 | Phengaris teleius | 169 |
-| 1 | 0 | Phengaris nausithous | 99 |
-| 1 | 0 | Phengaris teleius | 67 |
-| 1 | 1 | Phengaris nausithous | 88 |
-| 1 | 1 | Phengaris teleius | 33 |
+| 0 | 0 | Phengaris nausithous | 1639 |
+| 0 | 0 | Phengaris teleius | 1046 |
+| 0 | 1 | Phengaris nausithous | 1380 |
+| 0 | 1 | Phengaris teleius | 168 |
+| 1 | 0 | Phengaris nausithous | 108 |
+| 1 | 0 | Phengaris teleius | 76 |
+| 1 | 1 | Phengaris nausithous | 89 |
+| 1 | 1 | Phengaris teleius | 34 |
 
 Full table: [`07_protection_mzchu.csv`](Tables/07_protection_mzchu.csv)
 
@@ -692,7 +789,7 @@ Full table: [`07_mapping_fields.csv`](Tables/07_mapping_fields.csv)
 
 # Step 08 - Descriptive figures
 
-_Generated 2026-09-05 10:58:56_
+_Generated 2026-09-05 23:07:37_
 
 Figures describing the monitoring effort and the distribution of the analysis variables. Site occupancy is shown with the same two greys throughout: light grey for records without the species, dark grey for records with it.
 
@@ -795,7 +892,7 @@ Figures describing the monitoring effort and the distribution of the analysis va
 
 # Step 09 - Models P nausithous
 
-_Generated 2026-09-05 10:59:06_
+_Generated 2026-09-05 23:07:48_
 
 Binomial occupancy models for Phengaris nausithous, grouped by the hypothesis each set addresses: baseline space and time, habitat extent and host plant, management, and conservation status.
 
@@ -830,8 +927,8 @@ Binomial occupancy models for Phengaris nausithous, grouped by the hypothesis ea
 | nau_evl_target | Natura 2000 designated for Phengaris | Conservation | glmer | 3216 | 4307 | 4331 | -2149 | 3892 | 4 | ok |
 | nau_evl_combined | Natura 2000 membership and designation (selected protection model) | Conservation | glmer | 3216 | 4303 | 4334 | -2147 | 3884 | 5 | ok |
 | nau_evl_year | Natura 2000 membership by year | Conservation | glmer | 3216 | 4373 | 4404 | -2182 | 3971 | 5 | fitted with warnings |
-| nau_mzchu | Small-scale protected area | Conservation | glmer | 3216 | 4312 | 4337 | -2152 | 3900 | 4 | ok |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | Conservation | glmer | 3216 | 4302 | 4338 | -2145 | 3881 | 6 | ok |
+| nau_mzchu | Small-scale protected area | Conservation | glmer | 3216 | 4313 | 4337 | -2152 | 3902 | 4 | ok |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | Conservation | glmer | 3216 | 4300 | 4337 | -2144 | 3878 | 6 | ok |
 | nau_ttp | Regularly managed grassland | Conservation | glmer | 3195 | 4283 | 4308 | -2138 | 3871 | 4 | ok |
 | nau_management_ttp | Mowing timing by method by grassland type | Conservation | glmer | 1752 | 2292 | 2330 | -1139 | 1964 | 7 | fitted with warnings |
 | nau_fsb | Habitat quality evaluation | Conservation | glmer | 3216 | 4299 | 4366 | -2139 | 3873 | 11 | ok |
@@ -918,12 +1015,12 @@ Full table: [`09_nausithous_fit_statistics.csv`](Tables/09_nausithous_fit_statis
 | nau_evl_year | Natura 2000 membership by year | as.factor(EVL)1 | -101 | 1.565 | -64.49 | 0 |
 | nau_evl_year | Natura 2000 membership by year | as.numeric(YEAR) | -0.1785 | 0.0003239 | -551 | 0 |
 | nau_evl_year | Natura 2000 membership by year | as.factor(EVL)1:as.numeric(YEAR) | 0.05011 | 0.0007747 | 64.68 | 0 |
-| nau_mzchu | Small-scale protected area | (Intercept) | -0.3026 | 0.2203 | -1.373 | 0.1696 |
-| nau_mzchu | Small-scale protected area | as.factor(MZCHU)1 | 0.08507 | 0.1647 | 0.5164 | 0.6056 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | (Intercept) | -0.3641 | 0.2225 | -1.637 | 0.1017 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(MZCHU)1 | 0.3042 | 0.2835 | 1.073 | 0.2832 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(EVL)1 | 0.4189 | 0.1129 | 3.711 | 0.0002068 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(MZCHU)1:as.factor(EVL)1 | -0.654 | 0.3597 | -1.818 | 0.06903 |
+| nau_mzchu | Small-scale protected area | (Intercept) | -0.2992 | 0.2203 | -1.358 | 0.1744 |
+| nau_mzchu | Small-scale protected area | as.factor(MZCHU)1 | 0.028 | 0.1614 | 0.1734 | 0.8623 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | (Intercept) | -0.363 | 0.2218 | -1.636 | 0.1018 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(MZCHU)1 | 0.3041 | 0.284 | 1.071 | 0.2843 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(EVL)1 | 0.4488 | 0.1141 | 3.932 | 8.438e-05 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | as.factor(MZCHU)1:as.factor(EVL)1 | -0.7582 | 0.3579 | -2.118 | 0.03414 |
 | nau_ttp | Regularly managed grassland | (Intercept) | -0.3482 | 0.2264 | -1.538 | 0.124 |
 | nau_ttp | Regularly managed grassland | as.factor(TTP)1 | 0.07393 | 0.08089 | 0.914 | 0.3607 |
 | nau_management_ttp | Mowing timing by method by grassland type | (Intercept) | 12.06 | 628 | 0.01921 | 0.9847 |
@@ -992,10 +1089,10 @@ Full table: [`09_nausithous_coefficients.csv`](Tables/09_nausithous_coefficients
 | nau_evl_combined | Natura 2000 membership and designation (selected protection model) | X:Y | (Intercept) | 0.2669 | 0.5166 |
 | nau_evl_combined | Natura 2000 membership and designation (selected protection model) | YEAR | (Intercept) | 0.2828 | 0.5318 |
 | nau_evl_year | Natura 2000 membership by year | X:Y | (Intercept) | 0.2666 | 0.5163 |
-| nau_mzchu | Small-scale protected area | X:Y | (Intercept) | 0.2618 | 0.5116 |
+| nau_mzchu | Small-scale protected area | X:Y | (Intercept) | 0.2611 | 0.511 |
 | nau_mzchu | Small-scale protected area | YEAR | (Intercept) | 0.2799 | 0.5291 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | X:Y | (Intercept) | 0.2671 | 0.5168 |
-| nau_mzchu_evl | Small-scale protected area by Natura 2000 | YEAR | (Intercept) | 0.2839 | 0.5328 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | X:Y | (Intercept) | 0.268 | 0.5177 |
+| nau_mzchu_evl | Small-scale protected area by Natura 2000 | YEAR | (Intercept) | 0.2818 | 0.5308 |
 | nau_ttp | Regularly managed grassland | X:Y | (Intercept) | 0.264 | 0.5138 |
 | nau_ttp | Regularly managed grassland | YEAR | (Intercept) | 0.2797 | 0.5289 |
 | nau_management_ttp | Mowing timing by method by grassland type | X:Y | (Intercept) | 0.4007 | 0.633 |
@@ -1116,7 +1213,7 @@ Full table: [`09_nausithous_aic_habitat.csv`](Tables/09_nausithous_aic_habitat.c
 
 # Step 10 - Models P teleius
 
-_Generated 2026-09-05 11:00:12_
+_Generated 2026-09-05 23:08:59_
 
 Binomial occupancy models for Phengaris teleius, in the same four groups as for P. nausithous: baseline space and time, habitat extent and host plant, management, and conservation status.
 
@@ -1155,8 +1252,8 @@ Binomial occupancy models for Phengaris teleius, in the same four groups as for 
 | tel_evl | Natura 2000 membership | Conservation | glmer | 1324 | 1059 | 1080 | -525.5 | 981.8 | 4 | ok |
 | tel_evl_target | Natura 2000 designated for Phengaris | Conservation | glmer | 1324 | 1097 | 1118 | -544.6 | 965.5 | 4 | ok |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | Conservation | glmer | 1324 | 1060 | 1086 | -525 | 978.3 | 5 | ok |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | Conservation | glmer | 1324 | 1060 | 1091 | -524 | 959.6 | 6 | fitted with warnings |
-| tel_mzchu | Small-scale protected area | Conservation | glmer | 1324 | 1111 | 1132 | -551.6 | 993.4 | 4 | ok |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | Conservation | glmer | 1324 | 1061 | 1092 | -524.6 | 975.3 | 6 | ok |
+| tel_mzchu | Small-scale protected area | Conservation | glmer | 1324 | 1113 | 1134 | -552.4 | 1010 | 4 | ok |
 | tel_fsb | Habitat quality evaluation, all levels | Conservation | glmer | 1324 | 1118 | 1175 | -548 | 980.5 | 11 | fitted with warnings |
 | tel_fsb_subset | Habitat quality evaluation, T / X / mosaic only | Conservation | glmer | 633 | 633.3 | 655.6 | -311.7 | 569.8 | 5 | ok |
 | tel_het_inner | Within-site habitat heterogeneity | Conservation | glmer | 1324 | 1133 | 1154 | -562.6 | 983.5 | 4 | ok |
@@ -1454,12 +1551,12 @@ Full table: [`10_teleius_fit_statistics.csv`](Tables/10_teleius_fit_statistics.c
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | (Intercept) | -2.315 | 0.248 | -9.337 | 9.878e-21 |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | as.factor(EVL)1 | 1.411 | 0.2219 | 6.358 | 2.041e-10 |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | as.factor(EVL_target)1 | 0.286 | 0.2818 | 1.015 | 0.3103 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | (Intercept) | -2.35 | 0.001058 | -2221 | 0 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(EVL)1 | 1.313 | 0.001058 | 1240 | 0 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(EVL_target)1 | 0.3067 | 0.001058 | 289.9 | 0 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(MZCHU)1 | 0.376 | 0.001058 | 355.4 | 0 |
-| tel_mzchu | Small-scale protected area | (Intercept) | -2.003 | 0.2172 | -9.226 | 2.822e-20 |
-| tel_mzchu | Small-scale protected area | as.factor(MZCHU)1 | 1.223 | 0.2619 | 4.668 | 3.038e-06 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | (Intercept) | -2.329 | 0.251 | -9.279 | 1.704e-20 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(EVL)1 | 1.344 | 0.2336 | 5.754 | 8.693e-09 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(EVL_target)1 | 0.2803 | 0.2826 | 0.9918 | 0.3213 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | as.factor(MZCHU)1 | 0.2413 | 0.2686 | 0.8984 | 0.369 |
+| tel_mzchu | Small-scale protected area | (Intercept) | -1.994 | 0.2083 | -9.575 | 1.016e-21 |
+| tel_mzchu | Small-scale protected area | as.factor(MZCHU)1 | 1.143 | 0.2443 | 4.68 | 2.874e-06 |
 | tel_fsb | Habitat quality evaluation, all levels | (Intercept) | -2.264 | 0.1843 | -12.28 | 1.107e-34 |
 | tel_fsb | Habitat quality evaluation, all levels | as.factor(FSB)K | 0.6908 | 0.4614 | 1.497 | 0.1343 |
 | tel_fsb | Habitat quality evaluation, all levels | as.factor(FSB)L | -0.2091 | 0.7888 | -0.2651 | 0.791 |
@@ -1527,10 +1624,10 @@ Full table: [`10_teleius_coefficients.csv`](Tables/10_teleius_coefficients.csv)
 | tel_evl_target | Natura 2000 designated for Phengaris | YEAR | (Intercept) | 0.1608 | 0.4009 |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | X:Y | (Intercept) | 0.1873 | 0.4328 |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | YEAR | (Intercept) | 0.1792 | 0.4234 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | X:Y | (Intercept) | 0.2464 | 0.4964 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | YEAR | (Intercept) | 0.1738 | 0.4169 |
-| tel_mzchu | Small-scale protected area | X:Y | (Intercept) | 0.3107 | 0.5574 |
-| tel_mzchu | Small-scale protected area | YEAR | (Intercept) | 0.1046 | 0.3234 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | X:Y | (Intercept) | 0.1942 | 0.4406 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | YEAR | (Intercept) | 0.1872 | 0.4326 |
+| tel_mzchu | Small-scale protected area | X:Y | (Intercept) | 0.2556 | 0.5056 |
+| tel_mzchu | Small-scale protected area | YEAR | (Intercept) | 0.1256 | 0.3544 |
 | tel_fsb | Habitat quality evaluation, all levels | X:Y | (Intercept) | 0.3332 | 0.5772 |
 | tel_fsb | Habitat quality evaluation, all levels | YEAR | (Intercept) | 0.08431 | 0.2904 |
 | tel_fsb_subset | Habitat quality evaluation, T / X / mosaic only | X:Y | (Intercept) | 0.2202 | 0.4692 |
@@ -1550,7 +1647,6 @@ Full table: [`10_teleius_random_effects.csv`](Tables/10_teleius_random_effects.c
 | model | label | status | message |
 |---|---|---|---|
 | tel_resource_density | Site area by host plant abundance | failed | NA/NaN/Inf in foreign function call (arg 1) |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | warning | Model failed to converge with max\|grad\| = 0.0669092 (tol = 0.002, component 1)   See ?lme4::convergence and ?lme4::troubleshooting. \| Model is nearly unidentifiable: very large eigenvalue  - Rescale variables? |
 | tel_fsb | Habitat quality evaluation, all levels | warning | unable to evaluate scaled gradient \| Model failed to converge: degenerate  Hessian with 1 negative eigenvalues   See ?lme4::convergence and ?lme4::troubleshooting. |
 
 Full table: [`10_teleius_fitting_issues.csv`](Tables/10_teleius_fitting_issues.csv)
@@ -1631,7 +1727,7 @@ Full table: [`10_teleius_aic_management_subset.csv`](Tables/10_teleius_aic_manag
 |---|---|---|---|---|---|---|---|
 | tel_evl | Natura 2000 membership | 1324 | 4 | 1059 | 1080 | -525.5 | 0 |
 | tel_evl_combined | Natura 2000 membership and designation (selected protection model) | 1324 | 5 | 1060 | 1086 | -525 | 0.9749 |
-| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | 1324 | 6 | 1060 | 1091 | -524 | 1.15 |
+| tel_protection_combined | Natura 2000 membership, designation and small-scale protection | 1324 | 6 | 1061 | 1092 | -524.6 | 2.186 |
 | tel_evl_target | Natura 2000 designated for Phengaris | 1324 | 4 | 1097 | 1118 | -544.6 | 38.32 |
 
 Full table: [`10_teleius_aic_protection.csv`](Tables/10_teleius_aic_protection.csv)
@@ -1654,7 +1750,7 @@ Full table: [`10_teleius_aic_habitat.csv`](Tables/10_teleius_aic_habitat.csv)
 
 # Step 11 - Models both species
 
-_Generated 2026-09-05 11:01:04_
+_Generated 2026-09-05 23:09:54_
 
 Models fitted on the two species jointly, with species as a fixed effect, and the non-parametric tests comparing abundance and occupancy between P. nausithous and P. teleius.
 
@@ -1786,7 +1882,7 @@ Full table: [`11_species_comparisons.csv`](Tables/11_species_comparisons.csv)
 
 # Step 12 - Model figures
 
-_Generated 2026-09-05 11:02:01_
+_Generated 2026-09-05 23:10:55_
 
 Distributions behind the habitat and abundance models: site area by occupancy and host plant abundance, and counted specimens by species.
 
@@ -1813,7 +1909,7 @@ The y axis label of the specimen boxplot read "log10(site area)" in the original
 
 # Step 13 - Threats and pressures
 
-_Generated 2026-09-05 11:02:04_
+_Generated 2026-09-05 23:10:58_
 
 Ordination of the threats and pressures recorded at monitoring sites, summarised to one point per species and occupancy class. An unconstrained PCA describes the main gradients; an RDA constrained by species and occupancy tests whether those two factors explain them.
 
@@ -1825,10 +1921,10 @@ Ordination of the threats and pressures recorded at monitoring sites, summarised
 
 | axis | Standard deviation | Proportion of Variance | Cumulative Proportion |
 |---|---|---|---|
-| PC1 | 3.541 | 0.7375 | 0.7375 |
-| PC2 | 1.586 | 0.1479 | 0.8854 |
-| PC3 | 1.396 | 0.1146 | 1 |
-| PC4 | 2.132e-15 | 0 | 1 |
+| PC1 | 3.518 | 0.728 | 0.728 |
+| PC2 | 1.624 | 0.1552 | 0.8832 |
+| PC3 | 1.409 | 0.1168 | 1 |
+| PC4 | 2.2e-15 | 0 | 1 |
 
 Full table: [`13_pca_variance.csv`](Tables/13_pca_variance.csv)
 
@@ -1836,23 +1932,23 @@ Full table: [`13_pca_variance.csv`](Tables/13_pca_variance.csv)
 
 | Variable | PC1 | PC2 |
 |---|---|---|
-| PLANT_QUANT | 0.1995 | -0.4334 |
-| HET_INN | 0.2732 | -0.1303 |
-| EVL | 0.2656 | 0.2134 |
-| MZCHU | 0.2507 | 0.2798 |
-| LandUseChange | -0.1861 | 0.4489 |
-| Abandonment | -0.2566 | -0.2191 |
-| HarmfulMow | -0.2432 | 0.225 |
-| HarmfulGrazing | 0.2628 | -0.01923 |
-| GrazingByeffects | 0.265 | 0.04534 |
-| FertilizerUse | -0.2209 | 0.05421 |
-| Afforestation | -0.255 | 0.2082 |
-| Invasives | -0.1926 | -0.1262 |
-| NativeDominants | -0.2391 | -0.3278 |
-| AbioticNaturalProcesses | -0.2367 | 0.2712 |
-| Encroachment | -0.2519 | 0.02247 |
-| BiomassAccumulation | 0.2651 | 0.0814 |
-| Eutrophization | -0.2354 | -0.3442 |
+| PLANT_QUANT | 0.2003 | -0.4079 |
+| HET_INN | 0.2743 | -0.1417 |
+| EVL | 0.2677 | 0.2002 |
+| MZCHU | 0.2263 | 0.357 |
+| LandUseChange | -0.1857 | 0.4568 |
+| Abandonment | -0.2582 | -0.1896 |
+| HarmfulMow | -0.2452 | 0.1908 |
+| HarmfulGrazing | 0.2635 | -0.05218 |
+| GrazingByeffects | 0.2659 | 0.01244 |
+| FertilizerUse | -0.2238 | 0.004218 |
+| Afforestation | -0.2569 | 0.182 |
+| Invasives | -0.1959 | -0.1778 |
+| NativeDominants | -0.2411 | -0.3047 |
+| AbioticNaturalProcesses | -0.2368 | 0.2933 |
+| Encroachment | -0.2523 | 0.06228 |
+| BiomassAccumulation | 0.2678 | 0.1018 |
+| Eutrophization | -0.2374 | -0.3228 |
 
 Full table: [`13_pca_loadings.csv`](Tables/13_pca_loadings.csv)
 
@@ -1866,8 +1962,8 @@ Full table: [`13_pca_loadings.csv`](Tables/13_pca_loadings.csv)
 
 | term | Df | Variance | F | Pr(>F) |
 |---|---|---|---|---|
-| Model | 2 | 13.76 | 2.124 | 0.3333 |
-| Residual | 1 | 3.239 |  |  |
+| Model | 2 | 13.78 | 2.141 | 0.3333 |
+| Residual | 1 | 3.218 |  |  |
 
 Full table: [`13_rda_anova_overall.csv`](Tables/13_rda_anova_overall.csv)
 
@@ -1875,9 +1971,9 @@ Full table: [`13_rda_anova_overall.csv`](Tables/13_rda_anova_overall.csv)
 
 | term | Df | Variance | F | Pr(>F) |
 |---|---|---|---|---|
-| DRUH | 1 | 5.037 | 1.555 | 0.5 |
-| POSITIVE | 1 | 8.724 | 2.693 | 0.1667 |
-| Residual | 1 | 3.239 |  |  |
+| DRUH | 1 | 5.177 | 1.609 | 0.5 |
+| POSITIVE | 1 | 8.605 | 2.674 | 0.1667 |
+| Residual | 1 | 3.218 |  |  |
 
 Full table: [`13_rda_anova_by_term.csv`](Tables/13_rda_anova_by_term.csv)
 
@@ -1894,23 +1990,23 @@ Full table: [`13_rda_vif.csv`](Tables/13_rda_vif.csv)
 
 | Variable | RDA1 | RDA2 |
 |---|---|---|
-| PLANT_QUANT | 0.5653 | -0.1754 |
-| HET_INN | 0.6144 | -0.1506 |
-| EVL | 0.5233 | 0.1186 |
-| MZCHU | 0.4917 | 0.2414 |
-| LandUseChange | -0.4932 | 0.399 |
-| Abandonment | -0.48 | -0.01963 |
-| HarmfulMow | -0.6299 | -0.05431 |
-| HarmfulGrazing | 0.5388 | -0.1962 |
-| GrazingByeffects | 0.5301 | -0.1428 |
-| FertilizerUse | -0.5668 | -0.2911 |
-| Afforestation | -0.6417 | -0.01945 |
-| Invasives | -0.4689 | -0.4465 |
-| NativeDominants | -0.4275 | -0.1473 |
-| AbioticNaturalProcesses | -0.5487 | 0.3366 |
-| Encroachment | -0.5061 | 0.2429 |
-| BiomassAccumulation | 0.5955 | 0.2213 |
-| Eutrophization | -0.4181 | -0.1711 |
+| PLANT_QUANT | 0.5638 | -0.1802 |
+| HET_INN | 0.6131 | -0.1559 |
+| EVL | 0.5243 | 0.1142 |
+| MZCHU | 0.4324 | 0.3492 |
+| LandUseChange | -0.4898 | 0.4032 |
+| Abandonment | -0.4802 | -0.01553 |
+| HarmfulMow | -0.6303 | -0.04893 |
+| HarmfulGrazing | 0.5371 | -0.2008 |
+| GrazingByeffects | 0.5289 | -0.1473 |
+| FertilizerUse | -0.5692 | -0.2863 |
+| Afforestation | -0.6419 | -0.01398 |
+| Invasives | -0.4727 | -0.4425 |
+| NativeDominants | -0.4287 | -0.1437 |
+| AbioticNaturalProcesses | -0.5458 | 0.3413 |
+| Encroachment | -0.504 | 0.2473 |
+| BiomassAccumulation | 0.5974 | 0.2162 |
+| Eutrophization | -0.4195 | -0.1675 |
 
 Full table: [`13_rda_variable_scores.csv`](Tables/13_rda_variable_scores.csv)
 
@@ -1932,8 +2028,8 @@ Full table: [`13_rda_variable_scores.csv`](Tables/13_rda_variable_scores.csv)
 
 | term | Df | Variance | F | Pr(>F) |
 |---|---|---|---|---|
-| Model | 2 | 13.76 | 2.124 | 0.3333 |
-| Residual | 1 | 3.239 |  |  |
+| Model | 2 | 13.78 | 2.141 | 0.3333 |
+| Residual | 1 | 3.218 |  |  |
 
 Full table: [`13_rda_tap_anova_overall.csv`](Tables/13_rda_tap_anova_overall.csv)
 
@@ -1941,9 +2037,9 @@ Full table: [`13_rda_tap_anova_overall.csv`](Tables/13_rda_tap_anova_overall.csv
 
 | term | Df | Variance | F | Pr(>F) |
 |---|---|---|---|---|
-| RDA1 | 1 | 11.61 | 3.584 | 0.3333 |
-| RDA2 | 1 | 2.152 | 1.329 | 0.5 |
-| Residual | 1 | 3.239 |  |  |
+| RDA1 | 1 | 11.47 | 3.565 | 0.3333 |
+| RDA2 | 1 | 2.309 | 1.435 | 0.4167 |
+| Residual | 1 | 3.218 |  |  |
 
 Full table: [`13_rda_tap_anova_by_axis.csv`](Tables/13_rda_tap_anova_by_axis.csv)
 
@@ -1951,9 +2047,9 @@ Full table: [`13_rda_tap_anova_by_axis.csv`](Tables/13_rda_tap_anova_by_axis.csv
 
 | term | Df | Variance | F | Pr(>F) |
 |---|---|---|---|---|
-| DRUH | 1 | 5.037 | 1.555 | 0.5 |
-| POSITIVE | 1 | 8.724 | 2.693 | 0.1667 |
-| Residual | 1 | 3.239 |  |  |
+| DRUH | 1 | 5.177 | 1.609 | 0.5 |
+| POSITIVE | 1 | 8.605 | 2.674 | 0.1667 |
+| Residual | 1 | 3.218 |  |  |
 
 Full table: [`13_rda_tap_anova_by_term.csv`](Tables/13_rda_tap_anova_by_term.csv)
 
@@ -1968,11 +2064,33 @@ Full table: [`13_rda_tap_anova_by_term.csv`](Tables/13_rda_tap_anova_by_term.csv
 
 # Step 14 - Maps
 
-_Generated 2026-09-05 11:02:09_
+_Generated 2026-09-05 23:11:05_
 
 Distribution of the monitored sites and of the two species across the national mapping grid.
 
-> **Note.** The spatial objects from step 01 are not in the session, so no maps were drawn. Run the cascade from step 01, or source R/01_load_source_data.R before this step.
+**Figure - Monitored sites on shaded relief**
+
+![Monitored sites on shaded relief](Figures/14_monitored_sites.png)
+
+**Figure - Mapping fields surveyed (grey), with P. nausithous (blue) and P. teleius (red)**
+
+![Mapping fields surveyed (grey), with P. nausithous (blue) and P. teleius (red)](Figures/14_species_distribution.png)
+
+**Table - Mapping grid coverage**
+
+| subset | fields |
+|---|---|
+| mapping fields surveyed | 364 |
+| mapping fields with P. nausithous | 283 |
+| mapping fields with P. teleius | 71 |
+
+Full table: [`14_grid_coverage.csv`](Tables/14_grid_coverage.csv)
+
+The grid map previously referenced an object called `czechia`, which was never created, and printed an undefined `both_dist`. It now uses `czechia_border` from step 01, and the stray reference is gone.
+
+> **Note.** The relief map drew the shaded-relief raster without reprojecting it. The relief is delivered in WGS84 degrees while every other layer is in S-JTSK metres, and geom_raster() plots raw coordinates, so the two ended up in unrelated coordinate ranges: the raster never appeared and the country was squeezed into a corner. The raster is now projected to S-JTSK first. Its legend, which was labelled elevation but held shading intensity between 0 and 1, has been dropped.
+
+> **Note.** The grid map also matched the four-digit SITMAP code in the occurrence data against POLE in the grid layer, which identifies a quadrant of a basic field and always carries a letter suffix. Nothing ever matched, so the map came out as an empty outline. It now matches on the first four characters of POLE, which resolves all 364 surveyed fields to 1456 quadrants.
 
 
 ---

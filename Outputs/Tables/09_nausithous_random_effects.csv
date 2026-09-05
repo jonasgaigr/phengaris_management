@@ -38,10 +38,10 @@
 "nau_evl_combined","Natura 2000 membership and designation (selected protection model)","X:Y","(Intercept)",0.266860026966326,0.516584965873308
 "nau_evl_combined","Natura 2000 membership and designation (selected protection model)","YEAR","(Intercept)",0.282769805179447,0.531761041426924
 "nau_evl_year","Natura 2000 membership by year","X:Y","(Intercept)",0.26658240191387,0.516316184051856
-"nau_mzchu","Small-scale protected area","X:Y","(Intercept)",0.261782356320345,0.511646710455901
-"nau_mzchu","Small-scale protected area","YEAR","(Intercept)",0.279917038357878,0.52907186502202
-"nau_mzchu_evl","Small-scale protected area by Natura 2000","X:Y","(Intercept)",0.267067807246398,0.51678603623395
-"nau_mzchu_evl","Small-scale protected area by Natura 2000","YEAR","(Intercept)",0.283906684574102,0.532828944947722
+"nau_mzchu","Small-scale protected area","X:Y","(Intercept)",0.261088843417958,0.510968534665255
+"nau_mzchu","Small-scale protected area","YEAR","(Intercept)",0.279918405007432,0.529073156574242
+"nau_mzchu_evl","Small-scale protected area by Natura 2000","X:Y","(Intercept)",0.267964005011118,0.517652397860879
+"nau_mzchu_evl","Small-scale protected area by Natura 2000","YEAR","(Intercept)",0.281775650130901,0.530825442241516
 "nau_ttp","Regularly managed grassland","X:Y","(Intercept)",0.263994888836316,0.513804329328117
 "nau_ttp","Regularly managed grassland","YEAR","(Intercept)",0.279732260775855,0.528897211919154
 "nau_management_ttp","Mowing timing by method by grassland type","X:Y","(Intercept)",0.400664223071804,0.632980428664113

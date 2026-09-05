@@ -1,6 +1,6 @@
 # Step 08 - Descriptive figures
 
-_Generated 2026-09-05 10:58:56_
+_Generated 2026-09-05 23:07:37_
 
 Figures describing the monitoring effort and the distribution of the analysis variables. Site occupancy is shown with the same two greys throughout: light grey for records without the species, dark grey for records with it.
 

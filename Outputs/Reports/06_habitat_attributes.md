@@ -1,6 +1,6 @@
 # Step 06 - Habitat attributes
 
-_Generated 2026-09-05 10:58:50_
+_Generated 2026-09-05 23:07:33_
 
 The cleaned occurrence records joined to the habitat mapping layer, one habitat segment per record. This produces data_analysis.csv, the table every model in steps 09 to 11 is fitted on.
 

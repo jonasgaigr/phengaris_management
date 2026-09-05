@@ -41,10 +41,10 @@
 "tel_evl_target","Natura 2000 designated for Phengaris","YEAR","(Intercept)",0.160754619530818,0.400942164820337
 "tel_evl_combined","Natura 2000 membership and designation (selected protection model)","X:Y","(Intercept)",0.187290339613504,0.432770539216227
 "tel_evl_combined","Natura 2000 membership and designation (selected protection model)","YEAR","(Intercept)",0.179243753097485,0.423371885105146
-"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","X:Y","(Intercept)",0.24638138510569,0.49636819509885
-"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","YEAR","(Intercept)",0.173835158674571,0.416935437057791
-"tel_mzchu","Small-scale protected area","X:Y","(Intercept)",0.310678322143112,0.557385254687557
-"tel_mzchu","Small-scale protected area","YEAR","(Intercept)",0.104591956220931,0.323406796806948
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","X:Y","(Intercept)",0.194154222940103,0.440629348704899
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","YEAR","(Intercept)",0.187151088753498,0.432609626283902
+"tel_mzchu","Small-scale protected area","X:Y","(Intercept)",0.25564097334295,0.505609506776672
+"tel_mzchu","Small-scale protected area","YEAR","(Intercept)",0.125612946439921,0.354419167709537
 "tel_fsb","Habitat quality evaluation, all levels","X:Y","(Intercept)",0.333216270359271,0.577248880777842
 "tel_fsb","Habitat quality evaluation, all levels","YEAR","(Intercept)",0.0843130296559147,0.290367060211579
 "tel_fsb_subset","Habitat quality evaluation, T / X / mosaic only","X:Y","(Intercept)",0.220163017107918,0.469215320623611

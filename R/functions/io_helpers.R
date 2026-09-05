@@ -63,6 +63,10 @@ write_table_csv <- function(x, stem) {
 #' @param stem  file name without extension
 #' @param width,height,dpi  passed to ggplot2::ggsave
 #' @return the path written, invisibly
+#' bg is set explicitly because theme_void(), used by the maps, leaves the plot
+#' background transparent. A transparent PNG renders on whatever the viewer
+#' happens to use, black in some readers, which is not what a manuscript figure
+#' should do.
 write_figure_png <- function(plot, stem, width = 8, height = 6, dpi = 300) {
   path <- file.path(PATHS$figures, paste0(stem, ".png"))
   ggplot2::ggsave(
@@ -70,7 +74,8 @@ write_figure_png <- function(plot, stem, width = 8, height = 6, dpi = 300) {
     plot     = plot,
     width    = width,
     height   = height,
-    dpi      = dpi
+    dpi      = dpi,
+    bg       = "white"
   )
   invisible(path)
 }

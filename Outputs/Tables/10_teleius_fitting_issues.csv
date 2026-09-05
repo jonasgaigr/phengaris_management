@@ -1,7 +1,4 @@
 "model","label","status","message"
 "tel_resource_density","Site area by host plant abundance","failed","NA/NaN/Inf in foreign function call (arg 1)"
-"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","warning","Model failed to converge with max|grad| = 0.0669092 (tol = 0.002, component 1)
-  See ?lme4::convergence and ?lme4::troubleshooting. | Model is nearly unidentifiable: very large eigenvalue
- - Rescale variables?"
 "tel_fsb","Habitat quality evaluation, all levels","warning","unable to evaluate scaled gradient | Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
   See ?lme4::convergence and ?lme4::troubleshooting."

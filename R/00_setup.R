@@ -24,7 +24,7 @@ pkgs <- c(
   "tidyverse", "sf", "sp", "proj4", "openxlsx", "lmerTest", "vegan",
   "ggplot2", "ggforce", "ggrepel", "grid", "ggpubr", "officer", "flextable",
   "GLMMadaptive", "RCzechia", "rvest", "httr", "xml2", "Matrix", "lme4",
-  "remotes", "units", "tibble", "stringr", "forcats"
+  "remotes", "units", "tibble", "stringr", "forcats", "terra"
 )
 
 pkg_type <- if (.Platform$OS.type == "windows") "binary" else "source"

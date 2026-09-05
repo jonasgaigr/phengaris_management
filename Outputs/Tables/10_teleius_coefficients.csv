@@ -284,12 +284,12 @@
 "tel_evl_combined","Natura 2000 membership and designation (selected protection model)","(Intercept)",-2.31531372293198,0.247962764813319,-9.33734435763003,9.87805688800829e-21
 "tel_evl_combined","Natura 2000 membership and designation (selected protection model)","as.factor(EVL)1",1.41097598909201,0.221912592505484,6.3582511166289,2.04063681330026e-10
 "tel_evl_combined","Natura 2000 membership and designation (selected protection model)","as.factor(EVL_target)1",0.285961594622915,0.281820299366584,1.01469480823645,0.310251329723213
-"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","(Intercept)",-2.34950348880035,0.00105805010117431,-2220.59757490942,0
-"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","as.factor(EVL)1",1.31255019823849,0.00105820132969316,1240.35961910867,0
-"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","as.factor(EVL_target)1",0.306724813656707,0.00105802254673977,289.903853752322,0
-"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","as.factor(MZCHU)1",0.376004526095059,0.00105799863799423,355.392259112824,0
-"tel_mzchu","Small-scale protected area","(Intercept)",-2.00338169958991,0.21715628063165,-9.22552962208877,2.82162989943422e-20
-"tel_mzchu","Small-scale protected area","as.factor(MZCHU)1",1.22281655104445,0.261943665760391,4.66824249212042,3.0378722220321e-06
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","(Intercept)",-2.32898650720328,0.250983154754574,-9.27945347360346,1.70350090407209e-20
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","as.factor(EVL)1",1.34412413911028,0.233580155777146,5.75444491266065,8.69269446440464e-09
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","as.factor(EVL_target)1",0.280268826227757,0.2825960914756,0.991764694141056,0.321312324045842
+"tel_protection_combined","Natura 2000 membership, designation and small-scale protection","as.factor(MZCHU)1",0.241286434012986,0.268576392041056,0.898390331999476,0.368977488938923
+"tel_mzchu","Small-scale protected area","(Intercept)",-1.99426743274213,0.208271922732378,-9.57530619864058,1.01555928679003e-21
+"tel_mzchu","Small-scale protected area","as.factor(MZCHU)1",1.14314732484567,0.244281151051379,4.67963786778307,2.87382058854377e-06
 "tel_fsb","Habitat quality evaluation, all levels","(Intercept)",-2.26350677269093,0.184268286021431,-12.2837565897133,1.10734482847206e-34
 "tel_fsb","Habitat quality evaluation, all levels","as.factor(FSB)K",0.690768609845268,0.461371291899237,1.49720761125322,0.134339245522825
 "tel_fsb","Habitat quality evaluation, all levels","as.factor(FSB)L",-0.209090445260294,0.788835834149305,-0.265062052468472,0.790961659779615
