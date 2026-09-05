@@ -68,7 +68,17 @@ if (!spatial_ready) {
   # of a few hundred dpi can show.
   hypso_proj <- terra::aggregate(hypso_proj, fact = 3, fun = "mean", na.rm = TRUE)
 
-  hypso_df <- as.data.frame(hypso_proj, xy = TRUE)
+  # Clip to the border. The source is a rectangle in WGS84, so reprojecting it
+  # into the Krovak grid leaves a rotated rectangle of relief spilling well
+  # past Czechia. Masking drops everything outside the country; cells outside
+  # become NA and are removed with the data frame conversion below.
+  czechia_vect <- terra::vect(czechia_border)
+  hypso_proj <- terra::mask(
+    terra::crop(hypso_proj, czechia_vect),
+    czechia_vect
+  )
+
+  hypso_df <- as.data.frame(hypso_proj, xy = TRUE, na.rm = TRUE)
   # The band holds shading intensity, not metres above sea level.
   colnames(hypso_df) <- c("x", "y", "shade")
 
@@ -207,7 +217,9 @@ if (!spatial_ready) {
     "up in unrelated coordinate ranges: the raster never appeared and the",
     "country was squeezed into a corner. The raster is now projected to",
     "S-JTSK first. Its legend, which was labelled elevation but held shading",
-    "intensity between 0 and 1, has been dropped."
+    "intensity between 0 and 1, has been dropped. The relief is also masked to",
+    "the border, because the source is a rectangle in WGS84 and reprojecting it",
+    "left a rotated block of relief extending well outside Czechia."
   )
 
   report_warning(
