@@ -20,11 +20,18 @@
 # Packages -----
 #----------------------------------------------------------#
 
+# The analysis calls everything namespace-qualified (`dplyr::filter()`), so this
+# list is what the project needs *installed*; install_if_missing() attaches each
+# one as a health check on the install. The bare `%>%` used throughout is the one
+# thing that genuinely has to be attached, which magrittr provides.
+#
+# Keep the list in step with the code. renv reads the `pkg::` calls to decide what
+# is used, so a package left here after its last call site is gone is flagged by
+# renv::status() and drags its whole dependency tree into renv.lock with it.
 pkgs <- c(
-  "tidyverse", "sf", "sp", "proj4", "openxlsx", "lmerTest", "vegan",
-  "ggplot2", "ggforce", "ggrepel", "grid", "ggpubr", "officer", "flextable",
-  "GLMMadaptive", "RCzechia", "rvest", "httr", "xml2", "Matrix", "lme4",
-  "remotes", "units", "tibble", "stringr", "forcats", "terra"
+  "magrittr", "dplyr", "tidyr", "readr", "tibble", "stringr", "forcats",
+  "ggplot2", "ggrepel", "ggpubr", "sf", "terra", "units", "RCzechia",
+  "vegan", "lme4", "Matrix", "httr", "remotes"
 )
 
 pkg_type <- if (.Platform$OS.type == "windows") "binary" else "source"
@@ -51,11 +58,17 @@ install_if_missing <- function(pkg) {
 
 invisible(lapply(pkgs, install_if_missing))
 
-# Packages that only live on GitHub.
+# `%>%` is the one function the analysis uses bare, so magrittr is the one package
+# that has to be on the search path. The attach is spelled out here rather than
+# left to the loop above so that renv sees it: renv reads `library()` calls but
+# not the character vector, and without this magrittr would be recorded only as
+# an incidental dependency of dplyr.
+suppressPackageStartupMessages(library(magrittr))
+
+# rn2kcz is the one dependency that only lives on GitHub, so renv records it from
+# the GitHub remote rather than from CRAN.
 if (!requireNamespace("rn2kcz", quietly = TRUE)) remotes::install_github("jonasgaigr/rn2kcz")
-if (!requireNamespace("rndop", quietly = TRUE))  remotes::install_github("kalab-oto/rndop")
 suppressPackageStartupMessages(library(rn2kcz))
-suppressPackageStartupMessages(library(rndop))
 
 # lme4 and Matrix have to be built against each other. A mismatch shows up as a
 # cryptic error deep inside the model fitting, so it is cheaper to catch it here
