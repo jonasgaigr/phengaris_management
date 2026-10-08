@@ -47,11 +47,17 @@ report_start(
 # Observed targeted records and imputed absences -----
 #----------------------------------------------------------#
 
-data_with_imputed <- impute_absences_legacy(
+# The imputation rule and the handling of records outside their species'
+# own range are set per specification in config.yml.
+settings <- spec_settings()
+
+data_with_imputed <- impute_absences(
   phengaris_lokal_new,
   range_nausithous,
   range_teleius,
-  sources = target_mon_zdroj
+  sources = target_mon_zdroj,
+  rule = settings$imputation_rule,
+  keep_outside_range = settings$keep_outside_range
 )
 
 #----------------------------------------------------------#
@@ -77,9 +83,43 @@ report_table(
 )
 
 report_note(sprintf(
-  "The imputation produced %d absence records out of %d records in total.",
+  paste(
+    "Imputation rule `%s`, records outside the species' own reporting range",
+    "%s. The imputation produced %d absence records out of %d records in total."
+  ),
+  settings$imputation_rule,
+  if (isTRUE(settings$keep_outside_range)) "kept" else "dropped",
   sum(data_with_imputed$IMPUTED), nrow(data_with_imputed)
 ))
+
+#--------------------------------------------------#
+## The same records under every imputation rule -----
+#--------------------------------------------------#
+
+# How many absences each rule would impute, so the choice of rule can be
+# judged from the numbers. Only the rule of this specification is used
+# further.
+rules_compared <- dplyr::bind_rows(lapply(c("legacy_cell", "visit", "none"), function(rule) {
+  impute_absences(
+    phengaris_lokal_new, range_nausithous, range_teleius,
+    sources = target_mon_zdroj, rule = rule,
+    keep_outside_range = settings$keep_outside_range
+  ) %>%
+    dplyr::group_by(DRUH) %>%
+    dplyr::summarise(
+      observed_present = sum(!IMPUTED & NEGATIV == 0),
+      observed_absent  = sum(!IMPUTED & NEGATIV == 1),
+      imputed_absent   = sum(IMPUTED),
+      .groups = "drop"
+    ) %>%
+    dplyr::mutate(rule = rule, .before = 1)
+}))
+
+report_table(
+  rules_compared,
+  "Records by species under each imputation rule",
+  "02_imputation_rules_compared"
+)
 
 #----------------------------------------------------------#
 # Validate -----
@@ -94,7 +134,11 @@ validate_table(
   # One row per record and species. An imputed absence shares the ID_NALEZ
   # of the record it was imputed from, so the key adds the species.
   key = "ID_RECORD",
-  not_na = c("ID_NALEZ", "DRUH", "ID_LOKAL", "NEGATIV", "IMPUTED", "row_n"),
+  # Records kept from outside their species' range have no range cell.
+  not_na = c(
+    "ID_NALEZ", "DRUH", "ID_LOKAL", "NEGATIV", "IMPUTED",
+    if (!isTRUE(settings$keep_outside_range)) "row_n"
+  ),
   values = list(
     DRUH = c(SPECIES_NAU, SPECIES_TEL),
     NEGATIV = c(0, 1),

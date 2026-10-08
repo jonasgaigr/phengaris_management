@@ -71,6 +71,14 @@ specifications:
       # "legacy" (one segment, the least natural and smallest) or
       # "area_weighted" (summaries over all segments; not validated on real
       # data). See R/functions/habitat_layers.R.
+      # How absences are imputed (R/functions/imputation.R): "legacy_cell"
+      # (the original rule: by 10 km range cell, across all years), "visit"
+      # (by site and date, only inside the imputed species' own range) or
+      # "none".
+      imputation_rule: legacy_cell
+      # Keep the targeted records that lie outside their species' own
+      # reporting range (all explicit negatives); the original dropped them.
+      keep_outside_range: false
       habitat_segment_rule: legacy
       # The models fitted in steps 09-11; see R/functions/model_specs_legacy.R.
       model_set: legacy

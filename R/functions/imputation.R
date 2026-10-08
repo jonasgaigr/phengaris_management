@@ -230,6 +230,135 @@ impute_absences_legacy <- function(records, range_nausithous, range_teleius,
 }
 
 #--------------------------------------------------#
+## Imputation under a chosen rule -----
+#--------------------------------------------------#
+
+#' Targeted records of one species outside its own reporting range.
+#'
+#' The original analysis dropped these. In 2019-2024 they are all explicit
+#' negatives (85 P. nausithous, 280 P. teleius records): the species was
+#' looked for and not found.
+targeted_records_outside_range <- function(records, inside, species, sources) {
+  records %>%
+    sf::st_drop_geometry() %>%
+    dplyr::filter(
+      DRUH == species,
+      ZDROJ %in% sources,
+      !ID_NALEZ %in% inside$ID_NALEZ
+    )
+}
+
+#' Absences of one species imputed visit by visit.
+#'
+#' A visit is one site geometry (ID_LOKAL) on one date (DATUM_OD). The species
+#' is imputed absent at every visit where the other species has a targeted
+#' record and the species itself has none, provided the site lies inside the
+#' species' own reporting range. One absence is imputed per visit.
+#'
+#' @param records        records with site geometry (sf), both species
+#' @param range          reporting range cells of the species being imputed
+#' @param species        the species being imputed absent
+#' @param other_species  the species whose records serve as evidence
+#' @param sources        ZDROJ values counted as targeted monitoring
+imputed_absences_visit <- function(records, range, species, other_species, sources) {
+  targeted <- records %>%
+    dplyr::filter(ZDROJ %in% sources)
+  visits_with_species <- targeted %>%
+    sf::st_drop_geometry() %>%
+    dplyr::filter(DRUH == species) %>%
+    dplyr::distinct(ID_LOKAL, DATUM_OD)
+
+  sf::st_intersection(
+    targeted %>%
+      dplyr::filter(DRUH == other_species),
+    range
+  ) %>%
+    sf::st_drop_geometry() %>%
+    dplyr::anti_join(visits_with_species, by = c("ID_LOKAL", "DATUM_OD")) %>%
+    # One source record per visit, when the other species has several.
+    dplyr::group_by(ID_LOKAL, DATUM_OD) %>%
+    dplyr::filter(ID_NALEZ == min(ID_NALEZ)) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(
+      DRUH = species,
+      NEGATIV = 1,
+      IMPUTED = TRUE
+    )
+}
+
+#' Observed targeted records plus imputed absences, under a chosen rule.
+#'
+#' @param records             records with site geometry (sf), both species
+#' @param range_nausithous    reporting range cells of P. nausithous, with row_n
+#' @param range_teleius       reporting range cells of P. teleius, with row_n
+#' @param sources             ZDROJ values counted as targeted monitoring
+#' @param rule                "legacy_cell": the original rule, by 10 km cell,
+#'                            across all years (impute_absences_legacy());
+#'                            "visit": by visit (imputed_absences_visit());
+#'                            "none": no imputed absences
+#' @param keep_outside_range  keep the targeted records that lie outside their
+#'                            species' own reporting range (row_n = NA); the
+#'                            original analysis dropped them
+#' @return one row per record and species, observed (IMPUTED = FALSE)
+#'         followed by the imputed absences, with the unique key ID_RECORD
+impute_absences <- function(records, range_nausithous, range_teleius,
+                            sources = target_mon_zdroj,
+                            rule = c("legacy_cell", "visit", "none"),
+                            keep_outside_range = FALSE) {
+  rule <- match.arg(rule)
+
+  out <- if (rule == "legacy_cell") {
+    impute_absences_legacy(records, range_nausithous, range_teleius, sources)
+  } else {
+    observed <- dplyr::bind_rows(
+      targeted_records_in_range(records, range_nausithous, SPECIES_NAU, sources),
+      targeted_records_in_range(records, range_teleius, SPECIES_TEL, sources)
+    ) %>%
+      dplyr::mutate(IMPUTED = FALSE)
+
+    imputed <- if (rule == "visit") {
+      dplyr::bind_rows(
+        imputed_absences_visit(records, range_teleius, SPECIES_TEL, SPECIES_NAU, sources),
+        imputed_absences_visit(records, range_nausithous, SPECIES_NAU, SPECIES_TEL, sources)
+      )
+    } else {
+      NULL
+    }
+
+    cells <- stats::setNames(
+      list(
+        representative_cells(records, range_nausithous),
+        representative_cells(records, range_teleius)
+      ),
+      c(SPECIES_NAU, SPECIES_TEL)
+    )
+
+    dplyr::bind_rows(observed, imputed) %>%
+      deduplicate_range_records(cells) %>%
+      blank_species_fields() %>%
+      dplyr::mutate(
+        ID_RECORD = record_id(ID_NALEZ, DRUH),
+        .before = 1
+      )
+  }
+
+  if (keep_outside_range) {
+    inside <- out[!out$IMPUTED, ]
+    outside <- dplyr::bind_rows(
+      targeted_records_outside_range(records, inside[inside$DRUH == SPECIES_NAU, ], SPECIES_NAU, sources),
+      targeted_records_outside_range(records, inside[inside$DRUH == SPECIES_TEL, ], SPECIES_TEL, sources)
+    ) %>%
+      dplyr::mutate(
+        IMPUTED = FALSE,
+        ID_RECORD = record_id(ID_NALEZ, DRUH)
+      )
+    out <- dplyr::bind_rows(out, outside)
+  }
+
+  out
+}
+
+#--------------------------------------------------#
 ## Summaries -----
 #--------------------------------------------------#
 
