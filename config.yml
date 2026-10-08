@@ -209,6 +209,18 @@ strukt_pozn:
     Eutrophization: ["eutrofizace či okyselování"]
 
 #--------------------------------------------------#
+# Persistent sites -----
+#--------------------------------------------------#
+
+sites:
+  # Site geometries of different years closer than this (metres) are merged
+  # into one persistent site by match_sites() (R/functions/sites.R); 0 merges
+  # only geometries that touch. Not used by the legacy specification.
+  # TODO(Jonáš): the distance below which two survey sites are the same
+  # meadow. The numbers of recurring sites for 0-200 m are in REVIEW.md.
+  match_distance_m: 50
+
+#--------------------------------------------------#
 # Habitat mapping layer -----
 #--------------------------------------------------#
 
