@@ -85,15 +85,26 @@ flag_biotope <- function(x, pattern) {
 
 #' Derive the analysis variables from the targeted records.
 #'
+#' The structured notes are parsed once with parse_strukt_pozn(); host plant,
+#' mowing, grazing and threats are then read from the value of the right key
+#' rather than searched for anywhere in the string.
+#'
 #' @param data               targeted records, observed and imputed
 #' @param protected_area_id  the protected-area membership from step 03
 #' @param both_present       visits at which both species were found, from
 #'                           both_species_visits()
+#' @param threat_classes     threat classes and their phrases, as in
+#'                           config.yml `strukt_pozn: threat_classes`
 #' @return `data` with the analysis variables added, every row kept
-derive_analysis_variables <- function(data, protected_area_id, both_present) {
+derive_analysis_variables <- function(data, protected_area_id, both_present,
+                                      threat_classes = CONFIG$strukt_pozn$threat_classes) {
   evl_any_ids    <- pa_site_ids(protected_area_id, "EVL_any")
   evl_target_ids <- pa_site_ids(protected_area_id, "EVL_target")
   mzchu_ids      <- pa_site_ids(protected_area_id, "MZCHU")
+
+  notes <- parse_strukt_pozn(data$STRUKT_POZN)
+  plant_levels <- unlist(CONFIG$strukt_pozn$host_plant_levels)
+  threats <- threat_class_flags(notes$threats, threat_classes)
 
   data %>%
     dplyr::mutate(
@@ -107,7 +118,7 @@ derive_analysis_variables <- function(data, protected_area_id, both_present) {
       # The calendar year of the visit, as a number. Models that need it as a
       # grouping factor convert it there.
       YEAR = as.integer(substr(DATUM_OD, 1, 4)),
-  
+
       #--------------------------------------------------#
       ## Protection -----
       #--------------------------------------------------#
@@ -115,8 +126,9 @@ derive_analysis_variables <- function(data, protected_area_id, both_present) {
         ID_LOKAL %in% evl_any_ids ~ 1,
         TRUE ~ 0
       ),
+      # Inside a Natura 2000 site designated for either Phengaris species,
+      # whichever species the record is of.
       EVL_target = dplyr::case_when(
-        # Natura 2000 site designated for the species of this record
         DRUH %in% c(SPECIES_NAU, SPECIES_TEL) &
           ID_LOKAL %in% evl_target_ids ~ 1,
         TRUE ~ 0
@@ -138,21 +150,17 @@ derive_analysis_variables <- function(data, protected_area_id, both_present) {
         ~ 1,
         TRUE ~ 0
       ),
-  
+
       #--------------------------------------------------#
       ## Host plant (Sanguisorba officinalis) -----
       #--------------------------------------------------#
-      PLANT_QUANT = dplyr::case_when(
-        grepl("dominantně",  STRUKT_POZN) ~ 3,
-        grepl("hojně",       STRUKT_POZN) ~ 2,
-        grepl("jednotlivě",  STRUKT_POZN) ~ 1,
-        grepl("žádné",       STRUKT_POZN) ~ 0
-      ),
+      # 0 none, 1 single plants, 2 abundant, 3 dominant.
+      PLANT_QUANT = as.numeric(unname(plant_levels[notes$host_plant])),
       PLANT_QUAL = dplyr::case_when(
         PLANT_QUANT %in% c(1, 2, 3) ~ 1,
         PLANT_QUANT == 0 ~ 0
       ),
-  
+
       #--------------------------------------------------#
       ## Recorded habitat type -----
       #--------------------------------------------------#
@@ -160,44 +168,37 @@ derive_analysis_variables <- function(data, protected_area_id, both_present) {
       PRIKOP = flag_biotope(POP_BIOT, "příkop u komunikace"),
       ZARUST = flag_biotope(POP_BIOT, "zarůstající louka bez managementu"),
       JINY   = flag_biotope(POP_BIOT, "jiný"),
-  
+
       #--------------------------------------------------#
       ## Threats and pressures -----
       #--------------------------------------------------#
-      LandUseChange           = flag_note(STRUKT_POZN, "změna zemědělského využívání půdy a terénní úpravy"),
-      Abandonment             = flag_note(STRUKT_POZN, "absence či nedostatek péče"),
-      HarmfulMow              = flag_note(STRUKT_POZN, "nevhodná seč"),
-      HarmfulGrazing          = flag_note(STRUKT_POZN, "nevhodná pastva"),
-      GrazingByeffects        = flag_note(STRUKT_POZN, "dopady chovu dobytka mimo pastvu"),
-      FertilizerUse           = flag_note(STRUKT_POZN, "aplikace hnojiv"),
-      Afforestation           = flag_note(STRUKT_POZN, "zalesňování bezlesí"),
-      Invasives               = flag_note(STRUKT_POZN, "invazní druhy"),
-      NativeDominants         = flag_note(STRUKT_POZN, "expanzní druhy"),
-      AbioticNaturalProcesses = flag_note(STRUKT_POZN, "abiotické přírodní procesy"),
-      Encroachment            = flag_note(STRUKT_POZN, "sukcese"),
-      BiomassAccumulation     = flag_note(STRUKT_POZN, "hromadění organického materiálu"),
-      Eutrophization          = flag_note(STRUKT_POZN, "eutrofizace či okyselování"),
-      None                    = flag_note(STRUKT_POZN, "žádné"),
-  
+      # One 0/1 column per threat class of config.yml, from the threat list.
+      !!!as.list(threats),
+      # The original definition, kept until it is corrected separately: the
+      # pattern "žádné" only ever matches "Přítomnost rostlin: žádné".
+      None = flag_note(STRUKT_POZN, "žádné"),
+
       #--------------------------------------------------#
       ## Management -----
       #--------------------------------------------------#
       # Mowing method: 1 = partial (patches left uncut), 0 = whole area cut.
       METHOD = dplyr::case_when(
-        grepl("Seč celoplošná: ne",  STRUKT_POZN) ~ 1,
-        grepl("Seč celoplošná: ano", STRUKT_POZN) ~ 0
+        notes$mow_whole_area == "ne" ~ 1,
+        notes$mow_whole_area == "ano" ~ 0
       ),
       # Mowing timing: 1 = appropriate for the butterflies, 0 = harmful.
       TIMING = dplyr::case_when(
-        grepl("Seč vhodně načasovaná: ano", STRUKT_POZN) ~ 1,
-        grepl("Seč vhodně načasovaná: ne",  STRUKT_POZN) ~ 0
+        notes$mow_timing == "ano" ~ 1,
+        notes$mow_timing == "ne" ~ 0
       ),
-      MOW   = flag_note(STRUKT_POZN, "Seč"),
-      GRAZE = flag_note(STRUKT_POZN, "Pastva:"),
+      # 1 when the form records anything about mowing.
+      MOW = as.numeric(!is.na(notes$mow_timing) | !is.na(notes$mow_whole_area)),
+      # 1 when the form has a grazing entry at all, as originally defined.
+      GRAZE = as.numeric(!is.na(notes$grazing)),
       # Grazing method: 1 = extensive, 0 = intensive.
       GRAZE_MET = dplyr::case_when(
-        grepl("Pastva: extenzivní", STRUKT_POZN) ~ 1,
-        grepl("Pastva: intenzivní", STRUKT_POZN) ~ 0
+        notes$grazing == "extenzivní" ~ 1,
+        notes$grazing == "intenzivní" ~ 0
       ),
       MANAGEMENT_HET = dplyr::case_when(
         is.na(METHOD) == FALSE &
@@ -211,7 +212,7 @@ derive_analysis_variables <- function(data, protected_area_id, both_present) {
         ~ 1,
         TRUE ~ 0
       ),
-  
+
       #--------------------------------------------------#
       ## Co-occurrence and mapping grid -----
       #--------------------------------------------------#
@@ -221,35 +222,17 @@ derive_analysis_variables <- function(data, protected_area_id, both_present) {
       ),
       SITMAP = as.factor(SITMAP)
     ) %>%
-    dplyr::rowwise() %>%
     dplyr::mutate(
-      SUM_THREATS = sum(
-        LandUseChange,
-        Abandonment,
-        HarmfulMow,
-        HarmfulGrazing,
-        GrazingByeffects,
-        FertilizerUse,
-        Afforestation,
-        Invasives,
-        NativeDominants,
-        AbioticNaturalProcesses,
-        Encroachment,
-        BiomassAccumulation,
-        Eutrophization,
-        None,
+      SUM_THREATS = rowSums(
+        dplyr::across(dplyr::all_of(c(names(threat_classes), "None"))),
         na.rm = TRUE
       ),
       # Within-site habitat heterogeneity: how many habitat types were recorded.
-      HET_INN = sum(
-        TTP,
-        PRIKOP,
-        ZARUST,
-        JINY,
+      HET_INN = rowSums(
+        dplyr::across(c(TTP, PRIKOP, ZARUST, JINY)),
         na.rm = TRUE
       )
-    ) %>%
-    dplyr::ungroup()
+    )
 }
 
 #' Keep the records at which the host plant was recorded as present.

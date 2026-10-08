@@ -93,6 +93,57 @@ sources:
     - FIŠER M. (2023) Mapováni EV druhů (2023).                                  # 52
 
 #--------------------------------------------------#
+# Structured notes (STRUKT_POZN) -----
+#--------------------------------------------------#
+
+# STRUKT_POZN is a string of "key: value" pairs written by the field form;
+# R/functions/strukt_pozn.R parses it. Each key of the form is mapped to the
+# column it is parsed into. The form changed over the years, so two keys can
+# feed one column. Every key below occurs in the 2019-2024 exports (counts of
+# targeted records in brackets).
+strukt_pozn:
+  keys:
+    "Seč vhodně načasovaná": mow_timing            # 2502; ano / ne
+    "Seč celoplošná": mow_whole_area               # 2409; ano / ne
+    "Pastva": grazing                              # 120, 2021 onwards; extenzivní / intenzivní / ne
+    "Negativní vlivy na lokalitě": threats         # 2935, 2019-2023; the older threat list
+    "vliv": threats                                # 894, 2021 onwards; the newer threat list
+    "jiný vliv": other_threat                      # 44; free text
+    "Perspektiva lokality": prospects              # 4100; dobrá / špatná / neznámá
+    "Přítomnost rostlin": host_plant               # 2410, 2020 onwards
+    "sta_pritomnostrostlin": host_plant            # 1876, 2019-2020
+    "Poměr pohlaví": sex_ratio                     # 605; free text, e.g. 7:3
+    "Procento mikrolokalit s vyhovujícím stavem živných rostlin": host_plant_share  # 1
+
+  # Host plant (Sanguisorba officinalis) abundance classes, in order.
+  host_plant_levels:
+    "žádné": 0
+    "jednotlivě": 1
+    "hojně": 2
+    "dominantně": 3
+
+  # Threat classes. A record has a class when its threat list contains any
+  # of the class's phrases. These are the phrases of the original analysis.
+  # They cover the newer threat list but not much of the older one: e.g.
+  # "sečení" (857 records), "vývoj biocenózy" (540), "eutrofizace" (335),
+  # "pastva" (101) and "hnojení" (68) match no class (REVIEW.md, item 18).
+  # TODO(Jonáš): map the items of the older list to these classes.
+  threat_classes:
+    LandUseChange: ["změna zemědělského využívání půdy a terénní úpravy"]
+    Abandonment: ["absence či nedostatek péče"]
+    HarmfulMow: ["nevhodná seč"]
+    HarmfulGrazing: ["nevhodná pastva"]
+    GrazingByeffects: ["dopady chovu dobytka mimo pastvu"]
+    FertilizerUse: ["aplikace hnojiv"]
+    Afforestation: ["zalesňování bezlesí"]
+    Invasives: ["invazní druhy"]
+    NativeDominants: ["expanzní druhy"]
+    AbioticNaturalProcesses: ["abiotické přírodní procesy"]
+    Encroachment: ["sukcese"]
+    BiomassAccumulation: ["hromadění organického materiálu"]
+    Eutrophization: ["eutrofizace či okyselování"]
+
+#--------------------------------------------------#
 # File locations -----
 #--------------------------------------------------#
 
