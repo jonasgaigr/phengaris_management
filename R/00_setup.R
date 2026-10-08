@@ -20,79 +20,54 @@
 # Packages -----
 #----------------------------------------------------------#
 
-# The analysis calls everything namespace-qualified (`dplyr::filter()`), so this
-# list is what the project needs *installed*; install_if_missing() attaches each
-# one as a health check on the install. The bare `%>%` used throughout is the one
-# thing that genuinely has to be attached, which magrittr provides.
+# The packages are installed by renv, at the versions recorded in renv.lock:
 #
-# Keep the list in step with the code. renv reads the `pkg::` calls to decide what
-# is used, so a package left here after its last call site is gone is flagged by
-# renv::status() and drags its whole dependency tree into renv.lock with it.
+#   renv::restore()
+#
+# Setup never installs anything itself. It checks that every package the
+# cascade calls is there and stops with that instruction when one is not.
+#
+# The analysis calls everything namespace-qualified (`dplyr::filter()`), so
+# this list is what the cascade needs *installed*. The packages that only the
+# opt-in tools in R/tools use (RCzechia, rn2kcz, httr, zip) are not checked
+# here. Keep the list in step with the code.
 pkgs <- c(
   "magrittr", "dplyr", "tidyr", "readr", "tibble", "stringr", "forcats",
-  "ggplot2", "ggrepel", "ggpubr", "sf", "terra", "units", "RCzechia",
-  "vegan", "lme4", "Matrix", "httr", "remotes"
+  "ggplot2", "ggrepel", "ggpubr", "sf", "terra", "units", "vegan", "lme4",
+  "Matrix", "yaml", "checkmate"
 )
 
-pkg_type <- if (.Platform$OS.type == "windows") "binary" else "source"
-
-#' Install a package if it is missing, and repair a broken installation.
-install_if_missing <- function(pkg) {
-  if (!requireNamespace(pkg, quietly = TRUE)) {
-    install.packages(pkg, dependencies = TRUE, type = pkg_type)
-  }
-  ok <- tryCatch(
-    {
-      suppressPackageStartupMessages(library(pkg, character.only = TRUE))
-      TRUE
-    },
-    error = function(e) FALSE
+missing_pkgs <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
+if (length(missing_pkgs)) {
+  stop(
+    "Missing package(s): ", paste(missing_pkgs, collapse = ", "), ".\n",
+    "Run renv::restore() in the project root to install the versions ",
+    "recorded in renv.lock.",
+    call. = FALSE
   )
-  if (!ok) {
-    message("Broken install detected for ", pkg, " -> reinstalling (", pkg_type, ").")
-    try(remove.packages(pkg), silent = TRUE)
-    install.packages(pkg, dependencies = TRUE, type = pkg_type)
-    suppressPackageStartupMessages(library(pkg, character.only = TRUE))
-  }
 }
 
-invisible(lapply(pkgs, install_if_missing))
-
-# `%>%` is the one function the analysis uses bare, so magrittr is the one package
-# that has to be on the search path. The attach is spelled out here rather than
-# left to the loop above so that renv sees it: renv reads `library()` calls but
-# not the character vector, and without this magrittr would be recorded only as
-# an incidental dependency of dplyr.
+# `%>%` is the one function the analysis uses bare, so magrittr is the one
+# package that has to be on the search path.
 suppressPackageStartupMessages(library(magrittr))
 
-# rn2kcz is the one dependency that only lives on GitHub, so renv records it from
-# the GitHub remote rather than from CRAN.
-if (!requireNamespace("rn2kcz", quietly = TRUE)) remotes::install_github("jonasgaigr/rn2kcz")
-suppressPackageStartupMessages(library(rn2kcz))
-
-# lme4 and Matrix have to be built against each other. A mismatch shows up as a
-# cryptic error deep inside the model fitting, so it is cheaper to catch it here
-# on a two-line example data set.
-invisible(tryCatch(
-  {
-    suppressMessages(lme4::glmer(
-      cbind(incidence, size - incidence) ~ 1 + (1 | herd),
-      data = lme4::cbpp, family = binomial
-    ))
-    TRUE
-  },
+# lme4 and Matrix have to be built against each other. A mismatch shows up as
+# a cryptic error deep inside the model fitting, so it is cheaper to catch it
+# here on a two-line example data set.
+tryCatch(
+  invisible(suppressMessages(lme4::glmer(
+    cbind(incidence, size - incidence) ~ 1 + (1 | herd),
+    data = lme4::cbpp, family = binomial
+  ))),
   error = function(e) {
-    message("lme4 check failed: ", conditionMessage(e),
-            "\nReinstalling Matrix + lme4 (", pkg_type, ")...")
-    try(remove.packages(c("lme4", "Matrix")), silent = TRUE)
-    install.packages(c("Matrix", "lme4"), dependencies = TRUE, type = pkg_type)
-    suppressPackageStartupMessages(library(Matrix))
-    suppressPackageStartupMessages(library(lme4))
-    TRUE
+    stop(
+      "lme4 cannot fit a model: ", conditionMessage(e), "\n",
+      "lme4 and Matrix are probably out of step. Run renv::restore() to ",
+      "reinstall the versions recorded in renv.lock.",
+      call. = FALSE
+    )
   }
-))
-
-message("Packages installed and loaded (binary on Windows: ", pkg_type == "binary", ")")
+)
 
 #----------------------------------------------------------#
 # Configuration -----

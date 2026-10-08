@@ -3281,7 +3281,7 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "rn2kcz",
       "RemoteUsername": "jonasgaigr",
-      "RemoteRef": "HEAD",
+      "RemoteRef": "f928680ccaf002fb243d95f371b6a5fda82e30ea",
       "RemoteSha": "f928680ccaf002fb243d95f371b6a5fda82e30ea",
       "NeedsCompilation": "no"
     },
