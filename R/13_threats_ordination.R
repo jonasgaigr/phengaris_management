@@ -223,6 +223,9 @@ rda_mod <- vegan::rda(resp_std ~ DRUH + POSITIVE, data = meta_rda)
 ## Permutation tests -----
 #--------------------------------------------------#
 
+# Permutation tests start from the seed in config.yml, so a re-run gives the
+# same p-values.
+set.seed(CONFIG$seed)
 rda_overall <- stats::anova(rda_mod, permutations = 999)
 rda_by_term <- stats::anova(rda_mod, by = "terms", permutations = 999)
 
@@ -373,6 +376,7 @@ tap_cols <- c(
 
 pca_tap <- vegan::rda(resp, scale = TRUE)
 
+set.seed(CONFIG$seed)
 ef_pca_tap <- vegan::envfit(pca_tap, resp, permutations = 999)
 
 # screeplot() is a stats generic; vegan only registers the method for rda
@@ -438,6 +442,7 @@ ggplot2::ggsave(
 ## RDA convex hulls -----
 #--------------------------------------------------#
 
+set.seed(CONFIG$seed)
 rda_tap <- vegan::rda(
   resp ~ DRUH + POSITIVE,
   data = data_tap_all,

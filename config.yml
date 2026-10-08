@@ -240,6 +240,27 @@ habitat:
   share_column: null
 
 #--------------------------------------------------#
+# Randomness and model diagnostics -----
+#--------------------------------------------------#
+
+# Every permutation test and every simulation starts from this seed, so a
+# re-run gives the same p-values.
+seed: 20251008
+
+# Checks run on every fitted model (R/functions/model_helpers.R). A model is
+# flagged, not dropped, when it trips one of them.
+diagnostics:
+  # Number of simulations for the DHARMa residual tests.
+  dharma_simulations: 250
+  # A fixed effect this large (on the logit scale), or a standard error this
+  # large, means (quasi-)complete separation rather than an estimate.
+  separation_abs_estimate: 10
+  separation_std_error: 5
+  # A random-intercept variance this large means the grouping factor
+  # separates the response (e.g. one record per level).
+  max_random_variance: 20
+
+#--------------------------------------------------#
 # File locations -----
 #--------------------------------------------------#
 

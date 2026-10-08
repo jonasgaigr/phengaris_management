@@ -129,6 +129,62 @@ model_fit_table <- function(models) {
   do.call(rbind, rows)
 }
 
+#' Diagnostics of one fitted model.
+#'
+#' Flags what a convergence warning does not catch: a singular fit,
+#' (quasi-)complete separation, shown by huge estimates or standard errors,
+#' and a random-intercept variance so large that the grouping factor
+#' separates the response. Adds the DHARMa tests of residual uniformity and
+#' dispersion on simulated quantile residuals. Thresholds and the number of
+#' simulations are in config.yml `diagnostics`; the simulations start from
+#' config.yml `seed`.
+#'
+#' @param m  one fitted-model record, from fit_binomial()
+#' @return a one-row data frame
+model_diagnostics <- function(m, settings = CONFIG$diagnostics, seed = CONFIG$seed) {
+  out <- data.frame(
+    model = m$id, singular = NA, max_abs_estimate = NA_real_,
+    max_std_error = NA_real_, max_random_variance = NA_real_,
+    dharma_uniformity_p = NA_real_, dharma_dispersion_p = NA_real_,
+    flags = if (is.null(m$fit)) "failed" else "",
+    stringsAsFactors = FALSE
+  )
+  if (is.null(m$fit)) return(out)
+
+  co <- stats::coef(summary(m$fit))
+  out$max_abs_estimate <- max(abs(co[, 1]))
+  out$max_std_error <- max(co[, 2])
+  if (m$engine == "glmer") {
+    out$singular <- lme4::isSingular(m$fit)
+    out$max_random_variance <- max(as.data.frame(lme4::VarCorr(m$fit))$vcov)
+  }
+
+  set.seed(seed)
+  residuals <- tryCatch(
+    DHARMa::simulateResiduals(m$fit, n = settings$dharma_simulations, plot = FALSE),
+    error = function(e) NULL
+  )
+  if (!is.null(residuals)) {
+    out$dharma_uniformity_p <- DHARMa::testUniformity(residuals, plot = FALSE)$p.value
+    out$dharma_dispersion_p <- DHARMa::testDispersion(residuals, plot = FALSE)$p.value
+  }
+
+  flags <- c(
+    if (isTRUE(out$singular)) "singular fit",
+    if (out$max_abs_estimate > settings$separation_abs_estimate ||
+        out$max_std_error > settings$separation_std_error) "possible separation",
+    if (isTRUE(out$max_random_variance > settings$max_random_variance)) "random-effect variance inflated",
+    if (!is.na(m$warnings)) "fitting warnings"
+  )
+  out$flags <- paste(flags, collapse = "; ")
+  out
+}
+
+#' Diagnostics, one row per model.
+model_diagnostics_table <- function(models) {
+  do.call(rbind, lapply(models, model_diagnostics))
+}
+
 #' Fixed-effect coefficients, one row per model term.
 model_coef_table <- function(models) {
   rows <- lapply(models, function(m) {
@@ -325,6 +381,17 @@ report_model_set <- function(models, prefix) {
       max_rows = nrow(ranefs)
     )
   }
+
+  diagnostics <- model_diagnostics_table(models)
+  report_table(
+    diagnostics,
+    paste(
+      "Model diagnostics: singular fits, signs of separation, inflated",
+      "random-effect variances and DHARMa residual tests"
+    ),
+    paste0(prefix, "_diagnostics"),
+    max_rows = nrow(diagnostics)
+  )
 
   issues <- model_issue_table(models)
   if (nrow(issues)) {
