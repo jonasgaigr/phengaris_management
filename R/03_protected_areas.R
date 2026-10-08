@@ -48,121 +48,21 @@ report_start(
 )
 
 #----------------------------------------------------------#
-# Helper -----
-#----------------------------------------------------------#
-
-#' Site identifiers falling inside a protected-area layer.
-#'
-#' DRUH is the species of the intersecting *record*, not the species the area
-#' was designated for. PA_SPECIES carries the latter, so that a species-specific
-#' EVL_target flag can be built later if the manuscript needs one.
-#'
-#' @param sites       site geometries with DRUH and ID_LOKAL
-#' @param areas       protected-area polygons
-#' @param pa_type     label written into the PA_TYPE column
-#' @param pa_species  species the areas were designated for, if any
-protected_area_ids <- function(sites, areas, pa_type, pa_species = NA_character_) {
-  sites %>%
-    sf::st_intersection(
-      .,
-      areas
-    ) %>%
-    sf::st_make_valid() %>%
-    sf::st_drop_geometry() %>%
-    dplyr::mutate(
-      PA_TYPE    = pa_type,
-      PA_SPECIES = pa_species
-    ) %>%
-    dplyr::select(
-      ID_LOKAL,
-      DRUH,
-      PA_TYPE,
-      PA_SPECIES
-    )
-}
-
-#' Natura 2000 sites designated for one species.
-#'
-#' The site-subject table still uses the former genus name Maculinea.
-evl_designated_for <- function(latin_name) {
-  evl %>%
-    dplyr::filter(
-      SITECODE %in% dplyr::filter(
-        sites_subjects,
-        nazev_lat == latin_name
-      )$site_code
-    )
-}
-
-#----------------------------------------------------------#
 # Protected area membership -----
 #----------------------------------------------------------#
-#--------------------------------------------------#
-## Natura 2000, any site -----
-#--------------------------------------------------#
 
-phengaris_evl_id <- protected_area_ids(
+protected_area_id <- protected_area_membership(
   phengaris_lokal_new,
   evl,
-  "EVL_any"
-)
-
-#--------------------------------------------------#
-## Natura 2000, designated for P. nausithous -----
-#--------------------------------------------------#
-
-evl_id_Pnau <- protected_area_ids(
-  phengaris_lokal_new,
-  evl_designated_for("Maculinea nausithous"),
-  "EVL_target",
-  pa_species = SPECIES_NAU
-)
-
-#--------------------------------------------------#
-## Natura 2000, designated for P. teleius -----
-#--------------------------------------------------#
-
-evl_id_Ptel <- protected_area_ids(
-  phengaris_lokal_new,
-  evl_designated_for("Maculinea teleius"),
-  "EVL_target",
-  pa_species = SPECIES_TEL
-)
-
-#--------------------------------------------------#
-## Small-scale specially protected areas -----
-#--------------------------------------------------#
-
-phengaris_mzchu_id <- protected_area_ids(
-  phengaris_lokal_new,
   mzchu,
-  "MZCHU"
+  sites_subjects
 )
-
-#----------------------------------------------------------#
-# Combine -----
-#----------------------------------------------------------#
-
-protected_area_id <-
-  dplyr::bind_rows(
-    phengaris_evl_id,
-    evl_id_Pnau,
-    evl_id_Ptel,
-    phengaris_mzchu_id
-  )
 
 #----------------------------------------------------------#
 # Results -----
 #----------------------------------------------------------#
 
-protection_summary <-
-  protected_area_id %>%
-  dplyr::group_by(PA_TYPE, DRUH) %>%
-  dplyr::summarise(
-    records = dplyr::n(),
-    sites   = dplyr::n_distinct(ID_LOKAL),
-    .groups = "drop"
-  )
+protection_summary <- summarise_protection_membership(protected_area_id)
 
 report_table(
   protection_summary,
