@@ -122,14 +122,62 @@ range_teleius    <- read_range("Data/Input/Reporting_range/teleius.shp")
 # Occurrence records and site geometries -----
 #----------------------------------------------------------#
 
+#' Column types of the occurrence exports.
+#'
+#' Every type is the one readr used to guess, so that nothing downstream sees a
+#' different column type, with one exception: GAR_POZN is text, because it
+#' used to be guessed as logical and its one non-empty value was lost.
+OCCURRENCE_COL_TYPES <- readr::cols(
+  PORADI = readr::col_double(),
+  ID_NALEZ = readr::col_double(),
+  DATUM_OD = readr::col_double(),
+  DATUM_DO = readr::col_double(),
+  CAS = readr::col_time(),
+  ID_LOKAL = readr::col_double(),
+  SITMAP = readr::col_double(),
+  X = readr::col_double(),
+  Y = readr::col_double(),
+  NEGATIV = readr::col_double(),
+  POCET = readr::col_double(),
+  ODHAD = readr::col_double(),
+  POKRYVN = readr::col_logical(),
+  PATROVITOST = readr::col_logical(),
+  FENOFAZE = readr::col_logical(),
+  KODHN = readr::col_logical(),
+  KOMPLETNI_SEZNAM = readr::col_double(),
+  VEROH = readr::col_double(),
+  CXLOKAL_Z = readr::col_double(),
+  CXPRESNOST = readr::col_double(),
+  DATI_INSERT = readr::col_double(),
+  DATI_UPDATE = readr::col_double(),
+  UPDATOR = readr::col_double(),
+  .default = readr::col_character()
+)
+
 #' Read one occurrence export.
 #'
-#' The exports come out of the AOPK recording system in Windows-1250 and use
-#' the semicolon-separated Czech CSV dialect.
+#' The exports come out of the AOPK recording system in Windows-1250. They are
+#' semicolon-separated but, unlike the usual Czech CSV dialect, use "." as the
+#' decimal mark (X = -759673.12). read_csv2() must not be used: it treats "."
+#' as a grouping mark, which multiplied every coordinate by 1, 10 or 100
+#' depending on how many decimals it happened to have.
+#'
+#' The files have CRLF line endings, and most rows leave out their two empty
+#' trailing fields. readr then keeps the carriage return on the last field of
+#' those short rows ("20251209\r"), which made DATI_INSERT unparseable. The
+#' lines are therefore read first, which drops the line endings cleanly.
 read_occurrence_csv <- function(file) {
-  readr::read_csv2(
+  lines <- readr::read_lines(
     file,
-    locale = readr::locale(encoding = "Windows-1250")
+    locale = readr::locale(encoding = "Windows-1250"),
+    progress = FALSE
+  )
+  readr::read_delim(
+    I(paste(lines, collapse = "\n")),
+    delim = ";",
+    col_types = OCCURRENCE_COL_TYPES,
+    locale = readr::locale(decimal_mark = "."),
+    progress = FALSE
   )
 }
 
