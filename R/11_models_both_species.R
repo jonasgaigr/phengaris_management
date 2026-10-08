@@ -52,7 +52,7 @@ models_both <- fit_binomial_set(model_set$specs)
 
 report_model_set(models_both, "11_both_species")
 
-report_comparisons(models_both, model_set$comparisons)
+report_comparisons(model_set$specs, model_set$comparisons)
 
 #----------------------------------------------------------#
 # Non-parametric comparisons between the species -----

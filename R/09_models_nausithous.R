@@ -83,10 +83,13 @@ report_section("Model comparisons")
 
 report_note(paste(
   "The comparisons below are the ones the original script printed to the",
-  "console, now ordered by AIC with the difference from the best model added."
+  "console, ordered by AIC with the difference from the best model added.",
+  "Every model of a comparison is refitted on the same records: those in",
+  "every model's own subset and complete on all the variables of the set.",
+  "n_own_data is the number of records the model's own fit used."
 ))
 
-report_comparisons(models_nau, model_set$comparisons)
+report_comparisons(model_set$specs, model_set$comparisons)
 
 report_finish()
 

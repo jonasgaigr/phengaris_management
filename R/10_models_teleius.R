@@ -93,7 +93,7 @@ report_warning(
 
 report_section("Model comparisons")
 
-report_comparisons(models_tel, model_set$comparisons)
+report_comparisons(model_set$specs, model_set$comparisons)
 
 #--------------------------------------------------#
 ## Records under appropriate management inside Natura 2000 -----

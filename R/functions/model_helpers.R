@@ -20,7 +20,9 @@
 # Note on AIC. The original scripts compared models with summary(model)$AIC.
 # That element only exists for merMod objects, so comparisons involving a glm
 # silently returned NULL. The helpers below use stats::AIC(), which returns the
-# same AIC value for both model classes.
+# same AIC value for both model classes, and refit every model of a comparison
+# set on one common data frame, because AIC values of models fitted to
+# different observations cannot be compared.
 #
 #----------------------------------------------------------#
 
@@ -193,35 +195,92 @@ model_issue_table <- function(models) {
 ## Model comparison -----
 #--------------------------------------------------#
 
-#' AIC comparison of a named subset of models.
+#' The one data frame a set of models can be compared on.
 #'
-#' Reproduces the AIC comparisons the original scripts printed to the console,
-#' ordered from best to worst and with delta AIC added.
+#' AIC only compares models fitted to the same observations. The models of a
+#' comparison set were often fitted on different subsets (e.g. all records
+#' against records with a known site area), and lme4 and glm silently drop
+#' rows with NA in a model's own variables, so their n differed. The common
+#' data are the records present in every model's data, restricted to those
+#' complete on every variable any of the models uses, and with a finite value
+#' of every transformed term (log10(0) is -Inf).
 #'
-#' @param models  the full list of fitted-model records
-#' @param ids     character vector of model ids to compare
-aic_comparison <- function(models, ids) {
-  ids <- ids[ids %in% names(models)]
-  if (!length(ids)) return(data.frame())
-  tab <- model_fit_table(models[ids])
-  tab <- tab[!is.na(tab$AIC), c("model", "label", "n_obs", "df", "AIC", "BIC", "logLik")]
+#' @param specs  the model specifications of the set (see fit_binomial())
+#' @return a data frame
+comparison_data <- function(specs) {
+  ids <- Reduce(intersect, lapply(specs, function(s) s$data$ID_RECORD))
+  data <- specs[[1]]$data
+  data <- data[data$ID_RECORD %in% ids, , drop = FALSE]
+  vars <- unique(unlist(lapply(specs, function(s) all.vars(s$formula))))
+  data <- data[stats::complete.cases(data[, intersect(vars, names(data)), drop = FALSE]), , drop = FALSE]
+  finite <- rep(TRUE, nrow(data))
+  for (s in specs) {
+    mf <- tryCatch(
+      stats::model.frame(lme4::subbars(s$formula), data = data, na.action = stats::na.pass),
+      error = function(e) NULL
+    )
+    if (is.null(mf)) next
+    for (col in mf) {
+      # poly() terms are matrices, and also numeric, so the matrix test comes
+      # first.
+      if (is.matrix(col)) {
+        finite <- finite & apply(is.finite(col), 1, all)
+      } else if (is.numeric(col)) {
+        finite <- finite & is.finite(col)
+      }
+    }
+  }
+  data[finite, , drop = FALSE]
+}
+
+#' AIC comparison of a set of models, refitted on common data.
+#'
+#' Each model of the set is refitted with its own formula and engine on
+#' comparison_data(), so that every row of the table has the same n. The
+#' legacy fits themselves, on their own subsets, are reported unchanged in
+#' the fit-statistics table.
+#'
+#' @param specs  all model specifications of the step
+#' @param ids    the ids of the models to compare
+#' @return the comparison, best first, with delta AIC, the n of the common
+#'         data and the n of each model's own fit
+aic_comparison <- function(specs, ids) {
+  spec_ids <- vapply(specs, function(s) s$id, character(1))
+  set <- specs[spec_ids %in% ids]
+  if (!length(set)) return(data.frame())
+
+  common <- comparison_data(set)
+  n_own <- vapply(set, function(s) {
+    vars <- intersect(all.vars(s$formula), names(s$data))
+    sum(stats::complete.cases(s$data[, vars, drop = FALSE]))
+  }, numeric(1))
+  refits <- fit_binomial_set(lapply(set, function(s) {
+    s$data <- common
+    s
+  }))
+
+  tab <- model_fit_table(refits)
+  tab$n_own_data <- n_own
+  tab <- tab[!is.na(tab$AIC), c("model", "label", "engine", "n_obs", "n_own_data", "df", "AIC", "BIC", "logLik", "status")]
   if (!nrow(tab)) return(tab)
   tab <- tab[order(tab$AIC), , drop = FALSE]
   tab$delta_AIC <- tab$AIC - min(tab$AIC)
   rownames(tab) <- NULL
+  stopifnot(length(unique(tab$n_obs)) == 1)
   tab
 }
 
 #' Report a list of AIC comparisons, one table each.
 #'
-#' @param models       the full list of fitted-model records
+#' @param specs        all model specifications of the step
 #' @param comparisons  list of list(ids, caption, stem), as returned by
 #'                     model_set_for()
-report_comparisons <- function(models, comparisons) {
+report_comparisons <- function(specs, comparisons) {
   for (cmp in comparisons) {
+    tab <- aic_comparison(specs, cmp$ids)
     report_table(
-      aic_comparison(models, cmp$ids),
-      cmp$caption,
+      tab,
+      paste0(cmp$caption, if (nrow(tab)) sprintf(" (all refitted on the same %d records)", tab$n_obs[1])),
       cmp$stem,
       max_rows = 20
     )
