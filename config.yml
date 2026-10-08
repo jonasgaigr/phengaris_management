@@ -41,6 +41,14 @@ species:
 crs:
   # S-JTSK / Krovak East North, the national CRS every layer is aligned to.
   epsg: 5514
+  # Bounding box of Czechia in S-JTSK (the border's, -904585 / -431724 and
+  # -1227296 / -935244, widened by about 1 km). Coordinates outside it are
+  # rejected by the validation at the end of the data steps.
+  bbox:
+    xmin: -906000
+    xmax: -430000
+    ymin: -1229000
+    ymax: -934000
 
 #--------------------------------------------------#
 # Specifications -----

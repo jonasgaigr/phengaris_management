@@ -82,6 +82,38 @@ report_note(sprintf(
 ))
 
 #----------------------------------------------------------#
+# Validate -----
+#----------------------------------------------------------#
+
+validate_table(
+  data_with_imputed, "data_with_imputed",
+  columns = c(
+    ID_NALEZ = "numeric", DRUH = "character", ID_LOKAL = "numeric",
+    NEGATIV = "numeric", IMPUTED = "logical", row_n = "numeric"
+  ),
+  # A record repeats once per range cell its site touches, and an imputed
+  # absence shares the ID_NALEZ of the record it was imputed from.
+  key = c("ID_NALEZ", "DRUH", "IMPUTED", "row_n"),
+  not_na = c("ID_NALEZ", "DRUH", "ID_LOKAL", "NEGATIV", "IMPUTED", "row_n"),
+  values = list(
+    DRUH = c(SPECIES_NAU, SPECIES_TEL),
+    NEGATIV = c(0, 1),
+    ZDROJ = target_mon_zdroj
+  ),
+  xy = c("X", "Y")
+)
+checkmate::assert_true(
+  all(data_with_imputed$NEGATIV[data_with_imputed$IMPUTED] == 1),
+  .var.name = "every imputed record is an absence"
+)
+# Never more observed records than there are targeted records.
+checkmate::assert_true(
+  dplyr::n_distinct(data_with_imputed$ID_NALEZ[!data_with_imputed$IMPUTED]) <=
+    sum(phengaris_lokal_new$ZDROJ %in% target_mon_zdroj),
+  .var.name = "observed records are a subset of the targeted records"
+)
+
+#----------------------------------------------------------#
 # Export -----
 #----------------------------------------------------------#
 

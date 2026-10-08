@@ -242,6 +242,33 @@ if ("PA_SPECIES" %in% names(protected_area_id)) {
 }
 
 #----------------------------------------------------------#
+# Validate -----
+#----------------------------------------------------------#
+
+flag_values <- c(0, 1)
+validate_table(
+  data_clean, "data_clean",
+  columns = c(
+    POSITIVE = "numeric", YEAR = "numeric", PLANT_QUANT = "numeric",
+    EVL = "numeric", EVL_target = "numeric", MZCHU = "numeric",
+    METHOD = "numeric", TIMING = "numeric", SUM_THREATS = "numeric"
+  ),
+  key = c("ID_NALEZ", "DRUH", "IMPUTED", "row_n"),
+  not_na = c("POSITIVE", "YEAR", "PLANT_QUANT", "EVL", "EVL_target", "MZCHU", "PROTECT"),
+  values = list(
+    POSITIVE = flag_values,
+    YEAR = seq(CONFIG$years$first, CONFIG$years$last),
+    PLANT_QUANT = 1:3,
+    EVL = flag_values, EVL_target = flag_values, MZCHU = flag_values,
+    PROTECT = flag_values, METHOD = flag_values, TIMING = flag_values,
+    GRAZE = flag_values, GRAZE_MET = flag_values,
+    TTP = flag_values, PRIKOP = flag_values, ZARUST = flag_values, JINY = flag_values
+  ),
+  xy = c("X", "Y"),
+  max_rows = nrow(data_with_imputed)
+)
+
+#----------------------------------------------------------#
 # Export -----
 #----------------------------------------------------------#
 

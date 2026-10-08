@@ -74,6 +74,12 @@ if (habitat_source %in% c("contract", "network")) {
 
   lokal_vmb <- intersect_sites_with_habitats(read_sites(), habitat_layer)
 
+  validate_table(
+    sf::st_drop_geometry(lokal_vmb), "site x habitat overlaps",
+    columns = c(ID_LOKAL = "numeric", AREA_real = "numeric", LENGTH_real = "numeric"),
+    not_na = c("ID_LOKAL", "SEGMENT_ID", "AREA_real")
+  )
+
   # Semicolon-separated with a decimal comma, as the original intersection.
   utils::write.csv2(
     lokal_vmb %>%

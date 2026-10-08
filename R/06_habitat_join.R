@@ -289,6 +289,24 @@ if (habitat_join_available) {
 }
 
 #----------------------------------------------------------#
+# Validate -----
+#----------------------------------------------------------#
+
+# The habitat join adds columns but must never add or drop a record.
+validate_table(
+  data_analysis, "data_analysis",
+  columns = c(AREA_SITE = "numeric", BIOTOP = "character", FSB = "character"),
+  key = c("ID_NALEZ", "DRUH", "IMPUTED", "row_n"),
+  not_na = c("POSITIVE", "YEAR"),
+  xy = c("X", "Y"),
+  n_rows = nrow(data_clean)
+)
+checkmate::assert_true(
+  identical(data_analysis$ID_NALEZ, data_clean$ID_NALEZ),
+  .var.name = "data_analysis keeps the records of data_clean in their order"
+)
+
+#----------------------------------------------------------#
 # Export -----
 #----------------------------------------------------------#
 

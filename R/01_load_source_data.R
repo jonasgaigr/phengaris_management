@@ -59,6 +59,48 @@ lokal_new <-
   dplyr::distinct()
 
 #----------------------------------------------------------#
+# Validate -----
+#----------------------------------------------------------#
+
+# Every data row of the exports has been read: the files hold one record per
+# line after the header.
+n_lines <- sum(vapply(
+  CONFIG$paths$occurrence,
+  function(f) length(readr::read_lines(f, progress = FALSE)) - 1L,
+  integer(1)
+))
+
+validate_table(
+  data_new, "records",
+  columns = c(
+    ID_NALEZ = "numeric", DRUH = "character", ID_LOKAL = "numeric",
+    DATUM_OD = "numeric", X = "numeric", Y = "numeric", NEGATIV = "numeric",
+    ZDROJ = "character", STRUKT_POZN = "character", POP_BIOT = "character",
+    AUTOR = "character"
+  ),
+  key = "ID_NALEZ",
+  not_na = c("ID_NALEZ", "DRUH", "ID_LOKAL", "DATUM_OD", "X", "Y", "NEGATIV"),
+  values = list(DRUH = c(SPECIES_NAU, SPECIES_TEL), NEGATIV = c(0, 1)),
+  xy = c("X", "Y"),
+  n_rows = n_lines
+)
+
+validate_table(
+  sf::st_drop_geometry(lokal_new), "sites",
+  columns = c(ID_LOKAL = "numeric"),
+  key = "ID_LOKAL",
+  not_na = "ID_LOKAL"
+)
+checkmate::assert_subset(
+  unique(data_new$ID_LOKAL), lokal_new$ID_LOKAL,
+  .var.name = "ID_LOKAL of the records (every record needs a site geometry)"
+)
+checkmate::assert_true(
+  sf::st_crs(lokal_new) == sf::st_crs(CRS_SJTSK),
+  .var.name = "CRS of the site geometries is S-JTSK"
+)
+
+#----------------------------------------------------------#
 # Export -----
 #----------------------------------------------------------#
 

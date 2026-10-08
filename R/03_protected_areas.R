@@ -71,6 +71,31 @@ report_table(
 )
 
 #----------------------------------------------------------#
+# Validate -----
+#----------------------------------------------------------#
+
+validate_table(
+  protected_area_id, "protected_area_id",
+  columns = c(
+    ID_LOKAL = "numeric", DRUH = "character", PA_TYPE = "character",
+    PA_SPECIES = "character"
+  ),
+  not_na = c("ID_LOKAL", "DRUH", "PA_TYPE"),
+  values = list(
+    PA_TYPE = c("EVL_any", "EVL_target", "MZCHU"),
+    PA_SPECIES = c(SPECIES_NAU, SPECIES_TEL)
+  )
+)
+checkmate::assert_subset(
+  unique(protected_area_id$ID_LOKAL), phengaris_lokal_new$ID_LOKAL,
+  .var.name = "ID_LOKAL of the protected-area table"
+)
+checkmate::assert_true(
+  all(is.na(protected_area_id$PA_SPECIES) == (protected_area_id$PA_TYPE != "EVL_target")),
+  .var.name = "PA_SPECIES is set exactly for the EVL_target rows"
+)
+
+#----------------------------------------------------------#
 # Export -----
 #----------------------------------------------------------#
 
