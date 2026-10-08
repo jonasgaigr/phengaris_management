@@ -19,7 +19,9 @@ of them, and its output is saved as `review/review_evidence.txt`.
 - **(b)** a bug fix; the outputs change for a documented reason.
 - **(c)** an analytical or ecological decision, which waits for approval.
 
-The status box is ticked when an item is resolved on the `revision` branch.
+The status box is ticked when an item is resolved on the `revision` branch:
+[x] resolved, [~] partly resolved, [ ] open. bNN refers to the bug fixes in
+`CHANGELOG.md`, P3.n to the Phase 3 proposals below.
 
 ## Baseline
 
@@ -58,31 +60,32 @@ The environment works:
 
 | # | Issue | Severity | Fix | Status |
 |---|---|---|---|---|
-| 1 | Coordinates inflated 1×/10×/100× by `read_csv2()` | blocks | b | [ ] |
-| 2 | Duplicated records; imputed rows share the source record's ID | biases | b | [ ] |
-| 3 | No persistent site ID; `(1 \| X:Y)` is nearly observation-level | blocks | c | [ ] |
-| 4 | Imputation per 10 km cell; species-specific fields inherited | blocks | b + c | [ ] |
-| 5 | `STRUKT_POZN` parsed with `grepl()` on the whole string | biases | a + b | [ ] |
-| 6 | Unknown coded as 0 (`GRAZE`, `OVERALL`, `MOW`, threats) | biases | b | [ ] |
-| 7 | Dead filters, unused sources, `ZDROJ` year ≠ record year | cosmetic | a | [ ] |
-| 8 | Habitat segment rule keeps the least natural, smallest segment | biases | c | [ ] |
-| 9 | AIC tables compare models fitted on different n | blocks | b | [ ] |
-| 10 | `X:Y` fixed effect; `(1 \| YEAR)` entered twice | blocks | c | [ ] |
-| 11 | Single visits: naive occupancy, no detection covariates | biases | c | [ ] |
-| 12 | Ordination on 4 rows, 1 residual df | blocks | c | [ ] |
-| 13 | No diagnostics; separation and degenerate fits go unnoticed | biases | a + c | [ ] |
-| 14 | `00_setup.R` installs packages, bypassing renv | cosmetic | a | [ ] |
-| 15 | Remote layers fetched live on every run | biases (drift) | a | [ ] |
-| 16 | Steps 02, 03, 14 depend on session objects | cosmetic | a | [ ] |
-| 17 | Hard-coded paths, stale outputs, tracked intermediates, no seeds | cosmetic | a | [ ] |
-| 18 | Two threat codebooks; legacy patterns miss 46 % of the older one | biases | c | [ ] |
-| 19 | `PRIKOP` misses plain "příkop"; `HET_INN` = 0 when unmatched | biases | b | [ ] |
-| 20 | The field form changed in 2021; geometry and keys confounded with year | biases | c | [ ] |
-| 21 | The host-plant filter silently drops 869 records | biases | a (report) + c | [ ] |
-| 22 | Inherited counts contaminate the abundance comparisons | biases | b | [ ] |
-| 23 | Step 02 silently drops 365 records outside the species' own range | biases | a (report) + c | [ ] |
-| 24 | `EVL_target` is species-blind, contradicting its own documentation | biases | c | [ ] |
-| 25 | Small data oddities: out-of-season dates, wrong `.prj`, candidate sources | cosmetic | a + TODO | [ ] |
+| 1 | Coordinates inflated 1×/10×/100× by `read_csv2()` | blocks | b | [x] b01 |
+| 2 | Duplicated records; imputed rows share the source record's ID | biases | b | [x] b02 |
+| 3 | No persistent site ID; `(1 \| X:Y)` is nearly observation-level | blocks | c | [ ] P3.1 (groundwork: `match_sites()`) |
+| 4 | Imputation per 10 km cell; species-specific fields inherited | blocks | b + c | [~] b03; rules added, revised spec pending |
+| 5 | `STRUKT_POZN` parsed with `grepl()` on the whole string | biases | a + b | [x] parser (a), b04 |
+| 6 | Unknown coded as 0 (`GRAZE`, `OVERALL`, `MOW`, threats) | biases | b | [x] b05 |
+| 7 | Dead filters, unused sources, `ZDROJ` year ≠ record year | cosmetic | a | [x] (a) |
+| 8 | Habitat segment rule keeps the least natural, smallest segment | biases | c | [~] rule function (a); area-weighted pending |
+| 9 | AIC tables compare models fitted on different n | blocks | b | [x] b07 |
+| 10 | `X:Y` fixed effect; `(1 \| YEAR)` entered twice | blocks | c | [ ] P3.1, P3.6 |
+| 11 | Single visits: naive occupancy, no detection covariates | biases | c | [ ] P3.3 |
+| 12 | Ordination on 4 rows, 1 residual df | blocks | c | [ ] P3.7 |
+| 13 | No diagnostics; separation and degenerate fits go unnoticed | biases | a + c | [~] b08; multivariable models P3.4 |
+| 14 | `00_setup.R` installs packages, bypassing renv | cosmetic | a | [x] (a) |
+| 15 | Remote layers fetched live on every run | biases (drift) | a | [x] (a) |
+| 16 | Steps 02, 03, 14 depend on session objects | cosmetic | a | [x] (a) |
+| 17 | Hard-coded paths, stale outputs, tracked intermediates, no seeds | cosmetic | a | [x] (a), b08 |
+| 18 | Two threat codebooks; legacy patterns miss 46 % of the older one | biases | c | [ ] TODO mapping |
+| 19 | `PRIKOP` misses plain "příkop"; `HET_INN` = 0 when unmatched | biases | b | [x] b06 |
+| 20 | The field form changed in 2021; geometry and keys confounded with year | biases | c | [ ] P3.4 |
+| 21 | The host-plant filter silently drops 869 records | biases | a (report) + c | [x] reported (a) |
+| 22 | Inherited counts contaminate the abundance comparisons | biases | b | [x] b03 |
+| 23 | Step 02 silently drops 365 records outside the species' own range | biases | a (report) + c | [x] reported (a); option added |
+| 24 | `EVL_target` is species-blind, contradicting its own documentation | biases | c | [ ] P3.4 |
+| 25 | Small data oddities: out-of-season dates, wrong `.prj`, candidate sources | cosmetic | a + TODO | [~] TODOs in config.yml |
+| 26 | SPEC_NUM is 1 only on positive records: separation by construction | blocks | c | [ ] P3.4 |
 
 ---
 
@@ -801,6 +804,10 @@ legacy flag stays.
 - **Wrong `.prj`.** The site shapefiles' `.prj` declares ETRS89/LAEA, but the
   coordinates are S-JTSK. `st_set_crs(5514)` is therefore correct, and the
   comment "carry no CRS" is wrong.
+- **A mislocated record.** One record's validation note, recovered by the
+  b01 reader fix, reads "špatná lokalizace, na místě není vhodný biotop ani
+  živná rostlina" (wrong location; no suitable habitat or host plant on the
+  spot). `TODO(Jonáš)`: exclude it?
 - **Candidate sources.** These sources are not on the list but may be targeted
   monitoring:
   - "Kolektiv autorů (2024) Síťové mapování denních motýlů v letech 2024-2029"
@@ -808,6 +815,66 @@ legacy flag stays.
   - "FIŠER M. (2020/2021) Monitoring EV druhů" (129 / 65);
   - "FIŠER M. (2023) Mapováni EV druhů (2023)" (52).
   - `TODO(Jonáš)`.
+
+### 26. SPEC_NUM separates occupancy by construction
+
+- **Location.** `R/functions/derive_variables.R` (`SPEC_NUM`), and the
+  `both_cooccurrence` model in `R/functions/model_specs_legacy.R`.
+- **Severity.** Blocks the co-occurrence model.
+- **Found by** the diagnostics added in b08.
+
+**Evidence.**
+
+- SPEC_NUM is 1 when a record's visit had *both species found*. It is built
+  from positive records only, so a record with SPEC_NUM = 1 is positive by
+  definition.
+- The model `as.factor(POSITIVE) ~ as.factor(SPEC_NUM) * as.factor(DRUH)`
+  therefore separates. The SPEC_NUM coefficient is about 2.3 × 10⁵, with an SE
+  of about 6.6 × 10⁶.
+- The co-occurrence question needs a different formulation: does the
+  presence of one species predict the other at the same visit? That is a
+  model of one species' occupancy with the other species' *recorded*
+  outcome as a covariate, which exists only at visits where both were
+  surveyed.
+
+**Fix (c).** P3.4.
+
+---
+
+## Status after Phase 2
+
+**Done.** Phase 2 is done: every (a) refactoring and every clear-cut (b) fix
+listed in the plan below.
+
+**How it was checked.**
+
+- Each (a) commit was checked to leave every processed CSV and result table
+  unchanged.
+- Each (b) commit is documented in `CHANGELOG.md`, with its full cell-by-cell
+  diff in `changes/`.
+
+**Approved decisions, implemented as switchable options** (legacy unchanged):
+
+- Q1: the visit-level imputation rule, which stays inside the imputed
+  species' range;
+- Q2: keeping explicit negatives outside the range.
+
+**Open, awaiting approval:** the Phase 3 proposals P3.1-P3.9 below, and with
+them the revised specification.
+
+**Open, needing domain input.** These are the `TODO(Jonáš)` entries in
+`config.yml`:
+
+- candidate sources;
+- the meaning of a missing grazing or mowing entry;
+- the older threat list;
+- unmapped habitat categories;
+- the site-matching distance;
+- buffer widths;
+- *Sanguisorba* codes;
+- the mosaic share column;
+- out-of-season dates;
+- the `ZDROJ` year.
 
 ---
 
