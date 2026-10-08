@@ -174,9 +174,10 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
       #--------------------------------------------------#
       # One 0/1 column per threat class of config.yml, from the threat list.
       !!!as.list(threats),
-      # The original definition, kept until it is corrected separately: the
-      # pattern "žádné" only ever matches "Přítomnost rostlin: žádné".
-      None = flag_note(STRUKT_POZN, "žádné"),
+      # The surveyor recorded that no threat was seen. (The original pattern,
+      # "žádné", only ever matched "Přítomnost rostlin: žádné", so None was 0
+      # on every analysed record.)
+      None = as.numeric(grepl(CONFIG$strukt_pozn$no_threat_phrase, notes$threats, fixed = TRUE)),
 
       #--------------------------------------------------#
       ## Management -----
@@ -223,8 +224,9 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
       SITMAP = as.factor(SITMAP)
     ) %>%
     dplyr::mutate(
+      # Number of threat classes recorded; None is not a threat.
       SUM_THREATS = rowSums(
-        dplyr::across(dplyr::all_of(c(names(threat_classes), "None"))),
+        dplyr::across(dplyr::all_of(names(threat_classes))),
         na.rm = TRUE
       ),
       # Within-site habitat heterogeneity: how many habitat types were recorded.

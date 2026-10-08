@@ -156,6 +156,10 @@ strukt_pozn:
   # "sečení" (857 records), "vývoj biocenózy" (540), "eutrofizace" (335),
   # "pastva" (101) and "hnojení" (68) match no class (REVIEW.md, item 18).
   # TODO(Jonáš): map the items of the older list to these classes.
+  # The phrase with which the surveyor records that no threat was seen. It
+  # sets the flag None and is not a threat, so it is not counted in
+  # SUM_THREATS.
+  no_threat_phrase: "žádný vliv"
   threat_classes:
     LandUseChange: ["změna zemědělského využívání půdy a terénní úpravy"]
     Abandonment: ["absence či nedostatek péče"]
