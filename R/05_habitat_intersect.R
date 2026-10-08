@@ -39,6 +39,10 @@ report_start(
 path_lokal_vmb_gpkg <- file.path(PATHS$processed, "lokal_vmb.gpkg")
 path_lokal_vmb_csv  <- file.path(PATHS$processed, "data_lokal_vmb.csv")
 
+# Frozen copy of the intersection the original analysis used. It cannot be
+# regenerated without the habitat layer, so it is kept as a tracked input.
+path_lokal_vmb_legacy <- file.path(PATHS$input, "habitats", "legacy", "data_lokal_vmb.csv")
+
 #----------------------------------------------------------#
 # Run the intersection, if the habitat layer is reachable -----
 #----------------------------------------------------------#
@@ -83,17 +87,21 @@ if (vmb_available()) {
 
 } else {
 
+  if (file.exists(path_lokal_vmb_legacy)) {
+    file.copy(path_lokal_vmb_legacy, path_lokal_vmb_csv, overwrite = TRUE)
+  }
   habitat_intersection_available <- file.exists(path_lokal_vmb_csv)
 
   report_warning(
     "The habitat mapping share //bali.nature.cz was not reachable, so the",
     "intersection was not recomputed.",
     if (habitat_intersection_available) {
-      "The previously written Data/Processed/data_lokal_vmb.csv is reused, so
-       the habitat variables in step 06 may be out of date relative to the
+      "The frozen intersection of the original analysis,
+       Data/Input/habitats/legacy/data_lokal_vmb.csv, is used instead, so the
+       habitat variables in step 06 may be out of date relative to the
        current site geometries."
     } else {
-      "No previous intersection exists either, so step 06 will leave the
+      "No frozen intersection exists either, so step 06 will leave the
        habitat variables empty and the habitat models will be skipped."
     }
   )
