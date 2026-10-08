@@ -107,6 +107,36 @@ record_id <- function(id_nalez, druh) {
 }
 
 #--------------------------------------------------#
+## Imputed rows describe the imputed species -----
+#--------------------------------------------------#
+
+#' Empty the other species' observation fields on imputed absences.
+#'
+#' An imputed absence starts as a copy of a record of the other species, so it
+#' carries that species' count, counting unit, behaviour and taxon note. Those
+#' columns are set to NA, and CESKE_JMENO is set to the Czech name of the
+#' imputed species, taken from the observed records.
+#'
+#' @param x         rows with IMPUTED and DRUH
+#' @param columns   the species-specific columns, config.yml `imputation:
+#'                  species_specific_columns`
+#' @param observed  observed records, to look up each species' Czech name
+blank_species_fields <- function(x, columns = CONFIG$imputation$species_specific_columns,
+                                 observed = x[!x$IMPUTED, ]) {
+  czech_names <- observed %>%
+    dplyr::distinct(DRUH, CESKE_JMENO)
+  czech_names <- stats::setNames(czech_names$CESKE_JMENO, czech_names$DRUH)
+
+  for (col in intersect(columns, names(x))) {
+    x[[col]][x$IMPUTED] <- NA
+  }
+  if ("CESKE_JMENO" %in% names(x)) {
+    x$CESKE_JMENO[x$IMPUTED] <- unname(czech_names[x$DRUH[x$IMPUTED]])
+  }
+  x
+}
+
+#--------------------------------------------------#
 ## The original imputation rule -----
 #--------------------------------------------------#
 
@@ -192,6 +222,7 @@ impute_absences_legacy <- function(records, range_nausithous, range_teleius,
       imputed_nau
     ) %>%
     deduplicate_range_records(cells) %>%
+    blank_species_fields() %>%
     dplyr::mutate(
       ID_RECORD = record_id(ID_NALEZ, DRUH),
       .before = 1

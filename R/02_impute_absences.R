@@ -106,6 +106,10 @@ checkmate::assert_true(
   all(data_with_imputed$NEGATIV[data_with_imputed$IMPUTED] == 1),
   .var.name = "every imputed record is an absence"
 )
+checkmate::assert_true(
+  all(is.na(data_with_imputed$POCET[data_with_imputed$IMPUTED])),
+  .var.name = "no imputed absence carries a count"
+)
 # Never more observed records than there are targeted records.
 checkmate::assert_true(
   dplyr::n_distinct(data_with_imputed$ID_NALEZ[!data_with_imputed$IMPUTED]) <=

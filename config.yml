@@ -108,6 +108,19 @@ sources:
     - FIŠER M. (2023) Mapováni EV druhů (2023).                                  # 52
 
 #--------------------------------------------------#
+# Imputed absences -----
+#--------------------------------------------------#
+
+imputation:
+  # An imputed absence is a copy of a record of the other species. These
+  # columns describe that other species' observation (its count, how it was
+  # counted, its behaviour, its taxon note), so they are emptied on the copy.
+  # CESKE_JMENO is set to the Czech name of the imputed species instead. The
+  # site-level fields (site, date, observer, habitat, management, threats,
+  # host plant) are kept.
+  species_specific_columns: [POCET, ODHAD, POCITANO, REL_POC, ETOLOGIE, TAX_POZN]
+
+#--------------------------------------------------#
 # Structured notes (STRUKT_POZN) -----
 #--------------------------------------------------#
 
