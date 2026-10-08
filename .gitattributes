@@ -1,0 +1,3 @@
+# Test fixtures are byte-exact stand-ins for the AOPK exports (Windows-1250,
+# CRLF line endings); git must not normalise them.
+tests/testthat/fixtures/*.csv -text
