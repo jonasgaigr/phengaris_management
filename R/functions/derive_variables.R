@@ -68,13 +68,17 @@ flag_note <- function(x, pattern) {
   )
 }
 
-#' Flag a phrase in the habitat description.
+#' Flag any of a set of phrases in the habitat description.
 #'
 #' An empty habitat description stays NA rather than becoming 0, because no
 #' habitat was assessed at all in that case.
-flag_biotope <- function(x, pattern) {
+#'
+#' @param x        the POP_BIOT strings
+#' @param phrases  character vector; the flag is 1 when any of them occurs
+flag_biotope <- function(x, phrases) {
+  hit <- Reduce(`|`, lapply(phrases, function(p) grepl(p, x, fixed = TRUE)))
   dplyr::case_when(
-    grepl(pattern, x) ~ 1,
+    hit ~ 1,
     is.na(x) == FALSE ~ 0
   )
 }
@@ -107,6 +111,7 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
   # A record without any threat list says nothing about threats: NA, not 0.
   threats <- threat_class_flags(notes$threats, threat_classes, missing = NA)
   grazing_from <- CONFIG$strukt_pozn$grazing_recorded_from_year
+  pop_biot <- CONFIG$pop_biot$flags
 
   data %>%
     dplyr::mutate(
@@ -166,10 +171,11 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
       #--------------------------------------------------#
       ## Recorded habitat type -----
       #--------------------------------------------------#
-      TTP    = flag_biotope(POP_BIOT, "TTP s pravidelným managementem"),
-      PRIKOP = flag_biotope(POP_BIOT, "příkop u komunikace"),
-      ZARUST = flag_biotope(POP_BIOT, "zarůstající louka bez managementu"),
-      JINY   = flag_biotope(POP_BIOT, "jiný"),
+      # Phrases per flag in config.yml `pop_biot: flags`.
+      TTP    = flag_biotope(POP_BIOT, pop_biot$TTP),
+      PRIKOP = flag_biotope(POP_BIOT, pop_biot$PRIKOP),
+      ZARUST = flag_biotope(POP_BIOT, pop_biot$ZARUST),
+      JINY   = flag_biotope(POP_BIOT, pop_biot$JINY),
 
       #--------------------------------------------------#
       ## Threats and pressures -----

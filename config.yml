@@ -121,6 +121,23 @@ imputation:
   species_specific_columns: [POCET, ODHAD, POCITANO, REL_POC, ETOLOGIE, TAX_POZN]
 
 #--------------------------------------------------#
+# Habitat description (POP_BIOT) -----
+#--------------------------------------------------#
+
+# POP_BIOT is a comma-separated list of the habitat categories of the field
+# form, sometimes with free text. Each flag is 1 when any of its phrases
+# occurs, 0 when none does, and NA when there is no description at all.
+pop_biot:
+  flags:
+    TTP: ["TTP s pravidelným managementem"]            # managed grassland
+    # "příkop" covers both form categories, "příkop" and "příkop u komunikace".
+    PRIKOP: ["příkop"]                                 # ditch, road verge
+    ZARUST: ["zarůstající louka bez managementu"]      # neglected grassland
+    JINY: ["jiný"]                                     # "jiný", "jiný typ biotopu-..."
+  # TODO(Jonáš): two categories of the form set no flag: "okraj vodní plochy"
+  # (263 records) and "pastvina" (13). Map them to a flag or add flags.
+
+#--------------------------------------------------#
 # Structured notes (STRUKT_POZN) -----
 #--------------------------------------------------#
 
