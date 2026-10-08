@@ -104,7 +104,9 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
 
   notes <- parse_strukt_pozn(data$STRUKT_POZN)
   plant_levels <- unlist(CONFIG$strukt_pozn$host_plant_levels)
-  threats <- threat_class_flags(notes$threats, threat_classes)
+  # A record without any threat list says nothing about threats: NA, not 0.
+  threats <- threat_class_flags(notes$threats, threat_classes, missing = NA)
+  grazing_from <- CONFIG$strukt_pozn$grazing_recorded_from_year
 
   data %>%
     dplyr::mutate(
@@ -176,8 +178,12 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
       !!!as.list(threats),
       # The surveyor recorded that no threat was seen. (The original pattern,
       # "žádné", only ever matched "Přítomnost rostlin: žádné", so None was 0
-      # on every analysed record.)
-      None = as.numeric(grepl(CONFIG$strukt_pozn$no_threat_phrase, notes$threats, fixed = TRUE)),
+      # on every analysed record.) NA without a threat list.
+      None = dplyr::if_else(
+        is.na(notes$threats),
+        NA_real_,
+        as.numeric(grepl(CONFIG$strukt_pozn$no_threat_phrase, notes$threats, fixed = TRUE))
+      ),
 
       #--------------------------------------------------#
       ## Management -----
@@ -194,8 +200,14 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
       ),
       # 1 when the form records anything about mowing.
       MOW = as.numeric(!is.na(notes$mow_timing) | !is.na(notes$mow_whole_area)),
-      # 1 when the form has a grazing entry at all, as originally defined.
-      GRAZE = as.numeric(!is.na(notes$grazing)),
+      # Grazing: 1 grazed (extensively or intensively), 0 not grazed, NA in
+      # the years whose form had no grazing entry. From grazing_from on, a
+      # record without a grazing entry counts as not grazed (config.yml).
+      GRAZE = dplyr::case_when(
+        YEAR < grazing_from ~ NA_real_,
+        notes$grazing %in% c("extenzivní", "intenzivní") ~ 1,
+        notes$grazing == "ne" | is.na(notes$grazing) ~ 0
+      ),
       # Grazing method: 1 = extensive, 0 = intensive.
       GRAZE_MET = dplyr::case_when(
         notes$grazing == "extenzivní" ~ 1,
@@ -207,10 +219,11 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
         ~ 1,
         TRUE ~ 0
       ),
+      # Appropriate mowing method and timing together; NA when either is
+      # unknown.
       OVERALL = dplyr::case_when(
-        METHOD == 1
-        & TIMING == 1
-        ~ 1,
+        is.na(METHOD) | is.na(TIMING) ~ NA_real_,
+        METHOD == 1 & TIMING == 1 ~ 1,
         TRUE ~ 0
       ),
 
@@ -224,15 +237,17 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
       SITMAP = as.factor(SITMAP)
     ) %>%
     dplyr::mutate(
-      # Number of threat classes recorded; None is not a threat.
+      # Number of threat classes recorded; None is not a threat. NA when the
+      # record has no threat list at all.
       SUM_THREATS = rowSums(
-        dplyr::across(dplyr::all_of(names(threat_classes))),
-        na.rm = TRUE
+        dplyr::across(dplyr::all_of(names(threat_classes)))
       ),
       # Within-site habitat heterogeneity: how many habitat types were recorded.
-      HET_INN = rowSums(
-        dplyr::across(c(TTP, PRIKOP, ZARUST, JINY)),
-        na.rm = TRUE
+      # NA when no habitat was described at all.
+      HET_INN = dplyr::if_else(
+        is.na(POP_BIOT),
+        NA_real_,
+        rowSums(dplyr::across(c(TTP, PRIKOP, ZARUST, JINY)), na.rm = TRUE)
       )
     )
 }
