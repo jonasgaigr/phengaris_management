@@ -15,13 +15,14 @@
 # names, both are kept here under distinct identifiers, so that nothing is
 # silently dropped and the duplication is visible in the results table.
 #
-# Reads:  Data/Processed/data_analysis.csv   (step 06)
-# Writes: Outputs/Tables/10_*.csv
-#         Outputs/Reports/10_models_p_teleius.md
+# Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
+# Writes: Outputs/<spec>/Tables/10_*.csv
+#         Outputs/<spec>/Reports/10_models_p_teleius.md
 #
 #----------------------------------------------------------#
 
-message("Step 10: fitting P. teleius models")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("10")
 
 report_start(
   "10",
@@ -418,7 +419,8 @@ report_note(sprintf(
 
 report_finish()
 
-message("Step 10 done: ", length(models_tel), " models fitted")
+message("  ", length(models_tel), " models fitted")
+step_end("10")
 
 #----------------------------------------------------------#
 # End script -----

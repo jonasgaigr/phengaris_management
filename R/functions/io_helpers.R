@@ -11,31 +11,21 @@
 #--------------------------------------------------#
 
 # Built from config.yml, which R/00_setup.R reads into CONFIG before this
-# file is sourced.
+# file is sourced. The folders a step writes into depend on the step and the
+# specification being run; processed_path() and output_dir() in pipeline.R
+# give those.
 PATHS <- list(
   input      = CONFIG$paths$input,
   processed  = CONFIG$paths$processed,
   temp       = CONFIG$paths$temp,
-  outputs    = CONFIG$paths$outputs,
-  tables     = file.path(CONFIG$paths$outputs, "Tables"),
-  figures    = file.path(CONFIG$paths$outputs, "Figures"),
-  reports    = file.path(CONFIG$paths$outputs, "Reports")
+  outputs    = CONFIG$paths$outputs
 )
-
-#' Create every output directory the cascade writes into.
-init_output_dirs <- function() {
-  for (p in c(PATHS$processed, PATHS$outputs,
-              PATHS$tables, PATHS$figures, PATHS$reports)) {
-    if (!dir.exists(p)) dir.create(p, recursive = TRUE)
-  }
-  invisible(PATHS)
-}
 
 #--------------------------------------------------#
 ## Tables -----
 #--------------------------------------------------#
 
-#' Write a result table to Outputs/Tables as CSV.
+#' Write a result table to Outputs/<scope>/Tables as CSV.
 #'
 #' Windows-1250 is kept as the output encoding because the tables carry Czech
 #' site, observer and habitat names and are opened in Excel on Czech Windows.
@@ -45,7 +35,7 @@ init_output_dirs <- function() {
 #' @return the path written, invisibly
 write_table_csv <- function(x, stem) {
   x <- as.data.frame(x)
-  path <- file.path(PATHS$tables, paste0(stem, ".csv"))
+  path <- file.path(output_dir("Tables"), paste0(stem, ".csv"))
   utils::write.csv(
     x,
     file = path,
@@ -59,7 +49,7 @@ write_table_csv <- function(x, stem) {
 ## Figures -----
 #--------------------------------------------------#
 
-#' Write a figure to Outputs/Figures as PNG.
+#' Write a figure to Outputs/<scope>/Figures as PNG.
 #'
 #' @param plot  a ggplot object
 #' @param stem  file name without extension
@@ -70,7 +60,7 @@ write_table_csv <- function(x, stem) {
 #' happens to use, black in some readers, which is not what a manuscript figure
 #' should do.
 write_figure_png <- function(plot, stem, width = 8, height = 6, dpi = 300) {
-  path <- file.path(PATHS$figures, paste0(stem, ".png"))
+  path <- file.path(output_dir("Figures"), paste0(stem, ".png"))
   ggplot2::ggsave(
     filename = path,
     plot     = plot,
@@ -126,7 +116,7 @@ read_n2k_site_subjects <- function() {
 #' Read the cleaned occurrence table (output of step 04).
 read_data_clean <- function() {
   readr::read_csv(
-    file.path(PATHS$processed, "data_clean.csv"),
+    processed_path("data_clean.csv"),
     show_col_types = FALSE
   )
 }
@@ -136,7 +126,7 @@ read_data_clean <- function() {
 #' Falls back to the cleaned table if step 06 has not been run, so that a
 #' partial cascade still gets as far as it can.
 read_data_analysis <- function() {
-  path <- file.path(PATHS$processed, "data_analysis.csv")
+  path <- processed_path("data_analysis.csv")
   if (!file.exists(path)) {
     warning(
       "data_analysis.csv not found - falling back to data_clean.csv. ",

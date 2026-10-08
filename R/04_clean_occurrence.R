@@ -17,13 +17,14 @@
 #   POP_BIOT     habitat description  -> TTP, PRIKOP, ZARUST, JINY
 #   STRUKT_POZN  structured notes     -> host plant, threats, management
 #
-# Reads:  Data/Processed/data_with_imputed.csv   (step 02)
-#         Data/Processed/protected_area_id.csv   (step 03)
-# Writes: Data/Processed/data_clean.csv
+# Reads:  Data/Processed/<spec>/data_with_imputed.csv   (step 02)
+#         Data/Processed/common/protected_area_id.csv   (step 03)
+# Writes: Data/Processed/<spec>/data_clean.csv
 #
 #----------------------------------------------------------#
 
-message("Step 04: cleaning occurrence data")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("04")
 
 report_start(
   "04",
@@ -41,13 +42,13 @@ report_start(
 
 data_with_imputed <-
   readr::read_csv(
-    file.path(PATHS$processed, "data_with_imputed.csv"),
+    processed_path("data_with_imputed.csv"),
     show_col_types = FALSE
   )
 
 protected_area_id <-
   readr::read_csv(
-    file.path(PATHS$processed, "protected_area_id.csv"),
+    processed_path("protected_area_id.csv", "common"),
     show_col_types = FALSE
   )
 
@@ -460,12 +461,13 @@ if ("PA_SPECIES" %in% names(protected_area_id)) {
 
 readr::write_csv(
   data_clean,
-  file.path(PATHS$processed, "data_clean.csv")
+  processed_path("data_clean.csv")
 )
 
 report_finish()
 
-message("Step 04 done: ", nrow(data_clean), " cleaned records written")
+message("  ", nrow(data_clean), " cleaned records written")
+step_end("04")
 
 #----------------------------------------------------------#
 # End script -----

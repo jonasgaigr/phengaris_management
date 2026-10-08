@@ -11,13 +11,14 @@
 # The descriptive figures for the manuscript. Each one plots a table that step
 # 07 also writes to CSV, so figure and table can be checked against each other.
 #
-# Reads:  Data/Processed/data_analysis.csv   (step 06)
-# Writes: Outputs/Figures/08_*.png
-#         Outputs/Reports/08_descriptive_figures.md
+# Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
+# Writes: Outputs/<spec>/Figures/08_*.png
+#         Outputs/<spec>/Reports/08_descriptive_figures.md
 #
 #----------------------------------------------------------#
 
-message("Step 08: descriptive figures")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("08")
 
 report_start(
   "08",
@@ -425,7 +426,7 @@ report_figure(
 
 report_finish()
 
-message("Step 08 done")
+step_end("08")
 
 #----------------------------------------------------------#
 # End script -----

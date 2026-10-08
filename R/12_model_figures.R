@@ -16,13 +16,14 @@
 # model script also drew are not repeated here, because step 08 produces them
 # from the same summary tables.
 #
-# Reads:  Data/Processed/data_analysis.csv   (step 06)
-# Writes: Outputs/Figures/12_*.png
-#         Outputs/Reports/12_model_figures.md
+# Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
+# Writes: Outputs/<spec>/Figures/12_*.png
+#         Outputs/<spec>/Reports/12_model_figures.md
 #
 #----------------------------------------------------------#
 
-message("Step 12: model-related figures")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("12")
 
 report_start(
   "12",
@@ -133,7 +134,7 @@ report_note(paste(
 
 report_finish()
 
-message("Step 12 done")
+step_end("12")
 
 #----------------------------------------------------------#
 # End script -----

@@ -11,15 +11,31 @@
 # Flags every monitoring site by the protection it falls under:
 #
 #   EVL_any     inside any Natura 2000 site of Community importance
-#   EVL_target  inside a Natura 2000 site designated for that species
+#   EVL_target  inside a Natura 2000 site designated for a Phengaris species;
+#               PA_SPECIES says which one
 #   MZCHU       inside a small-scale specially protected area
 #
-# Reads:  objects from step 01 (phengaris_lokal_new, evl, mzchu, sites_subjects)
-# Writes: Data/Processed/protected_area_id.csv
+# Reads:  Data/Processed/common/records.csv, sites.gpkg   (step 01)
+#         Data/Input/reference/evl, mzchu, n2k_site_subjects
+# Writes: Data/Processed/common/protected_area_id.csv
 #
 #----------------------------------------------------------#
 
-message("Step 03: identifying protected areas")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("03")
+
+phengaris_lokal_new <- read_records_with_sites()
+
+evl <-
+  read_reference_layer("evl") %>%
+  sf::st_transform(CRS_SJTSK)
+
+mzchu <-
+  read_reference_layer("mzchu") %>%
+  sf::st_transform(CRS_SJTSK)
+
+# Which Natura 2000 site was designated for which feature.
+sites_subjects <- read_n2k_site_subjects()
 
 report_start(
   "03",
@@ -160,12 +176,13 @@ report_table(
 
 readr::write_csv(
   protected_area_id,
-  file.path(PATHS$processed, "protected_area_id.csv")
+  processed_path("protected_area_id.csv", "common")
 )
 
 report_finish()
 
-message("Step 03 done: ", nrow(protected_area_id), " protected-area assignments")
+message("  ", nrow(protected_area_id), " protected-area assignments")
+step_end("03")
 
 #----------------------------------------------------------#
 # End script -----

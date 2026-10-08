@@ -12,13 +12,14 @@
 # in what habitat, under what management and under what protection. Every table
 # here goes into the manuscript or supports a number quoted in its text.
 #
-# Reads:  Data/Processed/data_analysis.csv   (step 06)
-# Writes: Outputs/Tables/07_*.csv
-#         Outputs/Reports/07_descriptive_summaries.md
+# Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
+# Writes: Outputs/<spec>/Tables/07_*.csv
+#         Outputs/<spec>/Reports/07_descriptive_summaries.md
 #
 #----------------------------------------------------------#
 
-message("Step 07: descriptive summary tables")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("07")
 
 report_start(
   "07",
@@ -274,7 +275,7 @@ report_table(
 
 report_finish()
 
-message("Step 07 done")
+step_end("07")
 
 #----------------------------------------------------------#
 # End script -----

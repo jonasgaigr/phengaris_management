@@ -107,13 +107,13 @@ CONFIG <- load_config("config.yml")
 # Helper functions -----
 #----------------------------------------------------------#
 
+source("R/functions/pipeline.R", encoding = "UTF-8")
 source("R/functions/io_helpers.R", encoding = "UTF-8")
+source("R/functions/read_sources.R", encoding = "UTF-8")
 source("R/functions/report_helpers.R", encoding = "UTF-8")
 source("R/functions/model_helpers.R", encoding = "UTF-8")
 source("R/functions/summary_tables.R", encoding = "UTF-8")
 source("R/functions/habitat_layers.R", encoding = "UTF-8")
-
-init_output_dirs()
 
 #----------------------------------------------------------#
 # Project constants -----

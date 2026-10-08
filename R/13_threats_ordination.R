@@ -17,14 +17,15 @@
 #   B. an RDA constrained by species and occupancy, tested by permutation,
 #      shown as a triplot and as a convex-hull plot.
 #
-# Reads:  Data/Processed/data_analysis.csv   (step 06)
-# Writes: Outputs/Figures/13_*.png, Outputs/Tables/13_*.csv
-#         Outputs/data_pca.csv, Outputs/data_data_export.csv
-#         Outputs/Reports/13_threats_and_pressures.md
+# Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
+# Writes: Outputs/<spec>/Figures/13_*.png, Outputs/Tables/13_*.csv
+#         Outputs/<spec>/Exports/data_pca.csv, data_data_export.csv
+#         Outputs/<spec>/Reports/13_threats_and_pressures.md
 #
 #----------------------------------------------------------#
 
-message("Step 13: ordination of threats and pressures")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("13")
 
 report_start(
   "13",
@@ -140,13 +141,13 @@ data_tap <- data_tap_all %>%
 # dialect, because they are data exports rather than result tables.
 utils::write.csv2(
   data_tap_all,
-  file.path(PATHS$outputs, "data_pca.csv"),
+  file.path(output_dir("Exports"), "data_pca.csv"),
   fileEncoding = "Windows-1250"
 )
 
 utils::write.csv2(
   data,
-  file.path(PATHS$outputs, "data_data_export.csv"),
+  file.path(output_dir("Exports"), "data_data_export.csv"),
   fileEncoding = "Windows-1250",
   row.names = FALSE
 )
@@ -509,7 +510,7 @@ report_figure(
   width = 6, height = 5
 )
 ggplot2::ggsave(
-  file.path(PATHS$figures, "13_pca_tap.pdf"),
+  file.path(output_dir("Figures"), "13_pca_tap.pdf"),
   plot = pca_plot, width = 5, height = 5, device = grDevices::cairo_pdf
 )
 
@@ -582,7 +583,7 @@ report_figure(
   width = 6, height = 5
 )
 ggplot2::ggsave(
-  file.path(PATHS$figures, "13_rda_tap.pdf"),
+  file.path(output_dir("Figures"), "13_rda_tap.pdf"),
   plot = rda_plot, width = 5, height = 5, device = grDevices::cairo_pdf
 )
 
@@ -600,7 +601,7 @@ report_warning(
 
 report_finish()
 
-message("Step 13 done")
+step_end("13")
 
 #----------------------------------------------------------#
 # End script -----

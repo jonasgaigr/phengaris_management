@@ -24,13 +24,14 @@
 #               listed in the segment mosaic BIOTOP_SEZ
 #   NATURAL     1 when a natural habitat is mapped, 0 for X codes and no data
 #
-# Reads:  Data/Processed/data_clean.csv       (step 04)
-#         Data/Processed/data_lokal_vmb.csv   (step 05)
-# Writes: Data/Processed/data_analysis.csv
+# Reads:  Data/Processed/<spec>/data_clean.csv       (step 04)
+#         Data/Processed/common/data_lokal_vmb.csv   (step 05)
+# Writes: Data/Processed/<spec>/data_analysis.csv
 #
 #----------------------------------------------------------#
 
-message("Step 06: joining habitat attributes")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("06")
 
 report_start(
   "06",
@@ -44,7 +45,7 @@ report_start(
 
 data_clean <- read_data_clean()
 
-path_lokal_vmb_csv <- file.path(PATHS$processed, "data_lokal_vmb.csv")
+path_lokal_vmb_csv <- processed_path("data_lokal_vmb.csv", "common")
 
 #----------------------------------------------------------#
 # Join the habitat attributes -----
@@ -155,7 +156,7 @@ if (file.exists(path_lokal_vmb_csv)) {
   habitat_join_available <- FALSE
 
   report_warning(
-    "Data/Processed/data_lokal_vmb.csv does not exist, so no habitat",
+    "Data/Processed/common/data_lokal_vmb.csv does not exist, so no habitat",
     "attributes could be attached. The habitat columns are empty and the",
     "models that use AREA_SITE, FSB, BIOTOP or HET_OUT will be skipped.",
     "Run step 05 from a machine with access to //bali.nature.cz."
@@ -354,12 +355,13 @@ if (habitat_join_available) {
 
 readr::write_csv(
   data_analysis,
-  file.path(PATHS$processed, "data_analysis.csv")
+  processed_path("data_analysis.csv")
 )
 
 report_finish()
 
-message("Step 06 done: ", nrow(data_analysis), " records in the analysis table")
+message("  ", nrow(data_analysis), " records in the analysis table")
+step_end("06")
 
 #----------------------------------------------------------#
 # End script -----

@@ -43,6 +43,24 @@ crs:
   epsg: 5514
 
 #--------------------------------------------------#
+# Specifications -----
+#--------------------------------------------------#
+
+# The cascade runs once per specification listed under `run`: the steps that
+# depend on the analytical choices write to Data/Processed/<name> and
+# Outputs/<name>, the steps that do not run once, into Data/Processed/common
+# and Outputs/common. Outputs/REPORT.md collects all of them.
+specifications:
+  run:
+    - legacy
+  definitions:
+    legacy:
+      description: >-
+        The original analysis choices: the original model set, data subsets
+        and derived variables, with the bug fixes listed in CHANGELOG.md
+        applied.
+
+#--------------------------------------------------#
 # Data sources counted as targeted monitoring -----
 #--------------------------------------------------#
 

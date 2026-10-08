@@ -11,13 +11,14 @@
 # Models fitted on both species at once, with species as a fixed effect, plus
 # the non-parametric comparisons of abundance and occupancy between the two.
 #
-# Reads:  Data/Processed/data_analysis.csv   (step 06)
-# Writes: Outputs/Tables/11_*.csv
-#         Outputs/Reports/11_models_both_species.md
+# Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
+# Writes: Outputs/<spec>/Tables/11_*.csv
+#         Outputs/<spec>/Reports/11_models_both_species.md
 #
 #----------------------------------------------------------#
 
-message("Step 11: fitting both-species models")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("11")
 
 report_start(
   "11",
@@ -159,7 +160,8 @@ report_warning(
 
 report_finish()
 
-message("Step 11 done: ", length(models_both), " models fitted")
+message("  ", length(models_both), " models fitted")
+step_end("11")
 
 #----------------------------------------------------------#
 # End script -----

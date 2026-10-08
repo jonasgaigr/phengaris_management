@@ -8,7 +8,7 @@
 #
 # Every analysis step opens a report, adds its tables and figures to it, and
 # closes it. Adding a table or a figure through these helpers writes the file
-# to Outputs/Tables or Outputs/Figures *and* records it in the step's Markdown
+# to Outputs/<scope>/Tables or Figures *and* records it in the step's Markdown
 # report, so the three can never drift apart.
 #
 # Usage inside a step script:
@@ -193,7 +193,7 @@ report_figure <- function(plot, caption, stem, width = 8, height = 6, dpi = 300)
 #' @param stem     file name without extension
 report_base_figure <- function(expr, caption, stem, width = 8, height = 6, dpi = 300) {
   .report_require_open()
-  path <- file.path(PATHS$figures, paste0(stem, ".png"))
+  path <- file.path(output_dir("Figures"), paste0(stem, ".png"))
   grDevices::png(path, width = width * dpi, height = height * dpi, res = dpi)
   on.exit(grDevices::dev.off(), add = TRUE)
   force(expr)
@@ -207,13 +207,13 @@ report_base_figure <- function(expr, caption, stem, width = 8, height = 6, dpi =
   invisible(path)
 }
 
-#' Close the report and write it to Outputs/Reports.
+#' Close the report and write it to Outputs/<scope>/Reports.
 report_finish <- function() {
   .report_require_open()
   slug <- tolower(gsub("[^A-Za-z0-9]+", "_", .report_env$title))
   slug <- gsub("^_|_$", "", slug)
   path <- file.path(
-    PATHS$reports,
+    output_dir("Reports"),
     sprintf("%s_%s.md", .report_env$id, slug)
   )
   writeLines(.report_env$lines, path, useBytes = FALSE)

@@ -11,52 +11,36 @@
 #
 #----------------------------------------------------------#
 #
-# Runs every step in dependency order, in one session.
+# Runs every step of the cascade in dependency order.
 #
 #   From RStudio      source("run_all.R")
 #   From the shell    Rscript run_all.R
 #   Selected steps    Rscript run_all.R 07 08 15
 #
-# Steps share one session on purpose: steps 01 and 14 exchange spatial objects
-# that are expensive to rebuild. Every other step reads its input from
-# Data/Processed, so a partial re-run of steps 02 onwards is safe as long as
-# the earlier outputs exist.
+# The steps, and the files each reads and writes, are declared in
+# R/functions/pipeline.R. The order is:
 #
-# Each step writes its own tables to Outputs/Tables, its figures to
-# Outputs/Figures and a Markdown report to Outputs/Reports. Step 15 collects
-# those into Outputs/REPORT.md.
+#   1. the steps that do not depend on the analytical choices (01, 03, 05),
+#      once;
+#   2. the steps that do (02, 04, 06-14), once for each specification listed
+#      in config.yml under `specifications: run:`;
+#   3. the compiled report (15).
+#
+# Every step runs in its own environment and reads its inputs from disk, so
+# nothing passes between steps through the session. A step whose inputs are
+# missing stops with a message that names the file and the step writing it.
+#
+# Each step writes its tables to Outputs/<scope>/Tables, its figures to
+# Outputs/<scope>/Figures and a Markdown report to Outputs/<scope>/Reports,
+# where <scope> is "common" or the specification. Step 15 collects the
+# reports into Outputs/REPORT.md.
 #
 #----------------------------------------------------------#
-
-#----------------------------------------------------------#
-# The cascade -----
-#----------------------------------------------------------#
-
-step <- function(id, file, title) list(id = id, file = file, title = title)
-
-STEPS <- list(
-  step("01", "R/01_load_source_data.R",    "Load source data"),
-  step("02", "R/02_impute_absences.R",     "Impute absences"),
-  step("03", "R/03_protected_areas.R",     "Protected areas"),
-  step("04", "R/04_clean_occurrence.R",    "Clean occurrence data"),
-  step("05", "R/05_habitat_intersect.R",   "Habitat intersection"),
-  step("06", "R/06_habitat_join.R",        "Habitat attributes"),
-  step("07", "R/07_describe_tables.R",     "Descriptive tables"),
-  step("08", "R/08_describe_figures.R",    "Descriptive figures"),
-  step("09", "R/09_models_nausithous.R",   "Models P. nausithous"),
-  step("10", "R/10_models_teleius.R",      "Models P. teleius"),
-  step("11", "R/11_models_both_species.R", "Models both species"),
-  step("12", "R/12_model_figures.R",       "Model figures"),
-  step("13", "R/13_threats_ordination.R",  "Threats and pressures"),
-  step("14", "R/14_maps.R",                "Maps"),
-  step("15", "R/15_compile_report.R",      "Compile the report")
-)
 
 #----------------------------------------------------------#
 # Setup -----
 #----------------------------------------------------------#
 
-# Always runs: it loads the packages, the helpers and the constants.
 # The encoding is given explicitly because the monitoring source names and the
 # habitat search patterns are Czech, and the files are UTF-8 regardless of the
 # locale R happens to start in.
@@ -74,36 +58,48 @@ if (!length(requested) && exists("run_steps")) {
   requested <- as.character(run_steps)
 }
 
-steps_to_run <- if (length(requested)) {
-  unknown <- setdiff(requested, vapply(STEPS, function(s) s$id, character(1)))
-  if (length(unknown)) {
-    stop("Unknown step id(s): ", paste(unknown, collapse = ", "), call. = FALSE)
-  }
-  Filter(function(s) s$id %in% requested, STEPS)
-} else {
-  STEPS
+all_ids <- vapply(PIPELINE, function(s) s$id, character(1))
+unknown <- setdiff(requested, all_ids)
+if (length(unknown)) {
+  stop("Unknown step id(s): ", paste(unknown, collapse = ", "), call. = FALSE)
 }
+selected <- if (length(requested)) PIPELINE[all_ids %in% requested] else PIPELINE
 
 #----------------------------------------------------------#
 # Run -----
 #----------------------------------------------------------#
 
-started <- Sys.time()
-timings <- list()
-
-for (this_step in steps_to_run) {
-  banner <- paste0("== Step ", this_step$id, " - ", this_step$title, " ")
+#' Run one step script in a fresh environment and time it.
+run_step <- function(step, spec = "") {
+  Sys.setenv(PHENGARIS_SPEC = spec)
+  on.exit(Sys.unsetenv("PHENGARIS_SPEC"), add = TRUE)
+  label <- if (nzchar(spec)) paste0(" [", spec, "]") else ""
+  banner <- paste0("== Step ", step$id, label, " - ", step$title, " ")
   message("\n", banner, strrep("=", max(0, 60 - nchar(banner))))
 
-  step_started <- Sys.time()
-  source(this_step$file, local = FALSE, encoding = "UTF-8")
-  elapsed <- as.numeric(difftime(Sys.time(), step_started, units = "secs"))
-
-  timings[[length(timings) + 1]] <- data.frame(
-    step = this_step$id, title = this_step$title,
-    seconds = round(elapsed, 1),
+  started <- Sys.time()
+  source(step$file, local = new.env(parent = globalenv()), encoding = "UTF-8")
+  data.frame(
+    step = step$id, spec = if (nzchar(spec)) spec else "-", title = step$title,
+    seconds = round(as.numeric(difftime(Sys.time(), started, units = "secs")), 1),
     stringsAsFactors = FALSE
   )
+}
+
+started <- Sys.time()
+timings <- list()
+scope_of <- function(s) s$scope
+
+for (step in Filter(function(s) scope_of(s) == "common", selected)) {
+  timings[[length(timings) + 1]] <- run_step(step)
+}
+for (spec in pipeline_specs()) {
+  for (step in Filter(function(s) scope_of(s) == "spec", selected)) {
+    timings[[length(timings) + 1]] <- run_step(step, spec)
+  }
+}
+for (step in Filter(function(s) scope_of(s) == "final", selected)) {
+  timings[[length(timings) + 1]] <- run_step(step)
 }
 
 #----------------------------------------------------------#
@@ -117,7 +113,7 @@ message(
   round(as.numeric(difftime(Sys.time(), started, units = "mins")), 1),
   " minutes"
 )
-message("Report: ", file.path(PATHS$outputs, "REPORT.md"))
+message("Report: ", file.path(CONFIG$paths$outputs, "REPORT.md"))
 
 #----------------------------------------------------------#
 # End script -----

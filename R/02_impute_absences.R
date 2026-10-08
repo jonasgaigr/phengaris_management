@@ -19,12 +19,18 @@
 #      fall inside this species' range and have no record of this species yet,
 #      and add them as absences (NEGATIV = 1, IMPUTED = TRUE).
 #
-# Reads:  objects from step 01 (phengaris_lokal_new, range_*, target_mon_zdroj)
-# Writes: Data/Processed/data_with_imputed.csv
+# Reads:  Data/Processed/common/records.csv, sites.gpkg   (step 01)
+#         the reporting range layers named in config.yml
+# Writes: Data/Processed/<spec>/data_with_imputed.csv
 #
 #----------------------------------------------------------#
 
-message("Step 02: imputing absences")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("02")
+
+phengaris_lokal_new <- read_records_with_sites()
+range_nausithous <- read_range(CONFIG$paths$ranges$nausithous)
+range_teleius <- read_range(CONFIG$paths$ranges$teleius)
 
 report_start(
   "02",
@@ -227,12 +233,13 @@ report_note(sprintf(
 
 readr::write_csv(
   data_with_imputed,
-  file.path(PATHS$processed, "data_with_imputed.csv")
+  processed_path("data_with_imputed.csv")
 )
 
 report_finish()
 
-message("Step 02 done: ", nrow(data_with_imputed), " records written")
+message("  ", nrow(data_with_imputed), " records written")
+step_end("02")
 
 #----------------------------------------------------------#
 # End script -----

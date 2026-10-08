@@ -14,17 +14,18 @@
 # composition (BIOTOP_SEZ) and the area of the overlap.
 #
 # The habitat layer lives on the AOPK network share //bali.nature.cz. When that
-# share is unreachable the step is skipped, the previously written intersection
-# is reused if present, and the reason is recorded in the report.
+# share is unreachable the step is skipped, the frozen intersection of the
+# original analysis is used if present, and the reason is recorded in the
+# report.
 #
-# Reads:  Data/Processed/lokal_new.gpkg   (step 01)
-#         the VMB layer over the network
-# Writes: Data/Processed/lokal_vmb.gpkg
-#         Data/Processed/data_lokal_vmb.csv
+# Reads:  Data/Processed/common/sites.gpkg   (step 01)
+#         the VMB layer over the network, or the frozen intersection
+# Writes: Data/Processed/common/data_lokal_vmb.csv
 #
 #----------------------------------------------------------#
 
-message("Step 05: intersecting sites with the habitat layer")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("05")
 
 report_start(
   "05",
@@ -36,8 +37,8 @@ report_start(
   )
 )
 
-path_lokal_vmb_gpkg <- file.path(PATHS$processed, "lokal_vmb.gpkg")
-path_lokal_vmb_csv  <- file.path(PATHS$processed, "data_lokal_vmb.csv")
+path_lokal_vmb_gpkg <- processed_path("lokal_vmb.gpkg", "common")
+path_lokal_vmb_csv  <- processed_path("data_lokal_vmb.csv", "common")
 
 # Frozen copy of the intersection the original analysis used. It cannot be
 # regenerated without the habitat layer, so it is kept as a tracked input.
@@ -49,7 +50,7 @@ path_lokal_vmb_legacy <- CONFIG$paths$habitat_legacy_intersection
 
 if (vmb_available()) {
 
-  lokal_new <- sf::st_read(file.path(PATHS$processed, "lokal_new.gpkg"))
+  lokal_new <- read_sites()
 
   habitat_layer       <- load_vmb(vmb_x = 0)
   habitat_layer_shape <- habitat_layer$vmb_shp_sjtsk_akt
@@ -163,7 +164,7 @@ if (habitat_intersection_available) {
 
 report_finish()
 
-message("Step 05 done")
+step_end("05")
 
 #----------------------------------------------------------#
 # End script -----

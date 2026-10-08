@@ -19,13 +19,14 @@
 # is named, its coefficients are written to a table, and a model that fails to
 # fit is recorded rather than stopping the script.
 #
-# Reads:  Data/Processed/data_analysis.csv   (step 06)
-# Writes: Outputs/Tables/09_*.csv
-#         Outputs/Reports/09_models_p_nausithous.md
+# Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
+# Writes: Outputs/<spec>/Tables/09_*.csv
+#         Outputs/<spec>/Reports/09_models_p_nausithous.md
 #
 #----------------------------------------------------------#
 
-message("Step 09: fitting P. nausithous models")
+if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
+step_begin("09")
 
 report_start(
   "09",
@@ -375,7 +376,8 @@ report_table(
 
 report_finish()
 
-message("Step 09 done: ", length(models_nau), " models fitted")
+message("  ", length(models_nau), " models fitted")
+step_end("09")
 
 #----------------------------------------------------------#
 # End script -----
