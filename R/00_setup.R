@@ -141,13 +141,6 @@ SPECIES_TEL <- CONFIG$species$teleius$name
 target_mon_zdroj <- CONFIG$sources$targeted
 
 #--------------------------------------------------#
-## Years excluded from the analysis -----
-#--------------------------------------------------#
-
-# Coverage in these years is too thin to contribute to the occupancy models.
-EXCLUDED_YEARS <- c("2014", "2017")
-
-#--------------------------------------------------#
 ## Shared plotting style -----
 #--------------------------------------------------#
 

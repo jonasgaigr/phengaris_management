@@ -31,8 +31,7 @@ report_start(
   paste(
     "Derivation of the analysis variables from the targeted monitoring",
     "records. Only records from the targeted monitoring campaigns are kept,",
-    "only records with the host plant present, and the two years with",
-    "insufficient coverage are dropped."
+    "and only records with the host plant present."
   )
 )
 
@@ -153,13 +152,9 @@ data_clean <-
       NEGATIV == 1 ~ 0,
       NEGATIV == 0 ~ 1
     ),
-    YEAR = as.factor(
-      substr(
-        DATUM_OD,
-        1,
-        4
-      )
-    ),
+    # The calendar year of the visit, as a number. Models that need it as a
+    # grouping factor convert it there.
+    YEAR = as.integer(substr(DATUM_OD, 1, 4)),
 
     #--------------------------------------------------#
     ## Protection -----
@@ -305,8 +300,7 @@ data_clean <-
   dplyr::ungroup() %>%
   dplyr::filter(
     is.na(PLANT_QUAL) == FALSE &
-      PLANT_QUAL != 0 &
-      !YEAR %in% EXCLUDED_YEARS
+      PLANT_QUAL != 0
   )
 
 #----------------------------------------------------------#

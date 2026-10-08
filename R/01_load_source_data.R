@@ -26,15 +26,6 @@
 
 message("Step 01: loading source data")
 
-#--------------------------------------------------#
-## Options -----
-#--------------------------------------------------#
-
-# The 2012-2018 records are read for completeness but no later step uses them:
-# the analysis covers the 2019-2024 monitoring rounds. Set to FALSE to skip
-# eight file reads and shorten the cascade.
-LOAD_HISTORICAL <- TRUE
-
 #----------------------------------------------------------#
 # Reference layers -----
 #----------------------------------------------------------#
@@ -162,25 +153,18 @@ read_occurrence_csv <- function(file) {
 #' Read one site-geometry layer.
 #'
 #' Sites are recorded as points, polygons or lines in three separate
-#' shapefiles. The shapefiles carry no CRS, so S-JTSK is assigned rather than
+#' shapefiles. Their coordinates are S-JTSK, but the .prj files that come with
+#' them declare ETRS89 / LAEA (or nothing), so S-JTSK is assigned rather than
 #' transformed into.
 #'
 #' @param dir   folder holding the w03_nd_lokalizace_* shapefiles
 #' @param kind  "b" points, "p" polygons, "l" lines
-#' @param cast  geometry type to cast to, or NULL to leave the geometry alone
-read_lokal <- function(dir, kind, cast = NULL) {
-  x <- sf::st_read(
+read_lokal <- function(dir, kind) {
+  sf::st_read(
     file.path(dir, paste0("w03_nd_lokalizace_", kind, ".shp"))
   ) %>%
-    sf::st_set_crs(CRS_SJTSK)
-
-  if (!is.null(cast)) {
-    x <- x %>%
-      sf::st_transform(CRS_SJTSK) %>%
-      sf::st_cast(cast)
-  }
-
-  sf::st_make_valid(x)
+    sf::st_set_crs(CRS_SJTSK) %>%
+    sf::st_make_valid()
 }
 
 #--------------------------------------------------#
@@ -227,48 +211,6 @@ sf::st_write(
   file.path(PATHS$processed, "lokal_new.gpkg"),
   delete_dsn = TRUE
 )
-
-#--------------------------------------------------#
-## Species data 2012 - 2018 (historical, unused) -----
-#--------------------------------------------------#
-
-if (isTRUE(LOAD_HISTORICAL)) {
-
-  data_old <-
-    dplyr::bind_rows(
-      read_occurrence_csv("Data/Input/Phengaris_nausithous_2012_2018.csv"),
-      read_occurrence_csv("Data/Input/Phengaris_teleius_2012_2018.csv")
-    )
-
-  dir_nau_old <- "Data/Input/Phengaris_nausithous_2012_2018"
-  dir_tel_old <- "Data/Input/Phengaris_teleius_2012_2018"
-
-  # Unlike the 2019-2024 layers, these are cast to a single geometry type.
-  lokal_old <-
-    dplyr::bind_rows(
-      read_lokal(dir_nau_old, "b", cast = "POINT"),
-      read_lokal(dir_nau_old, "p", cast = "POLYGON"),
-      read_lokal(dir_nau_old, "l", cast = "LINESTRING"),
-      read_lokal(dir_tel_old, "b", cast = "POINT"),
-      read_lokal(dir_tel_old, "p", cast = "POLYGON"),
-      read_lokal(dir_tel_old, "l", cast = "LINESTRING")
-    ) %>%
-    dplyr::rename(
-      ID_LOKAL = idx_nd_lok
-    ) %>%
-    sf::st_as_sf() %>%
-    sf::st_make_valid()
-
-  phengaris_lokal_old <-
-    data_old %>%
-    dplyr::left_join(
-      .,
-      lokal_old
-    ) %>%
-    sf::st_as_sf() %>%
-    sf::st_make_valid()
-
-}
 
 message("Step 01 done: ", nrow(data_new), " records, ",
         nrow(lokal_new), " site geometries")

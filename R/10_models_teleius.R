@@ -51,12 +51,6 @@ d_tel_mow <- d_tel %>%
 d_tel_graze <- d_tel %>%
   dplyr::filter(is.na(GRAZE_MET) == FALSE)
 
-# The spatiotemporal model excluded 2018, which the current cleaning step
-# removes anyway. The filter is kept so the specification stays as written.
-d_tel_no2018 <- data %>%
-  dplyr::filter(YEAR != "2018") %>%
-  dplyr::filter(DRUH == SPECIES_TEL)
-
 # Restricted to the three habitat evaluations with enough records.
 d_tel_fsb <- d_tel %>%
   dplyr::filter(FSB %in% c("T", "X", "moz."))
@@ -121,7 +115,9 @@ specs_tel <- list(
     id = "tel_spatiotemporal", group = "Baseline",
     label = "Year and spatial position, 2018 excluded",
     formula = as.factor(POSITIVE) ~ as.numeric(YEAR) + X:Y,
-    data = d_tel_no2018, engine = "glm"
+    # The original excluded 2018; the analysed years start in 2019, so this
+    # is all P. teleius records. The label keeps the original wording.
+    data = d_tel, engine = "glm"
   ),
   list(
     id = "tel_mapping_field", group = "Baseline",
