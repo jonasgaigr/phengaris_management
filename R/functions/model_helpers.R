@@ -153,9 +153,14 @@ model_diagnostics <- function(m, settings = CONFIG$diagnostics, seed = CONFIG$se
     return(out)
   }
 
+  # The intercept is left out: with an uncentred covariate such as the year
+  # (2019-2024) it is legitimately large.
   co <- stats::coef(summary(m$fit))
-  out$max_abs_estimate <- max(abs(co[, 1]))
-  out$max_std_error <- max(co[, 2])
+  co <- co[rownames(co) != "(Intercept)", , drop = FALSE]
+  if (nrow(co)) {
+    out$max_abs_estimate <- max(abs(co[, 1]))
+    out$max_std_error <- max(co[, 2])
+  }
   if (m$engine == "glmer") {
     out$singular <- lme4::isSingular(m$fit)
     out$max_random_variance <- max(as.data.frame(lme4::VarCorr(m$fit))$vcov)
@@ -173,8 +178,8 @@ model_diagnostics <- function(m, settings = CONFIG$diagnostics, seed = CONFIG$se
 
   flags <- c(
     if (isTRUE(out$singular)) "singular fit",
-    if (out$max_abs_estimate > settings$separation_abs_estimate ||
-          out$max_std_error > settings$separation_std_error) {
+    if (isTRUE(out$max_abs_estimate > settings$separation_abs_estimate) ||
+          isTRUE(out$max_std_error > settings$separation_std_error)) {
       "possible separation"
     },
     if (isTRUE(out$max_random_variance > settings$max_random_variance)) "random-effect variance inflated",
