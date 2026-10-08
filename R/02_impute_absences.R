@@ -93,6 +93,32 @@ report_note(sprintf(
 ))
 
 #--------------------------------------------------#
+## Targeted records outside their species' own range -----
+#--------------------------------------------------#
+
+outside_range <-
+  dplyr::bind_rows(
+    targeted_records_outside_range(
+      phengaris_lokal_new,
+      targeted_records_in_range(phengaris_lokal_new, range_nausithous, SPECIES_NAU, target_mon_zdroj),
+      SPECIES_NAU, target_mon_zdroj
+    ),
+    targeted_records_outside_range(
+      phengaris_lokal_new,
+      targeted_records_in_range(phengaris_lokal_new, range_teleius, SPECIES_TEL, target_mon_zdroj),
+      SPECIES_TEL, target_mon_zdroj
+    )
+  ) %>%
+  dplyr::count(DRUH, NEGATIV, name = "records") %>%
+  dplyr::mutate(kept = isTRUE(settings$keep_outside_range))
+
+report_table(
+  outside_range,
+  "Targeted records outside their species' own reporting range",
+  "02_outside_range"
+)
+
+#--------------------------------------------------#
 ## The same records under every imputation rule -----
 #--------------------------------------------------#
 

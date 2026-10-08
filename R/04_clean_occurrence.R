@@ -82,13 +82,16 @@ phengaris_both_present <-
 # Derive the analysis variables -----
 #----------------------------------------------------------#
 
-data_clean <-
+# Every targeted record with its analysis variables, before the host-plant
+# filter.
+data_derived <-
   derive_analysis_variables(
     data_new_source,
     protected_area_id,
     both_present = phengaris_both_present
-  ) %>%
-  keep_host_plant_present()
+  )
+
+data_clean <- keep_host_plant_present(data_derived)
 
 #----------------------------------------------------------#
 # Results -----
@@ -98,7 +101,7 @@ cleaning_summary <- data.frame(
   stage = c(
     "records with imputed absences (step 02)",
     "targeted monitoring only",
-    "host plant present, excluded years dropped"
+    "host plant recorded present"
   ),
   records = c(
     nrow(data_with_imputed),
@@ -112,6 +115,27 @@ report_table(
   cleaning_summary,
   "Records retained at each filtering stage",
   "04_cleaning_summary"
+)
+
+# What the host-plant filter drops: records with the host plant recorded
+# absent (a site without Sanguisorba cannot hold the species) and records
+# without any host-plant information.
+host_plant_filter <-
+  data_derived %>%
+  dplyr::mutate(
+    host_plant = dplyr::case_when(
+      is.na(PLANT_QUAL) ~ "no host-plant information (dropped)",
+      PLANT_QUAL == 0 ~ "host plant recorded absent (dropped)",
+      TRUE ~ "host plant present (kept)"
+    )
+  ) %>%
+  dplyr::count(DRUH, YEAR, host_plant, name = "records")
+
+report_table(
+  host_plant_filter,
+  "Records by host-plant information, species and year",
+  "04_host_plant_filter",
+  max_rows = 40
 )
 
 protection_counts <-
