@@ -272,7 +272,7 @@ comparison_data <- function(specs) {
   finite <- rep(TRUE, nrow(data))
   for (s in specs) {
     mf <- tryCatch(
-      stats::model.frame(lme4::subbars(s$formula), data = data, na.action = stats::na.pass),
+      stats::model.frame(reformulas::subbars(s$formula), data = data, na.action = stats::na.pass),
       error = function(e) NULL
     )
     if (is.null(mf)) next

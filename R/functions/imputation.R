@@ -38,8 +38,9 @@
 targeted_records_in_range <- function(records, range, species, sources) {
   sf::st_intersection(
     records %>%
-      dplyr::filter(DRUH == species),
-    range
+      dplyr::filter(DRUH == species) %>%
+      sf::st_set_agr("constant"),
+    sf::st_set_agr(range, "constant")
   ) %>%
     sf::st_drop_geometry() %>%
     dplyr::filter(
@@ -157,8 +158,9 @@ imputed_absences_legacy <- function(records, range, species, other_species,
                                     covered_cells, sources) {
   sf::st_intersection(
     records %>%
-      dplyr::filter(DRUH == other_species, ZDROJ %in% sources),
-    range
+      dplyr::filter(DRUH == other_species, ZDROJ %in% sources) %>%
+      sf::st_set_agr("constant"),
+    sf::st_set_agr(range, "constant")
   ) %>%
     sf::st_drop_geometry() %>%
     dplyr::filter(
@@ -270,14 +272,15 @@ imputed_absences_visit <- function(records, range, species, other_species, sourc
 
   sf::st_intersection(
     targeted %>%
-      dplyr::filter(DRUH == other_species),
-    range
+      dplyr::filter(DRUH == other_species) %>%
+      sf::st_set_agr("constant"),
+    sf::st_set_agr(range, "constant")
   ) %>%
     sf::st_drop_geometry() %>%
     dplyr::anti_join(visits_with_species, by = c("ID_LOKAL", "DATUM_OD")) %>%
     # One source record per visit, when the other species has several.
     dplyr::group_by(ID_LOKAL, DATUM_OD) %>%
-    dplyr::filter(ID_NALEZ == min(ID_NALEZ)) %>%
+    dplyr::slice_min(ID_NALEZ, n = 1, with_ties = TRUE) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(
       DRUH = species,

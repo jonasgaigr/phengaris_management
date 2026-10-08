@@ -27,10 +27,12 @@
 #' @param pa_species  species the areas were designated for, if any
 #' @return one row per record x intersecting area, without geometry
 protected_area_ids <- function(sites, areas, pa_type, pa_species = NA_character_) {
-  sites %>%
+  # Attributes are declared constant over each geometry, which they are,
+  # so that sf does not warn about it on every intersection.
+  sf::st_set_agr(sites, "constant") %>%
     sf::st_intersection(
       .,
-      areas
+      sf::st_set_agr(areas, "constant")
     ) %>%
     sf::st_make_valid() %>%
     sf::st_drop_geometry() %>%
