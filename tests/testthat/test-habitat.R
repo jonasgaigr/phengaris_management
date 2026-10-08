@@ -61,8 +61,10 @@ test_that("the legacy rule keeps the least natural, smallest overlap per record"
 
 test_that("the area-weighted rule summarises every overlap of a site", {
   segs <- overlaps(point_buffer_m = NULL, line_buffer_m = NULL)
-  out <- select_habitat_segment(records, segs, rule = "area_weighted",
-                                sanguisorba_codes = "T1.1", share_column = NULL)
+  out <- select_habitat_segment(records, segs,
+    rule = "area_weighted",
+    sanguisorba_codes = "T1.1", share_column = NULL
+  )
   a <- out[out$ID_RECORD == "a", ]
   expect_equal(a$AREA_SITE, 8000)
   expect_equal(a$NATURAL_SHARE, 0.75)
@@ -75,8 +77,10 @@ test_that("the area-weighted rule summarises every overlap of a site", {
 
 test_that("an empty Sanguisorba code list gives NA, never 0", {
   segs <- overlaps(point_buffer_m = NULL, line_buffer_m = NULL)
-  out <- select_habitat_segment(records, segs, rule = "area_weighted",
-                                sanguisorba_codes = character(0), share_column = NULL)
+  out <- select_habitat_segment(records, segs,
+    rule = "area_weighted",
+    sanguisorba_codes = character(0), share_column = NULL
+  )
   expect_true(all(is.na(out$SANGUISORBA_AREA)))
 })
 

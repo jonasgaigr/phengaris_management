@@ -46,30 +46,42 @@ row <- function(..., drop_trailing = TRUE) {
 src <- "Kolektiv autorů (2022) Monitoring motýlů."
 rows <- c(
   paste(header, collapse = ";"),
-  row(PORADI = "1", ID_NALEZ = "101", DRUH = "Phengaris nausithous",
-      CESKE_JMENO = "modrásek bahenní", DATUM_OD = "20220715", DATUM_DO = "20220715",
-      CAS = "12:30", ID_LOKAL = "11", SITMAP = "6852", X = "-759673.12", Y = "-1145366.59",
-      ZDROJ = src, NEGATIV = "0", POCET = "3", ODHAD = "0", KOMPLETNI_SEZNAM = "0",
-      VEROH = "1", POP_BIOT = "TTP s pravidelným managementem, příkop",
-      STRUKT_POZN = "Seč vhodně načasovaná: ano, Seč celoplošná: ne, vliv: žádný vliv, Perspektiva lokality: dobrá, Přítomnost rostlin: hojně",
-      CXPRESNOST = "1", DATI_INSERT = "20251209"),
-  row(PORADI = "2", ID_NALEZ = "102", DRUH = "Phengaris teleius",
-      CESKE_JMENO = "modrásek očkovaný", DATUM_OD = "20220715", DATUM_DO = "20220715",
-      ID_LOKAL = "12", SITMAP = "6852", X = "-759484.1", Y = "-1145268.2",
-      ZDROJ = src, NEGATIV = "1", ODHAD = "0", KOMPLETNI_SEZNAM = "0", VEROH = "1",
-      CXPRESNOST = "1", DATI_INSERT = "20251209"),
-  row(PORADI = "3", ID_NALEZ = "103", DRUH = "Phengaris nausithous",
-      CESKE_JMENO = "modrásek bahenní", DATUM_OD = "20210629", DATUM_DO = "20210629",
-      ID_LOKAL = "13", SITMAP = "6852", X = "-759650", Y = "-1145329",
-      ZDROJ = src, NEGATIV = "0", POCET = "1", ODHAD = "0", KOMPLETNI_SEZNAM = "0",
-      VEROH = "0", CXPRESNOST = "1", DATI_INSERT = "20251123"),
-  row(PORADI = "4", ID_NALEZ = "104", DRUH = "Phengaris nausithous",
-      CESKE_JMENO = "modrásek bahenní", DATUM_OD = "20240805", DATUM_DO = "20240805",
-      ID_LOKAL = "14", SITMAP = "5360", X = "-644580.26", Y = "-993889.1",
-      ZDROJ = src, NEGATIV = "0", POCET = "1", ODHAD = "0", KOMPLETNI_SEZNAM = "0",
-      VEROH = "1", GAR_POZN = "Kvůli dešti jsem je nestihl ani hledat.",
-      CXPRESNOST = "8", DATI_INSERT = "20251123", DATI_UPDATE = "20251201",
-      UPDATOR = "4", drop_trailing = FALSE)
+  row(
+    PORADI = "1", ID_NALEZ = "101", DRUH = "Phengaris nausithous",
+    CESKE_JMENO = "modrásek bahenní", DATUM_OD = "20220715", DATUM_DO = "20220715",
+    CAS = "12:30", ID_LOKAL = "11", SITMAP = "6852", X = "-759673.12", Y = "-1145366.59",
+    ZDROJ = src, NEGATIV = "0", POCET = "3", ODHAD = "0", KOMPLETNI_SEZNAM = "0",
+    VEROH = "1", POP_BIOT = "TTP s pravidelným managementem, příkop",
+    STRUKT_POZN = paste(
+      "Seč vhodně načasovaná: ano", "Seč celoplošná: ne", "vliv: žádný vliv",
+      "Perspektiva lokality: dobrá", "Přítomnost rostlin: hojně",
+      sep = ", "
+    ),
+    CXPRESNOST = "1", DATI_INSERT = "20251209"
+  ),
+  row(
+    PORADI = "2", ID_NALEZ = "102", DRUH = "Phengaris teleius",
+    CESKE_JMENO = "modrásek očkovaný", DATUM_OD = "20220715", DATUM_DO = "20220715",
+    ID_LOKAL = "12", SITMAP = "6852", X = "-759484.1", Y = "-1145268.2",
+    ZDROJ = src, NEGATIV = "1", ODHAD = "0", KOMPLETNI_SEZNAM = "0", VEROH = "1",
+    CXPRESNOST = "1", DATI_INSERT = "20251209"
+  ),
+  row(
+    PORADI = "3", ID_NALEZ = "103", DRUH = "Phengaris nausithous",
+    CESKE_JMENO = "modrásek bahenní", DATUM_OD = "20210629", DATUM_DO = "20210629",
+    ID_LOKAL = "13", SITMAP = "6852", X = "-759650", Y = "-1145329",
+    ZDROJ = src, NEGATIV = "0", POCET = "1", ODHAD = "0", KOMPLETNI_SEZNAM = "0",
+    VEROH = "0", CXPRESNOST = "1", DATI_INSERT = "20251123"
+  ),
+  row(
+    PORADI = "4", ID_NALEZ = "104", DRUH = "Phengaris nausithous",
+    CESKE_JMENO = "modrásek bahenní", DATUM_OD = "20240805", DATUM_DO = "20240805",
+    ID_LOKAL = "14", SITMAP = "5360", X = "-644580.26", Y = "-993889.1",
+    ZDROJ = src, NEGATIV = "0", POCET = "1", ODHAD = "0", KOMPLETNI_SEZNAM = "0",
+    VEROH = "1", GAR_POZN = "Kvůli dešti jsem je nestihl ani hledat.",
+    CXPRESNOST = "8", DATI_INSERT = "20251123", DATI_UPDATE = "20251201",
+    UPDATOR = "4", drop_trailing = FALSE
+  )
 )
 
 out <- file.path("tests", "testthat", "fixtures", "occurrence_export.csv")

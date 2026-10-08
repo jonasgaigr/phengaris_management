@@ -14,7 +14,7 @@
 
 cells <- square_cells(n = 2)
 range_nau <- cells
-range_tel <- cells[1, ]          # P. teleius' range covers cell 1 only
+range_tel <- cells[1, ] # P. teleius' range covers cell 1 only
 
 pt <- function(x, y) sf::st_point(c(x, y))
 sites <- sf::st_sf(
@@ -63,8 +63,10 @@ test_that("records outside their species' own range are dropped, or kept on requ
   # P. teleius range.
   dropped <- impute_absences(records, range_nau, range_tel, sources = src, rule = "none")
   expect_setequal(dropped$ID_NALEZ[dropped$DRUH == SPECIES_TEL], 3)
-  kept <- impute_absences(records, range_nau, range_tel, sources = src, rule = "none",
-                          keep_outside_range = TRUE)
+  kept <- impute_absences(records, range_nau, range_tel,
+    sources = src, rule = "none",
+    keep_outside_range = TRUE
+  )
   expect_setequal(kept$ID_NALEZ[kept$DRUH == SPECIES_TEL], c(3, 5, 6))
   expect_true(all(is.na(kept$row_n[kept$ID_NALEZ %in% c(5, 6)])))
 })

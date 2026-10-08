@@ -65,7 +65,6 @@ plot_area_by_plant <- function(species, species_label) {
 }
 
 if (any(!is.na(data$AREA_SITE))) {
-
   report_figure(
     plot_area_by_plant(SPECIES_NAU, "P. nausithous"),
     "Site area by occupancy and host plant abundance, P. nausithous",
@@ -79,15 +78,12 @@ if (any(!is.na(data$AREA_SITE))) {
     "12_area_by_plant_teleius",
     width = 9
   )
-
 } else {
-
   report_warning(
     "Site area is not available in the analysis table, so the two site-area",
     "figures were not produced. Run steps 05 and 06 with access to the",
     "habitat mapping share."
   )
-
 }
 
 #----------------------------------------------------------#

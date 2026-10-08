@@ -1,0 +1,16 @@
+linters: linters_with_defaults(
+    # The house style: magrittr's %>% throughout, attached in R/00_setup.R.
+    pipe_consistency_linter(pipe = "%>%"),
+    # Report text and long dplyr calls; 120 keeps them on one line.
+    line_length_linter(120),
+    # Constants are UPPER_CASE (CONFIG, SPECIES_NAU, CRS_SJTSK).
+    object_name_linter(styles = c("snake_case", "SNAKE_CASE", "symbols")),
+    # Disabled: dplyr's data masking makes every bare column name look like
+    # an undefined global variable (645 false positives).
+    object_usage_linter = NULL,
+    # Disabled: the script headers carry usage examples such as
+    #   source("R/00_setup.R"), which this linter takes for dead code.
+    commented_code_linter = NULL
+  )
+exclusions: list("renv", "review/review_evidence.R")
+encoding: "UTF-8"

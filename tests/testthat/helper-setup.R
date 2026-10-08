@@ -23,6 +23,10 @@ local({
   suppressMessages(source("R/00_setup.R", encoding = "UTF-8"))
 })
 
+#' A structured note (STRUKT_POZN) from its parts, joined with ", " as the
+#' field form joins them.
+note <- function(...) paste(..., sep = ", ")
+
 #' Path of a fixture file.
 fixture <- function(...) testthat::test_path("fixtures", ...)
 

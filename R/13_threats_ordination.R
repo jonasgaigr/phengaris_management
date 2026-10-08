@@ -253,7 +253,7 @@ if (!all(is.na(vif_vals))) {
   report_table(
     data.frame(
       term = names(vif_vals),
-      VIF  = as.numeric(vif_vals),
+      VIF = as.numeric(vif_vals),
       stringsAsFactors = FALSE
     ),
     "Variance inflation factors of the constraining variables",

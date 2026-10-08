@@ -162,9 +162,9 @@ summarise_recorded_habitats <- function(data, species) {
     ) %>%
     dplyr::mutate(
       name = dplyr::case_when(
-        name == "TTP"    ~ "managed\ngrassland",
+        name == "TTP" ~ "managed\ngrassland",
         name == "ZARUST" ~ "neglected\ngrassland",
-        name == "JINY"   ~ "other",
+        name == "JINY" ~ "other",
         name == "PRIKOP" ~ "road verge,\nditch"
       )
     )
@@ -241,9 +241,9 @@ summarise_management_types <- function(data, species) {
     ) %>%
     dplyr::mutate(
       name = dplyr::case_when(
-        name == "MOW"    ~ "mowing",
+        name == "MOW" ~ "mowing",
         name == "ZARUST" ~ "neglected\ngrassland",
-        name == "GRAZE"  ~ "grazing"
+        name == "GRAZE" ~ "grazing"
       )
     )
 }

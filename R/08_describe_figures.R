@@ -124,7 +124,7 @@ report_figure(
 report_section("Observers")
 
 observer_stats <- summarise_observers(data)
-observer_mean  <- mean(observer_stats$obs_num, na.rm = TRUE)
+observer_mean <- mean(observer_stats$obs_num, na.rm = TRUE)
 
 report_figure(
   ggplot2::ggplot(
@@ -310,10 +310,10 @@ report_figure(
 
 report_section("Protected areas")
 
-data_evl_sum     <- summarise_protection(data)
-data_evltar_sum  <- summarise_evl_target(data)
+data_evl_sum <- summarise_protection(data)
+data_evltar_sum <- summarise_evl_target(data)
 data_evlcomb_sum <- summarise_evl_combined(data)
-data_mzchu_sum   <- summarise_mzchu(data)
+data_mzchu_sum <- summarise_mzchu(data)
 
 report_figure(
   plot_counts_by_occupancy(
@@ -345,8 +345,10 @@ report_figure(
   plot_counts_by_occupancy(
     data_evltar_sum %>% dplyr::filter(DRUH == SPECIES_NAU),
     "EVL_target",
-    c("outside Natura 2000\ndesignated for Phengaris",
-      "within Natura 2000\ndesignated for Phengaris"),
+    c(
+      "outside Natura 2000\ndesignated for Phengaris",
+      "within Natura 2000\ndesignated for Phengaris"
+    ),
     "\nPhengaris nausithous",
     "number of findings\n"
   ),
@@ -358,8 +360,10 @@ report_figure(
   plot_counts_by_occupancy(
     data_evltar_sum %>% dplyr::filter(DRUH == SPECIES_TEL),
     "EVL_target",
-    c("outside Natura 2000\ndesignated for Phengaris",
-      "within Natura 2000\ndesignated for Phengaris"),
+    c(
+      "outside Natura 2000\ndesignated for Phengaris",
+      "within Natura 2000\ndesignated for Phengaris"
+    ),
     "\nPhengaris teleius",
     "number of findings\n"
   ),
@@ -371,9 +375,11 @@ report_figure(
   plot_counts_by_occupancy(
     data_evlcomb_sum %>% dplyr::filter(DRUH == SPECIES_NAU),
     "EVL_comb",
-    c("outside Natura 2000",
+    c(
+      "outside Natura 2000",
       "Natura 2000 NOT designated\nfor Phengaris",
-      "Natura 2000 designated\nfor Phengaris"),
+      "Natura 2000 designated\nfor Phengaris"
+    ),
     "\nPhengaris nausithous",
     "number of findings\n"
   ),
@@ -385,9 +391,11 @@ report_figure(
   plot_counts_by_occupancy(
     data_evlcomb_sum %>% dplyr::filter(DRUH == SPECIES_TEL),
     "EVL_comb",
-    c("outside Natura 2000",
+    c(
+      "outside Natura 2000",
       "Natura 2000 NOT designated\nfor Phengaris",
-      "Natura 2000 designated\nfor Phengaris"),
+      "Natura 2000 designated\nfor Phengaris"
+    ),
     "\nPhengaris teleius",
     "number of sites\n"
   ),
@@ -395,8 +403,10 @@ report_figure(
   "08_protection_evl_combined_teleius"
 )
 
-mzchu_labels <- c("outside small-scale\nprotected site",
-                  "within small-scale\nprotected sites")
+mzchu_labels <- c(
+  "outside small-scale\nprotected site",
+  "within small-scale\nprotected sites"
+)
 
 report_figure(
   plot_counts_by_occupancy(

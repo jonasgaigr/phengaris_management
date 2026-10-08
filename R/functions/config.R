@@ -58,7 +58,9 @@ load_config <- function(path = "config.yml") {
 config_get <- function(cfg, key) {
   out <- cfg
   for (part in strsplit(key, ".", fixed = TRUE)[[1]]) {
-    if (!is.list(out) || is.null(out[[part]])) return(NULL)
+    if (!is.list(out) || is.null(out[[part]])) {
+      return(NULL)
+    }
     out <- out[[part]]
   }
   out

@@ -74,7 +74,7 @@ phengaris_both_present <-
   both_species_visits(
     data_new_source %>%
       dplyr::filter(
-        NEGATIV == 0                        # drop negative occurrence records
+        NEGATIV == 0 # drop negative occurrence records
       )
   )
 
@@ -183,7 +183,7 @@ spec_num_visit_level <-
   data_clean %>%
   dplyr::mutate(
     .visit = paste(NAZ_LOKAL, DATUM_OD),
-    .both  = .visit %in% paste(
+    .both = .visit %in% paste(
       phengaris_both_present$NAZ_LOKAL,
       phengaris_both_present$DATUM_OD
     )
@@ -207,7 +207,6 @@ report_warning(
 # older protected_area_id.csv is in place the comparison is simply skipped:
 # it is a diagnostic, and it must not stop the cascade.
 if ("PA_SPECIES" %in% names(protected_area_id)) {
-
   designated_site_species <-
     protected_area_id %>%
     dplyr::filter(PA_TYPE == "EVL_target") %>%
@@ -227,9 +226,7 @@ if ("PA_SPECIES" %in% names(protected_area_id)) {
     evl_target_species_specific, "records. This was left unchanged because it",
     "is an interpretation of the variable, not a coding error."
   )
-
 } else {
-
   report_warning(
     "EVL_target keeps the original definition, under which a record is flagged",
     "when its site lies in a Natura 2000 site designated for either Phengaris",
@@ -238,7 +235,6 @@ if ("PA_SPECIES" %in% names(protected_area_id)) {
     "protected_area_id.csv predates the PA_SPECIES column; re-run step 03 to",
     "get that comparison."
   )
-
 }
 
 #----------------------------------------------------------#

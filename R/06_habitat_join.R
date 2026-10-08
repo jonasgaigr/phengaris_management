@@ -54,7 +54,6 @@ path_lokal_vmb_csv <- processed_path("data_lokal_vmb.csv", "common")
 #----------------------------------------------------------#
 
 if (file.exists(path_lokal_vmb_csv)) {
-
   habitat_segments <- read_habitat_overlaps(path_lokal_vmb_csv)
 
   # How each record is described by the segments its site overlaps; the rule
@@ -66,9 +65,7 @@ if (file.exists(path_lokal_vmb_csv)) {
   )
 
   habitat_join_available <- TRUE
-
 } else {
-
   # Keep the cascade running without habitat data: the analysis table is the
   # cleaned table with empty habitat columns, and the habitat models in later
   # steps will report themselves as skipped.
@@ -76,20 +73,20 @@ if (file.exists(path_lokal_vmb_csv)) {
     data_clean %>%
     dplyr::mutate(
       SEGMENT_ID = NA_integer_,
-      BIOTOP     = NA_character_,
+      BIOTOP = NA_character_,
       BIOTOP_SEZ = NA_character_,
-      FSB        = NA_character_,
-      FSB_EVAL   = NA_character_,
-      HABITAT    = NA_character_,
-      STEJ_PR    = NA_real_,
+      FSB = NA_character_,
+      FSB_EVAL = NA_character_,
+      HABITAT = NA_character_,
+      STEJ_PR = NA_real_,
       SHAPE_Area = NA_real_,
-      AREA_real  = NA_real_,
+      AREA_real = NA_real_,
       LENGTH_real = NA_real_,
-      REPRE      = NA_real_,
-      ZACH       = NA_real_,
-      AREA_SITE  = NA_real_,
-      HET_OUT    = NA_integer_,
-      NATURAL    = NA_integer_
+      REPRE = NA_real_,
+      ZACH = NA_real_,
+      AREA_SITE = NA_real_,
+      HET_OUT = NA_integer_,
+      NATURAL = NA_integer_
     )
 
   habitat_join_available <- FALSE
@@ -100,7 +97,6 @@ if (file.exists(path_lokal_vmb_csv)) {
     "models that use AREA_SITE, FSB, BIOTOP or HET_OUT will be skipped.",
     "Run step 05 from a machine with access to //bali.nature.cz."
   )
-
 }
 
 #----------------------------------------------------------#
@@ -108,7 +104,6 @@ if (file.exists(path_lokal_vmb_csv)) {
 #----------------------------------------------------------#
 
 if (habitat_join_available) {
-
   habitat_coverage <- data.frame(
     variable = c("AREA_SITE", "BIOTOP", "FSB", "HET_OUT"),
     records_with_value = c(
@@ -285,7 +280,6 @@ if (habitat_join_available) {
     "Records by whether the selected segment is a natural habitat",
     "06_natural_habitat_share"
   )
-
 }
 
 #----------------------------------------------------------#

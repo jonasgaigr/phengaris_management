@@ -51,7 +51,6 @@ download_habitat_layers <- function(
     "Zlinsky.zip"
   )
 ) {
-
   username <- Sys.getenv("AOPK_USER")
   password <- Sys.getenv("AOPK_PASSWORD")
 
@@ -63,7 +62,7 @@ download_habitat_layers <- function(
   }
 
   login_url <- "https://cas.nature.cz/cas/login"
-  url_base  <- "https://data.nature.cz/ds/21/download/kraj/"
+  url_base <- "https://data.nature.cz/ds/21/download/kraj/"
 
   res_login <- httr::POST(
     login_url,
@@ -75,9 +74,9 @@ download_habitat_layers <- function(
   if (!dir.exists(dest_dir)) dir.create(dest_dir, recursive = TRUE)
 
   for (region in regions) {
-    file_url   <- paste0(url_base, region)
-    dest_file  <- file.path(dest_dir, region)
-    unzip_dir  <- file.path(dest_dir, tools::file_path_sans_ext(region))
+    file_url <- paste0(url_base, region)
+    dest_file <- file.path(dest_dir, region)
+    unzip_dir <- file.path(dest_dir, tools::file_path_sans_ext(region))
     if (!dir.exists(unzip_dir)) dir.create(unzip_dir, recursive = TRUE)
 
     message("Downloading: ", region, " ...")
@@ -117,7 +116,9 @@ download_habitat_layers <- function(
 #' Also lived in the old config.R, where it ran on every source() and deleted
 #' Data/Temp without being asked.
 clear_temp_dir <- function(temp_dir = PATHS$temp) {
-  if (!dir.exists(temp_dir)) return(invisible(FALSE))
+  if (!dir.exists(temp_dir)) {
+    return(invisible(FALSE))
+  }
 
   files_to_delete <- list.files(temp_dir, full.names = TRUE, recursive = TRUE)
   file.remove(files_to_delete[!dir.exists(files_to_delete)])

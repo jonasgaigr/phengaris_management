@@ -89,8 +89,12 @@ legacy_threat_profiles <- function(data) {
 #' Non-numeric, all-NA and zero-variance columns all break the scaling step.
 drop_unusable_columns <- function(x) {
   unusable <- sapply(x, function(col) {
-    if (!is.numeric(col)) return(TRUE)
-    if (all(is.na(col))) return(TRUE)
+    if (!is.numeric(col)) {
+      return(TRUE)
+    }
+    if (all(is.na(col))) {
+      return(TRUE)
+    }
     s <- suppressWarnings(stats::sd(col, na.rm = TRUE))
     is.na(s) || s == 0
   })

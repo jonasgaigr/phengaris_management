@@ -37,15 +37,15 @@ validate_table <- function(x, name, columns = NULL, key = NULL, not_na = NULL,
 
   if (length(columns)) {
     checkmate::assert_names(
-      names(x), must.include = names(columns), add = problems,
+      names(x),
+      must.include = names(columns), add = problems,
       .var.name = paste0("columns of ", name)
     )
     for (col in intersect(names(columns), names(x))) {
-      check <- switch(
-        columns[[col]],
+      check <- switch(columns[[col]],
         character = checkmate::check_character(x[[col]]),
-        numeric   = checkmate::check_numeric(x[[col]]),
-        logical   = checkmate::check_logical(x[[col]]),
+        numeric = checkmate::check_numeric(x[[col]]),
+        logical = checkmate::check_logical(x[[col]]),
         stop("Unknown column type in validate_table(): ", columns[[col]], call. = FALSE)
       )
       if (!isTRUE(check)) problems$push(paste0(name, "$", col, ": ", check))

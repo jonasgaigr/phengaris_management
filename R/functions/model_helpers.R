@@ -67,14 +67,14 @@ fit_binomial <- function(id, label, formula, data,
   }
 
   list(
-    id       = id,
-    label    = label,
-    group    = group,
-    engine   = engine,
-    formula  = paste(deparse(formula), collapse = " "),
-    n_input  = nrow(data),
-    fit      = if (failed) NULL else fit,
-    error    = if (failed) as.character(fit) else NA_character_,
+    id = id,
+    label = label,
+    group = group,
+    engine = engine,
+    formula = paste(deparse(formula), collapse = " "),
+    n_input = nrow(data),
+    fit = if (failed) NULL else fit,
+    error = if (failed) as.character(fit) else NA_character_,
     warnings = if (length(warnings_seen)) {
       paste(unique(warnings_seen), collapse = " | ")
     } else {
@@ -111,18 +111,18 @@ model_fit_table <- function(models) {
     }
     ll <- stats::logLik(m$fit)
     data.frame(
-      model    = m$id,
-      label    = m$label,
-      group    = m$group,
-      engine   = m$engine,
-      n_obs    = tryCatch(stats::nobs(m$fit), error = function(e) NA_integer_),
-      AIC      = as.numeric(stats::AIC(m$fit)),
-      BIC      = as.numeric(stats::BIC(m$fit)),
-      logLik   = as.numeric(ll),
+      model = m$id,
+      label = m$label,
+      group = m$group,
+      engine = m$engine,
+      n_obs = tryCatch(stats::nobs(m$fit), error = function(e) NA_integer_),
+      AIC = as.numeric(stats::AIC(m$fit)),
+      BIC = as.numeric(stats::BIC(m$fit)),
+      logLik = as.numeric(ll),
       deviance = tryCatch(as.numeric(stats::deviance(m$fit)), error = function(e) NA_real_),
-      df       = as.integer(attr(ll, "df")),
-      status   = if (is.na(m$warnings)) "ok" else "fitted with warnings",
-      formula  = m$formula,
+      df = as.integer(attr(ll, "df")),
+      status = if (is.na(m$warnings)) "ok" else "fitted with warnings",
+      formula = m$formula,
       stringsAsFactors = FALSE
     )
   })
@@ -149,7 +149,9 @@ model_diagnostics <- function(m, settings = CONFIG$diagnostics, seed = CONFIG$se
     flags = if (is.null(m$fit)) "failed" else "",
     stringsAsFactors = FALSE
   )
-  if (is.null(m$fit)) return(out)
+  if (is.null(m$fit)) {
+    return(out)
+  }
 
   co <- stats::coef(summary(m$fit))
   out$max_abs_estimate <- max(abs(co[, 1]))
@@ -172,7 +174,9 @@ model_diagnostics <- function(m, settings = CONFIG$diagnostics, seed = CONFIG$se
   flags <- c(
     if (isTRUE(out$singular)) "singular fit",
     if (out$max_abs_estimate > settings$separation_abs_estimate ||
-        out$max_std_error > settings$separation_std_error) "possible separation",
+          out$max_std_error > settings$separation_std_error) {
+      "possible separation"
+    },
     if (isTRUE(out$max_random_variance > settings$max_random_variance)) "random-effect variance inflated",
     if (!is.na(m$warnings)) "fitting warnings"
   )
@@ -188,44 +192,54 @@ model_diagnostics_table <- function(models) {
 #' Fixed-effect coefficients, one row per model term.
 model_coef_table <- function(models) {
   rows <- lapply(models, function(m) {
-    if (is.null(m$fit)) return(NULL)
+    if (is.null(m$fit)) {
+      return(NULL)
+    }
     co <- stats::coef(summary(m$fit))
-    if (is.null(co) || nrow(co) == 0) return(NULL)
+    if (is.null(co) || nrow(co) == 0) {
+      return(NULL)
+    }
     data.frame(
-      model     = m$id,
-      label     = m$label,
-      term      = rownames(co),
-      estimate  = co[, 1],
+      model = m$id,
+      label = m$label,
+      term = rownames(co),
+      estimate = co[, 1],
       std_error = co[, 2],
       statistic = co[, 3],
-      p_value   = co[, 4],
+      p_value = co[, 4],
       stringsAsFactors = FALSE,
       row.names = NULL
     )
   })
   rows <- Filter(Negate(is.null), rows)
-  if (!length(rows)) return(data.frame())
+  if (!length(rows)) {
+    return(data.frame())
+  }
   do.call(rbind, rows)
 }
 
 #' Random-effect variances, one row per grouping factor (mixed models only).
 model_ranef_table <- function(models) {
   rows <- lapply(models, function(m) {
-    if (is.null(m$fit) || m$engine != "glmer") return(NULL)
+    if (is.null(m$fit) || m$engine != "glmer") {
+      return(NULL)
+    }
     vc <- as.data.frame(lme4::VarCorr(m$fit))
     data.frame(
-      model    = m$id,
-      label    = m$label,
-      group    = vc$grp,
-      term     = vc$var1,
+      model = m$id,
+      label = m$label,
+      group = vc$grp,
+      term = vc$var1,
       variance = vc$vcov,
-      sd       = vc$sdcor,
+      sd = vc$sdcor,
       stringsAsFactors = FALSE,
       row.names = NULL
     )
   })
   rows <- Filter(Negate(is.null), rows)
-  if (!length(rows)) return(data.frame())
+  if (!length(rows)) {
+    return(data.frame())
+  }
   do.call(rbind, rows)
 }
 
@@ -243,7 +257,9 @@ model_issue_table <- function(models) {
     NULL
   })
   rows <- Filter(Negate(is.null), rows)
-  if (!length(rows)) return(data.frame())
+  if (!length(rows)) {
+    return(data.frame())
+  }
   do.call(rbind, rows)
 }
 
@@ -303,7 +319,9 @@ comparison_data <- function(specs) {
 aic_comparison <- function(specs, ids) {
   spec_ids <- vapply(specs, function(s) s$id, character(1))
   set <- specs[spec_ids %in% ids]
-  if (!length(set)) return(data.frame())
+  if (!length(set)) {
+    return(data.frame())
+  }
 
   common <- comparison_data(set)
   n_own <- vapply(set, function(s) {
@@ -317,8 +335,11 @@ aic_comparison <- function(specs, ids) {
 
   tab <- model_fit_table(refits)
   tab$n_own_data <- n_own
-  tab <- tab[!is.na(tab$AIC), c("model", "label", "engine", "n_obs", "n_own_data", "df", "AIC", "BIC", "logLik", "status")]
-  if (!nrow(tab)) return(tab)
+  columns <- c("model", "label", "engine", "n_obs", "n_own_data", "df", "AIC", "BIC", "logLik", "status")
+  tab <- tab[!is.na(tab$AIC), columns]
+  if (!nrow(tab)) {
+    return(tab)
+  }
   tab <- tab[order(tab$AIC), , drop = FALSE]
   tab$delta_AIC <- tab$AIC - min(tab$AIC)
   rownames(tab) <- NULL

@@ -56,7 +56,9 @@
 #' @param digits    significant digits for numeric columns
 md_table <- function(x, max_rows = 25, digits = 4) {
   x <- as.data.frame(x)
-  if (nrow(x) == 0) return("_(no rows)_")
+  if (nrow(x) == 0) {
+    return("_(no rows)_")
+  }
 
   n_total <- nrow(x)
   truncated <- n_total > max_rows
@@ -64,7 +66,7 @@ md_table <- function(x, max_rows = 25, digits = 4) {
 
   cells <- lapply(x, .md_format_col, digits = digits)
   header <- paste0("| ", paste(names(x), collapse = " | "), " |")
-  rule   <- paste0("|", paste(rep("---", ncol(x)), collapse = "|"), "|")
+  rule <- paste0("|", paste(rep("---", ncol(x)), collapse = "|"), "|")
   body <- vapply(
     seq_len(nrow(x)),
     function(i) {
@@ -94,9 +96,9 @@ md_table <- function(x, max_rows = 25, digits = 4) {
 #' @param title  human-readable step title
 #' @param intro  one or more paragraphs describing what the step does
 report_start <- function(id, title, intro = NULL) {
-  .report_env$id     <- id
-  .report_env$title  <- title
-  .report_env$lines  <- c(
+  .report_env$id <- id
+  .report_env$title <- title
+  .report_env$lines <- c(
     sprintf("# Step %s - %s", id, title),
     "",
     sprintf("_Generated %s_", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),

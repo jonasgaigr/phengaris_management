@@ -64,10 +64,10 @@ report_section("Comparisons between the species")
 test_row <- function(description, test) {
   data.frame(
     comparison = description,
-    method     = test$method,
-    statistic  = unname(test$statistic),
-    parameter  = if (is.null(test$parameter)) NA_real_ else unname(test$parameter),
-    p_value    = test$p.value,
+    method = test$method,
+    statistic = unname(test$statistic),
+    parameter = if (is.null(test$parameter)) NA_real_ else unname(test$parameter),
+    p_value = test$p.value,
     stringsAsFactors = FALSE
   )
 }

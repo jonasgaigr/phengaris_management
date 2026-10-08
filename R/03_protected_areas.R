@@ -62,7 +62,7 @@ protected_area_id <- protected_area_membership(
 # Results -----
 #----------------------------------------------------------#
 
-protection_summary <- summarise_protection_membership(protected_area_id)
+protection_summary <- summarise_membership(protected_area_id)
 
 report_table(
   protection_summary,

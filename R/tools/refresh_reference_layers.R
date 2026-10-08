@@ -110,7 +110,8 @@ refresh_reference_layers <- function(dest = CONFIG$paths$reference) {
   border_vect <- terra::vect(sf::st_transform(border, CONFIG$crs$epsg))
   relief <- terra::mask(terra::crop(relief, border_vect), border_vect)
   terra::writeRaster(
-    relief, file.path(dest, "relief_shaded.tif"), overwrite = TRUE,
+    relief, file.path(dest, "relief_shaded.tif"),
+    overwrite = TRUE,
     datatype = "FLT4S", gdal = c("COMPRESS=DEFLATE", "PREDICTOR=3")
   )
   log$relief_shaded <- list(

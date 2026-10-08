@@ -108,8 +108,8 @@ rules_compared <- dplyr::bind_rows(lapply(c("legacy_cell", "visit", "none"), fun
     dplyr::group_by(DRUH) %>%
     dplyr::summarise(
       observed_present = sum(!IMPUTED & NEGATIV == 0),
-      observed_absent  = sum(!IMPUTED & NEGATIV == 1),
-      imputed_absent   = sum(IMPUTED),
+      observed_absent = sum(!IMPUTED & NEGATIV == 1),
+      imputed_absent = sum(IMPUTED),
       .groups = "drop"
     ) %>%
     dplyr::mutate(rule = rule, .before = 1)

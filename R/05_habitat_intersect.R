@@ -65,7 +65,6 @@ habitat_source <- if (file.exists(CONFIG$habitat$layer)) {
 }
 
 if (habitat_source %in% c("contract", "network")) {
-
   habitat_layer <- if (habitat_source == "contract") {
     read_habitat_layer(CONFIG$habitat$layer)
   } else {
@@ -94,9 +93,7 @@ if (habitat_source %in% c("contract", "network")) {
     "and were intersected with the current site geometries. This path has",
     "not been validated on real data."
   )
-
 } else if (habitat_source == "frozen") {
-
   file.copy(path_lokal_vmb_legacy, path_lokal_vmb_csv, overwrite = TRUE)
 
   report_warning(
@@ -107,9 +104,7 @@ if (habitat_source %in% c("contract", "network")) {
     "step 06 may be out of date relative to the current site geometries."
   )
   message("  habitat layer unavailable - using the frozen intersection")
-
 } else {
-
   # A file left over from an earlier run must not be mistaken for a result.
   if (file.exists(path_lokal_vmb_csv)) file.remove(path_lokal_vmb_csv)
 
@@ -119,7 +114,6 @@ if (habitat_source %in% c("contract", "network")) {
     "skipped."
   )
   message("  no habitat data - skipping")
-
 }
 
 habitat_intersection_available <- file.exists(path_lokal_vmb_csv)
@@ -130,7 +124,6 @@ habitat_intersection_available <- file.exists(path_lokal_vmb_csv)
 #----------------------------------------------------------#
 
 if (habitat_intersection_available) {
-
   lokal_vmb_tbl <- readr::read_csv2(
     path_lokal_vmb_csv,
     show_col_types = FALSE
@@ -173,7 +166,6 @@ if (habitat_intersection_available) {
     "Overlaps and area by habitat quality evaluation (FSB)",
     "05_habitat_by_fsb"
   )
-
 }
 
 report_finish()

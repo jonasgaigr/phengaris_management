@@ -102,9 +102,9 @@ flag_biotope <- function(x, phrases) {
 #' @return `data` with the analysis variables added, every row kept
 derive_analysis_variables <- function(data, protected_area_id, both_present,
                                       threat_classes = CONFIG$strukt_pozn$threat_classes) {
-  evl_any_ids    <- pa_site_ids(protected_area_id, "EVL_any")
+  evl_any_ids <- pa_site_ids(protected_area_id, "EVL_any")
   evl_target_ids <- pa_site_ids(protected_area_id, "EVL_target")
-  mzchu_ids      <- pa_site_ids(protected_area_id, "MZCHU")
+  mzchu_ids <- pa_site_ids(protected_area_id, "MZCHU")
 
   notes <- parse_strukt_pozn(data$STRUKT_POZN)
   plant_levels <- unlist(CONFIG$strukt_pozn$host_plant_levels)
@@ -152,8 +152,8 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
         TRUE ~ 0
       ),
       PROTECT = dplyr::case_when(
-        EVL == 1
-        | MZCHU == 1
+        EVL == 1 |
+          MZCHU == 1
         ~ 1,
         TRUE ~ 0
       ),
@@ -172,10 +172,10 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
       ## Recorded habitat type -----
       #--------------------------------------------------#
       # Phrases per flag in config.yml `pop_biot: flags`.
-      TTP    = flag_biotope(POP_BIOT, pop_biot$TTP),
+      TTP = flag_biotope(POP_BIOT, pop_biot$TTP),
       PRIKOP = flag_biotope(POP_BIOT, pop_biot$PRIKOP),
       ZARUST = flag_biotope(POP_BIOT, pop_biot$ZARUST),
-      JINY   = flag_biotope(POP_BIOT, pop_biot$JINY),
+      JINY = flag_biotope(POP_BIOT, pop_biot$JINY),
 
       #--------------------------------------------------#
       ## Threats and pressures -----

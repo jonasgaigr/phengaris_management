@@ -56,7 +56,6 @@ legacy_models_nausithous <- function(data) {
     dplyr::filter(is.na(GRAZE_MET) == FALSE)
 
   specs <- list(
-
     #--------------------------------------------------#
     ## Baseline: space and time -----
     #--------------------------------------------------#
@@ -339,7 +338,6 @@ legacy_models_teleius <- function(data) {
     dplyr::filter(FSB %in% c("T", "X", "moz."))
 
   specs <- list(
-
     #--------------------------------------------------#
     ## Baseline: space and time -----
     #--------------------------------------------------#
@@ -551,7 +549,8 @@ legacy_models_teleius <- function(data) {
     list(
       id = "tel_protection_combined", group = "Conservation",
       label = "Natura 2000 membership, designation and small-scale protection",
-      formula = as.factor(POSITIVE) ~ as.factor(EVL) + as.factor(EVL_target) + as.factor(MZCHU) + (1 | YEAR) + (1 | X:Y),
+      formula = as.factor(POSITIVE) ~ as.factor(EVL) + as.factor(EVL_target) + as.factor(MZCHU) +
+        (1 | YEAR) + (1 | X:Y),
       data = d_tel, engine = "glmer"
     ),
     list(
@@ -667,7 +666,10 @@ legacy_models_both <- function(data) {
 
   comparisons <- list(
     list(
-      ids = c("both_species", "both_management_type", "both_recorded_habitat", "both_mapped_habitat", "both_cooccurrence"),
+      ids = c(
+        "both_species", "both_management_type", "both_recorded_habitat",
+        "both_mapped_habitat", "both_cooccurrence"
+      ),
       caption = "Both-species models",
       stem = "11_both_species_aic"
     )
@@ -687,10 +689,8 @@ legacy_models_both <- function(data) {
 #' @param data     the analysis table
 model_set_for <- function(set, species = c("nausithous", "teleius", "both"), data) {
   species <- match.arg(species)
-  builder <- switch(
-    set,
-    legacy = switch(
-      species,
+  builder <- switch(set,
+    legacy = switch(species,
       nausithous = legacy_models_nausithous,
       teleius    = legacy_models_teleius,
       both       = legacy_models_both

@@ -5,13 +5,25 @@
 # Real STRUKT_POZN strings, with the edge cases found in the exports.
 notes <- c(
   # the usual form, 2021 onwards
-  standard = "Seč vhodně načasovaná: ano, Seč celoplošná: ne, vliv: eutrofizace či okyselování, Perspektiva lokality: dobrá, Přítomnost rostlin: hojně",
+  standard = note(
+    "Seč vhodně načasovaná: ano", "Seč celoplošná: ne", "vliv: eutrofizace či okyselování",
+    "Perspektiva lokality: dobrá", "Přítomnost rostlin: hojně"
+  ),
   # 2019-2020: the host plant comes first, under another key
-  old_plant_key = "sta_pritomnostrostlin: jednotlivě, Seč vhodně načasovaná: ne, Seč celoplošná: ano, Negativní vlivy na lokalitě: sečení, sukcese všeobecně, Perspektiva lokality: špatná",
+  old_plant_key = note(
+    "sta_pritomnostrostlin: jednotlivě", "Seč vhodně načasovaná: ne", "Seč celoplošná: ano",
+    "Negativní vlivy na lokalitě: sečení", "sukcese všeobecně", "Perspektiva lokality: špatná"
+  ),
   # threat items with commas inside and outside parentheses
-  commas = "vliv: nevhodná seč (vysoká intenzita, termín apod.), hromadění organického materiálu, Perspektiva lokality: neznámá, Přítomnost rostlin: žádné",
+  commas = note(
+    "vliv: nevhodná seč (vysoká intenzita, termín apod.)", "hromadění organického materiálu",
+    "Perspektiva lokality: neznámá", "Přítomnost rostlin: žádné"
+  ),
   # free text under 'jiný vliv', itself containing commas
-  free_text = "Negativní vlivy na lokalitě: sukcese, jiný vliv: extenzivne udrzovany okraj, do budoucna ohrozen, Perspektiva lokality: dobrá, Přítomnost rostlin: dominantně",
+  free_text = note(
+    "Negativní vlivy na lokalitě: sukcese", "jiný vliv: extenzivne udrzovany okraj", "do budoucna ohrozen",
+    "Perspektiva lokality: dobrá", "Přítomnost rostlin: dominantně"
+  ),
   # grazing, including the explicit 'no'
   grazing_no = "Pastva: ne, vliv: žádný vliv, Perspektiva lokality: dobrá, Přítomnost rostlin: hojně",
   grazing = "Pastva: extenzivní, vliv: žádný vliv, Perspektiva lokality: neznámá, Přítomnost rostlin: jednotlivě",

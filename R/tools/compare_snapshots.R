@@ -79,7 +79,9 @@ snapshot_outputs <- function(label,
     "data_analysis.csv"     = c("ID_NALEZ", "DRUH", "IMPUTED"),
     "records.csv"           = c("ID_NALEZ")
   )
-  if (!is.null(known[[file]])) return(intersect(known[[file]], names(x)))
+  if (!is.null(known[[file]])) {
+    return(intersect(known[[file]], names(x)))
+  }
   is_text <- vapply(x, function(col) {
     v <- col[!is.na(col)]
     length(v) > 0 && anyNA(suppressWarnings(as.numeric(v)))
@@ -130,7 +132,9 @@ snapshot_outputs <- function(label,
   cells <- lapply(setdiff(common, key_cols), function(col) {
     st <- .cell_status(a[[col]][ia], b[[col]][ib])
     keep <- st != "equal"
-    if (!any(keep)) return(NULL)
+    if (!any(keep)) {
+      return(NULL)
+    }
     data.frame(
       file = file, row = shared[keep], column = col,
       before = a[[col]][ia][keep], after = b[[col]][ib][keep],
@@ -146,8 +150,9 @@ snapshot_outputs <- function(label,
   }
 
   n_changed <- sum(cells$status == "changed")
-  status <- if (!length(cols_added) && !length(cols_removed) &&
-    !rows_added && !rows_removed && n_changed == 0) {
+  unchanged <- !length(cols_added) && !length(cols_removed) &&
+    !rows_added && !rows_removed && n_changed == 0
+  status <- if (unchanged) {
     if (nrow(cells)) "numerically identical" else "identical"
   } else {
     "changed"
@@ -219,7 +224,10 @@ compare_snapshots <- function(before, after, stem, title = stem,
     paste0("# ", title), "",
     sprintf("Snapshot `%s` compared with `%s`.", before, after), "",
     sprintf(
-      "%d files compared: %d identical, %d numerically identical (differences below 1e-9 relative), %d changed, %d added, %d removed.",
+      paste(
+        "%d files compared: %d identical, %d numerically identical (differences below 1e-9",
+        "relative), %d changed, %d added, %d removed."
+      ),
       nrow(summary), sum(summary$status == "identical"),
       sum(summary$status == "numerically identical"),
       sum(summary$status == "changed"), sum(summary$status == "added"),
@@ -231,8 +239,10 @@ compare_snapshots <- function(before, after, stem, title = stem,
     md <- c(md, "## Files that differ", "", md_table(changed, max_rows = 500), "")
   }
   if (nrow(cells)) {
-    md <- c(md, "## Changed numbers", "",
-            sprintf("The full list of %d changed cells is in `%s.csv`.", nrow(cells), stem), "")
+    md <- c(
+      md, "## Changed numbers", "",
+      sprintf("The full list of %d changed cells is in `%s.csv`.", nrow(cells), stem), ""
+    )
     for (f in unique(cells$file)) {
       x <- cells[cells$file == f, c("row", "column", "before", "after")]
       md <- c(md, paste0("### ", f), "", md_table(x, max_rows = max_cells), "")

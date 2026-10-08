@@ -45,9 +45,13 @@
 #' @return a named character vector, key = value, plus an "unparsed" element
 #'         holding any text before the first known key
 .parse_one_note <- function(x, key_regex) {
-  if (is.na(x) || !nzchar(x)) return(character(0))
+  if (is.na(x) || !nzchar(x)) {
+    return(character(0))
+  }
   m <- gregexpr(key_regex, x, perl = TRUE)[[1]]
-  if (m[1] == -1) return(c(unparsed = x))
+  if (m[1] == -1) {
+    return(c(unparsed = x))
+  }
 
   starts <- as.integer(m)
   lengths <- attr(m, "match.length")
@@ -84,7 +88,9 @@ parse_strukt_pozn <- function(x, keys = CONFIG$strukt_pozn$keys) {
 
   rows <- lapply(parsed, function(p) {
     out <- stats::setNames(rep(NA_character_, length(columns)), columns)
-    if (!length(p)) return(out)
+    if (!length(p)) {
+      return(out)
+    }
     target <- ifelse(names(p) == "unparsed", "unparsed", unlist(keys[names(p)]))
     for (col in unique(target)) {
       out[[col]] <- paste(p[target == col], collapse = ", ")

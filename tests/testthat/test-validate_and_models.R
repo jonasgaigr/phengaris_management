@@ -23,10 +23,11 @@ test_that("every problem is caught and reported together", {
   bad <- good
   bad$ID_RECORD[2] <- "1_nau"
   bad$POSITIVE[3] <- NA
-  bad$X[1] <- -75967312            # a coordinate inflated by read_csv2()
+  bad$X[1] <- -75967312 # a coordinate inflated by read_csv2()
   err <- tryCatch(
     validate_table(
-      bad, "bad", key = "ID_RECORD", not_na = "POSITIVE",
+      bad, "bad",
+      key = "ID_RECORD", not_na = "POSITIVE",
       xy = c("X", "Y"), n_rows = 4
     ),
     error = conditionMessage
@@ -66,7 +67,8 @@ test_that("the common data are complete and finite on every variable of the set"
   # have no PLANT.
   expect_equal(nrow(common), 55)
   expect_false(any(is.na(common$PLANT)))
-  tab <- suppressMessages(aic_comparison(lapply(specs, function(s) c(s, label = s$id, group = "test")), c("area", "plant")))
+  specs <- lapply(specs, function(s) c(s, label = s$id, group = "test"))
+  tab <- suppressMessages(aic_comparison(specs, c("area", "plant")))
   expect_equal(unique(tab$n_obs), 55)
   expect_setequal(tab$n_own_data, c(60, 55))
 })

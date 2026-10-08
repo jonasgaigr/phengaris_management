@@ -18,9 +18,15 @@ records <- tibble::tibble(
   ),
   STRUKT_POZN = c(
     # 2020: no grazing entry on the form yet
-    "sta_pritomnostrostlin: hojně, Seč vhodně načasovaná: ano, Seč celoplošná: ne, Negativní vlivy na lokalitě: sukcese, Perspektiva lokality: dobrá",
+    note(
+      "sta_pritomnostrostlin: hojně", "Seč vhodně načasovaná: ano", "Seč celoplošná: ne",
+      "Negativní vlivy na lokalitě: sukcese", "Perspektiva lokality: dobrá"
+    ),
     "Pastva: ne, vliv: žádný vliv, Perspektiva lokality: dobrá, Přítomnost rostlin: jednotlivě",
-    "Pastva: extenzivní, Seč vhodně načasovaná: ne, vliv: nevhodná seč (vysoká intenzita, termín apod.), sukcese, Přítomnost rostlin: dominantně",
+    note(
+      "Pastva: extenzivní", "Seč vhodně načasovaná: ne", "vliv: nevhodná seč (vysoká intenzita, termín apod.)",
+      "sukcese", "Přítomnost rostlin: dominantně"
+    ),
     "Perspektiva lokality: neznámá, Přítomnost rostlin: žádné",
     NA
   )

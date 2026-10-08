@@ -91,7 +91,7 @@ protected_area_membership <- function(sites, evl, mzchu, sites_subjects) {
 }
 
 #' Records and distinct sites by protection category.
-summarise_protection_membership <- function(protected_area_id) {
+summarise_membership <- function(protected_area_id) {
   protected_area_id %>%
     dplyr::group_by(PA_TYPE, DRUH) %>%
     dplyr::summarise(
