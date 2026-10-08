@@ -59,6 +59,11 @@ specifications:
         The original analysis choices: the original model set, data subsets
         and derived variables, with the bug fixes listed in CHANGELOG.md
         applied.
+      # How a record is described by the habitat segments its site overlaps:
+      # "legacy" (one segment, the least natural and smallest) or
+      # "area_weighted" (summaries over all segments; not validated on real
+      # data). See R/functions/habitat_layers.R.
+      habitat_segment_rule: legacy
 
 #--------------------------------------------------#
 # Data sources counted as targeted monitoring -----
@@ -142,6 +147,45 @@ strukt_pozn:
     Encroachment: ["sukcese"]
     BiomassAccumulation: ["hromadění organického materiálu"]
     Eutrophization: ["eutrofizace či okyselování"]
+
+#--------------------------------------------------#
+# Habitat mapping layer -----
+#--------------------------------------------------#
+
+# NOT VALIDATED ON REAL DATA. This is the input contract for the national
+# habitat mapping layer (VMB), to be supplied as a file. Steps 05 and 06 were
+# tested only on a small synthetic fixture (tests/testthat). Until the file
+# exists, step 05 uses, in this order: the AOPK network share (optional
+# loader, AOPK network only), then the frozen intersection of the original
+# analysis (paths$habitat_legacy_intersection), and otherwise skips cleanly.
+habitat:
+  # One feature per habitat segment x mapped habitat (a mosaic segment can
+  # have several rows), as a GeoPackage in S-JTSK.
+  layer: Data/Input/habitats/habitat_segments.gpkg
+  crs_epsg: 5514
+  # Columns the layer must have. SEGMENT_ID identifies the segment; BIOTOP is
+  # the habitat code (X codes = non-natural); BIOTOP_SEZ the mosaic
+  # composition; FSB the habitat quality evaluation; HABITAT the Natura 2000
+  # habitat code; STEJ_PR, REPRE and ZACH the segment's evaluation fields.
+  required_columns: [SEGMENT_ID, BIOTOP, BIOTOP_SEZ, FSB, FSB_EVAL, HABITAT, STEJ_PR, REPRE, ZACH]
+  # Optional loader for the AOPK network share (R/functions/habitat_layers.R,
+  # load_vmb()).
+  network_share: "//bali.nature.cz/du/Mapovani/Biotopy"
+  # Point and line sites have no area. When a width is given they are
+  # buffered by it before the intersection; when it is null they are
+  # intersected as they are, which gives them an overlap area of 0 (the
+  # original behaviour). TODO(Jonáš): buffer widths in metres.
+  point_buffer_m: null
+  line_buffer_m: null
+  # Habitat codes counted as "suitable for Sanguisorba meadows" by the
+  # area-weighted segment rule. While the list is empty that summary is NA,
+  # never 0. TODO(Jonáš): the code list.
+  sanguisorba_meadow_codes: []
+  # Column holding a habitat's share of a mosaic segment, in per cent. When
+  # given, the area-weighted rule multiplies each overlap by it, so that a
+  # mosaic segment's area is not counted once per habitat. TODO(Jonáš):
+  # confirm which column (if any) holds this share; STEJ_PR is a candidate.
+  share_column: null
 
 #--------------------------------------------------#
 # File locations -----

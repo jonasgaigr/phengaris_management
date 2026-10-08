@@ -11,12 +11,14 @@
 # Brings the habitat mapping attributes onto the cleaned occurrence records and
 # writes the table the models are fitted on.
 #
-# A monitoring site can overlap many habitat segments, so one segment has to be
-# chosen per record. The selection rule is taken over unchanged from the
-# original habitat script: order by NATURAL, then by AREA_SITE, and keep the
-# first segment.
+# A monitoring site can overlap many habitat segments, so they have to be
+# reduced to one description per record. The rule is set per specification
+# (config.yml, habitat_segment_rule) and implemented in
+# select_habitat_segment(): "legacy" keeps the original rule (order by
+# NATURAL, then by AREA_SITE, keep the first segment), "area_weighted"
+# summarises all the segments of a site and is NOT VALIDATED ON REAL DATA.
 #
-# Variables added:
+# Variables added under the legacy rule:
 #
 #   BIOTOP, BIOTOP_SEZ, FSB, FSB_EVAL, HABITAT   habitat mapping attributes
 #   AREA_SITE   area of the site x segment overlap, in m2 (AREA_real)
@@ -53,78 +55,15 @@ path_lokal_vmb_csv <- processed_path("data_lokal_vmb.csv", "common")
 
 if (file.exists(path_lokal_vmb_csv)) {
 
-  #--------------------------------------------------#
-  ## Habitat segments per site -----
-  #--------------------------------------------------#
+  habitat_segments <- read_habitat_overlaps(path_lokal_vmb_csv)
 
-  habitat_segments <-
-    readr::read_csv2(
-      path_lokal_vmb_csv,
-      show_col_types = FALSE
-    ) %>%
-    dplyr::transmute(
-      ID_LOKAL,
-      SEGMENT_ID,
-      BIOTOP      = as.character(BIOTOP),
-      BIOTOP_SEZ  = as.character(BIOTOP_SEZ),
-      FSB         = as.character(FSB),
-      FSB_EVAL    = as.character(FSB_EVAL),
-      HABITAT     = as.character(HABITAT),
-      STEJ_PR,
-      SHAPE_Area,
-      AREA_real,
-      LENGTH_real,
-      REPRE,
-      ZACH
-    )
-
-  #--------------------------------------------------#
-  ## One segment per occurrence record -----
-  #--------------------------------------------------#
-
-  # The row identifier is what the segment is chosen for. The original code
-  # grouped by ID_NALEZ, but ID_NALEZ is not unique in data_clean (3679 distinct
-  # values across 4540 records, because a site can intersect more than one
-  # reporting range polygon). Grouping by it would silently drop 861 records and
-  # change the sample size of every model, so the choice is made per record.
-  data_analysis <-
-    data_clean %>%
-    dplyr::mutate(
-      .row_id = dplyr::row_number()
-    ) %>%
-    dplyr::left_join(
-      habitat_segments,
-      by = "ID_LOKAL",
-      relationship = "many-to-many"
-    ) %>%
-    dplyr::mutate(
-      # Area of the site x habitat segment overlap.
-      AREA_SITE = AREA_real,
-      # Between-habitat heterogeneity: habitats listed in the segment mosaic.
-      HET_OUT = stringr::str_count(
-        BIOTOP_SEZ,
-        "\\("
-      ),
-      NATURAL = dplyr::case_when(
-        BIOTOP != "-1" &
-          grepl("X", BIOTOP) == FALSE &
-          is.na(BIOTOP) == FALSE ~ 1,
-        TRUE ~ 0
-      )
-    ) %>%
-    dplyr::arrange(
-      NATURAL,
-      AREA_SITE
-    ) %>%
-    dplyr::group_by(
-      .row_id
-    ) %>%
-    dplyr::slice(1) %>%
-    dplyr::ungroup() %>%
-    dplyr::arrange(.row_id) %>%
-    dplyr::select(-.row_id)
-
-  stopifnot(nrow(data_analysis) == nrow(data_clean))
+  # How each record is described by the segments its site overlaps; the rule
+  # is set per specification in config.yml.
+  data_analysis <- select_habitat_segment(
+    data_clean,
+    habitat_segments,
+    rule = spec_settings()$habitat_segment_rule
+  )
 
   habitat_join_available <- TRUE
 
