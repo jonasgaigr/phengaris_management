@@ -1,0 +1,2616 @@
+Warning messages:
+1: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+2: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+rows: 10112 
+X decimals in raw:
+
+   0    1    2 
+1028  824 8260 
+X ratio read_csv2/correct:
+
+   1   10  100 
+1028  824 8260 
+X range correct: -882202.8 -450486.7  range read_csv2: -88220276 -464448 
+Y decimals in raw:
+
+   0    1    2 
+1030  893 8189 
+Y ratio read_csv2/correct:
+
+   1   10  100 
+1030  893 8189 
+Y range correct: -1212749 -946190.8  range read_csv2: -121274884 -957384 
+PORADI         n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+ID_NALEZ       n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+DATUM_OD       n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+DATUM_DO       n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+ID_LOKAL       n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+SITMAP         n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+X              n=10112 dot= 9084 comma=   0 mismatch=9084 lost_to_NA=0
+Y              n=10112 dot= 9082 comma=   0 mismatch=9082 lost_to_NA=0
+NEGATIV        n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+POCET          n= 6266 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+ODHAD          n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+KOMPLETNI_SEZNAM n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+VEROH          n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+CXLOKAL_Z      n=  231 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+CXPRESNOST     n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+DATI_INSERT    n=10112 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+DATI_UPDATE    n= 1627 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+UPDATOR        n= 1627 dot=    0 comma=   0 mismatch=0 lost_to_NA=0
+
+POCET raw values with non-digits:
+character(0)
+
+ODHAD values:
+
+   0    1 
+9770  342 
+
+POCITANO:
+
+     housenky         imaga       jedinci         kukly  mrtvé samice 
+            1          1804          3887             1             1 
+mrtví jedinci       požerky         samci        samice         vejce 
+            1             2           409           308             1 
+         <NA> 
+         3697 
+
+REL_POC:
+
+                1-10               11-100          roztroušeně 
+                 252                   98                   60 
+           ojediněle řádově nižší desítky               vzácně 
+                  32                   26                   23 
+               hojně             101-1000 řádově vyšší desítky 
+                  22                    8                    8 
+         velmi hojně             6-10 (4) 
+                   2                    1 
+DATUM_OD == DATUM_DO share: 0.9938687 
+CXPRESNOST:
+
+   1   10    0    8    4    2    3   50   16    5  100    6   32    7    9 
+5036  977  469  408  313  292  169  125  119  109   77   75   58   43   38 
+CAS parse problems: raw non-NA 362  old non-NA 362 
+character(0)
+POKRYVN raw non-NA: 0  old non-NA: 0 
+PATROVITOST raw non-NA: 0  old non-NA: 0 
+FENOFAZE raw non-NA: 0  old non-NA: 0 
+KODHN raw non-NA: 0  old non-NA: 0 
+GAR_POZN raw non-NA: 1  old non-NA: 0 
+data_with_imputed: 5409  data_clean: 4540  data_analysis: 4540 
+Warning messages:
+1: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+2: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+ID_NALEZ unique in raw: TRUE 
+decimals of X among data_analysis rows ( 4540 matched):
+nd
+   0    1    2 
+  61  398 4081 
+decimals of X among distinct ID_NALEZ in data_analysis:
+
+   0    1    2 
+  48  329 3302 
+
+== Duplicates ==
+ID_NALEZ distinct: 3679  duplicates: 861 
+n
+   1    2    3    4 
+2844  815   14    6 
+dups explained by row_n: 835 of 835 
+dups with mixed IMPUTED: 784  mixed DRUH: 784 
+dup (ID_NALEZ, DRUH): 77 
+Column names data_analysis:
+  [1] "PORADI"                  "ID_NALEZ"               
+  [3] "DRUH"                    "CESKE_JMENO"            
+  [5] "KAT_TAX"                 "AUTOR"                  
+  [7] "DATUM_OD"                "DATUM_DO"               
+  [9] "CAS"                     "ID_LOKAL"               
+ [11] "NAZ_LOKAL"               "SITMAP"                 
+ [13] "KATASTR"                 "X"                      
+ [15] "Y"                       "ZDROJ"                  
+ [17] "NEGATIV"                 "POCET"                  
+ [19] "ODHAD"                   "POCITANO"               
+ [21] "REL_POC"                 "METOD_SB"               
+ [23] "POKRYVN"                 "PATROVITOST"            
+ [25] "FENOFAZE"                "KODHN"                  
+ [27] "ETOLOGIE"                "KOMPLETNI_SEZNAM"       
+ [29] "POZNAMKA"                "UMIST_NAL"              
+ [31] "POP_BIOT"                "TAX_POZN"               
+ [33] "PROJEKT"                 "DAT_SADA"               
+ [35] "ZAPSAL"                  "VEROH"                  
+ [37] "VALIDACE"                "VAL_POZN"               
+ [39] "GARANCE"                 "GAR_POZN"               
+ [41] "VYHLASKA"                "EVD"                    
+ [43] "REDLIST"                 "STRUKT_POZN"            
+ [45] "CXLOKAL_POZN"            "CXLOKAL_Z"              
+ [47] "CXPRESNOST"              "DATI_INSERT"            
+ [49] "DATI_UPDATE"             "UPDATOR"                
+ [51] "KOD"                     "ALP"                    
+ [53] "ATL"                     "BLS"                    
+ [55] "BOR"                     "CON"                    
+ [57] "MAC"                     "MED"                    
+ [59] "PAN"                     "STE"                    
+ [61] "MATL"                    "MBAL"                   
+ [63] "MBLS"                    "MMAC"                   
+ [65] "MMED"                    "REGION_CHK"             
+ [67] "CNTRY_CHK"               "row_n"                  
+ [69] "range_Pnau"              "range_Ptel"             
+ [71] "range_both"              "IMPUTED"                
+ [73] "POSITIVE"                "YEAR"                   
+ [75] "EVL"                     "EVL_target"             
+ [77] "EVL_comb"                "MZCHU"                  
+ [79] "PROTECT"                 "PLANT_QUANT"            
+ [81] "PLANT_QUAL"              "TTP"                    
+ [83] "PRIKOP"                  "ZARUST"                 
+ [85] "JINY"                    "LandUseChange"          
+ [87] "Abandonment"             "HarmfulMow"             
+ [89] "HarmfulGrazing"          "GrazingByeffects"       
+ [91] "FertilizerUse"           "Afforestation"          
+ [93] "Invasives"               "NativeDominants"        
+ [95] "AbioticNaturalProcesses" "Encroachment"           
+ [97] "BiomassAccumulation"     "Eutrophization"         
+ [99] "None"                    "METHOD"                 
+[101] "TIMING"                  "MOW"                    
+[103] "GRAZE"                   "GRAZE_MET"              
+[105] "MANAGEMENT_HET"          "OVERALL"                
+[107] "SPEC_NUM"                "SUM_THREATS"            
+[109] "HET_INN"                 "SEGMENT_ID"             
+[111] "BIOTOP"                  "BIOTOP_SEZ"             
+[113] "FSB"                     "FSB_EVAL"               
+[115] "HABITAT"                 "STEJ_PR"                
+[117] "SHAPE_Area"              "AREA_real"              
+[119] "LENGTH_real"             "REPRE"                  
+[121] "ZACH"                    "AREA_SITE"              
+[123] "HET_OUT"                 "NATURAL"                
+
+dup by DRUH & POSITIVE: 
+# A tibble: 5 × 4
+  DRUH                 IMPUTED POSITIVE     n
+  <chr>                <lgl>      <dbl> <int>
+1 Phengaris nausithous FALSE          0    84
+2 Phengaris nausithous FALSE          1    40
+3 Phengaris teleius    FALSE          0    14
+4 Phengaris teleius    FALSE          1     4
+5 Phengaris teleius    TRUE           0    10
+Unique records per species after dedup on (ID_NALEZ, DRUH):
+# A tibble: 6 × 4
+  DRUH                 POSITIVE IMPUTED     n
+  <chr>                   <dbl> <lgl>   <int>
+1 Phengaris nausithous        0 FALSE    1702
+2 Phengaris nausithous        0 TRUE        2
+3 Phengaris nausithous        1 FALSE    1449
+4 Phengaris teleius           0 FALSE     328
+5 Phengaris teleius           0 TRUE      782
+6 Phengaris teleius           1 FALSE     200
+Before dedup:
+# A tibble: 6 × 4
+  DRUH                 POSITIVE IMPUTED     n
+  <chr>                   <dbl> <lgl>   <int>
+1 Phengaris nausithous        0 FALSE    1745
+2 Phengaris nausithous        0 TRUE        2
+3 Phengaris nausithous        1 FALSE    1469
+4 Phengaris teleius           0 FALSE     335
+5 Phengaris teleius           0 TRUE      787
+6 Phengaris teleius           1 FALSE     202
+
+== Site identifiers ==
+ID_LOKAL levels: 3401 
+
+   1 
+3401 
+NAZ_LOKAL levels: 2851  in >1 year: 123 (4.3%) 
+X:Y levels: 3201  singletons: 1943 
+Phengaris nausithous : n = 3216  X:Y levels = 3102  singletons = 2995 
+Phengaris teleius : n = 1324  X:Y levels = 1290  singletons = 1260 
+SITMAP levels: 364 
+SITMAP in >1 year: 188  median records per SITMAP: 9 
+
+  1   2   3   4   5 
+176 114  55  12   7 
+
+== Visits ==
+site(NAZ_LOKAL)-year-species combos: 4156  with 1 record: 3943  with >1 distinct date: 110 
+(with duplicates) combos: 4156  1 record: 3880 
+observers: 80 
+ZDROJ x YEAR:
+                                                                                      
+                                                                                       2019
+  Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.  982
+  Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 0
+  Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.    0
+  Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 0
+  Kolektiv autorů (2022) Monitoring motýlů.                                               0
+                                                                                      
+                                                                                       2020
+  Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.    0
+  Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 7
+  Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 1084
+  Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 0
+  Kolektiv autorů (2022) Monitoring motýlů.                                               0
+                                                                                      
+                                                                                       2021
+  Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.    0
+  Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 0
+  Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.    0
+  Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.               706
+  Kolektiv autorů (2022) Monitoring motýlů.                                               5
+                                                                                      
+                                                                                       2022
+  Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.    0
+  Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 0
+  Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.    0
+  Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 0
+  Kolektiv autorů (2022) Monitoring motýlů.                                             845
+                                                                                      
+                                                                                       2023
+  Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.    0
+  Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 0
+  Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.    0
+  Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 0
+  Kolektiv autorů (2022) Monitoring motýlů.                                             409
+                                                                                      
+                                                                                       2024
+  Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.    0
+  Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 0
+  Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.    0
+  Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.                 0
+  Kolektiv autorů (2022) Monitoring motýlů.                                             502
+YEAR class: numeric 
+Warning messages:
+1: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+2: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+All ZDROJ in raw 2019-2024 (count):
+
+                                           Kolektiv autorů (2022) Monitoring motýlů. 
+                                                                                1784 
+Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                1149 
+Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                 846 
+             Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR. 
+                                                                                 676 
+Kolektiv autorů (2021) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                 363 
+           Kolektiv autorů (2024) Síťové mapování denních motýlů v letech 2024-2029. 
+                                                                                 156 
+                                LANK J. (2019) Terénní zápisky - náhodná pozorování. 
+                                                                                 143 
+                               KRÁSA A. (2023) Terénní zápisky - náhodná pozorování. 
+                                                                                 132 
+                                                FIŠER M. (2020) Monitoring EV druhů. 
+                                                                                 129 
+                               KRÁSA A. (2021) Terénní zápisky - náhodná pozorování. 
+                                                                                  84 
+                          JAKUBÍKOVÁ L. (2021) Terénní zápisky - náhodná pozorování. 
+                                                                                  77 
+                                LANK J. (2020) Terénní zápisky - náhodná pozorování. 
+                                                                                  75 
+                                                FIŠER M. (2021) Monitoring EV druhů. 
+                                                                                  65 
+                               KRÁSA A. (2022) Terénní zápisky - náhodná pozorování. 
+                                                                                  60 
+                                           FIŠER M. (2023) Mapováni EV druhů (2023). 
+                                                                                  52 
+
+Raw rows per target source:
+Kolektiv autorů (2017) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                   0 
+Kolektiv autorů (2018) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                   0 
+Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                 846 
+Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                1149 
+Kolektiv autorů (2021) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                 363 
+             Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR. 
+                                                                                   7 
+             Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR. 
+                                                                                 676 
+                                           Kolektiv autorů (2022) Monitoring motýlů. 
+                                                                                1784 
+                                           Kolektiv autorů (2023) Monitoring motýlů. 
+                                                                                   0 
+                                           Kolektiv autorů (2024) Monitoring motýlů. 
+                                                                                   0 
+raw targeted rows: 4825 
+                      
+                          0    1
+  Phengaris nausithous 1598 2242
+  Phengaris teleius     213  772
+targeted rows by year x species:
+      
+       Phengaris nausithous Phengaris teleius
+  2019                  812                45
+  2020                  740               433
+  2021                  797               219
+  2022                  636               125
+  2023                  377                76
+  2024                  478                87
+ZDROJ year vs record year (targeted):
+          rec_year
+zdroj_year 2019 2020 2021 2022 2023 2024
+      2019  846    0    0    0    0    0
+      2020    0 1156    0    0    0    0
+      2021   11   17 1011    0    0    0
+      2022    0    0    5  761  453  565
+
+range layer: n = 766  CRS: ETRS89-extended / LAEA Europe  geom: POLYGON 
+area km2 summary:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    100     100     100     100     100     100 
+ [1] "KOD"        "ALP"        "ATL"        "BLS"        "BOR"       
+ [6] "CON"        "MAC"        "MED"        "PAN"        "STE"       
+[11] "MATL"       "MBAL"       "MBLS"       "MMAC"       "MMED"      
+[16] "REGION_CHK" "CNTRY_CHK"  "geometry"  
+   KOD ALP ATL BLS BOR CON MAC MED PAN STE MATL MBAL MBLS MMAC MMED REGION_CHK
+1 1061   0   0   0   0 100   0   0   0   0    0    0    0    0    0       keep
+2 1061   0   0   0   0 100   0   0   0   0    0    0    0    0    0       keep
+3 1061   0   0   0   0 100   0   0   0   0    0    0    0    0    0       keep
+  CNTRY_CHK
+1    remove
+2      keep
+3      keep
+
+range layer: n = 443  CRS: ETRS89-extended / LAEA Europe  geom: POLYGON 
+area km2 summary:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    100     100     100     100     100     100 
+ [1] "KOD"        "ALP"        "ATL"        "BLS"        "BOR"       
+ [6] "CON"        "MAC"        "MED"        "PAN"        "STE"       
+[11] "MATL"       "MBAL"       "MBLS"       "MMAC"       "MMED"      
+[16] "REGION_CHK" "CNTRY_CHK"  "geometry"  
+   KOD ALP ATL BLS BOR CON MAC MED PAN STE MATL MBAL MBLS MMAC MMED REGION_CHK
+1 1059   0   0   0   0 100   0   0   0   0    0    0    0    0    0       keep
+2 1059   0   0   0   0 100   0   0   0   0    0    0    0    0    0       keep
+3 1059   0   0   0   0 100   0   0   0   0    0    0    0    0    0       keep
+  CNTRY_CHK
+1    remove
+2    remove
+3      keep
+
+imputed rows in data_with_imputed: 845 
+
+Phengaris nausithous    Phengaris teleius 
+                   2                  843 
+imputed with non-NA POCET: 397  (POCET>0: 397 )
+imputed with non-NA REL_POC: 0  ODHAD==1: 0 
+imputed with non-NA STRUKT_POZN: 820 
+imputed CESKE_JMENO (should match DRUH):
+                      
+                       modrásek bahenní modrásek očkovaný
+  Phengaris nausithous                0                 2
+  Phengaris teleius                 843                 0
+source record NEGATIV distribution (inherited before overwrite unknown) - check source records' NEGATIV via ID_NALEZ:
+, , src_negativ = 0
+
+                      src
+imputed_as             Phengaris nausithous Phengaris teleius
+  Phengaris nausithous                    0                 1
+  Phengaris teleius                     396                 0
+
+, , src_negativ = 1
+
+                      src
+imputed_as             Phengaris nausithous Phengaris teleius
+  Phengaris nausithous                    0                 1
+  Phengaris teleius                     447                 0
+
+
+In data_analysis:
+# A tibble: 6 × 4
+  DRUH                 IMPUTED POSITIVE     n
+  <chr>                <lgl>      <dbl> <int>
+1 Phengaris nausithous FALSE          0  1745
+2 Phengaris nausithous FALSE          1  1469
+3 Phengaris nausithous TRUE           0     2
+4 Phengaris teleius    FALSE          0   335
+5 Phengaris teleius    FALSE          1   202
+6 Phengaris teleius    TRUE           0   787
+imputed in analysis: 789  with POCET non-NA: 363 
+share of P. teleius negatives that are imputed: 0.701426  ( 787 / 1122 )
+share of P. nausithous negatives that are imputed: 0.00114482  ( 2 / 1747 )
+imputed tel absences whose visit (NAZ_LOKAL,date) has an observed teleius record: 0 
+observed both-species visits (same NAZ_LOKAL & date, both species observed records): 446 
+raw targeted visits by (ID_LOKAL,date) with both species records: 586 
+ID_LOKAL shared between species in raw targeted: 583 
+raw rows per ID_LOKAL:
+
+   1    2    3    4 
+3598  601    3    4 
+nausithous : rows 766  distinct geometries: 766  distinct KOD: 1  CNTRY_CHK: keep 749 remove 17  REGION_CHK: keep 764 remove 2 
+  pairs of overlapping cells: 0 
+  cells with an identical twin: 0 
+
+1061 
+ 766 
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    766     766     766     766     766     766 
+teleius : rows 443  distinct geometries: 443  distinct KOD: 1  CNTRY_CHK: keep 436 remove 7  REGION_CHK: keep 442 remove 1 
+  pairs of overlapping cells: 0 
+  cells with an identical twin: 0 
+
+1059 
+ 443 
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    443     443     443     443     443     443 
+
+rows in true-duplicate groups: 152  groups: 75 
+differ only in row_n? (n distinct row_n per group):
+
+ 2  4 
+74  1 
+geometry type of those sites? -> check lokal_new
+lokal_new rows: 8678  distinct ID_LOKAL: 8678 
+
+          GEOMETRY              POINT         LINESTRING            POLYGON 
+                 0               5555                 55               2966 
+        MULTIPOINT    MULTILINESTRING       MULTIPOLYGON GEOMETRYCOLLECTION 
+                 0                  0                102                  0 
+    CIRCULARSTRING      COMPOUNDCURVE       CURVEPOLYGON         MULTICURVE 
+                 0                  0                  0                  0 
+      MULTISURFACE              CURVE            SURFACE  POLYHEDRALSURFACE 
+                 0                  0                  0                  0 
+               TIN           TRIANGLE 
+                 0                  0 
+ID_LOKAL duplicated in lokal_new: 0 
+
+          GEOMETRY              POINT         LINESTRING            POLYGON 
+                 0                  0                  0                 63 
+        MULTIPOINT    MULTILINESTRING       MULTIPOLYGON GEOMETRYCOLLECTION 
+                 0                  0                  7                  0 
+    CIRCULARSTRING      COMPOUNDCURVE       CURVEPOLYGON         MULTICURVE 
+                 0                  0                  0                  0 
+      MULTISURFACE              CURVE            SURFACE  POLYHEDRALSURFACE 
+                 0                  0                  0                  0 
+               TIN           TRIANGLE 
+                 0                  0 
+CRS lokal_new: S-JTSK / Krovak East North 
+      xmin       ymin       xmax       ymax 
+ -882253.6 -1213256.9  -450405.4  -946190.8 
+polygon area (m2) summary for polygons:
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+      0.3    2349.8    6883.9   39701.9   18728.7 9849893.4 
+line length (m) summary:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  39.12  248.46  499.78  622.01  878.70 2250.02 
+Warning messages:
+1: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+2: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+distance raw X/Y to site geometry point-on-surface (m):
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  0.000   0.000   0.000   9.205   6.046 623.139 
+      90%       99% 
+ 26.99986 122.98387 
+raw records with no site geometry: 0 
+Warning messages:
+1: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+2: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+targeted rows: 4825  non-NA STRUKT_POZN: 4369 
+
+Sample strings:
+Seč vhodně načasovaná: ne, Seč celoplošná: ano, vliv: hromadění organického materiálu, eutrofizace či okyselování, nevhodná seč (vysoká intenzita, termín apod.), Perspektiva lokality: špatná, Přítomnost rostlin: žádné
+Seč vhodně načasovaná: ano, Seč celoplošná: ano, vliv: expanzní druhy (mimo invazních), Perspektiva lokality: neznámá, Přítomnost rostlin: jednotlivě
+Seč vhodně načasovaná: ano, Seč celoplošná: ne, vliv: eutrofizace či okyselování, Perspektiva lokality: dobrá, Přítomnost rostlin: hojně
+Seč vhodně načasovaná: ano, Seč celoplošná: ano, vliv: žádný vliv, Perspektiva lokality: neznámá, Přítomnost rostlin: hojně
+Seč vhodně načasovaná: ano, Seč celoplošná: ne, vliv: žádný vliv, Perspektiva lokality: neznámá, Přítomnost rostlin: hojně
+vliv: žádný vliv, Perspektiva lokality: neznámá, Přítomnost rostlin: jednotlivě
+Seč vhodně načasovaná: ne, Seč celoplošná: ano, vliv: nevhodná seč (vysoká intenzita, termín apod.), Perspektiva lokality: neznámá, Přítomnost rostlin: jednotlivě
+Seč vhodně načasovaná: ano, Seč celoplošná: ne, vliv: nevhodná seč (vysoká intenzita, termín apod.), Perspektiva lokality: neznámá, Přítomnost rostlin: jednotlivě
+
+---- longest ----
+Poměr pohlaví: 10:8, Negativní vlivy na lokalitě: absence či nedostatek péče, expanzní druhy (mimo invazních), eutrofizace či okyselování, sukcese, jiný vliv: soicasny rezim udrzby pásu s vysadbou stromu lze povazovat za priznivy, do budoucna je nutno pocitat se zastinenim ze strany drevin, extenzivne udrzovany okraj louky s tezistem populace modrasku do budoucna ohrozen zejmena sukcesi, Perspektiva lokality: dobrá, Přítomnost rostlin: hojně
+
+Candidate keys (count):
+keys
+                                      Perspektiva lokality: 
+                                                       4100 
+                               Negativní vlivy na lokalitě: 
+                                                       2935 
+                                     Seč vhodně načasovaná: 
+                                                       2502 
+                                        Přítomnost rostlin: 
+                                                       2410 
+                                            Seč celoplošná: 
+                                                       2409 
+                                             Poměr pohlaví: 
+                                                        605 
+                                                    Pastva: 
+                                                        120 
+Procento mikrolokalit s vyhovujícím stavem živných rostlin: 
+                                                          1 
+
+Any semicolons/pipes/newlines inside STRUKT_POZN? 0 0 0 
+strings by year:
+      
+       FALSE TRUE
+  2019   834   23
+  2020  1092   81
+  2021   679  337
+  2022   746   15
+  2023   453    0
+  2024   565    0
+All 'xxx: ' tokens (count):
+keys
+                                      Perspektiva lokality 
+                                                      4100 
+                               Negativní vlivy na lokalitě 
+                                                      2935 
+                                     Seč vhodně načasovaná 
+                                                      2502 
+                                        Přítomnost rostlin 
+                                                      2410 
+                                            Seč celoplošná 
+                                                      2409 
+                                     sta_pritomnostrostlin 
+                                                      1876 
+                                                      vliv 
+                                                       894 
+                                             Poměr pohlaví 
+                                                       605 
+                                                    Pastva 
+                                                       120 
+                                                 jiný vliv 
+                                                        44 
+                                eutrofizace či okyselování 
+                                                         6 
+                                absence či nedostatek péče 
+                                                         4 
+                           hromadění organického materiálu 
+                                                         1 
+Procento mikrolokalit s vyhovujícím stavem živných rostlin 
+                                                         1 
+                                                   sukcese 
+                                                         1 
+        změna zemědělského využívání půdy a terénní úpravy 
+                                                         1 
+
+unparsed prefix/no-key rows: 66 
+rows with text before first known key: 1164 
+[1] "sta_pritomnostrostlin: jednotlivě" "sta_pritomnostrostlin: hojně"     
+[3] "sta_pritomnostrostlin: dominantně"
+keys repeated within a row: 0 
+
+==  Seč vhodně načasovaná  ==
+v
+                                   ano                                     ne 
+                                  1574                                    846 
+ano, sta_pritomnostrostlin: jednotlivě      ano, sta_pritomnostrostlin: hojně 
+                                    32                                     29 
+ano, sta_pritomnostrostlin: dominantně  ne, sta_pritomnostrostlin: jednotlivě 
+                                    14                                      4 
+      ne, sta_pritomnostrostlin: hojně 
+                                     3 
+
+==  Seč celoplošná  ==
+v
+                                   ano                                     ne 
+                                   738                                    651 
+ano, sta_pritomnostrostlin: jednotlivě  ne, sta_pritomnostrostlin: jednotlivě 
+                                   380                                    205 
+      ne, sta_pritomnostrostlin: hojně      ano, sta_pritomnostrostlin: hojně 
+                                   204                                    164 
+ ne, sta_pritomnostrostlin: dominantně ano, sta_pritomnostrostlin: dominantně 
+                                    47                                     20 
+
+==  Pastva  ==
+v
+extenzivní intenzivní         ne 
+        81         37          2 
+
+==  vliv  ==
+parts
+                                                    nevhodná seč (vysoká intenzita, termín apod.) 
+                                                                                              276 
+                                                                                       žádný vliv 
+                                                                                              236 
+                                                                       absence či nedostatek péče 
+                                                                                              229 
+                                                                                          sukcese 
+                                                                                              198 
+                                                                       eutrofizace či okyselování 
+                                                                                              173 
+                                                                  expanzní druhy (mimo invazních) 
+                                                                                              120 
+                                                                  hromadění organického materiálu 
+                                                                                               98 
+                                    abiotické přírodní procesy (eroze, zanášení, vysychání apod.) 
+                                                                                               59 
+                                                                                    invazní druhy 
+                                                                                               30 
+                                               změna zemědělského využívání půdy a terénní úpravy 
+                                                                                               30 
+                                                                              zalesňování bezlesí 
+                                                                                               26 
+                                                 nevhodná pastva (vysoká intenzita, termín apod.) 
+                                                                                               23 
+                                                                                  aplikace hnojiv 
+                                                                                               14 
+                               dopady chovu dobytka mimo pastvu (např. sešlap, eutrofizace apod.) 
+                                                                                               11 
+                                                                                        jiný vliv 
+                                                                                               10 
+                                                                eutrofizace či okyselování: sucho 
+                                                                                                2 
+                                                        jiný vliv: intenzivní svoz těženého dřeva 
+                                                                                                2 
+                                             nevhodná seč (vysoká intenzita, termín apod.): sucho 
+                                                                                                2 
+                                             absence či nedostatek péče: ojexinely vyskyt krvavce 
+                                                                                                1 
+                                eutrofizace či okyselování: v minulosti obnova jetelotravni smesi 
+                                                                                                1 
+eutrofizace či okyselování: vlhci enklava s vyskytem krvavce uvnitr celoplosne kosene louky louky 
+                                                                                                1 
+                                                            hromadění organického materiálu: mulc 
+                                                                                                1 
+                                                                jiný vliv: Absence živné rostliny 
+                                                                                                1 
+                                                                       jiný vliv: celkově nejasné 
+                                                                                                1 
+                                                                      jiný vliv: Idealni lokalita 
+                                                                                                1 
+                                                       jiný vliv: Nedostatek hostitelske rostliny 
+                                                                                                1 
+                                                             jiný vliv: Nedostatek zivne rostliny 
+                                                                                                1 
+                                              jiný vliv: obnova TP jetelotravni smesi v minulosti 
+                                                                                                1 
+                                                                    jiný vliv: Plánována zástavba 
+                                                                                                1 
+                                                              jiný vliv: pojezd aut středem louky 
+                                                                                                1 
+                                                                      jiný vliv: TP v intravilanu 
+                                                                                                1 
+                                                 jiný vliv: v minulosti obnova jetelotravni smesi 
+                                                                                                1 
+                                                                       minimum kvetoucich jedincu 
+                                                                                                1 
+                                                                  mozna v minulosti spatne kosena 
+                                                                                                1 
+                                                nevhodná pastva (vysoká intenzita, termín apod.): 
+                                                                                                1 
+                                nevhodná seč (vysoká intenzita, termín apod.): Sec v nedavne době 
+                                                                                                1 
+                                                                  sukcese: Absence zivne rostliny 
+                                                                                                1 
+                                                           v minulisti presety jetelotravni snesi 
+                                                                                                1 
+                                                                       v minulosti obnova porostu 
+                                                                                                1 
+                                                                    zastavovani okolnoch pozemkůi 
+                                                                                                1 
+
+==  Negativní vlivy na lokalitě  ==
+parts
+                                                                                                      sečení 
+                                                                                                         857 
+                                                                                           sukcese všeobecně 
+                                                                                                         540 
+                                                                                             vývoj biocenózy 
+                                                                                                         540 
+                                                               nevhodná seč (vysoká intenzita, termín apod.) 
+                                                                                                         442 
+                                                                                                  žádný vliv 
+                                                                                                         433 
+                                                                   hromadění organického materiálu (stařiny) 
+                                                                                                         420 
+                                                                                  eutrofizace či okyselování 
+                                                                                                         405 
+                                                                                                 eutrofizace 
+                                                                                                         335 
+                                                                                                     sukcese 
+                                                                                                         328 
+                                                                             expanzní druhy (mimo invazních) 
+                                                                                                         252 
+                                                            nevhodná pastva (vysoká intenzita, termín apod.) 
+                                                                                                         244 
+                                                                                  absence či nedostatek péče 
+                                                                                                         207 
+                                                                             hromadění organického materiálu 
+                                                                                                         197 
+                                               abiotické přírodní procesy (eroze, zanášení, vysychání apod.) 
+                                                                                                         164 
+                                                                                                      pastva 
+                                                                                                         101 
+                                                                           vysychání (mokřadního ekosystému) 
+                                                                                                          94 
+                                                                                                     hnojení 
+                                                                                                          68 
+                                          dopady chovu dobytka mimo pastvu (např. sešlap, eutrofizace apod.) 
+                                                                                                          50 
+                                                                             invaze nějakého druhu (neofyty) 
+                                                                                                          36 
+                                                                                               invazní druhy 
+                                                                                                          35 
+                                                                                                   meliorace 
+                                                                                                          33 
+                                                                                                 odvodňování 
+                                                                                                          33 
+                                                                                          nadměrné využívání 
+                                                                                                          32 
+                                                                                                 sešlapávání 
+                                                                                                          32 
+                          absence nebo narušení mezidruhových vztahů (např. opylovači, živné rostliny apod.) 
+                                                                                                          31 
+                                                                                                 zaplavování 
+                                                                                                          31 
+                                                                                                   jiný vliv 
+                                                                                                          26 
+                                                          změna zemědělského využívání půdy a terénní úpravy 
+                                                                                                          19 
+                                                                                              terénní úpravy 
+                                                                                                          18 
+                                                                                             aplikace hnojiv 
+                                                                                                          17 
+                                                                                         zalesňování bezlesí 
+                                                                                                          17 
+                                                                                               hrází rybníků 
+                                                                                                          15 
+                                                                                                      kanálů 
+                                                                                                          15 
+                                                                                                     mokřadů 
+                                                                                                          15 
+                                                                                                      nádrží 
+                                                                                                          15 
+                                                                                             zpevňování stok 
+                                                                                                          15 
+                                                                                             vysazování lesů 
+                                                                                                          11 
+                                                          změna hydrologických poměrů v důsledku zemědělství 
+                                                                                                          11 
+                                                                    dosev a obnova trvalých travních porostů 
+                                                                                                           9 
+                                                                                   křovišť a drobných lesíků 
+                                                                                                           9 
+                                                                                           odstraňování mezí 
+                                                                                                           9 
+                                                                                                 žádný vliv: 
+                                                                                                           9 
+                                                                                                    sukcese: 
+                                                                                                           3 
+             absence či nedostatek péče: zbytkovy vyskyt krvavce v okolni intenzivne obhospodarovabe krajine 
+                                                                                                           2 
+                                jiný vliv: cast nekdejsi lokality zanikla v souvislosti s recentni vystavbou 
+                                                                                                           2 
+                                                                     jiný vliv: obnova TP jetelotravni smesi 
+                                                                                                           2 
+                                        absence či nedostatek péče: kombinace velmi intenzivni seče a nepéče 
+                                                                                                           1 
+                                                                  ale zpusobem priznivym pro mistni popukaci 
+                                                                                                           1 
+                                           eutrofizace či okyselování: pravdepodobne prilis uniformni sec TP 
+                                                                                                           1 
+                              eutrofizace či okyselování: v minulsti nejspise obnova TP jetelotravni smeskou 
+                                                                                                           1 
+                                                expanzní druhy (mimo invazních): extenzivne udruovany porost 
+                                                                                                           1 
+                                       expanzní druhy (mimo invazních): lze predpokladat vliv uniformni sece 
+                                                                                                           1 
+expanzní druhy (mimo invazních): lze predpokladat vliv uniformni sece nebo zaplavovani nize polozenych casti 
+                                                                                                           1 
+                                    expanzní druhy (mimo invazních): nejspise vliv celoplosne uniformni sece 
+                                                                                                           1 
+                   expanzní druhy (mimo invazních): nejspise vliv celoplosne uniformni sece na vets8ne louoy 
+                                                                                                           1 
+                                expanzní druhy (mimo invazních): potencialne ohrozen zejmena udrzbou prikopu 
+                                                                                                           1 
+                                                                                     jiný vliv - autodoprava 
+                                                                                                           1 
+                                                                                         jiný vliv - doprava 
+                                                                                                           1 
+                                               jiný vliv - predace 2 teleius v sitich pavouku zastizeni byli 
+                                                                                                           1 
+                                                                                    jiný vliv - ruderalizace 
+                                                                                                           1 
+                                           jiný vliv - travni porost ovlivneny vystavbou vodni nadrze nad TP 
+                                                                                                           1 
+                                        jiný vliv: lokalni vyskyt krvavce s nejasnym zpusobem udrzby prikopu 
+                                                                                                           1 
+                                                             jiný vliv: lze predpokladat vliv uniformni seče 
+                                                                                                           1 
+                                                                       jiný vliv: mozna nevhodny termin sece 
+                                                                                                           1 
+                                        jiný vliv: na vetsi casti louiy provehla obnova jetekotravni smeskou 
+                                                                                                           1 
+                                                                           jiný vliv: nejspise uniformni seč 
+                                                                                                           1 
+                                                                             jiný vliv: potencialni vystavba 
+                                                                                                           1 
+                                                                     jiný vliv: prostorová omezenost biotopu 
+                                                                                                           1 
+                                                                                jiný vliv: příkop komunikace 
+                                                                                                           1 
+                                     jiný vliv: relativně prostorově omezená plocha s hostitelskou rostlinou 
+                                                                                                           1 
+                                                                                 jiný vliv: uniformni seč TP 
+                                                                                                           1 
+                                         klasická příkopová záležitost - budoucí výhled těžko vyhodnotitelný 
+                                                                                                           1 
+                                                                                  management nevypočitatelný 
+                                                                                                           1 
+                                                                      nejspise poterennich upravach a dosevu 
+                                                                                                           1 
+                                                                                         používání pesticidů 
+                                                                                                           1 
+                                                                                             relativni sucho 
+                                                                                                           1 
+                                                                                        ridky vyskyt krvavce 
+                                                                                                           1 
+                                                                                            stavebni cinnost 
+                                                                                                           1 
+                                                         v SV polovine nadavna obnova jetelotravni smesí  TP 
+                                                                                                           1 
+                                                                                                 zjevne sečí 
+                                                                                                           1 
+                                            změna zemědělského využívání půdy a terénní úpravy: ruderalizace 
+                                                                                                           1 
+
+==  Perspektiva lokality  ==
+v
+neznámá  špatná   dobrá 
+   1644    1395    1061 
+
+==  Přítomnost rostlin  ==
+v
+jednotlivě      hojně      žádné dominantně 
+      1290        619        379        122 
+
+==  Procento mikrolokalit s vyhovujícím stavem živných rostlin  ==
+0 
+1 
+
+jiný vliv examples:
+[1] "izolovany vyskyt krvavce"                                                                                  
+[2] "sucho"                                                                                                     
+[3] "sucho"                                                                                                     
+[4] "sucho"                                                                                                     
+[5] "sucho"                                                                                                     
+[6] "Absence seče v jarním termínu - vysoký nárůst hmoty. Podzimní seč, pokud k ní dochází, je již málo účinná."
+[7] "Ponechání neuklizené hmoty bez úklidu (= mulčování)"                                                       
+[8] "izolovany vyskyt krvavce"                                                                                  
+Poměr pohlaví examples:
+[1] "0:3" "1"   "1:2" "7:3" "2:0" "3:1" "1:0" "2:3"
+                                                            
+                                                             2019 2020 2021
+  jiný vliv                                                     0    0    0
+  Negativní vlivy na lokalitě                                 528  860  675
+  Pastva                                                        0    0   35
+  Perspektiva lokality                                        666 1046  626
+  Poměr pohlaví                                                 0    1  228
+  Procento mikrolokalit s vyhovujícím stavem živných rostlin    0    0    0
+  Přítomnost rostlin                                            0    6  653
+  Seč celoplošná                                              492  554  267
+  Seč vhodně načasovaná                                       507  603  296
+  vliv                                                          0    0    4
+                                                            
+                                                             2022 2023 2024
+  jiný vliv                                                    12   24    8
+  Negativní vlivy na lokalitě                                 726  146    0
+  Pastva                                                       43   13   29
+  Perspektiva lokality                                        746  451  565
+  Poměr pohlaví                                               214  106   56
+  Procento mikrolokalit s vyhovujícím stavem živných rostlin    1    0    0
+  Přítomnost rostlin                                          734  453  564
+  Seč celoplošná                                              489  287  320
+  Seč vhodně načasovaná                                       489  287  320
+  vliv                                                         20  305  565
+rows with 'jiný vliv:' : 92 
+
+plant key in analysis rows:
+plant_new
+dominantně      hojně jednotlivě 
+       279       1487       2774 
+PLANT_QUANT (old) vs parsed plant key:
+   new
+old dominantně hojně jednotlivě
+  1          0     0       2774
+  2          0  1487          0
+  3        279     0          0
+rows with both plant keys: 0 
+
+TIMING old vs key:
+      new
+old     ano   ne <NA>
+  0       0  772    0
+  1    1808    0    0
+  <NA>    0    0 1960
+METHOD old vs key:
+      new
+old     ano   ne <NA>
+  0    1254    0    0
+  1       0 1222    0
+  <NA>    0    0 2064
+GRAZE old vs Pastva key:
+   new
+old extenzivní intenzivní   ne <NA>
+  0          0          0    0 4444
+  1         73         21    2    0
+GRAZE_MET old vs key:
+      new
+old    extenzivní intenzivní   ne <NA>
+  0             0         21    0    0
+  1            73          0    0    0
+  <NA>          0          0    2 4444
+MOW old vs any Seč key present:
+   new
+old FALSE TRUE
+  0  1935    0
+  1     0 2605
+MANAGEMENT_HET == !is.na(METHOD): TRUE 
+GRAZE NA count: 0 
+OVERALL table vs METHOD/TIMING NA:
+       mowing_assessed
+OVERALL FALSE TRUE
+      0  2089 1448
+      1     0 1003
+None table:
+
+   0 
+4540 
+'žádný vliv' in analysis rows: 671 
+Perspektiva in analysis rows:
+
+  dobrá neznámá  špatná    <NA> 
+   1095    1915    1244     286 
+Year of rows with no plant key in data_with_imputed (targeted):
+      plant
+year   dominantně hojně jednotlivě žádné <NA>
+  2019         60   356        566     0   48
+  2020         59   331        701     0   54
+  2021         64   256        391    48  331
+  2022         64   339        442    94   46
+  2023         16    87        306   107    0
+  2024         16   118        368   140    1
+sta_pritomnostrostlin by year:
+      
+       FALSE TRUE
+  2019    48  982
+  2020    61 1084
+  2021  1090    0
+  2022   985    0
+  2023   516    0
+  2024   643    0
+
+old PLANT_QUANT set but no plant key: 0 
+old PLANT_QUANT disagrees with key: 0 
+
+POP_BIOT values (top):
+
+                                   TTP s pravidelným managementem 
+                                                             1960 
+                                zarůstající louka bez managementu 
+                                                              537 
+                                                           příkop 
+                                                              288 
+                                              příkop u komunikace 
+                                                              235 
+ TTP s pravidelným managementem,zarůstající louka bez managementu 
+                                                              109 
+               TTP s pravidelným managementem,příkop u komunikace 
+                                                              108 
+                           TTP s pravidelným managementem, příkop 
+                                                               90 
+            zarůstající louka bez managementu,příkop u komunikace 
+                                                               50 
+                                               okraj vodní plochy 
+                                                               47 
+                            TTP s pravidelným managementem,příkop 
+                                                               43 
+                TTP s pravidelným managementem,okraj vodní plochy 
+                                                               42 
+                           příkop, TTP s pravidelným managementem 
+                                                               34 
+ zarůstající louka bez managementu,TTP s pravidelným managementem 
+                                                               33 
+               příkop u komunikace,TTP s pravidelným managementem 
+                                                               30 
+                        zarůstající louka bez managementu, příkop 
+                                                               29 
+               TTP s pravidelným managementem, okraj vodní plochy 
+                                                               28 
+                                                             <NA> 
+                                                               26 
+zarůstající louka bez managementu, TTP s pravidelným managementem 
+                                                               25 
+TTP s pravidelným managementem, zarůstající louka bez managementu 
+                                                               22 
+            příkop u komunikace,zarůstající louka bez managementu 
+                                                               20 
+HET_INN:
+
+   0    1    2    3    4 
+ 380 3306  743  101   10 
+TTP NA: 26 
+SUM_THREATS:
+
+   0    1    2    3    4    5    6 
+2022 1138  777  298  199   85   21 
+threat col sums:
+          LandUseChange             Abandonment              HarmfulMow 
+                     39                     490                     705 
+         HarmfulGrazing        GrazingByeffects           FertilizerUse 
+                    261                      49                      22 
+          Afforestation               Invasives         NativeDominants 
+                     36                      63                     447 
+AbioticNaturalProcesses            Encroachment     BiomassAccumulation 
+                    178                    1214                     799 
+         Eutrophization                    None 
+                    630                       0 
+threat key present (vliv or Negativní): 3930  of 4540 
+POP_BIOT items:
+parts
+                                                                                      TTP s pravidelným managementem 
+                                                                                                                2876 
+                                                                                   zarůstající louka bez managementu 
+                                                                                                                1137 
+                                                                                                              příkop 
+                                                                                                                 695 
+                                                                                                 příkop u komunikace 
+                                                                                                                 554 
+                                                                                                                jiný 
+                                                                                                                 270 
+                                                                                                  okraj vodní plochy 
+                                                                                                                 263 
+                                                                                                    jiný typ biotopu 
+                                                                                                                 105 
+                                                                                                            pastvina 
+                                                                                                                  13 
+                                                                         jiný typ biotopu-Násep okolo vodního kanálu 
+                                                                                                                  10 
+                                                                       příkopy a neudrzovane okraje okolnich pozemku 
+                                                                                                                   8 
+                                                           jiný typ biotopu-plosne kosena louka a zarustajici okraje 
+                                                                                                                   7 
+                                               neudrzovany okraj mezi polem a příkopem s ojedinelym vyskytem krvavce 
+                                                                                                                   6 
+                                                                                            Prikopy po obou stranach 
+                                                                                                                   6 
+                                                                                                             zahrada 
+                                                                                                                   5 
+                                                                                                 a neudrzovane okoli 
+                                                                                                                   4 
+                                                                               hranice pole a cerstve pokosene louky 
+                                                                                                                   4 
+                                                                                               jiný typ biotopu-hraz 
+                                                                                                                   4 
+                                                                               jiný typ biotopu-mokřadní lesní louka 
+                                                                                                                   4 
+                                                                                 jiný typ biotopu-okraj kosene louky 
+                                                                                                                   4 
+                                                 jiný typ biotopu-okraj kulturni louky se zbytkovym vyskytem krvavce 
+                                                                                                                   4 
+                                                                                                              mokřad 
+                                                                                                                   4 
+                                                                                                         podel cesty 
+                                                                                                                   4 
+                                                                                                             Vodoteč 
+                                                                                                                   4 
+                                                                          asi louka s občasným nebo neúplným kosením 
+                                                                                                                   3 
+                                                                                            asi občasně kosená louka 
+                                                                                                                   3 
+                                                                            jiný typ biotopu-ochranné pásmo vodovodu 
+                                                                                                                   3 
+                                                                            jiný typ biotopu-rákosina i suché stráně 
+                                                                                                                   3 
+                                                                                       jiný typ biotopu-secena louka 
+                                                                                                                   3 
+                                                       jiný typ biotopu-secena louka a neudrzovane okraje luk a cest 
+                                                                                                                   3 
+                                                                                               Okraj louky a prikopu 
+                                                                                                                   3 
+                                                                                                 Pastvina s krvavcem 
+                                                                                                                   3 
+                                                                                                              prikop 
+                                                                                                                   3 
+                                                                                                  ruderální vegetace 
+                                                                                                                   3 
+                                                          TTP s pravidelným managementem-Kombinace vice typu biotopu 
+                                                                                                                   3 
+                                                                                                    zarůstající niva 
+                                                                                                                   3 
+                                                                                                                2018 
+                                                                                                                   2 
+                                                                                a částečně pokosená tužebníková lada 
+                                                                                                                   2 
+                                                                                           a neudržovaná niva potoka 
+                                                                                                                   2 
+                                                                                a neudržovaná plocha pod el. vedením 
+                                                                                                                   2 
+                                                                                    A okraje u cesty a vodni strouhy 
+                                                                                                                   2 
+                                                         asi jen občasná či velmi extenzivní pastvina (el. ohradník) 
+                                                                                                                   2 
+                                                            Castecne degradovana louka s ojedinelym vyskytem krvavce 
+                                                                                                                   2 
+                                                          Degradovana eutrofizovana louka s extenzivnim managementem 
+                                                                                                                   2 
+                                                              Degradovana extenzivne kosrna zcasti zarustajici louka 
+                                                                                                                   2 
+                                                                                               dlouho nesekaná louka 
+                                                                                                                   2 
+                                               Extenzivbe secena louka s lokalne hojnym vyskytem krvavce v nive toku 
+                                                                                                                   2 
+                                                   Extenzivbe secena louka s onedinelym vysjytem krvavce v nive toku 
+                                                                                                                   2 
+                                  Extenzivne secena louka a neudrzovane okraje a prikopy s lokalnim vyskytem krvavce 
+                                                                                                                   2 
+                                                                                    extenzivne udrzovane okeje cesty 
+                                                                                                                   2 
+                                                                              Hranice polni cesty a koseneho pasu TP 
+                                                                                                                   2 
+                                                                     Hranice zjevne hnojene louky a zarustajici nivy 
+                                                                                                                   2 
+                                                                                                                hráz 
+                                                                                                                   2 
+                                                                                                        hráz rybníka 
+                                                                                                                   2 
+                                                                                jiný typ biotopu-Břehy malé vodoteče 
+                                                                                                                   2 
+                                             jiný typ biotopu-cca 10 m siroky neudrzovany pas mezi dvema kosebymi TP 
+                                                                                                                   2 
+                                                  jiný typ biotopu-celoplosne kosena louka a neudrzovany okraj trati 
+                                                                                                                   2 
+                                              jiný typ biotopu-extenzivne kosena louka a neudrzovane okraje a prikop 
+                                                                                                                   2 
+                                     jiný typ biotopu-extenzivne udrzovany okraj louky se zbytkovym vyskytem krvavce 
+                                                                                                                   2 
+                                                              jiný typ biotopu-extenzivne udrzovsny TP podel dilnice 
+                                                                                                                   2 
+                                   jiný typ biotopu-extenzivne uneudrzovany cip louky a neudrzovane okraje a prikopy 
+                                                                                                                   2 
+                 jiný typ biotopu-exzenzivne udrzovana louka se zarustajicimi okraji a mokradem v nize polozene cast 
+                                                                                                                   2 
+                                                                                          jiný typ biotopu-hraz reky 
+                                                                                                                   2 
+                                                                                       jiný typ biotopu-hraz rybnika 
+                                                                                                                   2 
+                                                                                      jiný typ biotopu-hráz vodoteče 
+                                                                                                                   2 
+                                      jiný typ biotopu-jde o TP v intraviladu u ktereho zjevne probiha nejaka udrzba 
+                                                                                                                   2 
+                                                     jiný typ biotopu-kosena louka a jeji neudrzovany okraj a prikop 
+                                                                                                                   2 
+                                                                  jiný typ biotopu-kosena louka a neudrzovane okraje 
+                                                                                                                   2 
+                                              jiný typ biotopu-koseny prostor mezi dvema tuněmi a neudrzovane okraje 
+                                                                                                                   2 
+                                                                                       jiný typ biotopu-lesní paseka 
+                                                                                                                   2 
+                                              jiný typ biotopu-lokslne hojby vyskyt krvavce na jetelotravnim porostu 
+                                                                                                                   2 
+                                                        jiný typ biotopu-louka a neudrzovany pas mezi loukou a polem 
+                                                                                                                   2 
+                                                                                     jiný typ biotopu-motokrosoviště 
+                                                                                                                   2 
+                                                                                              jiný typ biotopu-navoz 
+                                                                                                                   2 
+          jiný typ biotopu-nejspise extenzivve utrzovany TP mezi silnici a potokem s lokalne hojnym vyskytem krvavce 
+                                                                                                                   2 
+                                                                      jiný typ biotopu-nekosený lem louky podél lesa 
+                                                                                                                   2 
+                                                       jiný typ biotopu-neodrzovany okraj louky navazujici na prikop 
+                                                                                                                   2 
+                                                                   jiný typ biotopu-neseceny oktaj pastviny a prikop 
+                                                                                                                   2 
+                                                                   jiný typ biotopu-neudrzovana louka a okeaje cesty 
+                                                                                                                   2 
+                                                   jiný typ biotopu-neudrzovana plocha mezi strouhou a cestou u pole 
+                                                                                                                   2 
+                                                                jiný typ biotopu-neudrzovane okraje TP podél silnice 
+                                                                                                                   2 
+                                                                            jiný typ biotopu-neudrzovany okraj cesty 
+                                                                                                                   2 
+                           jiný typ biotopu-neudrzovany okraj secene louky (cerstve pokoseno) a prikopy u krizovatky 
+                                                                                                                   2 
+                                                                                  jiný typ biotopu-ochranne pasmo VN 
+                                                                                                                   2 
+                                                                                     jiný typ biotopu-Okraj pastviny 
+                                                                                                                   2 
+                                                             jiný typ biotopu-okrajove casti neudrzovane a zarustaji 
+                                                                                                                   2 
+                                                                                jiný typ biotopu-plosne secena louka 
+                                                                                                                   2 
+                                                        jiný typ biotopu-podmáčená rotační extenzivní pastvina skotu 
+                                                                                                                   2 
+                                              jiný typ biotopu-prechid kosene a neudrzovane louky pobliz koryta toku 
+                                                                                                                   2 
+                                                                            jiný typ biotopu-průsek pod elektrovodem 
+                                                                                                                   2 
+                                                          jiný typ biotopu-ruderální mokrý okraj louky/ext. pastviny 
+                                                                                                                   2 
+                                                                                                jiný typ biotopu-sad 
+                                                                                                                   2 
+                                                                  jiný typ biotopu-secena louka a neudrzovane okraje 
+                                                                                                                   2 
+                                                                          jiný typ biotopu-travnatý svah nad silnicí 
+                                                                                                                   2 
+                                                                             jiný typ biotopu-val u železniční trati 
+                                                                                                                   2 
+                                                                                      jiný typ biotopu-Většina ladem 
+                                                                                                                   2 
+                                                                            jiný typ biotopu-vysokobylinný lesní lem 
+                                                                                                                   2 
+                                                              jiný typ biotopu-z vetsi casti kosena louka ( nedavno) 
+                                                                                                                   2 
+                                                                                    jiný typ biotopu-zarůstající sad 
+                                                                                                                   2 
+                                                                                            kde byl Pnaus pozorovánk 
+                                                                                                                   2 
+                                                                         Kosena louka na kraji obce a pozarni nadrze 
+                                                                                                                   2 
+                                                                         Kosena louka na okraji intravilanu a prikop 
+                                                                                                                   2 
+                                                                          Kosena louka s izolovanym vyskytem krvavce 
+                                                                                                                   2 
+                                                                                         letos vykoseno několik pásů 
+                                                                                                                   2 
+                                                                                  lokalita pod dráty vysokého napětí 
+                                                                                                                   2 
+                                                                                        lokalne hojny vyskyt krvavce 
+                                                                                                                   2 
+                                                                                        Louka ci pastvina s krvavcem 
+                                                                                                                   2 
+                                                                             masový výskyt totenu v oplocené zahradě 
+                                                                                                                   2 
+                                                                                    Mokřadní louka (mokřad) bez seče 
+                                                                                                                   2 
+                                                                                            mokřadní louka u silnice 
+                                                                                                                   2 
+                                                                                              na části skládka dřeva 
+                                                                                                                   2 
+                                nekolik metru soroky neudrzovany pas mezibpříkopem a polem s hojnym vyskytem krvavce 
+                                                                                                                   2 
+                                                                             nekosený zarůstající pás podél vodoteče 
+                                                                                                                   2 
+                                                        Neobdelavany cip ZP u krizovatky a okolni prikopy s krvavcem 
+                                                                                                                   2 
+                                                           Neobhospodarovane plochy mezi komunikaci a polem     ci a 
+                                                                                                                   2 
+                                                          nepravidelný management nepřístupného vodárenského objektu 
+                                                                                                                   2 
+                                                                      neudrzovane plochy podel silnice v intravilanu 
+                                                                                                                   2 
+                                                                   Neudrzovane plochy u paty stozatu VN u krizovatky 
+                                                                                                                   2 
+                                                                     Neudrzovany okraj kulturni secene louky a cesty 
+                                                                                                                   2 
+                        neudrzovany pas mezi příkopem a secenou loukou a okraj louky s hojnym vyskytem krvavce     o 
+                                                                                                                   2 
+                                      neudrzovany pas mezi příkopem a secenou loukou s hojnym vyskytem krvavce     o 
+                                                                                                                   2 
+                                                                    neudržovaná zarůstající niva potoka a prameniště 
+                                                                                                                   2 
+                                                                                              neudržované prameniště 
+                                                                                                                   2 
+                                                                                      neudržovaný svah a niva potoka 
+                                                                                                                   2 
+                                                                                Nrudrzovana strouha mezi secenymi TP 
+                                                                                                                   2 
+                                                                okraj lokality je  zarůstající louka bez managementu 
+                                                                                                                   2 
+                                                                         Okraj mistni komunikace a kraj kosene loukx 
+                                                                                                                   2 
+                                                                                                      okraj pastvina 
+                                                                                                                   2 
+                                                   okraj pole a prilehla cast louky nad komunikaci s hojnym vyskyten 
+                                                                                                                   2 
+                                                                                                  Okraj pole u cesty 
+                                                                                                                   2 
+                                                                                        Okraj pole u cesty a rybnika 
+                                                                                                                   2 
+                                                                     Okraj rybnika a TP s jedinelym vyskytem krvavce 
+                                                                                                                   2 
+                                                                                                         okraj stoky 
+                                                                                                                   2 
+                                                                                      Okraje lesu a a luk s krvavcem 
+                                                                                                                   2 
+                                                                                           Okraje luk a polnich cest 
+                                                                                                                   2 
+                                                                     Pastvina s mistne velmi hojnym vyskytem krvavce 
+                                                                                                                   2 
+                                                                 Plus neobhospodarovane okraje TP a prikop u silnice 
+                                                                                                                   2 
+                                                                                    Po 20 letech poprvé posečeno v r 
+                                                                                                                   2 
+                                                               podmáčená louka u silnice pravděpodobně s pozdní sečí 
+                                                                                                                   2 
+                                                                                     pravdepodobne 1-2x ročně sečený 
+                                                                                                                   2 
+                                                                                                 Prikop a okraj pole 
+                                                                                                                   2 
+                                                      Prikop na cca 200 m dlouhem useku a extenzivne udrzovane okoli 
+                                                                                                                   2 
+                                                                Prikopy po obou stranach a okraj pole a kosene louky 
+                                                                                                                   2 
+                                                                                                              Příkop 
+                                                                                                                   2 
+                                                   příkop-extenzivbe udrzovany okraj secene leuky a vysecene prikopy 
+                                                                                                                   2 
+                                                           příkop-extenzivne udrzovana plocha podel siln8ce a prikop 
+                                                                                                                   2 
+                                                                             příkop-okraj kosene loukx podel prikopu 
+                                                                                                                   2 
+                                                       příkop-okraj kosene louky a neudrzovane okraje vcetne prikopu 
+                                                                                                                   2 
+                                                                                   příkop-prikop a okraj koseneho TP 
+                                                                                                                   2 
+                                                                 příkop-secena louka a neudrzovane okraje luk a cest 
+                                                                                                                   2 
+                                                                                     příkop a neudrzovany okraj pole 
+                                                                                                                   2 
+                                                                                   příkopy a neudrzovane okraje poli 
+                                                                                                                   2 
+                                                                příkopy a neudrzovane okraje poli v okoli krizovatky 
+                                                                                                                   2 
+                                                     příkopy neudrzovana okraje TP s lokalne hojnym vyskytem krvavce 
+                                                                                                                   2 
+                                                              příkopy neudrzovany okraj TP s hojnym vyskytem krvavce 
+                                                                                                                   2 
+                                                                                       remízek mezi kosenými loukami 
+                                                                                                                   2 
+                                                                                                             ruderal 
+                                                                                                                   2 
+                                                                                                                 sad 
+                                                                                                                   2 
+                                                                         Secena louka a navazujici plochy podel cest 
+                                                                                                                   2 
+             stanovistne pestra zarustajici plocha ppdel strouhy a mezi komunikacemi s velmi hojnym vyskytem krvavce 
+                                                                                                                   2 
+tez příkopy v okoli. stanovistne pestre a v pripade vyskytu druhu by se lokalita dala vnimat jako velmi perspektivni 
+                                                                                                                   2 
+                                                                            TTP s pravidelným managementem-hraz reky 
+                                                                                                                   2 
+                                                     Useky prikopu a zarustajichich okraji luk a pole v okoli mostku 
+                                                                                                                   2 
+                                                                                   v dobe monitorigu zpulky posecena 
+                                                                                                                   2 
+                                                                               v nize pilozene casti neudrzovany pas 
+                                                                                                                   2 
+                                                                                                      velmi zakvetlé 
+                                                                                                                   2 
+                                                      většina lokality je pod el. vedením  občasně vyřezávaná plocha 
+                                                                                                                   2 
+                                                       Vodni strouha mezi TP a polem s dosti hojnym vyskytem krvavce 
+                                                                                                                   2 
+                                                                                                             Zahrada 
+                                                                                                                   2 
+                                                         západní část tvoří extenzivní hezká pastvina (letos paseno) 
+                                                                                                                   2 
+                     zarůstající louka bez managementu-extenzivne udrzovany TP mezi komunikaci a Tupadelskym potokem 
+                                                                                                                   2 
+                                                     zarůstající louka bez managementu-neudrzovana cast kosene louky 
+                                                                                                                   2 
+                                                            zarustajici neudrzovana plocha s hojnym vyskytem krvavce 
+                                                                                                                   2 
+                                                                                                    zarustajici niva 
+                                                                                                                   2 
+                                             Zarustajici okraj remizu a kosena louka s velmi hojnym vyskytem krvavce 
+                                                                                                                   2 
+                                                      Zarustakivi plochy v intravilanu se zbytkovym vyskytem krvavce 
+                                                                                                                   2 
+                                                                                                    zmulčovaný rákos 
+                                                                                                                   2 
+                                                                                                    Železniční násep 
+                                                                                                                   2 
+                                                                                                            + mokřad 
+                                                                                                                   1 
+                                                                                        alr cast krvavcu jiz v kvetu 
+                                                                                                                   1 
+                                                                                              asi občas kosená louka 
+                                                                                                                   1 
+                                                                                           břehy zahloubené vodoteče 
+                                                                                                                   1 
+                                          Cast plochy je v soucasnosti oplocovana jako stavebni pozemek nebo zahrada 
+                                                                                                                   1 
+                                                                                              castecne neudrzovaneho 
+                                                                                                                   1 
+                                                                 Cca 1/3 plochy s krvavcem se nachází v ovocném sadu 
+                                                                                                                   1 
+         celoplisne kosena louka s extenzivne udrzovanymi nebo neudrzovamymi podmacenymi plochami s okolim sloupu VN 
+                                                                                                                   1 
+                                                                                část pravděpodobně sečena pravidelně 
+                                                                                                                   1 
+                                                                                                     část zmulčovaná 
+                                                                                                                   1 
+                                                                                                  částečně mulčováno 
+                                                                                                                   1 
+                                                                                                     částešně sečeno 
+                                                                                                                   1 
+                                                                                         dlouhodobě nekosená strouha 
+                                                                                                                   1 
+                                                       Drobny koseny TP v intravilanu obce s hojnym vyskytem krvavce 
+                                                                                                                   1 
+                                                                                          eutrofizovana kosena louka 
+                                                                                                                   1 
+                                                                             Extenzivbe koseny TP v intravilanu obce 
+                                                                                                                   1 
+                                                                                             Extenzivne kosena louka 
+                                                                                                                   1 
+                                                                                             Extenzivne secena louka 
+                                                                                                                   1 
+                              Extenzivne seceny a zarustajici okraj louky a terrestricke rakosiny v intravilanu obce 
+                                                                                                                   1 
+                                                                                 Extenzivne udrzovany okraj pastviny 
+                                                                                                                   1 
+                                                                    Extenzivne udrzovany zarustajici TP nad mokradem 
+                                                                                                                   1 
+                                                                        Extenzuvne udrzovana stran nad vlhkou loukou 
+                                                                                                                   1 
+                                                                                       fragmenty neudrzovanych ploch 
+                                                                                                                   1 
+                                          Hranice kosene louky a sousedni pastviny s lokalne hojnym vyskytem krvavce 
+                                                                                                                   1 
+                                                                                   jeji neudrzovane okraje a prikopy 
+                                                                                                                   1 
+                                                                                     jeji neudrzovany okraj a prikop 
+                                                                                                                   1 
+                                                                                                   jiný typ biotopu- 
+                                                                                                                   1 
+                                                                              jiný typ biotopu- okraj louky a prikop 
+                                                                                                                   1 
+                                                                          jiný typ biotopu-+ okraj cesty k ohradníku 
+                                                                                                                   1 
+                             jiný typ biotopu-extenzivbe udrzovany horni okraj secene louky podel zarostleho prikopu 
+                                                                                                                   1 
+                                      jiný typ biotopu-extenzivne 7drzovana podmacena louka v blizkisti vodnihi toku 
+                                                                                                                   1 
+                                                          jiný typ biotopu-extenzivne udrzovany okraj louka a prikop 
+                                                                                                                   1 
+                                                        jiný typ biotopu-extenzivne udrzovany okraj neposečeného  TP 
+                                                                                                                   1 
+                             jiný typ biotopu-extenzivne udrzovany pas mezi loukou a cyklostezkou okraj kosene louky 
+                                                                                                                   1 
+                                                                                     jiný typ biotopu-extenzivni sad 
+                                                                                                                   1 
+                                                                                    jiný typ biotopu-Intravilan obce 
+                                                                                                                   1 
+                                                              jiný typ biotopu-květnatá ledabyle udržovaná záhumenka 
+                                                                                                                   1 
+                                                                  jiný typ biotopu-lem odvodňovací strouhy u silnice 
+                                                                                                                   1 
+                                                                              jiný typ biotopu-mokřad s managementem 
+                                                                                                                   1 
+                                                                                      jiný typ biotopu-nasep silnice 
+                                                                                                                   1 
+                                       jiný typ biotopu-nepravidelne udrzovana soukroma zahumenka s kakosty a toteny 
+                                                                                                                   1 
+                                                   jiný typ biotopu-neseceny pas podel prikopu a podel vodni strouhy 
+                                                                                                                   1 
+                                                                   jiný typ biotopu-neudrzovaby okraj louky a prikop 
+                                                                                                                   1 
+                                             jiný typ biotopu-neudrzovane plochy na okraji TTP a okraj posečeneho TP 
+                                                                                                                   1 
+                                                                jiný typ biotopu-neudrzovany okraj mistni komunikace 
+                                                                                                                   1 
+                                                             jiný typ biotopu-neudrzovany pas mezi prikopem a loukou 
+                                                                                                                   1 
+                                    jiný typ biotopu-nezalesnena enklava v sousedstvi silnice s tuzebnikem a pchacem 
+                                                                                                                   1 
+                               jiný typ biotopu-okraj kosene eutrofni louky a neudrzovany pas podel prikopu a prikop 
+                                                                                                                   1 
+                                                                                jiný typ biotopu-Okraj louky a cesty 
+                                                                                                                   1 
+                                                                              jiný typ biotopu-Okraj menší vodoteče. 
+                                                                                                                   1 
+                                                                           jiný typ biotopu-plochy podel polní cesty 
+                                                                                                                   1 
+                                          jiný typ biotopu-plosne kosena louka a zarustajici okraje u skupiny drevin 
+                                                                                                                   1 
+                                                                             jiný typ biotopu-ruderál s managementem 
+                                                                                                                   1 
+                                                                                            jiný typ biotopu-Rumiště 
+                                                                                                                   1 
+                                                      jiný typ biotopu-seceny TP a jeho neudrzovane okraje a prikopy 
+                                                                                                                   1 
+                                                                                               jiný typ biotopu-směs 
+                                                                                                                   1 
+                                         jiný typ biotopu-spodni cip secene luky neudrzovane okraje a prikop u cesty 
+                                                                                                                   1 
+                                                           jiný typ biotopu-sussi okrajova cast vetsi louky - viz 02 
+                                                                                                                   1 
+                                      jiný typ biotopu-uzky svah mezi prikopem a polem s o jedinrly vyskytem krvavce 
+                                                                                                                   1 
+                                                                                    jiný typ biotopu-vvp zarůstající 
+                                                                                                                   1 
+                               jiný typ biotopu-výsušna kosena loučka na kraji intravilanu s hojnym vyskytem krvavce 
+                                                                                                                   1 
+                                                    jiný typ biotopu-zarustajici strouha s lokalnim vyskytem krvavce 
+                                                                                                                   1 
+                                                                            jiný typ biotopu-zarustajici udolni niva 
+                                                                                                                   1 
+                                                                                   jiný typ biotopu-železniční zářez 
+                                                                                                                   1 
+                            kombinace aktualne paseneho TP a neudrzovaneho okraje a příkopu mimo vyhrazenou pastvinu 
+                                                                                                                   1 
+                                                                                                        kosena louka 
+                                                                                                                   1 
+                                                                Kosena louka s krvavcem a navazujici pastvina v nive 
+                                                                                                                   1 
+                                                                                                  kosená vlhká louka 
+                                                                                                                   1 
+                                                            Kulturni travni porost s lokalne hojnym vyskytem krvavce 
+                                                                                                                   1 
+                                                            letos vysekano tak 10 % v mistech se zmlazujici krusinou 
+                                                                                                                   1 
+                                                                                              lokslni vyslyt krvavce 
+                                                                                                                   1 
+                                                                                  Louka a zarostly pas pod zeleznici 
+                                                                                                                   1 
+                                                                   louka občasně kosená z prostředků ochrany přírody 
+                                                                                                                   1 
+                                                  Louka ponechaná sukcesi a kulturní kosená louka s parkovou úpravou 
+                                                                                                                   1 
+                                                                             majitelka me ochotne na zahradu pustila 
+                                                                                                                   1 
+                                                                    malá mokřina a luční příkop pod železniční tratí 
+                                                                                                                   1 
+                                                                                                              Mokřad 
+                                                                                                                   1 
+                                                                                  mokřad kolem potoka s lučním lemem 
+                                                                                                                   1 
+                                                                                                 mokřad podél potoka 
+                                                                                                                   1 
+                                                                         mokřad podél potoka a přilehlá sečená louka 
+                                                                                                                   1 
+                                                                                                      Mokřadní louka 
+                                                                                                                   1 
+                                                                                                      mokřadní louky 
+                                                                                                                   1 
+                                                            Nedrzovane plochy na okraji louky podel zeleznicni trati 
+                                                                                                                   1 
+                                                                                                  nejspise nezamerne 
+                                                                                                                   1 
+                                                   nekosená luční proluka mezi stromy přiléhající k železniční trati 
+                                                                                                                   1 
+                                                                                         nekosené okraje polní cesty 
+                                                                                                                   1 
+                                                                                            Neobhospodarovana plocha 
+                                                                                                                   1 
+                                                                                     Neobhospodarovane casti pozemků 
+                                                                                                                   1 
+                             Neodrzovane okoli zpevneneho odtoku z rybnika mezi intenzivne obhospodarovanymi loukami 
+                                                                                                                   1 
+                                                              nepokosená a zarůstající plocha kolem železniční trati 
+                                                                                                                   1 
+                                                              nepokosené a zarůstající plochy kolem železniční trati 
+                                                                                                                   1 
+                                                                             nepokosený luční pás u železniční trati 
+                                                                                                                   1 
+                                                               nepokosený pás mezi kosenou loukou a železníční tratí 
+                                                                                                                   1 
+                                                                  nepokosený travnatý pás kolem melioračního příkopu 
+                                                                                                                   1 
+                                                   neudezovany okraj secene louky a prokop s hojnym vysjytwm krvavce 
+                                                                                                                   1 
+                                                                            Neudrzovana zarustajici podmacena plocha 
+                                                                                                                   1 
+                                                                                         neudrzovane okraje a prikop 
+                                                                                                                   1 
+                                                                                          neudrzovane okraje strouhy 
+                                                                                                                   1 
+                     neudrzovane zarustajici pasmo vodniho zdroje a navazujici cast TP se zbytkovou populaci krvavce 
+                                                                                                                   1 
+                                                neudrzovany okraj pole a koseny příkop s ojedinelym vyskytem krvavce 
+                                                                                                                   1 
+                                     neudrzovany pas mezi polem a secenym příkopem s lokalne hojnym vyskytem krvavce 
+                                                                                                                   1 
+                                                                                       neudrzovany pas podel strouhy 
+                                                                                                                   1 
+                                                                                       neudrzovany zarustajici ojraj 
+                                                                                                                   1 
+                                                                                        neusrzovane okraje a prikopy 
+                                                                                                                   1 
+                                                                                                                niva 
+                                                                                                                   1 
+                                                                                                         nově koseno 
+                                                                                                                   1 
+                                                                                    nwjvice podmacena cast ponechana 
+                                                                                                                   1 
+                                                               občasně kosená louka s kasatci sibirskymi v rezervaci 
+                                                                                                                   1 
+                                                                                           občasně sekaná část louky 
+                                                                                                                   1 
+                                                                               od roku 2018 sekaná louka v péči ČSOP 
+                                                                                                                   1 
+                                                                               od strouhy na V je neudrzovany porost 
+                                                                                                                   1 
+                                                                                                  Odvodňovací příkop 
+                                                                                                                   1 
+                                                                       Ochranne pasmo vodohospodarskeho objektuokoli 
+                                                                                                                   1 
+                                                                                        okraj cesty a podmaceneho TP 
+                                                                                                                   1 
+                                                                Okraj druhove pestre secene louky s vyskytem krvavce 
+                                                                                                                   1 
+                                                                                                         okraj louiy 
+                                                                                                                   1 
+                                                                                                         okraj louky 
+                                                                                                                   1 
+                                              okraj louky a uzky neseceny pas mezi s lokalne hojnym vyskytem krvavce 
+                                                                                                                   1 
+                                                               okraj nove posecene louky a zahloubeneho vodniho toku 
+                                                                                                                   1 
+                                                                      Okraj sečené louky pod železniční tratí u toku 
+                                                                                                                   1 
+                                                                  okraj skladky a příkop s lokalnim vyskytwm krvavce 
+                                                                                                                   1 
+                                                                                                      Okraj vodotece 
+                                                                                                                   1 
+                                                                                                         okraje cest 
+                                                                                                                   1 
+                                                                                                 Okraje cesty a pole 
+                                                                                                                   1 
+                                                                                                   okraje polí a luk 
+                                                                                                                   1 
+                                                                                                      okrajový efekt 
+                                                                                                                   1 
+                                                                                                    oplocená zahrada 
+                                                                                                                   1 
+                                                                                                            Pastvina 
+                                                                                                                   1 
+                                                               Pastvina o okraj cesty s jednotlivym vyskytem krvavce 
+                                                                                                                   1 
+                                                                                                             patvina 
+                                                                                                                   1 
+                                                                                                             pojezdy 
+                                                                                                                   1 
+                                                                                             pospolu s P teleius (!) 
+                                                                                                                   1 
+                                                                 prikop a neposecena cast v nize polozene castilouky 
+                                                                                                                   1 
+                Prikop a prilehla cast kosene louky s lokalne velmi hojnym vyskytem krvavce na useku cca 50 m hojnym 
+                                                                                                                   1 
+                                                                                                             prikopy 
+                                                                                                                   1 
+                                                                                                             Prikopy 
+                                                                                                                   1 
+                                                                                                           prikopyhy 
+                                                                                                                   1 
+                                                    Prinejmensim castecne secena travnata enklava v intravilanu obce 
+                                                                                                                   1 
+                                                                                             prusek pod elektrovodem 
+                                                                                                                   1 
+                                                                                             průsek pod elektrovodem 
+                                                                                                                   1 
+                                                                                                       předtím ladem 
+                                                                                                                   1 
+                                                                               příkop-cast plochy tvori kosena louka 
+                                                                                                                   1 
+                                                                                       příkop-kosena louka (nedavno) 
+                                                                                                                   1 
+                                                 příkop-neobdelavany okraj pole a prikop s lokalnim vyskytem krvavce 
+                                                                                                                   1 
+                                                                   příkop-neudrzovana plocha mezi polem a komunikaci 
+                                                                                                                   1 
+                                                                                      příkop-ochranné pásmo vodovodu 
+                                                                                                                   1 
+                                                                                           příkop-okraj kosene louky 
+                                                                                                                   1 
+                                                                                         příkop-Okraj menší vodoteče 
+                                                                                                                   1 
+                       příkop-seceny prikop a prilehly travnik v intravilanu s neposecenymi zbytky s krvavcem      e 
+                                                                                                                   1 
+                                                                                                       příkop kanálu 
+                                                                                                                   1 
+                                                                                  příkop podél velmi drobné vodoteče 
+                                                                                                                   1 
+                                         příkopy a nedrzovane zarustajici plochy v okoli s lokalnim vyskytem krvavce 
+                                                                                                                   1 
+                                                                                    relativne nedavno pokosena louka 
+                                                                                                                   1 
+                                                                                                             ruderál 
+                                                                                                                   1 
+                                                                                                                 Sad 
+                                                                                                                   1 
+                                                                                                       sad a ruderál 
+                                                                                                                   1 
+                                                                              Sad s TP s ojedinelym vyskytem krvavce 
+                                                                                                                   1 
+                                                     Seceny kulturni TP s ojedinelym vyskytem krvavce ve spodni cast 
+                                                                                                                   1 
+                    siroky neudrzovany pas podel drobneho vodniho toku mezi silnici a secenou eutrofizovanou loukouu 
+                                                                                                                   1 
+                                                                                                      skladka inertu 
+                                                                                                                   1 
+                                                                   Spodni okraj pastviny a sousedni louky s krvavcem 
+                                                                                                                   1 
+                                                                                                     sráz u pastviny 
+                                                                                                                   1 
+                                                                                                           střelnice 
+                                                                                                                   1 
+                                                                     svah náspu železniční trati = +- nekosená louka 
+                                                                                                                   1 
+                                                                                                 TTP bez managementu 
+                                                                                                                   1 
+                                             TTP s pravidelným managementem-louka a jeji extenzivne udrzovane oktaje 
+                                                                                                                   1 
+                                             TTP s pravidelným managementem-neposeceny i posečeny okraj TP u prikopu 
+                                                                                                                   1 
+                                   TTP s pravidelným managementem-neudrzovany okraj kosene (cerstvě) louky a prikopy 
+                                                                                                                   1 
+                                                                               TTP s pravidelným managementem-prikop 
+                                                                                                                   1 
+                                                                   Udrzovany pas mezi silnici a prumyslovym objektem 
+                                                                                                                   1 
+                                                                Udrzovany TP v intravilanu s hojnym vysjytem krvavce 
+                                                                                                                   1 
+                                                                  úzký nekosený pás mezi komunikací a kosenou loukou 
+                                                                                                                   1 
+                                                                                              V části byla dříve tůň 
+                                                                                                                   1 
+                                                                                                    vodarenske pasmo 
+                                                                                                                   1 
+                                                                                                 vodní příkop s lemy 
+                                                                                                                   1 
+                                                                                                      vojenský újezd 
+                                                                                                                   1 
+                                                                             vyvýšenina nad zářezem železniční trati 
+                                                                                                                   1 
+                                                                                               zahrada v intravilánu 
+                                                                                                                   1 
+                                                                  Zarustajici casti TP se zbytkovym vyskytem krvavce 
+                                                                                                                   1 
+                                                                                  zarůstající louka bez managementu- 
+                                                                                                                   1 
+                                      zarůstající louka bez managementu- okraj TP a neudrzovany pas mezi TP a cestou 
+                                                                                                                   1 
+                zarůstající louka bez managementu-extenzivne udrzovana a neudrzovana plocha mezi polem a komunikacem 
+                                                                                                                   1 
+                             zarůstající louka bez managementu-louky a zejmena jejich neudrzovane okraje podel cesty 
+                                                                                                                   1 
+                                          zarůstající louka bez managementu-neodrzovana plocha na okraji intravilanu 
+                                                                                                                   1 
+                                                       zarůstající louka bez managementu-neudrzovany pas podel trati 
+                                                                                                                   1 
+                                           zarůstající louka bez managementu-ruderalizovana plocha urcena k zastavbe 
+                                                                                                                   1 
+                                                                                                   zarustajici okraj 
+                                                                                                                   1 
+                                                                                           zarustajici okraj strouhy 
+                                                                                                                   1 
+                                                                   Zarustajici TP s nekolik let starou vysadbou olší 
+                                                                                                                   1 
+                                                                                     Zcasti secena zarustajici louka 
+                                                                                                                   1 
+                                                                                                            zvláštně 
+                                                                                                                   1 
+PRIKOP=0 but 'příkop' present: 722 
+HET_INN==0 with POP_BIOT non-NA: 354  HET_INN==0 with POP_BIOT NA: 26 
+JINY==1: 548 
+
+protected_area_id rows: 5273 
+# A tibble: 4 × 3
+  PA_TYPE    PA_SPECIES               n
+  <chr>      <chr>                <int>
+1 EVL_any    <NA>                  2589
+2 EVL_target Phengaris nausithous   948
+3 EVL_target Phengaris teleius      509
+4 MZCHU      <NA>                  1227
+duplicated (ID_LOKAL, PA_TYPE, PA_SPECIES) rows: 1033 
+# A tibble: 2 × 7
+  DRUH                 n   EVL EVL_target_blind EVL_target_species MZCHU PROTECT
+  <chr>            <int> <dbl>            <dbl>              <int> <dbl>   <dbl>
+1 Phengaris nausi…  3216   578              252                244   197     638
+2 Phengaris telei…  1324   268              120                 68   110     290
+EVL_target==1 but EVL==0 (should be impossible): 0 
+EVL_comb:
+     
+      Phengaris nausithous Phengaris teleius
+  0                   2638              1056
+  0.5                  326               148
+  1                    252               120
+crosstab EVL x EVL_target per species:
+, ,  = 0
+
+                      
+                          0    1
+  Phengaris nausithous 2638  326
+  Phengaris teleius    1056  148
+
+, ,  = 1
+
+                      
+                          0    1
+  Phengaris nausithous    0  252
+  Phengaris teleius       0  120
+
+ℹ Using "','" as decimal and "'.'" as grouping mark. Use `read_delim()` for more control.
+
+data_lokal_vmb rows: 18816  distinct ID_LOKAL: 8678 
+ [1] "ID_LOKAL"      "OBJECTID.x"    "SEGMENT_ID"    "REGION_ID.x"  
+ [5] "FSB"           "BIOTOP_SEZ"    "DATUM"         "ROK_AKT.x"    
+ [9] "SEG_REL_ID.x"  "REG_REL_ID.x"  "SHAPE_Leng"    "SHAPE_Area"   
+[13] "OBJECTID.y"    "REGION_ID.y"   "HABITAT"       "HABIT_TYP"    
+[17] "BIOTOP"        "STEJ_PR"       "SEC"           "BM"           
+[21] "ZMENA"         "RB"            "RBB"           "SD"           
+[25] "MD"            "DG"            "DGP"           "MGS"          
+[29] "MGN"           "RH"            "TD"            "SF"           
+[33] "DATUM.y"       "MAPOVATEL"     "DILO"          "POZNAMKA"     
+[37] "REPRE"         "ZACH"          "KVALITA"       "PLO_BIO_M2"   
+[41] "ROK_AKT.y"     "SEG_REL_ID.y"  "REG_REL_ID.y"  "FSB_EVAL_prep"
+[45] "FSB_EVAL"      "REGION_ID"     "AREA_real"     "LENGTH_real"  
+AREA_real summary:
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+      0.0       0.0     326.4    6571.8    3035.3 5599458.4 
+BIOTOP NA in vmb: 11571  BIOTOP == '-1': 0 
+
+ <NA>  T1.1  L2.2  T1.9  T1.6  T1.2 T2.3B  L3.1  R2.2 T3.4D  R2.1  R2.3  L2.4 
+11571  2665  1077   609   554   258   246   232   179   118   101   101   100 
+ L2.3  L5.1  L5.4   V4A  T1.7   V1F  L3.2  S1.2 L3.3B L9.2B  L7.2    L4 
+   96    96    89    85    66    64    60    46    41    36    27    26 
+analysis rows whose site has any VMB row: 4540  of 4540 
+BIOTOP present in analysis: 684 
+sites with >=1 natural segment: 3832  with both natural and non-natural: 1727 
+analysis rows whose site has a natural segment: 1952 
+AREA_SITE in analysis summary:
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+0.000e+00 0.000e+00 7.683e+00 1.324e+03 4.569e+02 1.017e+05 
+AREA_SITE == 0: 2022 
+geometry types in analysis rows:
+
+MULTIPOLYGON        POINT      POLYGON 
+         130         2022         2388 
+# A tibble: 3 × 4
+  gtype        area_na area0 area_pos
+  <chr>          <int> <int>    <int>
+1 MULTIPOLYGON       0     0      130
+2 POINT              0  2022        0
+3 POLYGON            0     0     2388
+AREA_SITE / true polygon area (polygons):
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+2.000e-08 7.317e-03 1.082e-01 4.017e-01 1.000e+00 1.000e+00 
+share < 0.5: 0.6290707 
+FSB in analysis:
+
+   -    K    L    M moz.    R    T    V    X 
+2082  119   78   77  324   10  978   32  840 
+HET_OUT:
+
+   1    2    3    4    5    7 
+4216  262   45   10    1    6 
+
+== 09_nausithous_aic_grassland.csv 
+              model n_obs df      AIC delta_AIC
+ nau_management_ttp  1752  7 2291.910     0.000
+            nau_ttp  3195  4 4283.399  1991.489
+
+== 09_nausithous_aic_habitat.csv 
+                model n_obs df      AIC delta_AIC
+            nau_plant  1805  4 2267.296  0.000000
+ nau_resource_density  1805  6 2268.732  1.436233
+        nau_area_null  1805  3 2318.382 51.086652
+             nau_area  1805  4 2318.554 51.258386
+        nau_area_poly  1805  5 2320.257 52.961964
+
+== 09_nausithous_aic_management.csv 
+              model n_obs df      AIC delta_AIC
+  nau_method_timing  1753  6 2294.869  0.000000
+         nau_timing  1753  4 2296.039  1.169414
+ nau_management_het  1753 10 2300.604  5.734885
+         nau_method  1753  4 2356.083 61.213400
+       nau_mow_null  1753  3 2363.428 68.558465
+
+== 09_nausithous_aic_natura2000.csv 
+            model n_obs df      AIC delta_AIC
+          nau_evl  3216  4 4301.588  0.000000
+ nau_evl_combined  3216  5 4303.330  1.742066
+   nau_evl_target  3216  4 4306.625  5.037112
+
+== 10_teleius_aic_habitat.csv 
+          model n_obs df      AIC delta_AIC
+  tel_area_null   713  3 583.7901  0.000000
+       tel_area   713  4 585.7281  1.937996
+      tel_plant  1324  4 648.4791 64.688989
+ tel_plant_poly  1324  5 650.4220 66.631899
+
+== 10_teleius_aic_management.csv 
+             model n_obs df      AIC delta_AIC
+ tel_method_timing   698  6 611.0257   0.00000
+        tel_method   706  4 624.0356  13.00989
+        tel_timing   754  4 689.5604  78.53468
+
+== 10_teleius_aic_management_subset.csv 
+                        model n_obs df      AIC delta_AIC
+        tel_timing_mow_subset   698  4 608.0011  0.000000
+ tel_method_timing_mow_subset   698  6 611.0257  3.024559
+        tel_method_mow_subset   698  4 614.4236  6.422428
+                 tel_mow_null   698  3 616.0797  8.078542
+
+== 10_teleius_aic_protection.csv 
+                   model n_obs df      AIC  delta_AIC
+                 tel_evl  1324  4 1058.944  0.0000000
+        tel_evl_combined  1324  5 1059.918  0.9748636
+ tel_protection_combined  1324  6 1061.130  2.1860522
+          tel_evl_target  1324  4 1097.262 38.3183506
+
+== 11_both_species_aic.csv 
+                 model n_obs df       AIC delta_AIC
+   both_mapped_habitat   684 27  907.0255     0.000
+     both_cooccurrence  4540  5 5286.2260  4379.200
+ both_recorded_habitat  4514  9 5382.3825  4475.357
+  both_management_type  4540  6 5420.3284  4513.303
+          both_species  4540  4 5425.5248  4518.499
+
+== 09_nausithous_fit_statistics.csv 
+                model engine n_obs       AIC               status
+             nau_null  glmer  3216 4310.6235                   ok
+      nau_year_factor    glm  3216 4295.5795                   ok
+      nau_year_linear    glm  3216 4383.1973                   ok
+        nau_year_poly    glm  3216 4360.6430                   ok
+          nau_spatial    glm  3216 4425.6945                   ok
+   nau_spatiotemporal    glm  3216 4279.4458                   ok
+        nau_area_null  glmer  1805 2318.3822                   ok
+             nau_area  glmer  1805 2318.5539                   ok
+    nau_area_null_glm    glm  3216 4436.2616                   ok
+        nau_area_poly  glmer  1805 2320.2575                   ok
+            nau_plant  glmer  1805 2267.2955                   ok
+       nau_plant_poly  glmer  3216 4182.2884                   ok
+ nau_resource_density  glmer  1805 2268.7317                   ok
+         nau_mow_null  glmer  1753 2363.4278                   ok
+           nau_timing  glmer  1753 2296.0388                   ok
+           nau_method  glmer  1753 2356.0828                   ok
+    nau_method_timing  glmer  1753 2294.8694                   ok
+     nau_mow_null_glm    glm  1753 2422.0736                   ok
+       nau_graze_null  glmer    77  111.5476                   ok
+            nau_graze  glmer  3216 4312.4495                   ok
+     nau_graze_method  glmer    77  113.1865                   ok
+   nau_management_het  glmer  1753 2300.6043 fitted with warnings
+          nau_protect  glmer  3216 4300.4562                   ok
+              nau_evl  glmer  3216 4301.5878                   ok
+       nau_evl_target  glmer  3216 4306.6249                   ok
+     nau_evl_combined  glmer  3216 4303.3299                   ok
+         nau_evl_year  glmer  3216 4373.2791 fitted with warnings
+            nau_mzchu  glmer  3216 4312.5936                   ok
+        nau_mzchu_evl  glmer  3216 4300.0464                   ok
+              nau_ttp  glmer  3195 4283.3989                   ok
+   nau_management_ttp  glmer  1752 2291.9096 fitted with warnings
+              nau_fsb  glmer  3216 4299.4188                   ok
+        nau_het_inner  glmer  3216 4313.8701                   ok
+        nau_het_outer  glmer  3216 4310.0158                   ok
+          nau_threats  glmer  1805 2313.2335                   ok
+
+== 10_teleius_fit_statistics.csv 
+                        model engine n_obs        AIC               status
+                     tel_null  glmer  1324 1131.19338                   ok
+                 tel_null_glm    glm  1324 1133.06079                   ok
+              tel_year_factor    glm  1324 1124.24918                   ok
+              tel_year_linear    glm  1324 1126.44271                   ok
+                tel_year_poly    glm  1324 1126.04089                   ok
+                  tel_spatial    glm  1324 1134.99312                   ok
+           tel_spatiotemporal    glm  1324 1128.32234                   ok
+            tel_mapping_field    glm  1324  796.60991                   ok
+              tel_random_only  glmer  1324 1131.19338                   ok
+                tel_area_null  glmer   713  583.79010                   ok
+                     tel_area  glmer   713  585.72810                   ok
+            tel_area_null_glm    glm   713  587.33757                   ok
+        tel_plant_area_subset  glmer   713  335.85246                   ok
+                    tel_plant  glmer  1324  648.47909                   ok
+               tel_plant_poly  glmer  1324  650.42200                   ok
+         tel_resource_density  glmer    NA         NA               failed
+                 tel_mow_null  glmer   698  616.07967                   ok
+        tel_timing_mow_subset  glmer   698  608.00113                   ok
+        tel_method_mow_subset  glmer   698  614.42356                   ok
+ tel_method_timing_mow_subset  glmer   698  611.02569                   ok
+             tel_mow_null_glm    glm   698  616.83933                   ok
+               tel_graze_null  glmer    17   29.50815                   ok
+                    tel_graze  glmer  1324  648.48172                   ok
+             tel_graze_method  glmer    17   31.36565                   ok
+                   tel_method  glmer   706  624.03558                   ok
+                   tel_timing  glmer   754  689.56037                   ok
+            tel_method_timing  glmer   698  611.02569                   ok
+                  tel_protect  glmer  1324 1047.98508                   ok
+                      tel_evl  glmer  1324 1058.94363                   ok
+               tel_evl_target  glmer  1324 1097.26198                   ok
+             tel_evl_combined  glmer  1324 1059.91849                   ok
+      tel_protection_combined  glmer  1324 1061.12968                   ok
+                    tel_mzchu  glmer  1324 1112.82889                   ok
+                      tel_fsb  glmer  1324 1117.93432 fitted with warnings
+               tel_fsb_subset  glmer   633  633.34475                   ok
+                tel_het_inner  glmer  1324 1133.19304                   ok
+       tel_het_inner_dup_year  glmer  1324 1135.19304                   ok
+                tel_het_outer  glmer  1324 1133.17283                   ok
+
+== 11_both_species_fit_statistics.csv 
+                 model engine n_obs       AIC               status
+          both_species  glmer  4540 5425.5248                   ok
+  both_management_type  glmer  4540 5420.3284                   ok
+   both_mapped_habitat  glmer   684  907.0255                   ok
+ both_recorded_habitat  glmer  4514 5382.3825 fitted with warnings
+     both_cooccurrence  glmer  4540 5286.2260                   ok
+
+nau random effects (X:Y and YEAR var):
+                model  group    variance
+             nau_null    X:Y 0.260824320
+             nau_null   YEAR 0.279692285
+        nau_area_null    X:Y 0.400406185
+        nau_area_null   YEAR 3.734200766
+             nau_area    X:Y 0.393225468
+             nau_area   YEAR 3.754469739
+        nau_area_poly    X:Y 0.392682060
+        nau_area_poly   YEAR 3.767933421
+            nau_plant    X:Y 0.484332795
+            nau_plant   YEAR 3.530536451
+       nau_plant_poly    X:Y 0.305117747
+       nau_plant_poly   YEAR 0.252475260
+ nau_resource_density    X:Y 0.484472145
+ nau_resource_density   YEAR 3.551572877
+         nau_mow_null    X:Y 0.322325963
+         nau_mow_null   YEAR 0.270522489
+           nau_timing    X:Y 0.388868331
+           nau_timing   YEAR 0.271868296
+           nau_method    X:Y 0.328300745
+           nau_method   YEAR 0.276715039
+    nau_method_timing    X:Y 0.400313426
+    nau_method_timing   YEAR 0.274513036
+       nau_graze_null    X:Y 0.275229602
+       nau_graze_null   YEAR 0.000000000
+            nau_graze    X:Y 0.261582070
+            nau_graze   YEAR 0.280744095
+     nau_graze_method    X:Y 0.259813657
+     nau_graze_method   YEAR 0.009536972
+   nau_management_het    X:Y 0.403939952
+   nau_management_het   YEAR 0.275286645
+          nau_protect    X:Y 0.268383432
+          nau_protect   YEAR 0.283255743
+              nau_evl    X:Y 0.266453049
+              nau_evl   YEAR 0.282361793
+       nau_evl_target    X:Y 0.264436270
+       nau_evl_target   YEAR 0.282210216
+     nau_evl_combined    X:Y 0.266860027
+     nau_evl_combined   YEAR 0.282769805
+         nau_evl_year    X:Y 0.266582402
+            nau_mzchu    X:Y 0.261088843
+            nau_mzchu   YEAR 0.279918405
+        nau_mzchu_evl    X:Y 0.267964005
+        nau_mzchu_evl   YEAR 0.281775650
+              nau_ttp    X:Y 0.263994889
+              nau_ttp   YEAR 0.279732261
+   nau_management_ttp    X:Y 0.400664223
+   nau_management_ttp   YEAR 0.274808978
+              nau_fsb    X:Y 0.264657644
+              nau_fsb   YEAR 0.261349983
+        nau_het_inner    X.Y 0.261598623
+        nau_het_inner   YEAR 0.221582184
+        nau_het_inner YEAR.1 0.059733602
+        nau_het_outer    X:Y 0.261396847
+        nau_het_outer   YEAR 0.280193750
+          nau_threats    X:Y 0.418393331
+          nau_threats   YEAR 3.580470251
+
+tel random effects:
+                        model  group     variance
+                     tel_null    X:Y 4.137337e-01
+                     tel_null   YEAR 7.679598e-02
+              tel_random_only    X:Y 4.137337e-01
+              tel_random_only   YEAR 7.679598e-02
+                tel_area_null    X:Y 5.680889e-01
+                tel_area_null   YEAR 1.325992e-01
+                     tel_area    X:Y 5.672698e-01
+                     tel_area   YEAR 1.328459e-01
+        tel_plant_area_subset    X:Y 1.575751e+03
+        tel_plant_area_subset   YEAR 0.000000e+00
+                    tel_plant    X:Y 1.744568e+03
+                    tel_plant   YEAR 0.000000e+00
+               tel_plant_poly    X:Y 1.743322e+03
+               tel_plant_poly   YEAR 0.000000e+00
+                 tel_mow_null    X:Y 3.756021e-01
+                 tel_mow_null   YEAR 1.610795e-01
+        tel_timing_mow_subset    X:Y 4.243144e-01
+        tel_timing_mow_subset   YEAR 1.454994e-01
+        tel_method_mow_subset    X:Y 3.191163e-01
+        tel_method_mow_subset   YEAR 1.791264e-01
+ tel_method_timing_mow_subset    X:Y 3.821481e-01
+ tel_method_timing_mow_subset   YEAR 1.594930e-01
+               tel_graze_null    X:Y 2.637178e-08
+               tel_graze_null   YEAR 0.000000e+00
+                    tel_graze    X:Y 1.745455e+03
+                    tel_graze   YEAR 0.000000e+00
+             tel_graze_method    X:Y 4.000000e-14
+             tel_graze_method   YEAR 0.000000e+00
+                   tel_method    X:Y 3.227639e-01
+                   tel_method   YEAR 1.591074e-01
+                   tel_timing    X:Y 3.066016e-01
+                   tel_timing   YEAR 2.141623e-01
+            tel_method_timing    X:Y 3.821481e-01
+            tel_method_timing   YEAR 1.594930e-01
+                  tel_protect    X:Y 1.721482e-01
+                  tel_protect   YEAR 1.770952e-01
+                      tel_evl    X:Y 1.799808e-01
+                      tel_evl   YEAR 1.648100e-01
+               tel_evl_target    X:Y 3.549178e-01
+               tel_evl_target   YEAR 1.607546e-01
+             tel_evl_combined    X:Y 1.872903e-01
+             tel_evl_combined   YEAR 1.792438e-01
+      tel_protection_combined    X:Y 1.941542e-01
+      tel_protection_combined   YEAR 1.871511e-01
+                    tel_mzchu    X:Y 2.556410e-01
+                    tel_mzchu   YEAR 1.256129e-01
+                      tel_fsb    X:Y 3.332163e-01
+                      tel_fsb   YEAR 8.431303e-02
+               tel_fsb_subset    X:Y 2.201630e-01
+               tel_fsb_subset   YEAR 1.846769e-01
+                tel_het_inner    X:Y 4.137418e-01
+                tel_het_inner   YEAR 7.683181e-02
+       tel_het_inner_dup_year    X.Y 4.137377e-01
+       tel_het_inner_dup_year   YEAR 7.476121e-02
+       tel_het_inner_dup_year YEAR.1 2.069138e-03
+                tel_het_outer    X:Y 4.139492e-01
+                tel_het_outer   YEAR 7.680494e-02
+
+nau coef (management/protection):
+             model                                  term      estimate
+       nau_spatial                           (Intercept)  9.164374e-02
+       nau_spatial                                   X:Y -4.293276e-17
+         nau_plant                           (Intercept) -8.291749e-01
+         nau_plant                           PLANT_QUANT  6.704151e-01
+        nau_timing                           (Intercept) -9.404889e-01
+        nau_timing                    as.factor(TIMING)1  9.900266e-01
+        nau_method                           (Intercept) -4.075049e-01
+        nau_method                    as.factor(METHOD)1  3.311158e-01
+ nau_method_timing                           (Intercept) -1.091041e+00
+ nau_method_timing                    as.factor(METHOD)1  4.974147e-01
+ nau_method_timing                    as.factor(TIMING)1  1.162049e+00
+ nau_method_timing as.factor(METHOD)1:as.factor(TIMING)1 -5.338373e-01
+         nau_graze                           (Intercept) -3.003550e-01
+         nau_graze                     as.factor(GRAZE)1  1.071255e-01
+           nau_evl                           (Intercept) -3.579717e-01
+           nau_evl                       as.factor(EVL)1  3.347433e-01
+  nau_evl_combined                           (Intercept) -3.582329e-01
+  nau_evl_combined                       as.factor(EVL)1  2.946747e-01
+  nau_evl_combined                as.factor(EVL_target)1  9.401117e-02
+    std_error      p_value
+ 8.270105e-02 2.678045e-01
+ 1.212055e-17 3.968843e-04
+ 8.132604e-01 3.079330e-01
+ 9.813417e-02 8.396291e-12
+ 2.399114e-01 8.849355e-05
+ 1.287695e-01 1.490262e-14
+ 2.285322e-01 7.456354e-02
+ 1.091201e-01 2.410014e-03
+ 2.516451e-01 1.453418e-05
+ 2.201061e-01 2.382828e-02
+ 1.672379e-01 3.692429e-12
+ 2.575618e-01 3.820419e-02
+ 2.204887e-01 1.731272e-01
+ 2.556027e-01 6.751363e-01
+ 2.218172e-01 1.065678e-01
+ 1.012195e-01 9.426641e-04
+ 2.219706e-01 1.065544e-01
+ 1.281685e-01 2.149813e-02
+ 1.848000e-01 6.109495e-01
+
+tel coef:
+                        model                                  term
+                  tel_spatial                           (Intercept)
+                  tel_spatial                                   X:Y
+                     tel_area                           (Intercept)
+                     tel_area                      log10(AREA_SITE)
+        tel_timing_mow_subset                           (Intercept)
+        tel_timing_mow_subset                    as.factor(TIMING)1
+ tel_method_timing_mow_subset                           (Intercept)
+ tel_method_timing_mow_subset                    as.factor(METHOD)1
+ tel_method_timing_mow_subset                    as.factor(TIMING)1
+ tel_method_timing_mow_subset as.factor(METHOD)1:as.factor(TIMING)1
+                    tel_graze                           (Intercept)
+                    tel_graze                     as.factor(GRAZE)1
+                      tel_evl                           (Intercept)
+                      tel_evl                       as.factor(EVL)1
+             tel_evl_combined                           (Intercept)
+             tel_evl_combined                       as.factor(EVL)1
+             tel_evl_combined                as.factor(EVL_target)1
+      estimate    std_error      p_value
+ -1.674604e+00 1.709365e-01 1.163877e-22
+ -6.573582e-18 2.521470e-17 7.943205e-01
+ -2.009606e+00 3.846019e-01 1.740072e-07
+ -2.414532e-02 9.677573e-02 8.029758e-01
+ -2.462695e+00 3.837196e-01 1.381185e-10
+  8.657458e-01 2.951143e-01 3.350607e-03
+ -2.492074e+00 4.121589e-01 1.481272e-09
+  1.760511e-01 5.831366e-01 7.627255e-01
+  7.571261e-01 3.721527e-01 4.190622e-02
+  6.543558e-02 6.377735e-01 9.182804e-01
+ -1.184194e+01 3.015858e+00 8.617065e-05
+  2.161895e+01 1.412677e+01 1.259293e-01
+ -2.303285e+00 2.432902e-01 2.873592e-21
+  1.531551e+00 1.898990e-01 7.318795e-16
+ -2.315314e+00 2.479628e-01 9.878057e-21
+  1.410976e+00 2.219126e-01 2.040637e-10
+  2.859616e-01 2.818203e-01 3.102513e-01
+
+== 13_rda_anova_by_term.csv 
+      term Df Variance        F    Pr..F.
+1     DRUH  1 5.176999 1.608796 0.5000000
+2 POSITIVE  1 8.605068 2.674098 0.1666667
+3 Residual  1 3.217933       NA        NA
+
+== 13_rda_anova_overall.csv 
+      term Df  Variance        F    Pr..F.
+1    Model  2 13.782067 2.141447 0.3333333
+2 Residual  1  3.217933       NA        NA
+
+== 13_rda_tap_anova_by_axis.csv 
+      term Df  Variance        F    Pr..F.
+1     RDA1  1 11.473165 3.565384 0.3333333
+2     RDA2  1  2.308902 1.435022 0.4166667
+3 Residual  1  3.217933       NA        NA
+
+== 13_rda_tap_anova_by_term.csv 
+      term Df Variance        F    Pr..F.
+1     DRUH  1 5.176999 1.608796 0.5000000
+2 POSITIVE  1 8.605068 2.674098 0.1666667
+3 Residual  1 3.217933       NA        NA
+
+== 13_rda_tap_anova_overall.csv 
+      term Df  Variance        F    Pr..F.
+1    Model  2 13.782067 2.141447 0.3333333
+2 Residual  1  3.217933       NA        NA
+
+== 13_rda_variable_scores.csv 
+                  Variable       RDA1        RDA2
+1              PLANT_QUANT  0.5637632 -0.18019927
+2                  HET_INN  0.6131213 -0.15587011
+3                      EVL  0.5243116  0.11417604
+4                    MZCHU  0.4324084  0.34916830
+5            LandUseChange -0.4898158  0.40319667
+6              Abandonment -0.4801508 -0.01553264
+7               HarmfulMow -0.6303260 -0.04893407
+8           HarmfulGrazing  0.5371245 -0.20075743
+9         GrazingByeffects  0.5288872 -0.14731424
+10           FertilizerUse -0.5692267 -0.28627489
+11           Afforestation -0.6418569 -0.01397780
+12               Invasives -0.4726841 -0.44249417
+13         NativeDominants -0.4287497 -0.14369386
+14 AbioticNaturalProcesses -0.5457760  0.34128339
+15            Encroachment -0.5040056  0.24725318
+16     BiomassAccumulation  0.5974146  0.21617072
+17          Eutrophization -0.4195404 -0.16753077
+
+== 13_rda_vif.csv 
+         term VIF
+1 DRUHteleius   1
+2   POSITIVE1   1
+
+rows entering ordination (SUM_THREATS>0): 2518  -> groups: 4 
+geometry type by year:
+      
+       MULTIPOLYGON POINT POLYGON
+  2019            0   938      44
+  2020            0  1084       7
+  2021          130     0     581
+  2022            0     0     845
+  2023            0     0     409
+  2024            0     0     502
+positive share by geometry type & species:
+# A tibble: 6 × 4
+  DRUH                 gtype            n    pos
+  <chr>                <chr>        <int>  <dbl>
+1 Phengaris nausithous MULTIPOLYGON    96 0.385 
+2 Phengaris nausithous POINT         1411 0.481 
+3 Phengaris nausithous POLYGON       1709 0.441 
+4 Phengaris teleius    MULTIPOLYGON    34 0.0588
+5 Phengaris teleius    POINT          611 0.164 
+6 Phengaris teleius    POLYGON        679 0.147 
+positive share by year & species:
+# A tibble: 12 × 5
+   DRUH                  YEAR     n   pos   imp
+   <chr>                <dbl> <int> <dbl> <int>
+ 1 Phengaris nausithous  2019   771 0.536     1
+ 2 Phengaris nausithous  2020   683 0.445     0
+ 3 Phengaris nausithous  2021   538 0.429     0
+ 4 Phengaris nausithous  2022   563 0.572     0
+ 5 Phengaris nausithous  2023   291 0.416     0
+ 6 Phengaris nausithous  2024   370 0.211     1
+ 7 Phengaris teleius     2019   211 0.19    171
+ 8 Phengaris teleius     2020   408 0.15    165
+ 9 Phengaris teleius     2021   173 0.231   115
+10 Phengaris teleius     2022   282 0.131   184
+11 Phengaris teleius     2023   118 0.119    64
+12 Phengaris teleius     2024   132 0.076    88
+mowing assessed by year:
+      
+       FALSE TRUE
+  2019   403  579
+  2020   539  552
+  2021   438  273
+  2022   325  520
+  2023   145  264
+  2024   214  288
+GRAZE by year:
+      
+          0    1
+  2019  982    0
+  2020 1091    0
+  2021  676   35
+  2022  811   34
+  2023  403    6
+  2024  481   21
+tel: PLANT_QUANT by POSITIVE & IMPUTED:
+# A tibble: 9 × 4
+  IMPUTED POSITIVE PLANT_QUANT     n
+  <lgl>      <dbl>       <dbl> <int>
+1 FALSE          0           1   261
+2 FALSE          0           2    57
+3 FALSE          0           3    17
+4 FALSE          1           1    96
+5 FALSE          1           2    86
+6 FALSE          1           3    20
+7 TRUE           0           1   438
+8 TRUE           0           2   298
+9 TRUE           0           3    51
+tel: GRAZE by POSITIVE:
+# A tibble: 4 × 3
+  GRAZE POSITIVE     n
+  <dbl>    <dbl> <int>
+1     0        0  1113
+2     0        1   193
+3     1        0     9
+4     1        1     9
+day-of-year summary (DATUM_OD):
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  177.0   204.0   209.0   211.2   219.0   347.0 
+ 1%  5% 50% 95% 99% 
+191 196 209 229 234 
+DOY by species & positive:
+# A tibble: 4 × 5
+  DRUH                 POSITIVE   q05   med   q95
+  <chr>                   <dbl> <dbl> <dbl> <dbl>
+1 Phengaris nausithous        0  195    210  232 
+2 Phengaris nausithous        1  198    209  228 
+3 Phengaris teleius           0  197.   210  233 
+4 Phengaris teleius           1  190.   204  224.
+multi-day records (DATUM_OD != DATUM_DO): 0 
+records per observer: 
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   1.00    3.75   14.50   56.75   59.00  772.00 
+site(ID_LOKAL)-species combos: 4433  with >1 date: 22  with >1 record: 28 
+ID_LOKAL-year-species combos: 4433  one record: 4405 
+(not deduplicated) ID_LOKAL-year-species combos: 4433  one record: 4330 
+POCET in observed records by POSITIVE:
+# A tibble: 4 × 7
+  DRUH                 POSITIVE     n pocet_nonNA pocet0 odhad1 relpoc
+  <chr>                   <dbl> <int>       <int>  <int>  <int>  <int>
+1 Phengaris nausithous        0  1745           0      0      0      0
+2 Phengaris nausithous        1  1469        1466      0      0      0
+3 Phengaris teleius           0   335           0      0      0      0
+4 Phengaris teleius           1   202         202      0      0      0
+POCET observed positive summary:
+# A tibble: 2 × 5
+  DRUH                   min   q50   q90   max
+  <chr>                <dbl> <dbl> <dbl> <dbl>
+1 Phengaris nausithous     1     3  15     200
+2 Phengaris teleius        1     3  39.1   500
+POCITANO (positive, observed):
+
+jedinci    <NA> 
+   1668       3 
+NEGATIV==1 with POCET>0 (observed): 0 
+raw targeted records: 4825  by species: 3840 985 
+observed rows in data_with_imputed: 4564  distinct (ID_NALEZ,DRUH): 4460 
+targeted records outside own reporting range (dropped in step 02): 365 
+                      
+                         1
+  Phengaris nausithous  85
+  Phengaris teleius    280
+range_both values:
+
+   1    2 
+4565  844 
+range_Pnau:
+
+   1 <NA> 
+4687  722 
+step 04 filter: data_with_imputed 5409 -> data_clean 4540 
+Warning messages:
+1: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+2: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+X:Y levels corrupted: 3201  corrected: 3201 
+corrected X:Y singletons: 1943 
+corrected coordinates within CZ S-JTSK bbox (-905000..-430000, -1230000..-930000): TRUE 
+corrupted coordinates outside that bbox: 4540 of 4540 
+
+Imputed P. teleius absences by year:
+
+2019 2020 2021 2022 2023 2024 
+ 171  165  115  184   64   88 
+
+visits (ID_LOKAL x date) in observed targeted-in-range records: 4088 
+   tel
+nau    0    1
+  0    0  344
+  1 3384  360
+all targeted visits (ID_LOKAL x date): 4227 
+# A tibble: 10 × 5
+     nau   tel in_nau in_tel     n
+   <dbl> <dbl> <lgl>  <lgl>  <int>
+ 1     0     1 FALSE  TRUE       2
+ 2     0     1 TRUE   FALSE     54
+ 3     0     1 TRUE   TRUE     342
+ 4     1     0 FALSE  FALSE     66
+ 5     1     0 FALSE  TRUE       2
+ 6     1     0 TRUE   FALSE   1233
+ 7     1     0 TRUE   TRUE    1942
+ 8     1     1 FALSE  FALSE     17
+ 9     1     1 TRUE   FALSE    209
+10     1     1 TRUE   TRUE     360
+
+Visit-level rule candidates:
+ P. teleius absences (nau-only visit, site in teleius range): 1944 
+ P. nausithous absences (tel-only visit, site in nausithous range): 396 
+
+Explicit negative records by species (targeted):
+                      
+                          0    1
+  Phengaris nausithous 1598 2242
+  Phengaris teleius     213  772
+ of those, observer recorded P. teleius somewhere on the same day: 689 of 1944 
+
+ZDROJ of nau-only in-teleius-range visits:
+
+Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                 521 
+             Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR. 
+                                                                                   2 
+Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                 250 
+             Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR. 
+                                                                                 309 
+Kolektiv autorů (2021) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR. 
+                                                                                  37 
+                                           Kolektiv autorů (2022) Monitoring motýlů. 
+                                                                                 829 
+Threat vocabulary, items with n >= 3, and the legacy variable that captures them:
+                         key                                                                               item   n              legacy_var
+ Negativní vlivy na lokalitě                                                                             sečení 857                        
+ Negativní vlivy na lokalitě                                                                  sukcese všeobecně 540            Encroachment
+ Negativní vlivy na lokalitě                                                                    vývoj biocenózy 540                        
+ Negativní vlivy na lokalitě                                      nevhodná seč (vysoká intenzita, termín apod.) 442              HarmfulMow
+ Negativní vlivy na lokalitě                                                                         žádný vliv 442                        
+ Negativní vlivy na lokalitě                                          hromadění organického materiálu (stařiny) 420     BiomassAccumulation
+ Negativní vlivy na lokalitě                                                         eutrofizace či okyselování 407          Eutrophization
+ Negativní vlivy na lokalitě                                                                        eutrofizace 335                        
+ Negativní vlivy na lokalitě                                                                            sukcese 331            Encroachment
+ Negativní vlivy na lokalitě                                                    expanzní druhy (mimo invazních) 258         NativeDominants
+ Negativní vlivy na lokalitě                                   nevhodná pastva (vysoká intenzita, termín apod.) 244          HarmfulGrazing
+ Negativní vlivy na lokalitě                                                         absence či nedostatek péče 210             Abandonment
+ Negativní vlivy na lokalitě                                                    hromadění organického materiálu 197     BiomassAccumulation
+ Negativní vlivy na lokalitě                      abiotické přírodní procesy (eroze, zanášení, vysychání apod.) 164 AbioticNaturalProcesses
+ Negativní vlivy na lokalitě                                                                             pastva 101                        
+ Negativní vlivy na lokalitě                                                  vysychání (mokřadního ekosystému)  94                        
+ Negativní vlivy na lokalitě                                                                            hnojení  68                        
+ Negativní vlivy na lokalitě                 dopady chovu dobytka mimo pastvu (např. sešlap, eutrofizace apod.)  50        GrazingByeffects
+ Negativní vlivy na lokalitě                                                                          jiný vliv  40                        
+ Negativní vlivy na lokalitě                                                    invaze nějakého druhu (neofyty)  36                        
+ Negativní vlivy na lokalitě                                                                      invazní druhy  35               Invasives
+ Negativní vlivy na lokalitě                                                                          meliorace  33                        
+ Negativní vlivy na lokalitě                                                                        odvodňování  33                        
+ Negativní vlivy na lokalitě                                                                 nadměrné využívání  32                        
+ Negativní vlivy na lokalitě                                                                        sešlapávání  32                        
+ Negativní vlivy na lokalitě absence nebo narušení mezidruhových vztahů (např. opylovači, živné rostliny apod.)  31                        
+ Negativní vlivy na lokalitě                                                                        zaplavování  31                        
+ Negativní vlivy na lokalitě                                 změna zemědělského využívání půdy a terénní úpravy  20           LandUseChange
+ Negativní vlivy na lokalitě                                                                     terénní úpravy  18                        
+ Negativní vlivy na lokalitě                                                                    aplikace hnojiv  17           FertilizerUse
+ Negativní vlivy na lokalitě                                                                zalesňování bezlesí  17           Afforestation
+ Negativní vlivy na lokalitě                                                                      hrází rybníků  15                        
+ Negativní vlivy na lokalitě                                                                             kanálů  15                        
+ Negativní vlivy na lokalitě                                                                            mokřadů  15                        
+ Negativní vlivy na lokalitě                                                                             nádrží  15                        
+ Negativní vlivy na lokalitě                                                                    zpevňování stok  15                        
+ Negativní vlivy na lokalitě                                                                    vysazování lesů  11                        
+ Negativní vlivy na lokalitě                                 změna hydrologických poměrů v důsledku zemědělství  11                        
+ Negativní vlivy na lokalitě                                           dosev a obnova trvalých travních porostů   9                        
+ Negativní vlivy na lokalitě                                                          křovišť a drobných lesíků   9                        
+ Negativní vlivy na lokalitě                                                                  odstraňování mezí   9                        
+                        vliv                                      nevhodná seč (vysoká intenzita, termín apod.) 279              HarmfulMow
+                        vliv                                                                         žádný vliv 236                        
+                        vliv                                                         absence či nedostatek péče 230             Abandonment
+                        vliv                                                                            sukcese 199            Encroachment
+                        vliv                                                         eutrofizace či okyselování 177          Eutrophization
+                        vliv                                                    expanzní druhy (mimo invazních) 120         NativeDominants
+                        vliv                                                    hromadění organického materiálu  99     BiomassAccumulation
+                        vliv                      abiotické přírodní procesy (eroze, zanášení, vysychání apod.)  59 AbioticNaturalProcesses
+                        vliv                                                                      invazní druhy  30               Invasives
+                        vliv                                 změna zemědělského využívání půdy a terénní úpravy  30           LandUseChange
+                        vliv                                                                zalesňování bezlesí  26           Afforestation
+                        vliv                                   nevhodná pastva (vysoká intenzita, termín apod.)  24          HarmfulGrazing
+                        vliv                                                                          jiný vliv  22                        
+                        vliv                                                                    aplikace hnojiv  14           FertilizerUse
+                        vliv                 dopady chovu dobytka mimo pastvu (např. sešlap, eutrofizace apod.)  11        GrazingByeffects
+
+Items not captured by any legacy pattern (count of item occurrences) by key:
+# A tibble: 2 × 3
+  key                         items occurrences
+  <chr>                       <int>       <int>
+1 Negativní vlivy na lokalitě    41        2862
+2 vliv                            7         263
+Captured occurrences by key:
+# A tibble: 2 × 2
+  key                         occurrences
+  <chr>                             <int>
+1 Negativní vlivy na lokalitě        3352
+2 vliv                               1298
+
+Targeted rows with NA STRUKT_POZN by year x source:
+      
+       Kolektiv autorů (2019) Monitoring totenových modrásků. Kolektiv autorů (2020) Monitoring totenových modrásků. Kolektiv autorů (2021) Monitoring motýlů.
+  2019                                                     12                                                      0                                         0
+  2020                                                      0                                                     64                                         0
+  2021                                                      0                                                      0                                         2
+  2022                                                      0                                                      0                                         0
+      
+       Kolektiv autorů (2021) Monitoring totenových modrásků. Kolektiv autorů (2022) Monitoring motýlů.
+  2019                                                     11                                         0
+  2020                                                     17                                         0
+  2021                                                    335                                         0
+  2022                                                      0                                        15
+
+DOY > 260 records:
+# A tibble: 3 × 6
+  ID_NALEZ DRUH                 DATUM_OD AUTOR         POSITIVE IMPUTED
+     <dbl> <chr>                   <dbl> <chr>            <dbl> <lgl>  
+1 65296796 Phengaris nausithous 20241212 Vladimir Hula        0 FALSE  
+2 65296499 Phengaris nausithous 20241029 Fišer Marek          0 FALSE  
+3 65296796 Phengaris teleius    20241212 Vladimir Hula        0 TRUE   
+Warning message:
+One or more parsing issues, call `problems()` on your data frame for details, e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+
+P. nausithous file, X decimals:
+nd
+   0    1    2 
+ 768  635 6519 
+teleius POCET non-NA in analysis: observed 202  imputed (inherited nau counts) 362 
+# A tibble: 4 × 5
+  DRUH                 IMPUTED     n  mean median
+  <chr>                <lgl>   <int> <dbl>  <dbl>
+1 Phengaris nausithous FALSE    1466  7.01      3
+2 Phengaris nausithous TRUE        1 10        10
+3 Phengaris teleius    FALSE     202 17.5       3
+4 Phengaris teleius    TRUE      362  6.69      3
+site geometries in analysis: 3401 
+dist    0 m: sites  2979 | in >1 year  104 (3.5%) | max geometries/site  12 | records per site median 1, singleton-record sites 1636
+dist   10 m: sites  2931 | in >1 year  111 (3.8%) | max geometries/site  17 | records per site median 1, singleton-record sites 1587
+dist   25 m: sites  2859 | in >1 year  113 (4.0%) | max geometries/site  17 | records per site median 1, singleton-record sites 1521
+dist   50 m: sites  2793 | in >1 year  112 (4.0%) | max geometries/site  17 | records per site median 1, singleton-record sites 1460
+dist  100 m: sites  2670 | in >1 year  127 (4.8%) | max geometries/site  18 | records per site median 1, singleton-record sites 1341
+dist  200 m: sites  2496 | in >1 year  136 (5.4%) | max geometries/site  20 | records per site median 2, singleton-record sites 1199
