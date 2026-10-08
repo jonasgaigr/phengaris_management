@@ -91,6 +91,7 @@ source("R/functions/strukt_pozn.R", encoding = "UTF-8")
 source("R/functions/derive_variables.R", encoding = "UTF-8")
 source("R/functions/report_helpers.R", encoding = "UTF-8")
 source("R/functions/model_helpers.R", encoding = "UTF-8")
+source("R/functions/model_specs_legacy.R", encoding = "UTF-8")
 source("R/functions/summary_tables.R", encoding = "UTF-8")
 source("R/functions/habitat_layers.R", encoding = "UTF-8")
 

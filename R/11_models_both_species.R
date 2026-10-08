@@ -33,48 +33,18 @@ report_start(
 data <- read_data_analysis()
 
 #----------------------------------------------------------#
-# Model specifications -----
+# Model set -----
 #----------------------------------------------------------#
 
-specs_both <- list(
-  list(
-    id = "both_species", group = "Both species",
-    label = "Species only",
-    formula = as.factor(POSITIVE) ~ as.factor(DRUH) + (1 | YEAR) + (1 | X:Y),
-    data = data, engine = "glmer"
-  ),
-  list(
-    id = "both_management_type", group = "Both species",
-    label = "Species, mowing and grazing",
-    formula = as.factor(POSITIVE) ~ as.factor(DRUH) + as.factor(MOW) + as.factor(GRAZE) + (1 | YEAR) + (1 | X:Y),
-    data = data, engine = "glmer"
-  ),
-  list(
-    id = "both_mapped_habitat", group = "Both species",
-    label = "Species and mapped habitat code",
-    formula = as.factor(POSITIVE) ~ as.factor(DRUH) + as.factor(BIOTOP) + (1 | YEAR) + (1 | X:Y),
-    data = data, engine = "glmer"
-  ),
-  list(
-    # ZARUST appears twice in the original formula. R drops the repeat, so the
-    # fitted model is unaffected, but the term is left in place as written.
-    id = "both_recorded_habitat", group = "Both species",
-    label = "Species and recorded habitat types",
-    formula = as.factor(POSITIVE) ~ as.factor(DRUH) +
-      as.factor(TTP) + as.factor(ZARUST) + as.factor(PRIKOP) + as.factor(JINY) +
-      as.factor(MOW) + as.factor(ZARUST) +
-      (1 | YEAR) + (1 | X:Y),
-    data = data, engine = "glmer"
-  ),
-  list(
-    id = "both_cooccurrence", group = "Both species",
-    label = "Co-occurrence of the two species by species",
-    formula = as.factor(POSITIVE) ~ as.factor(SPEC_NUM) * as.factor(DRUH) + (1 | YEAR) + (1 | (X:Y)),
-    data = data, engine = "glmer"
-  )
-)
+# The models and the AIC comparisons of this specification; see
+# R/functions/model_specs_legacy.R for the original model set.
+model_set <- model_set_for(spec_settings()$model_set, "both", data)
 
-models_both <- fit_binomial_set(specs_both)
+#----------------------------------------------------------#
+# Fit -----
+#----------------------------------------------------------#
+
+models_both <- fit_binomial_set(model_set$specs)
 
 #----------------------------------------------------------#
 # Results -----
@@ -82,16 +52,7 @@ models_both <- fit_binomial_set(specs_both)
 
 report_model_set(models_both, "11_both_species")
 
-report_table(
-  aic_comparison(
-    models_both,
-    c("both_species", "both_management_type", "both_recorded_habitat",
-      "both_mapped_habitat", "both_cooccurrence")
-  ),
-  "Both-species models",
-  "11_both_species_aic",
-  max_rows = 20
-)
+report_comparisons(models_both, model_set$comparisons)
 
 #----------------------------------------------------------#
 # Non-parametric comparisons between the species -----

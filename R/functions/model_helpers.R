@@ -212,6 +212,23 @@ aic_comparison <- function(models, ids) {
   tab
 }
 
+#' Report a list of AIC comparisons, one table each.
+#'
+#' @param models       the full list of fitted-model records
+#' @param comparisons  list of list(ids, caption, stem), as returned by
+#'                     model_set_for()
+report_comparisons <- function(models, comparisons) {
+  for (cmp in comparisons) {
+    report_table(
+      aic_comparison(models, cmp$ids),
+      cmp$caption,
+      cmp$stem,
+      max_rows = 20
+    )
+  }
+  invisible(NULL)
+}
+
 #--------------------------------------------------#
 ## Reporting a model set -----
 #--------------------------------------------------#

@@ -64,6 +64,8 @@ specifications:
       # "area_weighted" (summaries over all segments; not validated on real
       # data). See R/functions/habitat_layers.R.
       habitat_segment_rule: legacy
+      # The models fitted in steps 09-11; see R/functions/model_specs_legacy.R.
+      model_set: legacy
 
 #--------------------------------------------------#
 # Data sources counted as targeted monitoring -----
