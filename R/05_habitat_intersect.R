@@ -41,7 +41,7 @@ path_lokal_vmb_csv  <- file.path(PATHS$processed, "data_lokal_vmb.csv")
 
 # Frozen copy of the intersection the original analysis used. It cannot be
 # regenerated without the habitat layer, so it is kept as a tracked input.
-path_lokal_vmb_legacy <- file.path(PATHS$input, "habitats", "legacy", "data_lokal_vmb.csv")
+path_lokal_vmb_legacy <- CONFIG$paths$habitat_legacy_intersection
 
 #----------------------------------------------------------#
 # Run the intersection, if the habitat layer is reachable -----

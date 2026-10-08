@@ -10,14 +10,16 @@
 ## Project paths -----
 #--------------------------------------------------#
 
+# Built from config.yml, which R/00_setup.R reads into CONFIG before this
+# file is sourced.
 PATHS <- list(
-  input      = "Data/Input",
-  processed  = "Data/Processed",
-  temp       = "Data/Temp",
-  outputs    = "Outputs",
-  tables     = "Outputs/Tables",
-  figures    = "Outputs/Figures",
-  reports    = "Outputs/Reports"
+  input      = CONFIG$paths$input,
+  processed  = CONFIG$paths$processed,
+  temp       = CONFIG$paths$temp,
+  outputs    = CONFIG$paths$outputs,
+  tables     = file.path(CONFIG$paths$outputs, "Tables"),
+  figures    = file.path(CONFIG$paths$outputs, "Figures"),
+  reports    = file.path(CONFIG$paths$outputs, "Reports")
 )
 
 #' Create every output directory the cascade writes into.

@@ -1,0 +1,98 @@
+#----------------------------------------------------------#
+#
+#       Phengaris spp. management in Czechia
+#
+#                  Configuration
+#
+#----------------------------------------------------------#
+#
+# Every tunable choice of the analysis is set here and nowhere else.
+# R/functions/config.R reads this file into the list CONFIG when
+# R/00_setup.R runs, and checks that nothing required is missing.
+#
+# Choices that need a decision on the ecology or on the field protocol are
+# marked TODO(Jonáš). Until that decision is made, the value given is the one
+# that reproduces the original analysis.
+#
+#----------------------------------------------------------#
+
+#--------------------------------------------------#
+# Years and species -----
+#--------------------------------------------------#
+
+# Monitoring years analysed, inclusive.
+years:
+  first: 2019
+  last: 2024
+
+species:
+  nausithous:
+    name: Phengaris nausithous
+    # The Natura 2000 site-subject table still uses the former genus name.
+    n2k_name: Maculinea nausithous
+  teleius:
+    name: Phengaris teleius
+    n2k_name: Maculinea teleius
+
+#--------------------------------------------------#
+# Coordinate reference system -----
+#--------------------------------------------------#
+
+crs:
+  # S-JTSK / Krovak East North, the national CRS every layer is aligned to.
+  epsg: 5514
+
+#--------------------------------------------------#
+# Data sources counted as targeted monitoring -----
+#--------------------------------------------------#
+
+# Only records from these campaigns enter the analysis. Everything else is
+# opportunistic recording, for which absences cannot be inferred.
+#
+# The source year is the year the dataset was published, not the year of the
+# record: "Kolektiv autorů (2022) Monitoring motýlů." holds the records of
+# 2022, 2023 and 2024 (and 5 from 2021), and the 2021 sources hold 28 records
+# from 2019 and 2020. TODO(Jonáš): confirm that this is intended.
+sources:
+  targeted:
+    - Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.
+    - Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.
+    - Kolektiv autorů (2021) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.
+    - Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.
+    - Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.
+    - Kolektiv autorů (2022) Monitoring motýlů.
+    # The next two match no record in the 2019-2024 exports today. They are
+    # kept so that a later export using them is picked up.
+    - Kolektiv autorů (2023) Monitoring motýlů.
+    - Kolektiv autorů (2024) Monitoring motýlů.
+  # TODO(Jonáš): are any of these targeted monitoring too? They are not used
+  # unless moved into the list above. Record counts in the 2019-2024 exports
+  # in brackets.
+  candidates:
+    - Kolektiv autorů (2024) Síťové mapování denních motýlů v letech 2024-2029.  # 156
+    - FIŠER M. (2020) Monitoring EV druhů.                                       # 129
+    - FIŠER M. (2021) Monitoring EV druhů.                                       # 65
+    - FIŠER M. (2023) Mapováni EV druhů (2023).                                  # 52
+
+#--------------------------------------------------#
+# File locations -----
+#--------------------------------------------------#
+
+paths:
+  input: Data/Input
+  processed: Data/Processed
+  temp: Data/Temp
+  outputs: Outputs
+  occurrence:
+    nausithous: Data/Input/Phengaris_nausithous_2019_2024.csv
+    teleius: Data/Input/Phengaris_teleius_2019_2024.csv
+  # Folders holding the w03_nd_lokalizace_{b,p,l} site shapefiles.
+  site_layers:
+    nausithous: Data/Input/Phengaris_nausithous_2019_2024
+    teleius: Data/Input/Phengaris_teleius_2019_2024
+  # Article 17 reporting range, 10 x 10 km ETRS grid cells.
+  ranges:
+    nausithous: Data/Input/Reporting_range/nausithous.shp
+    teleius: Data/Input/Reporting_range/teleius.shp
+  # Frozen site x habitat-segment intersection of the original analysis.
+  habitat_legacy_intersection: Data/Input/habitats/legacy/data_lokal_vmb.csv

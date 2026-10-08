@@ -95,6 +95,15 @@ invisible(tryCatch(
 message("Packages installed and loaded (binary on Windows: ", pkg_type == "binary", ")")
 
 #----------------------------------------------------------#
+# Configuration -----
+#----------------------------------------------------------#
+
+# Every tunable choice lives in config.yml; the constants below are read
+# from it.
+source("R/functions/config.R", encoding = "UTF-8")
+CONFIG <- load_config("config.yml")
+
+#----------------------------------------------------------#
 # Helper functions -----
 #----------------------------------------------------------#
 
@@ -114,14 +123,14 @@ init_output_dirs()
 #--------------------------------------------------#
 
 # S-JTSK / Krovak East North, the national CRS all layers are aligned to.
-CRS_SJTSK <- 5514
+CRS_SJTSK <- CONFIG$crs$epsg
 
 #--------------------------------------------------#
 ## Species -----
 #--------------------------------------------------#
 
-SPECIES_NAU <- "Phengaris nausithous"
-SPECIES_TEL <- "Phengaris teleius"
+SPECIES_NAU <- CONFIG$species$nausithous$name
+SPECIES_TEL <- CONFIG$species$teleius$name
 
 #--------------------------------------------------#
 ## Data sources counted as targeted monitoring -----
@@ -129,18 +138,7 @@ SPECIES_TEL <- "Phengaris teleius"
 
 # Only records from these monitoring campaigns enter the analysis. Everything
 # else is opportunistic recording, for which absences cannot be inferred.
-target_mon_zdroj <- c(
-  "Kolektiv autorů (2017) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2018) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2020) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2021) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2020) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2021) Monitoring motýlů. Monitoring druhů ČR. AOPK ČR.",
-  "Kolektiv autorů (2022) Monitoring motýlů.",
-  "Kolektiv autorů (2023) Monitoring motýlů.",
-  "Kolektiv autorů (2024) Monitoring motýlů."
-)
+target_mon_zdroj <- CONFIG$sources$targeted
 
 #--------------------------------------------------#
 ## Years excluded from the analysis -----

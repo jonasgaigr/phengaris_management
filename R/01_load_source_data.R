@@ -115,8 +115,8 @@ read_range <- function(file) {
     )
 }
 
-range_nausithous <- read_range("Data/Input/Reporting_range/nausithous.shp")
-range_teleius    <- read_range("Data/Input/Reporting_range/teleius.shp")
+range_nausithous <- read_range(CONFIG$paths$ranges$nausithous)
+range_teleius    <- read_range(CONFIG$paths$ranges$teleius)
 
 #----------------------------------------------------------#
 # Occurrence records and site geometries -----
@@ -211,12 +211,12 @@ read_lokal <- function(dir, kind, cast = NULL) {
 
 data_new <-
   dplyr::bind_rows(
-    read_occurrence_csv("Data/Input/Phengaris_nausithous_2019_2024.csv"),
-    read_occurrence_csv("Data/Input/Phengaris_teleius_2019_2024.csv")
+    read_occurrence_csv(CONFIG$paths$occurrence$nausithous),
+    read_occurrence_csv(CONFIG$paths$occurrence$teleius)
   )
 
-dir_nau_new <- "Data/Input/Phengaris_nausithous_2019_2024"
-dir_tel_new <- "Data/Input/Phengaris_teleius_2019_2024"
+dir_nau_new <- CONFIG$paths$site_layers$nausithous
+dir_tel_new <- CONFIG$paths$site_layers$teleius
 
 lokal_new <-
   dplyr::bind_rows(
