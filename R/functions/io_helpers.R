@@ -83,6 +83,43 @@ write_figure_png <- function(plot, stem, width = 8, height = 6, dpi = 300) {
 }
 
 #--------------------------------------------------#
+## Reference layers -----
+#--------------------------------------------------#
+
+#' Path of one local reference-layer copy, failing clearly when it is missing.
+reference_path <- function(file) {
+  path <- file.path(CONFIG$paths$reference, file)
+  if (!file.exists(path)) {
+    stop(
+      "Reference layer ", path, " is missing. Run ",
+      "R/tools/refresh_reference_layers.R to fetch the reference layers.",
+      call. = FALSE
+    )
+  }
+  path
+}
+
+#' Read one vector reference layer from its zipped GeoPackage copy.
+#'
+#' The layers are snapshots of remote services (see
+#' R/tools/refresh_reference_layers.R); the cascade never fetches them live.
+#'
+#' @param name  layer name, e.g. "evl" for Data/Input/reference/evl.gpkg.zip
+read_reference_layer <- function(name) {
+  path <- normalizePath(reference_path(paste0(name, ".gpkg.zip")), winslash = "/")
+  sf::st_read(paste0("/vsizip/", path, "/", name, ".gpkg"), quiet = TRUE)
+}
+
+#' Read the Natura 2000 site-subject table from its local copy.
+read_n2k_site_subjects <- function() {
+  readr::read_csv(
+    reference_path("n2k_site_subjects.csv"),
+    col_types = readr::cols(.default = readr::col_character()),
+    progress = FALSE
+  )
+}
+
+#--------------------------------------------------#
 ## Reading the analysis tables -----
 #--------------------------------------------------#
 

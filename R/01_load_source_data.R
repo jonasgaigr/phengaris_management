@@ -10,16 +10,17 @@
 #
 # Reads everything the cascade starts from:
 #
-#   * the border of Czechia and the national mapping grid (RCzechia, WFS),
+#   * the border of Czechia and the national mapping grid,
 #   * protected areas: Natura 2000 sites (EVL) and small-scale reserves (MZCHU),
 #   * the Natura 2000 site-subject table, used to tell which sites were
 #     designated for which Phengaris species,
 #   * the reporting range polygons for each species,
 #   * the occurrence records and their site geometries.
 #
-# Writes: Data/Processed/lokal_new.gpkg
+# The first three come from the local copies in Data/Input/reference; no
+# internet connection is needed.
 #
-# Needs a working internet connection for the WFS and RCzechia layers.
+# Writes: Data/Processed/lokal_new.gpkg
 #
 #----------------------------------------------------------#
 
@@ -35,68 +36,45 @@ message("Step 01: loading source data")
 LOAD_HISTORICAL <- TRUE
 
 #----------------------------------------------------------#
-# Remote reference layers -----
+# Reference layers -----
 #----------------------------------------------------------#
+#
+# Local snapshots of remote services, refreshed by hand with
+# R/tools/refresh_reference_layers.R; see Data/Input/reference/RETRIEVED.yml
+# for the date of each copy.
+#
 #--------------------------------------------------#
 ## Border of Czechia -----
 #--------------------------------------------------#
 
 czechia_border <-
-  RCzechia::republika(
-    resolution = "high"
-  ) %>%
-  sf::st_transform(
-    .,
-    sf::st_crs("+init=epsg:5514")
-  )
+  read_reference_layer("czechia_border") %>%
+  sf::st_transform(CRS_SJTSK)
 
 #--------------------------------------------------#
 ## Protected areas and the mapping grid -----
 #--------------------------------------------------#
 
-# AOPK open data WFS endpoint.
-wfs_endpoint <- "http://gis.nature.cz/arcgis/services/Aplikace/Opendata/MapServer/WFSServer?"
-
-#' Build a WFS GetFeature URL for one AOPK open-data layer.
-wfs_url <- function(layer_name) {
-  paste0(
-    wfs_endpoint,
-    "service=WFS&version=2.0.0&request=GetFeature&typeName=", layer_name
-  )
-}
-
 evl <-
-  sf::st_read(wfs_url("Opendata:Evropsky_vyznamne_lokality")) %>%
-  sf::st_transform(
-    .,
-    sf::st_crs("+init=epsg:5514")
-  )
+  read_reference_layer("evl") %>%
+  sf::st_transform(CRS_SJTSK)
 
 mzchu <-
-  sf::st_read(wfs_url("Opendata:Maloplosna_zvlaste_chranena_uzemi__MZCHU_")) %>%
-  sf::st_transform(
-    .,
-    sf::st_crs("+init=epsg:5514")
-  )
+  read_reference_layer("mzchu") %>%
+  sf::st_transform(CRS_SJTSK)
 
 sitmap <-
-  sf::st_read(wfs_url("Opendata:Mapovaci_sit_-_deleni_1.radu")) %>%
-  sf::st_transform(
-    .,
-    sf::st_crs("+init=epsg:5514")
-  ) %>%
-  sf::st_crop(
-    .,
-    czechia_border
-  )
+  read_reference_layer("sitmap") %>%
+  sf::st_transform(CRS_SJTSK) %>%
+  sf::st_crop(czechia_border)
 
 #--------------------------------------------------#
 ## Natura 2000 sites and their target features -----
 #--------------------------------------------------#
 
-# Puts sites_subjects into the session; step 03 uses it to find the sites for
-# which each Phengaris species is a designated target feature.
-rn2kcz::load_n2k_sites()
+# Step 03 uses this table to find the sites for which each Phengaris species
+# is a designated target feature.
+sites_subjects <- read_n2k_site_subjects()
 
 #----------------------------------------------------------#
 # Reporting range layers -----

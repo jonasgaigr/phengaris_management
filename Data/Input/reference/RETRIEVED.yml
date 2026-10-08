@@ -1,0 +1,37 @@
+evl:
+  source: https://gis.nature.cz/arcgis/services/Aplikace/Opendata/MapServer/WFSServer?service=WFS&version=2.0.0&request=GetFeature&typeName=Opendata:Evropsky_vyznamne_lokality
+  features: 1111
+  retrieved: '2026-10-08'
+  file: evl.gpkg.zip
+  size_mb: 11.65
+mzchu:
+  source: https://gis.nature.cz/arcgis/services/Aplikace/Opendata/MapServer/WFSServer?service=WFS&version=2.0.0&request=GetFeature&typeName=Opendata:Maloplosna_zvlaste_chranena_uzemi__MZCHU_
+  features: 2688
+  retrieved: '2026-10-08'
+  file: mzchu.gpkg.zip
+  size_mb: 3.12
+sitmap:
+  source: https://gis.nature.cz/arcgis/services/Aplikace/Opendata/MapServer/WFSServer?service=WFS&version=2.0.0&request=GetFeature&typeName=Opendata:Mapovaci_sit_-_deleni_1.radu
+  features: 4368
+  retrieved: '2026-10-08'
+  file: sitmap.gpkg.zip
+  size_mb: 0.4
+czechia_border:
+  source: RCzechia::republika(resolution = 'high'), RCzechia 1.12.10
+  features: 1
+  retrieved: '2026-10-08'
+  file: czechia_border.gpkg.zip
+  size_mb: 0.24
+n2k_site_subjects:
+  source: rn2kcz::load_n2k_sites(), rn2kcz 0.0.1.0, https://webgis.nature.cz/publicdocs/opendata/natura2000/seznam_predmetolokalit_Natura2000_2_2025.xlsx
+  rows: 3330
+  retrieved: '2026-10-08'
+  file: n2k_site_subjects.csv
+  size_mb: 0.37
+relief_shaded:
+  source: RCzechia::vyskopis(format = 'rayshaded', cropped = FALSE), RCzechia 1.12.10;
+    projected to EPSG:5514, aggregated by 3, clipped to the border
+  cells: 1583389.0
+  retrieved: '2026-10-08'
+  file: relief_shaded.tif
+  size_mb: 3.02

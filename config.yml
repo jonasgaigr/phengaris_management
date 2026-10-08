@@ -96,3 +96,21 @@ paths:
     teleius: Data/Input/Reporting_range/teleius.shp
   # Frozen site x habitat-segment intersection of the original analysis.
   habitat_legacy_intersection: Data/Input/habitats/legacy/data_lokal_vmb.csv
+  # Local copies of the remote reference layers; see `reference` below.
+  reference: Data/Input/reference
+
+#--------------------------------------------------#
+# Remote reference layers -----
+#--------------------------------------------------#
+
+# The cascade reads these only from the copies in paths$reference. They are
+# fetched by R/tools/refresh_reference_layers.R, which is run by hand; the
+# date of each copy is in Data/Input/reference/RETRIEVED.yml.
+reference:
+  wfs_endpoint: "https://gis.nature.cz/arcgis/services/Aplikace/Opendata/MapServer/WFSServer?"
+  wfs_layers:
+    evl: "Opendata:Evropsky_vyznamne_lokality"
+    mzchu: "Opendata:Maloplosna_zvlaste_chranena_uzemi__MZCHU_"
+    sitmap: "Opendata:Mapovaci_sit_-_deleni_1.radu"
+  # Aggregation factor applied to the shaded relief before it is stored.
+  relief_aggregate: 3

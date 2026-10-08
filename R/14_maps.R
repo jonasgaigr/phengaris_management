@@ -56,27 +56,11 @@ if (!spatial_ready) {
   ## Monitored sites on shaded relief -----
   #--------------------------------------------------#
 
-  hypso_read <- RCzechia::vyskopis(format = "rayshaded", cropped = FALSE)
-
-  # The relief arrives in WGS84 while every other layer is in S-JTSK.
-  # geom_raster() draws raw x and y rather than reprojecting, so without this
-  # the raster and the vector layers occupy different coordinate ranges and the
-  # country collapses into a corner of an otherwise empty plot.
-  hypso_proj <- terra::project(hypso_read, paste0("EPSG:", CRS_SJTSK))
-
-  # At full resolution this is about 21 million cells, far more than a figure
-  # of a few hundred dpi can show.
-  hypso_proj <- terra::aggregate(hypso_proj, fact = 3, fun = "mean", na.rm = TRUE)
-
-  # Clip to the border. The source is a rectangle in WGS84, so reprojecting it
-  # into the Krovak grid leaves a rotated rectangle of relief spilling well
-  # past Czechia. Masking drops everything outside the country; cells outside
-  # become NA and are removed with the data frame conversion below.
-  czechia_vect <- terra::vect(czechia_border)
-  hypso_proj <- terra::mask(
-    terra::crop(hypso_proj, czechia_vect),
-    czechia_vect
-  )
+  # The shaded relief, already projected to S-JTSK, aggregated and clipped to
+  # the border by R/tools/refresh_reference_layers.R. geom_raster() draws raw
+  # x and y, so the relief has to be in the same CRS as the vector layers;
+  # cells outside the border are NA and dropped by the conversion below.
+  hypso_proj <- terra::rast(reference_path("relief_shaded.tif"))
 
   hypso_df <- as.data.frame(hypso_proj, xy = TRUE, na.rm = TRUE)
   # The band holds shading intensity, not metres above sea level.
