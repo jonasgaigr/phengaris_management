@@ -253,7 +253,7 @@ validate_table(
     EVL = "numeric", EVL_target = "numeric", MZCHU = "numeric",
     METHOD = "numeric", TIMING = "numeric", SUM_THREATS = "numeric"
   ),
-  key = c("ID_NALEZ", "DRUH", "IMPUTED", "row_n"),
+  key = "ID_RECORD",
   not_na = c("POSITIVE", "YEAR", "PLANT_QUANT", "EVL", "EVL_target", "MZCHU", "PROTECT"),
   values = list(
     POSITIVE = flag_values,

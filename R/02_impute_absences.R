@@ -91,9 +91,9 @@ validate_table(
     ID_NALEZ = "numeric", DRUH = "character", ID_LOKAL = "numeric",
     NEGATIV = "numeric", IMPUTED = "logical", row_n = "numeric"
   ),
-  # A record repeats once per range cell its site touches, and an imputed
-  # absence shares the ID_NALEZ of the record it was imputed from.
-  key = c("ID_NALEZ", "DRUH", "IMPUTED", "row_n"),
+  # One row per record and species. An imputed absence shares the ID_NALEZ
+  # of the record it was imputed from, so the key adds the species.
+  key = "ID_RECORD",
   not_na = c("ID_NALEZ", "DRUH", "ID_LOKAL", "NEGATIV", "IMPUTED", "row_n"),
   values = list(
     DRUH = c(SPECIES_NAU, SPECIES_TEL),

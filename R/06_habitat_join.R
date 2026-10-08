@@ -296,13 +296,13 @@ if (habitat_join_available) {
 validate_table(
   data_analysis, "data_analysis",
   columns = c(AREA_SITE = "numeric", BIOTOP = "character", FSB = "character"),
-  key = c("ID_NALEZ", "DRUH", "IMPUTED", "row_n"),
+  key = "ID_RECORD",
   not_na = c("POSITIVE", "YEAR"),
   xy = c("X", "Y"),
   n_rows = nrow(data_clean)
 )
 checkmate::assert_true(
-  identical(data_analysis$ID_NALEZ, data_clean$ID_NALEZ),
+  identical(data_analysis$ID_RECORD, data_clean$ID_RECORD),
   .var.name = "data_analysis keeps the records of data_clean in their order"
 )
 

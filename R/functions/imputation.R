@@ -48,6 +48,65 @@ targeted_records_in_range <- function(records, range, species, sources) {
 }
 
 #--------------------------------------------------#
+## One row per record -----
+#--------------------------------------------------#
+
+#' The range cell holding each site's representative point.
+#'
+#' @param records  records with site geometry (sf)
+#' @param range    reporting range cells, with row_n
+#' @return named vector: ID_LOKAL -> row_n, NA where the point lies in no cell
+representative_cells <- function(records, range) {
+  sites <- records %>%
+    dplyr::distinct(ID_LOKAL, .keep_all = TRUE)
+  points <- suppressWarnings(sf::st_point_on_surface(sf::st_geometry(sites)))
+  hit <- sf::st_intersects(points, range)
+  cell <- vapply(hit, function(i) if (length(i)) range$row_n[min(i)] else NA_integer_, integer(1))
+  stats::setNames(cell, sites$ID_LOKAL)
+}
+
+#' Keep one row per record and species.
+#'
+#' The intersection with the reporting range repeats a record once per range
+#' cell its site touches. This keeps the row of the cell that holds the site's
+#' representative point, and the lowest row_n when that point lies in none of
+#' the touched cells.
+#'
+#' @param x      rows with ID_NALEZ, DRUH, ID_LOKAL and row_n
+#' @param cells  named list by species of representative_cells() results
+deduplicate_range_records <- function(x, cells) {
+  rep_cell <- rep(NA_integer_, nrow(x))
+  for (species in names(cells)) {
+    is_species <- x$DRUH == species
+    rep_cell[is_species] <- cells[[species]][as.character(x$ID_LOKAL[is_species])]
+  }
+  x %>%
+    dplyr::mutate(
+      .order = dplyr::row_number(),
+      .preferred = !is.na(rep_cell) & row_n == rep_cell
+    ) %>%
+    dplyr::group_by(ID_NALEZ, DRUH) %>%
+    dplyr::arrange(dplyr::desc(.preferred), row_n, .by_group = TRUE) %>%
+    dplyr::slice(1) %>%
+    dplyr::ungroup() %>%
+    dplyr::arrange(.order) %>%
+    dplyr::select(-.order, -.preferred)
+}
+
+#' A unique identifier for every row: the record and the species.
+#'
+#' An imputed absence keeps the ID_NALEZ of the record of the other species it
+#' was imputed from, so ID_NALEZ alone is not unique; ID_NALEZ with the
+#' species is.
+record_id <- function(id_nalez, druh) {
+  code <- dplyr::case_when(
+    druh == SPECIES_NAU ~ "nau",
+    druh == SPECIES_TEL ~ "tel"
+  )
+  paste(format(id_nalez, scientific = FALSE, trim = TRUE), code, sep = "_")
+}
+
+#--------------------------------------------------#
 ## The original imputation rule -----
 #--------------------------------------------------#
 
@@ -60,17 +119,12 @@ targeted_records_in_range <- function(records, range, species, sources) {
 #'
 #' @param records        records with site geometry (sf), both species
 #' @param range          reporting range cells of the species being imputed
-#' @param other_range    reporting range cells of the other species, used
-#'                       only for the original range_* flags
 #' @param species        the species being imputed absent
 #' @param other_species  the species whose records serve as evidence
-#' @param covered_cells  row_n of the cells where `species` was recorded
+#' @param covered_cells  row_n of every cell where `species` was recorded
 #' @param sources        ZDROJ values counted as targeted monitoring
-#' @param flag_self,flag_other  names of the range flag columns of `species`
-#'                       and of the other species ("range_Pnau", "range_Ptel")
-imputed_absences_legacy <- function(records, range, other_range, species,
-                                    other_species, covered_cells, sources,
-                                    flag_self, flag_other) {
+imputed_absences_legacy <- function(records, range, species, other_species,
+                                    covered_cells, sources) {
   sf::st_intersection(
     records %>%
       dplyr::filter(DRUH == other_species, ZDROJ %in% sources),
@@ -83,67 +137,50 @@ imputed_absences_legacy <- function(records, range, other_range, species,
     dplyr::mutate(
       DRUH = species,
       NEGATIV = 1,
-      IMPUTED = TRUE,
-      !!flag_self := 1,
-      # row_n here indexes `range`, not `other_range`, so this flag carries no
-      # information; it is kept as the original computed it.
-      !!flag_other := dplyr::case_when(row_n %in% other_range$row_n ~ 1, TRUE ~ 0),
-      range_both = .data[[flag_self]] + .data[[flag_other]]
-    ) %>%
-    dplyr::select(
-      ID_LOKAL, row_n, DRUH, NEGATIV, IMPUTED,
-      range_Pnau, range_Ptel, range_both, dplyr::everything()
+      IMPUTED = TRUE
     )
 }
 
 #' Observed targeted records plus imputed absences, by the original rule.
 #'
+#' Every range cell a record's site touches counts as surveyed for that
+#' species; the output then keeps one row per record and species (see
+#' deduplicate_range_records()).
+#'
 #' @param records           records with site geometry (sf), both species
 #' @param range_nausithous  reporting range cells of P. nausithous, with row_n
 #' @param range_teleius     reporting range cells of P. teleius, with row_n
 #' @param sources           ZDROJ values counted as targeted monitoring
-#' @return one row per targeted record x range cell, observed (IMPUTED =
-#'         FALSE) followed by the imputed absences (IMPUTED = TRUE)
+#' @return one row per record and species, observed (IMPUTED = FALSE)
+#'         followed by the imputed absences (IMPUTED = TRUE), with the unique
+#'         key ID_RECORD
 impute_absences_legacy <- function(records, range_nausithous, range_teleius,
                                    sources = target_mon_zdroj) {
-  observed_nau <-
-    targeted_records_in_range(records, range_nausithous, SPECIES_NAU, sources) %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      range_Pnau = dplyr::case_when(
-        row_n %in% range_nausithous$row_n ~ 1,
-        TRUE ~ 0
-      )
-    )
-
-  observed_tel <-
-    targeted_records_in_range(records, range_teleius, SPECIES_TEL, sources) %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      range_Ptel = dplyr::case_when(
-        row_n %in% range_teleius$row_n ~ 1,
-        TRUE ~ 0
-      )
-    )
-
-  observed <-
-    dplyr::bind_rows(observed_nau, observed_tel) %>%
-    dplyr::mutate(
-      range_both = sum(range_Pnau, range_Ptel, na.rm = TRUE)
-    )
+  observed <- dplyr::bind_rows(
+    targeted_records_in_range(records, range_nausithous, SPECIES_NAU, sources),
+    targeted_records_in_range(records, range_teleius, SPECIES_TEL, sources)
+  )
 
   imputed_nau <- imputed_absences_legacy(
-    records, range_nausithous, range_teleius,
+    records, range_nausithous,
     species = SPECIES_NAU, other_species = SPECIES_TEL,
     covered_cells = observed$row_n[observed$DRUH == SPECIES_NAU],
-    sources = sources, flag_self = "range_Pnau", flag_other = "range_Ptel"
+    sources = sources
   )
 
   imputed_tel <- imputed_absences_legacy(
-    records, range_teleius, range_nausithous,
+    records, range_teleius,
     species = SPECIES_TEL, other_species = SPECIES_NAU,
     covered_cells = observed$row_n[observed$DRUH == SPECIES_TEL],
-    sources = sources, flag_self = "range_Ptel", flag_other = "range_Pnau"
+    sources = sources
+  )
+
+  cells <- stats::setNames(
+    list(
+      representative_cells(records, range_nausithous),
+      representative_cells(records, range_teleius)
+    ),
+    c(SPECIES_NAU, SPECIES_TEL)
   )
 
   observed %>%
@@ -153,6 +190,11 @@ impute_absences_legacy <- function(records, range_nausithous, range_teleius,
     dplyr::bind_rows(
       imputed_tel,
       imputed_nau
+    ) %>%
+    deduplicate_range_records(cells) %>%
+    dplyr::mutate(
+      ID_RECORD = record_id(ID_NALEZ, DRUH),
+      .before = 1
     )
 }
 
