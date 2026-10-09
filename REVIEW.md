@@ -21,7 +21,8 @@ of them, and its output is saved as `review/review_evidence.txt`.
 
 The status box is ticked when an item is resolved on the `revision` branch:
 [x] resolved, [~] partly resolved, [ ] open. bNN refers to the bug fixes in
-`CHANGELOG.md`, P3.n to the Phase 3 proposals below.
+`CHANGELOG.md`, P3.n to the Phase 3 proposals below, implemented in the
+`revised` specification.
 
 ## Baseline
 
@@ -62,30 +63,30 @@ The environment works:
 |---|---|---|---|---|
 | 1 | Coordinates inflated 1×/10×/100× by `read_csv2()` | blocks | b | [x] b01 |
 | 2 | Duplicated records; imputed rows share the source record's ID | biases | b | [x] b02 |
-| 3 | No persistent site ID; `(1 \| X:Y)` is nearly observation-level | blocks | c | [ ] P3.1 (groundwork: `match_sites()`) |
-| 4 | Imputation per 10 km cell; species-specific fields inherited | blocks | b + c | [~] b03; rules added, revised spec pending |
+| 3 | No persistent site ID; `(1 \| X:Y)` is nearly observation-level | blocks | c | [x] P3.1 (revised) |
+| 4 | Imputation per 10 km cell; species-specific fields inherited | blocks | b + c | [x] b03; P3.2 (revised) |
 | 5 | `STRUKT_POZN` parsed with `grepl()` on the whole string | biases | a + b | [x] parser (a), b04 |
 | 6 | Unknown coded as 0 (`GRAZE`, `OVERALL`, `MOW`, threats) | biases | b | [x] b05 |
 | 7 | Dead filters, unused sources, `ZDROJ` year ≠ record year | cosmetic | a | [x] (a) |
-| 8 | Habitat segment rule keeps the least natural, smallest segment | biases | c | [~] rule function (a); area-weighted pending |
+| 8 | Habitat segment rule keeps the least natural, smallest segment | biases | c | [~] area-weighted in revised, not validated (P3.9) |
 | 9 | AIC tables compare models fitted on different n | blocks | b | [x] b07 |
-| 10 | `X:Y` fixed effect; `(1 \| YEAR)` entered twice | blocks | c | [ ] P3.1, P3.6 |
-| 11 | Single visits: naive occupancy, no detection covariates | biases | c | [ ] P3.3 |
-| 12 | Ordination on 4 rows, 1 residual df | blocks | c | [ ] P3.7 |
-| 13 | No diagnostics; separation and degenerate fits go unnoticed | biases | a + c | [~] b08; multivariable models P3.4 |
+| 10 | `X:Y` fixed effect; `(1 \| YEAR)` entered twice | blocks | c | [x] P3.1, P3.6 (revised) |
+| 11 | Single visits: naive occupancy, no detection covariates | biases | c | [x] P3.3 (revised) |
+| 12 | Ordination on 4 rows, 1 residual df | blocks | c | [x] P3.7 (revised) |
+| 13 | No diagnostics; separation and degenerate fits go unnoticed | biases | a + c | [x] b08; P3.4 (revised) |
 | 14 | `00_setup.R` installs packages, bypassing renv | cosmetic | a | [x] (a) |
 | 15 | Remote layers fetched live on every run | biases (drift) | a | [x] (a) |
 | 16 | Steps 02, 03, 14 depend on session objects | cosmetic | a | [x] (a) |
 | 17 | Hard-coded paths, stale outputs, tracked intermediates, no seeds | cosmetic | a | [x] (a), b08 |
-| 18 | Two threat codebooks; legacy patterns miss 46 % of the older one | biases | c | [ ] TODO mapping |
+| 18 | Two threat codebooks; legacy patterns miss 46 % of the older one | biases | c | [~] mapping proposed (revised), TODO check |
 | 19 | `PRIKOP` misses plain "příkop"; `HET_INN` = 0 when unmatched | biases | b | [x] b06 |
-| 20 | The field form changed in 2021; geometry and keys confounded with year | biases | c | [ ] P3.4 |
-| 21 | The host-plant filter silently drops 869 records | biases | a (report) + c | [x] reported (a) |
-| 22 | Inherited counts contaminate the abundance comparisons | biases | b | [x] b03 |
-| 23 | Step 02 silently drops 365 records outside the species' own range | biases | a (report) + c | [x] reported (a); option added |
-| 24 | `EVL_target` is species-blind, contradicting its own documentation | biases | c | [ ] P3.4 |
-| 25 | Small data oddities: out-of-season dates, wrong `.prj`, candidate sources | cosmetic | a + TODO | [~] TODOs in config.yml |
-| 26 | SPEC_NUM is 1 only on positive records: separation by construction | blocks | c | [ ] P3.4 |
+| 20 | The field form changed in 2021; geometry and keys confounded with year | biases | c | [x] P3.4 (revised) |
+| 21 | The host-plant filter silently drops 869 records | biases | a (report) + c | [x] reported (a); revised keeps the unknown-plant records |
+| 22 | Inherited counts contaminate the abundance comparisons | biases | b + c | [x] b03; P3.8 (revised) |
+| 23 | Step 02 silently drops 365 records outside the species' own range | biases | a (report) + c | [x] reported (a); kept in revised (Q2) |
+| 24 | `EVL_target` is species-blind, contradicting its own documentation | biases | c | [x] `EVL_species` (revised) |
+| 25 | Small data oddities: out-of-season dates, wrong `.prj`, candidate sources | cosmetic | a + TODO | [~] out-of-season flagged (revised); TODOs in config.yml |
+| 26 | SPEC_NUM is 1 only on positive records: separation by construction | blocks | c | [x] co-occurrence reformulated (revised) |
 
 ---
 
@@ -878,6 +879,56 @@ them the revised specification.
 
 ---
 
+## Status after Phase 3
+
+**Decisions** (2026-10-09):
+
+| | Answer | Implemented as |
+|---|---|---|
+| Q1 | Impute only inside the cells of the reporting range; never outside the species' expected occurrence | Every rule imputes inside the imputed species' range only. Step 02 checks this on the site geometries and stops if it fails. The revised specification uses the visit rule. |
+| Q2 | Drop no true records; impute nothing outside the range | `keep_outside_range: true` in the revised specification (85 + 280 explicit negatives kept) |
+| Q3 | `run_all.R` | Kept, with model-set-specific steps |
+| Q4 | Option A | Already in place (`Data/Input/habitats/legacy/`) |
+| Q5 | As in P3.1-P3.9 | Domain values set in `config.yml`; the ones not explicitly decided are marked PROPOSED |
+| P3.1-P3.9 | Approved | The `revised` specification, steps 16-20; P3.3 with the flight season as the deviation from the year's median positive record of the species |
+
+**Done.** The `revised` specification runs beside `legacy`, whose outputs
+are unchanged (`changes/c01_phase3_legacy.md`: 86 files identical, 0
+changed). Results and numbers are in `CHANGELOG.md` and
+`Outputs/REPORT.md`.
+
+**Found during Phase 3.**
+
+- **27. *P. teleius* negatives were barely entered in 2019.** There are 5
+  explicit negatives against 517 imputed ones. Models on the observed
+  *P. teleius* records alone are therefore degenerate, and the imputed
+  absences are what makes *P. teleius* modelable.
+- **28. `.regex_escape()` escaped nothing**, because a TRE bracket expression
+  takes the backslashes literally. It had no effect on the parser keys. It is
+  fixed, and the fix matters for the harmonised threat items.
+- **29. The threat lists by year.** The 2019-2020 threat list is the older
+  one. From 2021 the current list is used, under either key, so the threat
+  codebook coincides with `PROTOCOL_ERA`.
+- **30. The host-plant filter drops structural zeros.** The records with the
+  host plant recorded absent are structural zeros: 4 positives out of 342.
+  The revised specification drops only those.
+
+**Open, needing domain input** (`TODO(Jonáš)` / PROPOSED in `config.yml`):
+
+- the mapping of the 2019-2020 threat items;
+- the connectivity alpha (1 per km);
+- the 45-day flight-season cut-off;
+- the observer alias "Valda Slávek" = "Slavomír Valda";
+- the meaning of a missing grazing or mowing entry;
+- candidate sources;
+- unmapped habitat categories;
+- buffer widths;
+- *Sanguisorba* codes;
+- the mosaic share column;
+- the `ZDROJ` year.
+
+---
+
 ## Plan
 
 ### Phase 2: categories (a) and (b), proceeding unless you object
@@ -940,7 +991,7 @@ listing every changed number before and after.
     - comparison sets on common data (9);
     - diagnostics columns (13a).
 
-### Phase 3: category (c), waiting for your approval
+### Phase 3: category (c), approved and implemented (see "Status after Phase 3")
 
 Each change is a switch in `config.yml`. Results are reported under `legacy`
 and `revised` side by side.

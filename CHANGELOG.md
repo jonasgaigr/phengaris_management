@@ -355,3 +355,166 @@ shows what each rule gives:
 
 Groundwork for the revised random-effect structure; not used by any
 specification yet. No number changes.
+
+---
+
+## (c) Phase 3: the revised specification
+
+- **Decisions:** P3.1-P3.9 and Q1-Q5 of `REVIEW.md`, approved on 2026-10-09
+- **Legacy specification:** unchanged; the comparison of its outputs before and
+  after is in [`changes/c01_phase3_legacy.md`](changes/c01_phase3_legacy.md)
+
+A second specification, **revised**, runs beside **legacy**. Every number it
+produces is new: its tables are in `Outputs/revised/Tables`, its report in
+`Outputs/REPORT.md`. New steps: 16 (common), 17-20 (revised only).
+
+### Imputation and the reporting range (P3.2, Q1, Q2)
+
+- Absences are imputed visit by visit (site geometry × date). They are
+  imputed only inside the imputed species' own Article 17 reporting range.
+  Step 02 now checks this on the site geometries and stops if it fails.
+- The explicit negatives outside the range are kept: 85 *P. nausithous* and
+  280 *P. teleius* records.
+
+| | *P. nausithous* | *P. teleius* |
+|---|---|---|
+| range cells | 766 | 443 |
+| cells with observed records | 489 | 159 |
+| cells with imputed absences | 116 | 271 |
+| absences imputed (step 02) | 396 | 1944 |
+
+- Every model is fitted twice: with the imputed absences, and on the observed
+  records only.
+- **Finding.** In 2019 almost no *P. teleius* negative was entered
+  explicitly: 5 observed negatives against 517 imputed ones and 40
+  positives. On the observed records alone the year therefore separates the
+  outcome. The *P. teleius* models of the observed sample are degenerate:
+  the random-effect SDs of grid, year and observer are 3-5 on the logit
+  scale, and the diagnostics flag them. For *P. teleius* the sample with
+  the imputed absences is the one to interpret.
+
+### Unit of analysis and survey design (P3.1, P3.3)
+
+- **One record per species × site × visit.** 12 records were merged; a
+  positive record was kept before a negative one.
+- **Random intercepts:** mapping grid square, year, observer.
+  - The observer comes from AUTOR, normalised: 82 spellings become 57
+    observers.
+  - A persistent site (`SITE_ID`, 50 m; 3324 sites, 4.8 % recurring) was
+    added as a sensitivity check at 0, 50 and 200 m. It gains nothing: its
+    variance is about 0 and ΔAIC is +1.5 to +2.
+- **Flight season.** `DOY_DEV` = day of year − the median day of the year's
+  positive records of the species, from every source; it enters as a
+  quadratic.
+  - The medians are 202-211 for *P. nausithous* and 197-206 for *P. teleius*.
+  - 6 visits lie more than 45 days from the median. They are kept in the
+    data, flagged, and left out of the models: the three of October and
+    December 2024, and three September ones.
+- **Field-form era.** `PROTOCOL_ERA` (2019-2020 against 2021-2024) is in every
+  model that spans both eras.
+- **Host plant.** The revised specification drops only the records with the
+  host plant recorded absent: 276 *P. nausithous* records with 4 positives,
+  66 *P. teleius* records with none. It keeps the records without host-plant
+  information.
+
+### Management (P3.4)
+
+One multivariable model per species: mowing timing × method, host-plant
+abundance, and an EVL designated for the record's own species
+(`EVL_species`). It is fitted on the records with mowing recorded. Odds
+ratios with 95 % CIs, from the sample with the imputed absences:
+
+| term | *P. nausithous* (n 1924) | *P. teleius* (n 1348) |
+|---|---|---|
+| mowing timed appropriately | 2.16 (1.48-3.15) | 1.25 (0.55-2.85) |
+| patches left uncut | 2.18 (1.34-3.56) | 1.51 (0.44-5.20) |
+| timing × patches | 0.45 (0.25-0.80) | 1.52 (0.38-6.02) |
+| host plant abundant (vs single) | 2.93 (2.23-3.86) | 1.70 (0.95-3.05) |
+| host plant dominant | 2.98 (1.85-4.80) | 2.56 (1.04-6.26) |
+| EVL designated for the species | 1.29 (0.73-2.30) | 6.10 (2.12-17.59) |
+
+- *P. nausithous*: either appropriate timing or uncut patches raises the
+  predicted probability of recording the species from 0.28 to about 0.46;
+  both together add nothing more. The observed-only fit agrees.
+- The 2021-2024 polygon model adds grazing and site area. Grazing has no
+  clear effect for either species. Larger polygons hold *P. nausithous* less
+  often (OR 0.41 per tenfold area, 0.30-0.57).
+- Diagnostics: all 91 revised models converged; no fixed effect separates
+  (detectseparation); the largest adjusted GVIF is 1.11. The *P. teleius*
+  observed-only models are flagged (see above), and their bias-reduced
+  refits are reported.
+
+### Connectivity (P3.5)
+
+S = Σ exp(−α d) A^0.5, over the sites occupied by the species in the same or
+the previous year, as log10(S + 0.001). Added to the management model:
+
+- *P. nausithous*: OR 1.97 (1.70-2.27) per tenfold S, ΔAIC −78. The best α
+  is 1 per km.
+- *P. teleius*: OR 2.71 (2.14-3.42), ΔAIC −60. The best α is 0.5 per km
+  (ΔAIC −6 against 1 per km).
+- The management estimates barely move.
+
+### Spatial autocorrelation (P3.6)
+
+With the grid random effect, none of the 8 models tested (baseline and
+management, both species, both samples) has residual Moran's I at p < 0.05.
+The smooth alternative is therefore not fitted. When it was tried on the
+*P. nausithous* management model, its odds ratios matched the grid model's
+within 0.4.
+
+### Co-occurrence (item 26) and the species compared (item 22)
+
+- On 586 visits with an observed record of both species, finding one species
+  goes with finding the other:
+  - *P. nausithous* given *P. teleius*: OR 4.28 (1.72-10.61);
+  - *P. teleius* given *P. nausithous*: OR 3.32 (1.31-8.42).
+- *P. teleius* is recorded far less often than *P. nausithous*:
+  - observed records: 24 % against 45 %, OR 0.29 (0.22-0.37);
+  - with the imputed absences: 8 % against 41 %.
+
+### Threats (P3.7)
+
+One model per threat class and species. The 2019-2020 threat list is mapped
+to the current classes by a harmonised vocabulary, matched item by item
+(proposed; `TODO(Jonáš)` in `config.yml`).
+
+- For *P. nausithous*, fertiliser use (OR 0.35, 0.16-0.74) and harmful grazing
+  (0.67) go with fewer records. Biomass accumulation, abandonment and native
+  dominants go with more.
+- Only biomass accumulation survives the Holm correction, on the observed
+  records (OR 1.65, p_holm 0.014).
+- Six *P. teleius* classes are too rare to model.
+
+### Abundance (P3.8)
+
+A zero-truncated negative binomial of the count at positive records:
+
+- *P. nausithous* (794 records with mowing recorded): host plant abundant
+  RR 2.40, dominant 3.43; mowing timing RR 1.37 (0.97-1.94).
+- *P. teleius* (112): host plant dominant RR 3.52.
+
+### Habitat (P3.9)
+
+- The revised specification describes each site by the area-weighted rule.
+  It runs on the frozen intersection and is not validated on real data.
+- No revised model uses it.
+- A point lying in a mosaic of several habitats now gets no dominant habitat,
+  instead of the alphabetically first one.
+
+### Fixes found on the way
+
+None of these touches a legacy number.
+
+- **`.regex_escape()` escaped nothing.** In R's default regex engine a
+  backslash inside brackets is literal. Harmless for the keys of the field
+  form, which have no special characters. It would have left every threat
+  item with parentheses unmatched by the harmonised vocabulary. Now
+  `perl = TRUE`.
+- **Lost validation note.** readr read `VAL_POZN` as logical whenever its
+  first 1000 rows were empty, and lost the note "zákres neodpovídá popisu"
+  in the revised table. The intermediates are now read with every row used to
+  guess the column types.
+- **`match_sites()` is faster.** It took 4 minutes per distance (pairwise
+  distances) and now takes seconds (spatial index plus exact distances), with
+  identical sites.
