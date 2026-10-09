@@ -93,6 +93,34 @@ report_note(sprintf(
 ))
 
 #--------------------------------------------------#
+## Imputed absences by reporting cell -----
+#--------------------------------------------------#
+
+# Absences are imputed only inside the imputed species' own reporting range,
+# the 10 x 10 km cells where the species is expected; this table shows how
+# they spread over those cells.
+imputation_by_cell <- dplyr::bind_rows(lapply(
+  list(list(SPECIES_NAU, range_nausithous), list(SPECIES_TEL, range_teleius)),
+  function(x) {
+    rows <- data_with_imputed[data_with_imputed$DRUH == x[[1]], ]
+    tibble::tibble(
+      DRUH = x[[1]],
+      range_cells = nrow(x[[2]]),
+      cells_with_observed_records = dplyr::n_distinct(rows$row_n[!rows$IMPUTED], na.rm = TRUE),
+      cells_with_imputed_absences = dplyr::n_distinct(rows$row_n[rows$IMPUTED]),
+      imputed_absences = sum(rows$IMPUTED),
+      observed_records_outside_range = sum(!rows$IMPUTED & is.na(rows$row_n))
+    )
+  }
+))
+
+report_table(
+  imputation_by_cell,
+  "Reporting-range cells of each species, with observed records and with imputed absences",
+  "02_imputation_by_cell"
+)
+
+#--------------------------------------------------#
 ## Targeted records outside their species' own range -----
 #--------------------------------------------------#
 
@@ -176,6 +204,23 @@ checkmate::assert_true(
   all(data_with_imputed$NEGATIV[data_with_imputed$IMPUTED] == 1),
   .var.name = "every imputed record is an absence"
 )
+# No absence is ever imputed outside the imputed species' own reporting range:
+# every imputed record has a range cell, and its site touches that species'
+# range.
+checkmate::assert_true(
+  !anyNA(data_with_imputed$row_n[data_with_imputed$IMPUTED]),
+  .var.name = "every imputed record lies in a reporting-range cell"
+)
+for (x in list(list(SPECIES_NAU, range_nausithous), list(SPECIES_TEL, range_teleius))) {
+  imputed_ids <- data_with_imputed$ID_LOKAL[data_with_imputed$IMPUTED & data_with_imputed$DRUH == x[[1]]]
+  imputed_sites <- phengaris_lokal_new %>%
+    dplyr::filter(ID_LOKAL %in% imputed_ids) %>%
+    dplyr::distinct(ID_LOKAL, .keep_all = TRUE)
+  checkmate::assert_true(
+    all(lengths(sf::st_intersects(imputed_sites, x[[2]])) > 0),
+    .var.name = paste("every imputed", x[[1]], "absence lies inside its reporting range")
+  )
+}
 checkmate::assert_true(
   all(is.na(data_with_imputed$POCET[data_with_imputed$IMPUTED])),
   .var.name = "no imputed absence carries a count"

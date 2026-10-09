@@ -75,6 +75,21 @@ test_that("the area-weighted rule summarises every overlap of a site", {
   expect_equal(out$AREA_SITE[out$ID_RECORD == "c"], 8000)
 })
 
+test_that("a site without area takes the habitat it lies in only when that is a single one", {
+  segs <- overlaps(point_buffer_m = NULL, line_buffer_m = NULL)
+  out <- select_habitat_segment(records, segs, rule = "area_weighted", share_column = NULL)
+  b <- out[out$ID_RECORD == "b", ]
+  expect_equal(b$AREA_SITE, 0)
+  expect_true(is.na(b$NATURAL_SHARE))
+  expect_equal(b$BIOTOP, "T1.9")
+
+  # The same point in a mosaic of two habitats: no dominant habitat.
+  mosaic <- dplyr::bind_rows(segs, dplyr::mutate(segs[segs$ID_LOKAL == 2, ], BIOTOP = "T1.1"))
+  out <- select_habitat_segment(records, mosaic, rule = "area_weighted", share_column = NULL)
+  expect_true(is.na(out$BIOTOP[out$ID_RECORD == "b"]))
+  expect_true(is.na(out$NATURAL[out$ID_RECORD == "b"]))
+})
+
 test_that("an empty Sanguisorba code list gives NA, never 0", {
   segs <- overlaps(point_buffer_m = NULL, line_buffer_m = NULL)
   out <- select_habitat_segment(records, segs,

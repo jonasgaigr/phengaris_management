@@ -117,3 +117,25 @@ test_that("records from other sources are ignored", {
   out <- impute_absences(other, range_nau, range_tel, sources = src, rule = "visit")
   expect_false(1 %in% out$ID_NALEZ)
 })
+
+test_that("no rule imputes an absence outside the imputed species' range, even with out-of-range records kept", {
+  # A P. nausithous record far outside both ranges, which would be imputed
+  # as a P. teleius absence if the range were ignored.
+  far <- make_records(
+    ID_NALEZ = 7, DRUH = SPECIES_NAU, ID_LOKAL = 14, DATUM_OD = 20220706, NEGATIV = 0
+  )
+  all_records <- rbind(records, far)
+  for (rule in c("legacy_cell", "visit")) {
+    out <- impute_absences(all_records, range_nau, range_tel,
+      sources = src, rule = rule,
+      keep_outside_range = TRUE
+    )
+    imputed <- out[out$IMPUTED, ]
+    expect_false(any(is.na(imputed$row_n)), info = rule)
+    expect_false(any(imputed$ID_LOKAL == 14), info = rule)
+    # Every imputed P. teleius absence lies in cell 1, the P. teleius range.
+    expect_true(all(imputed$row_n[imputed$DRUH == SPECIES_TEL] == 1), info = rule)
+    # The out-of-range explicit records are kept.
+    expect_true(7 %in% out$ID_NALEZ[!out$IMPUTED], info = rule)
+  }
+})

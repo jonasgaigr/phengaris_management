@@ -99,9 +99,16 @@ flag_biotope <- function(x, phrases) {
 #'                           both_species_visits()
 #' @param threat_classes     threat classes and their phrases, as in
 #'                           config.yml `strukt_pozn: threat_classes`
+#' @param threat_vocabulary  "legacy": the phrases of `threat_classes`,
+#'                           matched anywhere in the threat list;
+#'                           "harmonised": the items of both field-form lists,
+#'                           config.yml `strukt_pozn: threat_items`, matched
+#'                           as whole items
 #' @return `data` with the analysis variables added, every row kept
 derive_analysis_variables <- function(data, protected_area_id, both_present,
-                                      threat_classes = CONFIG$strukt_pozn$threat_classes) {
+                                      threat_classes = CONFIG$strukt_pozn$threat_classes,
+                                      threat_vocabulary = c("legacy", "harmonised")) {
+  threat_vocabulary <- match.arg(threat_vocabulary)
   evl_any_ids <- pa_site_ids(protected_area_id, "EVL_any")
   evl_target_ids <- pa_site_ids(protected_area_id, "EVL_target")
   mzchu_ids <- pa_site_ids(protected_area_id, "MZCHU")
@@ -109,7 +116,12 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
   notes <- parse_strukt_pozn(data$STRUKT_POZN)
   plant_levels <- unlist(CONFIG$strukt_pozn$host_plant_levels)
   # A record without any threat list says nothing about threats: NA, not 0.
-  threats <- threat_class_flags(notes$threats, threat_classes, missing = NA)
+  threats <- if (threat_vocabulary == "legacy") {
+    threat_class_flags(notes$threats, threat_classes, missing = NA)
+  } else {
+    threat_classes <- CONFIG$strukt_pozn$threat_items
+    threat_item_flags(notes$threats, threat_classes, missing = NA)
+  }
   grazing_from <- CONFIG$strukt_pozn$grazing_recorded_from_year
   pop_biot <- CONFIG$pop_biot$flags
 

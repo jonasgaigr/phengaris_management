@@ -170,6 +170,25 @@ report_table <- function(x, caption, stem, max_rows = 25, digits = 4) {
   invisible(path)
 }
 
+#' Write a table to CSV and link it from the report, without printing it.
+#'
+#' For the long tables (every coefficient of every model) whose content the
+#' report summarises elsewhere.
+#'
+#' @param x        data frame
+#' @param caption  table caption
+#' @param stem     file name without extension
+report_csv <- function(x, caption, stem) {
+  .report_require_open()
+  path <- write_table_csv(x, stem)
+  .report_env$lines <- c(
+    .report_env$lines,
+    sprintf("- %s: [`%s`](../Tables/%s.csv), %d rows", caption, basename(path), stem, nrow(as.data.frame(x))),
+    ""
+  )
+  invisible(path)
+}
+
 #' Write a figure to PNG and embed it in the report.
 #'
 #' @param plot     ggplot object

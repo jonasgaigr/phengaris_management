@@ -17,8 +17,18 @@
 #   POP_BIOT     habitat description  -> TTP, PRIKOP, ZARUST, JINY
 #   STRUKT_POZN  structured notes     -> host plant, threats, management
 #
+# Which records the host-plant filter drops, and how the threat list is
+# turned into threat classes, are set per specification (config.yml). A
+# specification with design_variables: true also gets the survey-design
+# variables of the revised analysis (observer, day of year in the flight
+# season, protocol era, persistent site, site area, protection designated for
+# the record's own species, connectivity), and keeps one record per species x
+# site x visit (R/functions/design_variables.R).
+#
 # Reads:  Data/Processed/<spec>/data_with_imputed.csv   (step 02)
 #         Data/Processed/common/protected_area_id.csv   (step 03)
+#         Data/Processed/common/site_design.csv, flight_window.csv,
+#         connectivity.csv   (step 16; design_variables only)
 # Writes: Data/Processed/<spec>/data_clean.csv
 #
 #----------------------------------------------------------#
@@ -26,13 +36,22 @@
 if (!exists("PIPELINE")) source("R/00_setup.R", encoding = "UTF-8")
 step_begin("04")
 
+settings <- spec_settings()
+host_plant_rule <- if (is.null(settings$host_plant_filter)) "absent_or_unknown" else settings$host_plant_filter
+threat_vocabulary <- if (is.null(settings$threat_vocabulary)) "legacy" else settings$threat_vocabulary
+design_variables <- isTRUE(settings$design_variables)
+
 report_start(
   "04",
   "Cleaned occurrence data",
   paste(
     "Derivation of the analysis variables from the targeted monitoring",
     "records. Only records from the targeted monitoring campaigns are kept,",
-    "and only records with the host plant present."
+    switch(host_plant_rule,
+      absent_or_unknown = "and only records with the host plant present.",
+      absent = "and the records with the host plant recorded absent are dropped.",
+      none = "whatever their host-plant information."
+    )
   )
 )
 
@@ -40,10 +59,13 @@ report_start(
 # Load -----
 #----------------------------------------------------------#
 
+# Every row is used to guess the column types: a free-text column empty in
+# the first rows would otherwise be read as logical and lose its values.
 data_with_imputed <-
   readr::read_csv(
     processed_path("data_with_imputed.csv"),
-    show_col_types = FALSE
+    show_col_types = FALSE,
+    guess_max = Inf
   )
 
 protected_area_id <-
@@ -88,10 +110,33 @@ data_derived <-
   derive_analysis_variables(
     data_new_source,
     protected_area_id,
-    both_present = phengaris_both_present
+    both_present = phengaris_both_present,
+    threat_vocabulary = threat_vocabulary
   )
 
-data_clean <- keep_host_plant_present(data_derived)
+data_clean <- filter_host_plant(data_derived, host_plant_rule)
+
+#----------------------------------------------------------#
+# Survey design and unit of analysis -----
+#----------------------------------------------------------#
+
+if (design_variables) {
+  require_inputs(c(
+    "{processed}/common/site_design.csv",
+    "{processed}/common/flight_window.csv",
+    "{processed}/common/connectivity.csv"
+  ))
+  n_before_collapse <- nrow(data_clean)
+  data_clean <-
+    data_clean %>%
+    add_design_variables(
+      flight_window = readr::read_csv(processed_path("flight_window.csv", "common"), show_col_types = FALSE),
+      site_design = readr::read_csv(processed_path("site_design.csv", "common"), show_col_types = FALSE),
+      connectivity = readr::read_csv(processed_path("connectivity.csv", "common"), show_col_types = FALSE),
+      protected_area_id = protected_area_id
+    ) %>%
+    collapse_to_visits()
+}
 
 #----------------------------------------------------------#
 # Results -----
@@ -101,15 +146,25 @@ cleaning_summary <- data.frame(
   stage = c(
     "records with imputed absences (step 02)",
     "targeted monitoring only",
-    "host plant recorded present"
+    switch(host_plant_rule,
+      absent_or_unknown = "host plant recorded present",
+      absent = "host plant not recorded absent",
+      none = "host-plant filter not applied"
+    )
   ),
   records = c(
     nrow(data_with_imputed),
     nrow(data_new_source),
-    nrow(data_clean)
+    if (design_variables) n_before_collapse else nrow(data_clean)
   ),
   stringsAsFactors = FALSE
 )
+if (design_variables) {
+  cleaning_summary <- rbind(
+    cleaning_summary,
+    data.frame(stage = "one record per species x site x visit", records = nrow(data_clean))
+  )
+}
 
 report_table(
   cleaning_summary,
@@ -124,8 +179,14 @@ host_plant_filter <-
   data_derived %>%
   dplyr::mutate(
     host_plant = dplyr::case_when(
-      is.na(PLANT_QUAL) ~ "no host-plant information (dropped)",
-      PLANT_QUAL == 0 ~ "host plant recorded absent (dropped)",
+      is.na(PLANT_QUAL) ~ paste(
+        "no host-plant information",
+        if (host_plant_rule == "absent_or_unknown") "(dropped)" else "(kept)"
+      ),
+      PLANT_QUAL == 0 ~ paste(
+        "host plant recorded absent",
+        if (host_plant_rule == "none") "(kept)" else "(dropped)"
+      ),
       TRUE ~ "host plant present (kept)"
     )
   ) %>%
@@ -261,6 +322,117 @@ if ("PA_SPECIES" %in% names(protected_area_id)) {
   )
 }
 
+#--------------------------------------------------#
+## Survey-design variables -----
+#--------------------------------------------------#
+
+if (threat_vocabulary == "harmonised") {
+  report_section("Threat classes from the harmonised vocabulary")
+
+  coverage <- threat_vocabulary_coverage(parse_strukt_pozn(data_new_source$STRUKT_POZN)$threats)
+  report_table(
+    coverage$items %>% dplyr::filter(records > 0),
+    paste(
+      "Items of both threat lists, the class each is mapped to and the",
+      "targeted records listing it (config.yml `strukt_pozn: threat_items`)"
+    ),
+    "04_threat_items",
+    max_rows = 60
+  )
+  report_table(
+    coverage$unrecognised,
+    "Text of the threat lists that matches no known item (free-text notes, mostly)",
+    "04_threat_items_unrecognised"
+  )
+}
+
+if (design_variables) {
+  report_section("Survey-design variables")
+
+  report_note(sprintf(
+    paste(
+      "%d records of one species at the same site and visit were merged into",
+      "one, keeping a positive record before a negative one (P3.1)."
+    ),
+    n_before_collapse - nrow(data_clean)
+  ))
+
+  report_table(
+    data_clean %>%
+      dplyr::group_by(DRUH, PROTOCOL_ERA) %>%
+      dplyr::summarise(
+        records = dplyr::n(),
+        positive = sum(POSITIVE == 1),
+        imputed = sum(IMPUTED),
+        outside_flight_window = sum(!IN_FLIGHT_WINDOW),
+        min_doy_dev = min(DOY_DEV),
+        max_doy_dev = max(DOY_DEV),
+        .groups = "drop"
+      ),
+    sprintf(
+      paste(
+        "Records by species and field-form era; DOY_DEV is the day of year",
+        "minus the median of the year's positive records. Records more than",
+        "%d days from it lie outside the flight season and are left out of the",
+        "models."
+      ),
+      CONFIG$design$flight_window$max_abs_deviation_days
+    ),
+    "04_design_by_era"
+  )
+
+  report_table(
+    data_clean %>%
+      dplyr::filter(!IN_FLIGHT_WINDOW) %>%
+      dplyr::select(ID_RECORD, DRUH, DATUM_OD, DOY, DOY_DEV, POSITIVE, IMPUTED, AUTOR),
+    "Records outside the flight season",
+    "04_outside_flight_window"
+  )
+
+  observers <- data_clean %>%
+    dplyr::filter(!is.na(OBSERVER)) %>%
+    dplyr::group_by(OBSERVER) %>%
+    dplyr::summarise(
+      spellings = paste(sort(unique(AUTOR)), collapse = " / "),
+      records = dplyr::n(),
+      .groups = "drop"
+    ) %>%
+    dplyr::arrange(dplyr::desc(records))
+  report_note(sprintf(
+    paste(
+      "%d spellings of AUTOR give %d observers (median %g records, at most",
+      "%d); %d records have no author."
+    ),
+    dplyr::n_distinct(data_clean$AUTOR, na.rm = TRUE), nrow(observers),
+    stats::median(observers$records), max(observers$records), sum(is.na(data_clean$OBSERVER))
+  ))
+  report_table(
+    observers %>% dplyr::filter(grepl(" / ", spellings, fixed = TRUE)),
+    "Observers written in more than one way, merged by the normalisation",
+    "04_observer_spellings"
+  )
+
+  report_table(
+    data_clean %>%
+      dplyr::group_by(DRUH) %>%
+      dplyr::summarise(
+        EVL_any = sum(EVL == 1),
+        EVL_either_species = sum(EVL_target == 1),
+        EVL_own_species = sum(EVL_species == 1),
+        polygon_sites = sum(GEOMETRY_TYPE == "polygon"),
+        isolated = sum(CONN_SOURCES == 0),
+        .groups = "drop"
+      ),
+    paste(
+      "Records inside an EVL, one designated for either Phengaris species",
+      "(EVL_target, the original flag) and one designated for the record's own",
+      "species (EVL_species, used by the revised models); records on polygon",
+      "sites; records with no occupied site of the species within reach"
+    ),
+    "04_design_flags"
+  )
+}
+
 #----------------------------------------------------------#
 # Validate -----
 #----------------------------------------------------------#
@@ -274,7 +446,12 @@ validate_table(
     METHOD = "numeric", TIMING = "numeric", SUM_THREATS = "numeric"
   ),
   key = "ID_RECORD",
-  not_na = c("POSITIVE", "YEAR", "PLANT_QUANT", "EVL", "EVL_target", "MZCHU", "PROTECT"),
+  # The host plant is known on every record only when the filter drops the
+  # records without host-plant information.
+  not_na = c(
+    "POSITIVE", "YEAR", "EVL", "EVL_target", "MZCHU", "PROTECT",
+    if (host_plant_rule == "absent_or_unknown") "PLANT_QUANT"
+  ),
   values = list(
     POSITIVE = flag_values,
     YEAR = seq(CONFIG$years$first, CONFIG$years$last),
@@ -287,6 +464,20 @@ validate_table(
   xy = c("X", "Y"),
   max_rows = nrow(data_with_imputed)
 )
+if (design_variables) {
+  validate_table(
+    data_clean, "data_clean (design variables)",
+    columns = c(DOY_DEV = "numeric", SITE_ID = "character", CONN = "numeric", EVL_species = "numeric"),
+    key = c("DRUH", "ID_LOKAL", "DATUM_OD"),
+    not_na = c("DOY", "DOY_DEV", "PROTOCOL_ERA", "SITE_ID", "SITE_X", "SITE_Y", "GEOMETRY_TYPE", "CONN"),
+    values = list(EVL_species = flag_values, IN_FLIGHT_WINDOW = c(TRUE, FALSE)),
+    xy = c("SITE_X", "SITE_Y")
+  )
+  checkmate::assert_true(
+    all(data_clean$EVL_species <= data_clean$EVL_target),
+    .var.name = "EVL_species implies EVL_target"
+  )
+}
 
 #----------------------------------------------------------#
 # Export -----

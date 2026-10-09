@@ -20,10 +20,12 @@
 # The steps, and the files each reads and writes, are declared in
 # R/functions/pipeline.R. The order is:
 #
-#   1. the steps that do not depend on the analytical choices (01, 03, 05),
-#      once;
-#   2. the steps that do (02, 04, 06-14), once for each specification listed
-#      in config.yml under `specifications: run:`;
+#   1. the steps that do not depend on the analytical choices (01, 03, 05,
+#      16), once;
+#   2. the steps that do (02, 04, 06-08, 14, and the model steps of the
+#      specification's model set: 09-13 for "legacy", 17-20 for "revised"),
+#      once for each specification listed in config.yml under
+#      `specifications: run:`;
 #   3. the compiled report (15).
 #
 # Every step runs in its own environment and reads its inputs from disk, so
@@ -94,7 +96,7 @@ for (step in Filter(function(s) scope_of(s) == "common", selected)) {
   timings[[length(timings) + 1]] <- run_step(step)
 }
 for (spec in pipeline_specs()) {
-  for (step in Filter(function(s) scope_of(s) == "spec", selected)) {
+  for (step in Filter(function(s) scope_of(s) == "spec" && step_runs_under(s, spec), selected)) {
     timings[[length(timings) + 1]] <- run_step(step, spec)
   }
 }

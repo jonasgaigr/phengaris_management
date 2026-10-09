@@ -103,7 +103,54 @@ if (file.exists(path_lokal_vmb_csv)) {
 # Results -----
 #----------------------------------------------------------#
 
-if (habitat_join_available) {
+habitat_rule <- spec_settings()$habitat_segment_rule
+
+if (habitat_join_available && habitat_rule == "area_weighted") {
+  report_warning(
+    "Habitat attributes by the area-weighted rule, which is NOT VALIDATED ON",
+    "REAL DATA: it was tested on a synthetic fixture only, and here it runs on",
+    "the frozen site x segment intersection of the original analysis.",
+    "Point sites are not buffered (config.yml `habitat: point_buffer_m`), so",
+    "they have no area: their AREA_SITE is 0 and their NATURAL_SHARE NA, and",
+    "they get the habitat they lie in only when it is a single one. The",
+    "Sanguisorba-meadow area is NA until the habitat codes are given",
+    "(`habitat: sanguisorba_meadow_codes`). No revised model uses these",
+    "variables."
+  )
+
+  report_table(
+    data_analysis %>%
+      dplyr::group_by(DRUH, GEOMETRY_TYPE = if ("GEOMETRY_TYPE" %in% names(data_analysis)) GEOMETRY_TYPE else NA) %>%
+      dplyr::summarise(
+        records = dplyr::n(),
+        with_overlaps = sum(!is.na(AREA_SITE)),
+        with_area = sum(AREA_SITE > 0, na.rm = TRUE),
+        dominant_habitat_known = sum(!is.na(NATURAL)),
+        median_natural_share = stats::median(NATURAL_SHARE, na.rm = TRUE),
+        median_habitats = stats::median(N_HABITATS, na.rm = TRUE),
+        .groups = "drop"
+      ),
+    paste(
+      "Coverage of the area-weighted habitat summaries by species and site",
+      "geometry: records whose site overlaps the habitat layer, with an overlap",
+      "area, and with a dominant habitat"
+    ),
+    "06_area_weighted_coverage"
+  )
+
+  report_table(
+    data_analysis %>%
+      dplyr::filter(POSITIVE == 1) %>%
+      dplyr::count(DRUH, BIOTOP, name = "occupied_records") %>%
+      dplyr::group_by(DRUH) %>%
+      dplyr::slice_max(occupied_records, n = 10, with_ties = FALSE) %>%
+      dplyr::ungroup(),
+    "Dominant habitats at occupied sites, the ten most frequent per species",
+    "06_dominant_habitats"
+  )
+}
+
+if (habitat_join_available && habitat_rule == "legacy") {
   habitat_coverage <- data.frame(
     variable = c("AREA_SITE", "BIOTOP", "FSB", "HET_OUT"),
     records_with_value = c(

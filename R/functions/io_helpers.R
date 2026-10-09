@@ -113,11 +113,16 @@ read_n2k_site_subjects <- function() {
 ## Reading the analysis tables -----
 #--------------------------------------------------#
 
+# The intermediates are read with every row used to guess the column types:
+# a free-text column empty in the first 1000 rows would otherwise be read as
+# logical and lose its values.
+
 #' Read the cleaned occurrence table (output of step 04).
 read_data_clean <- function() {
   readr::read_csv(
     processed_path("data_clean.csv"),
-    show_col_types = FALSE
+    show_col_types = FALSE,
+    guess_max = Inf
   )
 }
 
@@ -135,7 +140,7 @@ read_data_analysis <- function() {
     )
     return(read_data_clean())
   }
-  readr::read_csv(path, show_col_types = FALSE)
+  readr::read_csv(path, show_col_types = FALSE, guess_max = Inf)
 }
 
 #----------------------------------------------------------#

@@ -90,3 +90,54 @@ test_that("the legacy threat phrases in config.yml match the newer threat list",
   expect_equal(flags$BiomassAccumulation[3], 1)
   expect_equal(flags$HarmfulMow[3], 1)
 })
+
+#----------------------------------------------------------#
+# Escaping and whole-item threat matching (harmonised vocabulary) -----
+#----------------------------------------------------------#
+
+test_that(".regex_escape() escapes every special character", {
+  x <- "a (b.c) [d] $e ^ \\ | {f}+*?"
+  expect_true(grepl(paste0("^", .regex_escape(x), "$"), x, perl = TRUE))
+  expect_false(grepl(paste0("^", .regex_escape(x), "$"), paste0(x, "x"), perl = TRUE))
+})
+
+test_that("a threat item matches as a whole item only", {
+  threats <- c(
+    "nevhodná seč (vysoká intenzita, termín apod.),expanzní druhy (mimo invazních)",
+    "dopady chovu dobytka mimo pastvu (např. sešlap, eutrofizace apod.)",
+    "sukcese všeobecně, vývoj biocenózy",
+    "sukcese: Absence zivne rostliny, eutrofizace",
+    NA
+  )
+  expect_equal(
+    has_threat_item(threats, "nevhodná seč (vysoká intenzita, termín apod.)"),
+    c(TRUE, FALSE, FALSE, FALSE, FALSE)
+  )
+  # "eutrofizace" inside the description of another item does not count.
+  expect_equal(has_threat_item(threats, "eutrofizace"), c(FALSE, FALSE, FALSE, TRUE, FALSE))
+  # Nor does "sukcese" as the start of "sukcese všeobecně"; a comment after
+  # ":" is allowed.
+  expect_equal(has_threat_item(threats, "sukcese"), c(FALSE, FALSE, FALSE, TRUE, FALSE))
+})
+
+test_that("the harmonised vocabulary maps both threat lists to the classes", {
+  items <- list(
+    Encroachment = c("sukcese", "sukcese všeobecně"),
+    Eutrophization = c("eutrofizace či okyselování", "eutrofizace")
+  )
+  flags <- threat_item_flags(
+    c("sukcese všeobecně, vývoj biocenózy", "eutrofizace či okyselování", "sečení", NA),
+    items
+  )
+  expect_equal(flags$Encroachment, c(1, 0, 0, NA))
+  expect_equal(flags$Eutrophization, c(0, 1, 0, NA))
+})
+
+test_that("the coverage report finds the text no item covers", {
+  cov <- threat_vocabulary_coverage(
+    c("sukcese, něco jiného", "sukcese: poznámka"),
+    items = list(Encroachment = "sukcese"), unmapped = character(), no_threat = "žádný vliv"
+  )
+  expect_equal(cov$items$records[cov$items$item == "sukcese"], 2)
+  expect_equal(cov$unrecognised$text, "něco jiného")
+})

@@ -44,6 +44,30 @@ connected_components <- function(neighbours) {
   component
 }
 
+#' Pairs of geometries closer than a distance, as sf::st_is_within_distance().
+#'
+#' st_is_within_distance() compares every pair of projected geometries, which
+#' takes minutes for the 8678 sites. Here the candidate pairs come from
+#' st_intersects() on slightly enlarged buffers, which uses a spatial index,
+#' and each candidate pair is then checked with its exact distance, so the
+#' result is the same.
+#'
+#' @param sites       geometries in a projected CRS (sf)
+#' @param distance_m  the distance, in the units of the CRS
+#' @return a list, element i holding the indices within the distance of i
+within_distance <- function(sites, distance_m) {
+  geometry <- sf::st_geometry(sites)
+  # A buffer is a polygon inscribed in the true buffer, so it is widened a
+  # little to keep every pair at exactly the distance among the candidates.
+  candidates <- sf::st_intersects(sf::st_buffer(geometry, distance_m * 1.01 + 0.01), geometry)
+  i <- rep(seq_along(candidates), lengths(candidates))
+  j <- unlist(candidates)
+  d <- sf::st_distance(geometry[i], geometry[j], by_element = TRUE)
+  keep <- as.numeric(d) <= distance_m
+  out <- split(j[keep], factor(i[keep], levels = seq_along(geometry)))
+  unname(lapply(out, as.integer))
+}
+
 #' Reconstruct persistent sites from the site geometries.
 #'
 #' @param sites       site geometries with ID_LOKAL (sf)
@@ -56,7 +80,7 @@ match_sites <- function(sites, distance_m = CONFIG$sites$match_distance_m) {
   neighbours <- if (distance_m == 0) {
     sf::st_intersects(sites)
   } else {
-    sf::st_is_within_distance(sites, sites, dist = distance_m)
+    within_distance(sites, distance_m)
   }
   component <- connected_components(neighbours)
   tibble::tibble(

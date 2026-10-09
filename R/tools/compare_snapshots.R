@@ -16,8 +16,9 @@
 #   snapshot_outputs("04_after_config")
 #   compare_snapshots("03_before_config", "04_after_config", "a03_config")
 #
-# A snapshot is a flat copy of every CSV under Data/Processed and of every CSV
-# under Outputs/**/Tables, in Data/Snapshots/<label>/ (not tracked by git).
+# A snapshot is a flat copy of the CSVs of Data/Processed/<scope> and
+# Outputs/<scope>/Tables, for the scopes asked for ("common" and the legacy
+# specification by default), in Data/Snapshots/<label>/ (not tracked by git).
 # The comparison is written to changes/<stem>.md and changes/<stem>.csv, which
 # are tracked, so that CHANGELOG.md can point to the full list of changed
 # numbers.
@@ -29,12 +30,21 @@ if (!exists("md_table")) source("R/functions/report_helpers.R", encoding = "UTF-
 
 #' Copy the current processed data and result tables into a snapshot.
 #'
+#' Only the files of the given scopes are taken: the folders
+#' Data/Processed/<scope> and Outputs/<scope>/Tables. With "common" and one
+#' specification, the file names are kept as they are, so that the snapshot
+#' compares with the earlier, single-specification snapshots. With several
+#' specifications, every file of a specification is prefixed with
+#' "<specification>__", since the specifications write files of the same
+#' names.
+#'
 #' @param label     folder name under Data/Snapshots
-#' @param processed folder holding the processed data, searched recursively
-#' @param outputs   folder holding the result tables, searched recursively for
-#'                  folders called "Tables"
+#' @param scopes    "common" and the specifications to take
+#' @param processed folder holding the processed data
+#' @param outputs   folder holding the result tables
 #' @return the snapshot directory, invisibly
 snapshot_outputs <- function(label,
+                             scopes = c("common", "legacy"),
                              processed = "Data/Processed",
                              outputs = "Outputs",
                              root = "Data/Snapshots") {
@@ -43,12 +53,19 @@ snapshot_outputs <- function(label,
   dir.create(file.path(dest, "processed"), recursive = TRUE)
   dir.create(file.path(dest, "tables"), recursive = TRUE)
 
-  processed_files <- list.files(processed, "\\.csv$", recursive = TRUE, full.names = TRUE)
-  table_files <- list.files(outputs, "\\.csv$", recursive = TRUE, full.names = TRUE)
-  table_files <- table_files[basename(dirname(table_files)) == "Tables"]
-
-  file.copy(processed_files, file.path(dest, "processed", basename(processed_files)))
-  file.copy(table_files, file.path(dest, "tables", basename(table_files)))
+  prefix <- length(setdiff(scopes, "common")) > 1
+  target <- function(files, scope) {
+    if (prefix && scope != "common") paste0(scope, "__", basename(files)) else basename(files)
+  }
+  processed_files <- table_files <- character()
+  for (scope in scopes) {
+    p <- list.files(file.path(processed, scope), "\\.csv$", full.names = TRUE)
+    t <- list.files(file.path(outputs, scope, "Tables"), "\\.csv$", full.names = TRUE)
+    file.copy(p, file.path(dest, "processed", target(p, scope)))
+    file.copy(t, file.path(dest, "tables", target(t, scope)))
+    processed_files <- c(processed_files, p)
+    table_files <- c(table_files, t)
+  }
 
   message(
     "Snapshot ", dest, ": ", length(processed_files), " processed files, ",
@@ -79,6 +96,7 @@ snapshot_outputs <- function(label,
     "data_analysis.csv"     = c("ID_NALEZ", "DRUH", "IMPUTED"),
     "records.csv"           = c("ID_NALEZ")
   )
+  file <- sub("^.*__", "", file)
   if (!is.null(known[[file]])) {
     return(intersect(known[[file]], names(x)))
   }

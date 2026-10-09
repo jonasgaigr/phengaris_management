@@ -152,9 +152,11 @@ is_natural_habitat <- function(biotop) {
 #'                  NATURAL_SHARE the share of it in natural habitats,
 #'                  SANGUISORBA_AREA the area in the habitat codes of
 #'                  `sanguisorba_codes` (NA when that list is empty), and
-#'                  BIOTOP / FSB / HABITAT those of the dominant habitat by
-#'                  area. With `share_column`, each overlap's area is first
-#'                  multiplied by that column / 100.
+#'                  BIOTOP / FSB / HABITAT / NATURAL those of the dominant
+#'                  habitat by area (for a site without area, of the one
+#'                  habitat it lies in; NA in a mosaic). With
+#'                  `share_column`, each overlap's area is first multiplied
+#'                  by that column / 100.
 #'
 #' @param records   the cleaned records, with ID_LOKAL
 #' @param segments  site x segment overlaps, from read_habitat_overlaps()
@@ -212,14 +214,26 @@ select_habitat_segment <- function(records, segments, rule = c("legacy", "area_w
       .natural = is_natural_habitat(BIOTOP)
     )
 
+  # A site without area (a point or a line, unbuffered) has no dominant
+  # habitat by area: it gets the habitat it lies in when that is a single
+  # one, and NA (BIOTOP, FSB, HABITAT and NATURAL) when it lies in a mosaic
+  # of several. A segment without a habitat code (BIOTOP NA, "-1") counts as
+  # a non-natural habitat, as in the legacy rule.
   dominant <- weighted %>%
     dplyr::group_by(ID_LOKAL, BIOTOP, FSB, HABITAT) %>%
     dplyr::summarise(.area = sum(.area, na.rm = TRUE), .groups = "drop") %>%
-    dplyr::arrange(ID_LOKAL, dplyr::desc(.area), BIOTOP) %>%
     dplyr::group_by(ID_LOKAL) %>%
+    dplyr::mutate(
+      .ambiguous = sum(.area) == 0 & dplyr::n_distinct(BIOTOP) > 1
+    ) %>%
+    dplyr::arrange(dplyr::desc(.area), BIOTOP, .by_group = TRUE) %>%
     dplyr::slice(1) %>%
     dplyr::ungroup() %>%
-    dplyr::select(ID_LOKAL, BIOTOP, FSB, HABITAT)
+    dplyr::mutate(
+      NATURAL = dplyr::if_else(.ambiguous, NA_real_, as.numeric(is_natural_habitat(BIOTOP))),
+      dplyr::across(c(BIOTOP, FSB, HABITAT), ~ dplyr::if_else(.ambiguous, NA, .x))
+    ) %>%
+    dplyr::select(ID_LOKAL, BIOTOP, FSB, HABITAT, NATURAL)
 
   per_site <- weighted %>%
     dplyr::group_by(ID_LOKAL) %>%
@@ -238,10 +252,7 @@ select_habitat_segment <- function(records, segments, rule = c("legacy", "area_w
       N_HABITATS = dplyr::n_distinct(BIOTOP[.natural]),
       .groups = "drop"
     ) %>%
-    dplyr::left_join(dominant, by = "ID_LOKAL") %>%
-    dplyr::mutate(
-      NATURAL = as.numeric(is_natural_habitat(BIOTOP))
-    )
+    dplyr::left_join(dominant, by = "ID_LOKAL")
 
   out <- records %>%
     dplyr::left_join(per_site, by = "ID_LOKAL")

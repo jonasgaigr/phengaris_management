@@ -61,27 +61,66 @@ crs:
 specifications:
   run:
     - legacy
+    - revised
   definitions:
     legacy:
       description: >-
         The original analysis choices: the original model set, data subsets
         and derived variables, with the bug fixes listed in CHANGELOG.md
         applied.
-      # How a record is described by the habitat segments its site overlaps:
-      # "legacy" (one segment, the least natural and smallest) or
-      # "area_weighted" (summaries over all segments; not validated on real
-      # data). See R/functions/habitat_layers.R.
       # How absences are imputed (R/functions/imputation.R): "legacy_cell"
       # (the original rule: by 10 km range cell, across all years), "visit"
-      # (by site and date, only inside the imputed species' own range) or
-      # "none".
+      # (by site and date) or "none". Every rule imputes only inside the
+      # imputed species' own reporting range.
       imputation_rule: legacy_cell
       # Keep the targeted records that lie outside their species' own
       # reporting range (all explicit negatives); the original dropped them.
       keep_outside_range: false
+      # Which records the host-plant filter of step 04 drops:
+      # "absent_or_unknown" (the original: host plant recorded absent, or no
+      # host-plant information), "absent" (only host plant recorded absent)
+      # or "none".
+      host_plant_filter: absent_or_unknown
+      # How the threat list is turned into threat classes: "legacy" (the
+      # phrases of strukt_pozn: threat_classes, matched anywhere in the list)
+      # or "harmonised" (the items of both field-form lists matched one by
+      # one, strukt_pozn: threat_items).
+      threat_vocabulary: legacy
+      # Add the survey-design variables of the revised analysis in step 04
+      # (observer, day of year, protocol era, persistent site, connectivity)
+      # and keep one record per species x site x visit.
+      design_variables: false
+      # How a record is described by the habitat segments its site overlaps:
+      # "legacy" (one segment, the least natural and smallest) or
+      # "area_weighted" (summaries over all segments; not validated on real
+      # data). See R/functions/habitat_layers.R.
       habitat_segment_rule: legacy
-      # The models fitted in steps 09-11; see R/functions/model_specs_legacy.R.
+      # The models fitted after step 06: "legacy" runs steps 09-13 with the
+      # model set of R/functions/model_specs_legacy.R; "revised" runs steps
+      # 17-20 (R/functions/model_specs_revised.R).
       model_set: legacy
+    revised:
+      description: >-
+        The revised analysis approved in the Phase 3 review (REVIEW.md,
+        P3.1-P3.9): one record per species x site x visit; absences imputed
+        visit by visit and only inside the imputed species' reporting range;
+        explicit negatives outside the range kept; observer, day of year and
+        protocol era as detection covariates; multivariable glmmTMB models
+        with diagnostics, fitted with and without the imputed absences;
+        connectivity, spatial autocorrelation, per-threat models and an
+        abundance supplement.
+      imputation_rule: visit
+      keep_outside_range: true
+      # A site without Sanguisorba cannot hold the species (276 P. nausithous
+      # records with the host plant recorded absent hold 4 positives, 66
+      # P. teleius records none), so these structural zeros are dropped.
+      # Records without host-plant information are true records and are kept;
+      # only the models using the host plant leave them out.
+      host_plant_filter: absent
+      threat_vocabulary: harmonised
+      design_variables: true
+      habitat_segment_rule: area_weighted
+      model_set: revised
 
 #--------------------------------------------------#
 # Data sources counted as targeted monitoring -----
@@ -193,6 +232,7 @@ strukt_pozn:
   # sets the flag None and is not a threat, so it is not counted in
   # SUM_THREATS.
   no_threat_phrase: "žádný vliv"
+  # Used by the legacy threat vocabulary (specifications: threat_vocabulary).
   threat_classes:
     LandUseChange: ["změna zemědělského využívání půdy a terénní úpravy"]
     Abandonment: ["absence či nedostatek péče"]
@@ -208,17 +248,202 @@ strukt_pozn:
     BiomassAccumulation: ["hromadění organického materiálu"]
     Eutrophization: ["eutrofizace či okyselování"]
 
+  # The harmonised threat vocabulary (specifications: threat_vocabulary:
+  # harmonised). The field form had two threat lists:
+  #
+  #   2019-2020  an older list (key `Negativní vlivy na lokalitě`), with no
+  #              "no threat" item;
+  #   2021-2024  the current list (key `Negativní vlivy na lokalitě` until
+  #              2023, `vliv` from 2021), the one the classes are named after.
+  #
+  # Each item of either list is matched as a whole item (so "eutrofizace"
+  # does not match inside "dopady chovu dobytka mimo pastvu (např. sešlap,
+  # eutrofizace apod.)", and "sukcese" does not match "sukcese všeobecně").
+  # An item may carry a free-text comment after ":", which is ignored. The
+  # older items are mapped to the class of their nearest current item; the
+  # ones without an equivalent in the current list are listed under
+  # `unmapped` and set no class, so that no class exists in one era only.
+  # Counts are item occurrences in the targeted records of 2019-2024.
+  # PROPOSED in Phase 3 (P3.7). TODO(Jonáš): check the mapping of the older
+  # items (marked "older list").
+  threat_items:
+    LandUseChange:
+      - "změna zemědělského využívání půdy a terénní úpravy"
+      - "terénní úpravy"                                             # older list, 18
+      - "dosev a obnova trvalých travních porostů"                   # older list, 9
+      - "odstraňování mezí, křovišť a drobných lesíků"               # older list, 9
+    Abandonment:
+      - "absence či nedostatek péče"
+    HarmfulMow:
+      - "nevhodná seč (vysoká intenzita, termín apod.)"
+      - "sečení"                                                     # older list, 769; mowing listed as a negative influence
+    HarmfulGrazing:
+      - "nevhodná pastva (vysoká intenzita, termín apod.)"
+      - "pastva"                                                     # older list, 98; grazing listed as a negative influence
+    GrazingByeffects:
+      - "dopady chovu dobytka mimo pastvu (např. sešlap, eutrofizace apod.)"
+    FertilizerUse:
+      - "aplikace hnojiv"
+      - "hnojení"                                                    # older list, 64
+    Afforestation:
+      - "zalesňování bezlesí"
+      - "vysazování lesů"                                            # older list, 10
+    Invasives:
+      - "invazní druhy"
+      - "invaze nějakého druhu (neofyty)"                            # older list, 36
+    NativeDominants:
+      - "expanzní druhy (mimo invazních)"
+    AbioticNaturalProcesses:
+      - "abiotické přírodní procesy (eroze, zanášení, vysychání apod.)"
+      - "vysychání (mokřadního ekosystému)"                          # older list, 91
+    Encroachment:
+      - "sukcese"
+      - "sukcese všeobecně"                                          # older list, 512
+      - "vývoj biocenózy"                                            # older list, 512; always listed with "sukcese všeobecně"
+    BiomassAccumulation:
+      - "hromadění organického materiálu"
+      - "hromadění organického materiálu (stařiny)"                  # older list, 394
+    Eutrophization:
+      - "eutrofizace či okyselování"
+      - "eutrofizace"                                                # older list, 284
+  # Older-list items with no equivalent in the current list. They are
+  # reported, not modelled.
+  threat_items_unmapped:
+    - "meliorace"                                                    # 32
+    - "odvodňování"                                                  # 32
+    - "zaplavování"                                                  # 27
+    - "změna hydrologických poměrů v důsledku zemědělství"           # 11
+    - "zpevňování stok, kanálů, hrází rybníků, nádrží, mokřadů"      # 13
+    - "nadměrné využívání"                                           # 29
+    - "sešlapávání"                                                  # 29
+    - "absence nebo narušení mezidruhových vztahů (např. opylovači, živné rostliny apod.)"  # 31
+    - "používání pesticidů"                                          # 1
+
 #--------------------------------------------------#
 # Persistent sites -----
 #--------------------------------------------------#
 
 sites:
   # Site geometries of different years closer than this (metres) are merged
-  # into one persistent site by match_sites() (R/functions/sites.R); 0 merges
-  # only geometries that touch. Not used by the legacy specification.
-  # TODO(Jonáš): the distance below which two survey sites are the same
-  # meadow. The numbers of recurring sites for 0-200 m are in REVIEW.md.
+  # into one persistent site, SITE_ID, by match_sites() (R/functions/sites.R);
+  # 0 merges only geometries that touch. The revised models use it for the
+  # optional site random effect and to keep a site out of its own
+  # connectivity. 50 m as proposed in REVIEW.md and approved (P3.1).
   match_distance_m: 50
+  # The site random effect is refitted with the persistent sites built at
+  # these distances too, as a sensitivity check (P3.1).
+  sensitivity_distances_m: [0, 200]
+
+#--------------------------------------------------#
+# Survey design of the revised analysis -----
+#--------------------------------------------------#
+
+# Used by the specifications with design_variables: true
+# (R/functions/design_variables.R).
+design:
+  # The field form changed in 2021: polygons instead of points, a grazing
+  # entry, a new host-plant key and a new threat list (REVIEW.md, item 20).
+  # PROTOCOL_ERA is "2019-2020" before this year and "2021-2024" from it.
+  protocol_change_year: 2021
+
+  # Detection depends on where in the flight season a visit falls. Each
+  # visit is placed relative to the season of its own species and year:
+  # DOY_DEV = day of year - median day of year of the positive records of
+  # that species in that year (decided in the review, P3.3).
+  flight_window:
+    # Which positive records give the median: "all" (every source, the
+    # opportunistic records included) or "targeted" (the monitoring
+    # campaigns only). Only records with an exact date (DATUM_OD = DATUM_DO)
+    # count. "all" gives 184-1231 records per species and year, against 10-420
+    # targeted ones; the medians differ by at most 7 days.
+    reference_sources: all
+    # Visits farther than this from the median (in days) fall outside the
+    # flight season: the species cannot be detected, so they say nothing about
+    # occupancy. They stay in the data (IN_FLIGHT_WINDOW = FALSE) and are left
+    # out of the revised models. Positive targeted records lie at most 40 days
+    # from their median; the three visits of October and December 2024 lie
+    # 99-143 days from it (REVIEW.md, item 25). PROPOSED.
+    max_abs_deviation_days: 45
+
+  # The observer, from AUTOR, enters the revised models as a random effect
+  # (P3.3). Names are normalised (case, diacritics, academic titles, word
+  # order and the "jmeno.prijmeni" form; for several authors the first one
+  # counts), which merges e.g. "Jiří Švarc", "Švarc Jiří" and "Jiří  Švarc".
+  # The aliases merge the spellings the normalisation cannot, from the
+  # normalised form to the normalised form. TODO(Jonáš): confirm.
+  observer_aliases:
+    "slavek valda": "slavomir valda"
+
+#--------------------------------------------------#
+# Connectivity -----
+#--------------------------------------------------#
+
+# Connectivity of a site to the populations around it (P3.5), the incidence
+# function model index
+#
+#   S_i = sum_j exp(-alpha * d_ij) * A_j ^ b
+#
+# over the sites j occupied by the same species in the same or the previous
+# year, other than the site itself (its persistent SITE_ID). d_ij is the
+# distance between the sites' representative points in km, A_j the site
+# area in ha. R/functions/connectivity.R; computed once, in step 16.
+connectivity:
+  # 1 / alpha is the mean dispersal distance, in km. Phengaris adults mostly
+  # stay within a few hundred metres of their patch, with rare movements of
+  # several km. PROPOSED: 1 km. TODO(Jonáš): confirm.
+  alpha_per_km: 1
+  # The models are refitted with these values too.
+  alpha_sensitivity_per_km: [0.5, 2]
+  # b, the exponent of the source area. 0.5 keeps a few very large polygons
+  # (up to 985 ha) from dominating; 0 counts occupied sites alone.
+  area_exponent: 0.5
+  # Point and line sites have no area; they count with the median area of
+  # the occupied polygon sites of the same species.
+  # Which positive records count as occupied sites: "all" sources or
+  # "targeted" only. An opportunistic record is as good evidence of a
+  # population as a monitoring one.
+  sources: all
+  # Sources farther than this are ignored (exp(-alpha d) < 1e-6 at alpha = 1).
+  max_distance_km: 15
+  # The models take log10(S + offset): S spans orders of magnitude, and is 0
+  # where no occupied site is within reach. 0.001 is about one 1 ha site
+  # 7 km away.
+  log_offset: 0.001
+
+#--------------------------------------------------#
+# Revised models -----
+#--------------------------------------------------#
+
+# Settings of the revised model set (R/functions/model_specs_revised.R,
+# R/functions/model_revised.R), steps 17-20.
+revised_models:
+  # Random intercepts of every revised model (P3.1, P3.3): the mapping grid
+  # square, the year and the observer.
+  random_effects: [SITMAP, YEAR, OBSERVER]
+  # The day-of-year deviation enters as a quadratic, in units of this many
+  # days, so that its coefficients are of the order of the others.
+  doy_unit_days: 10
+  # Generalised VIF (GVIF^(1/(2 df))) above which a term is flagged.
+  max_gvif: 2.2
+  # A model whose fixed effects separate (detectseparation::detect_separation on the
+  # model without random effects, or an estimate / SE above the thresholds of
+  # `diagnostics`) is refitted with bias-reduced maximum likelihood
+  # (brglm2) without random effects, and both fits are reported.
+  bias_reduced_fallback: true
+  # Spatial autocorrelation of the residuals (P3.6): DHARMa's Moran's I test
+  # on the residuals aggregated per persistent site. When p is below `alpha`,
+  # the grid random effect (1 | SITMAP) is compared with a smooth of the
+  # coordinates, s(X, Y, k), fitted with mgcv; "always" fits the smooth
+  # whatever the test says.
+  autocorrelation:
+    alpha: 0.05
+    smooth_k: 60
+    fit_smooth: when_autocorrelated
+  # Per-threat models (P3.7): a class is modelled when at least this many
+  # records with the threat are positive and at least this many are
+  # negative; otherwise it is reported as too rare.
+  threats:
+    min_records_per_outcome: 5
 
 #--------------------------------------------------#
 # Habitat mapping layer -----

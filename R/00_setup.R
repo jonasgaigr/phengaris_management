@@ -32,9 +32,11 @@
 # opt-in tools in R/tools use (RCzechia, rn2kcz, httr, zip) are not checked
 # here. Keep the list in step with the code.
 pkgs <- c(
-  "magrittr", "dplyr", "tidyr", "readr", "tibble", "stringr", "forcats",
-  "ggplot2", "ggrepel", "ggpubr", "sf", "terra", "units", "vegan", "lme4",
-  "Matrix", "yaml", "checkmate"
+  "magrittr", "dplyr", "tidyr", "readr", "tibble", "stringr", "stringi",
+  "forcats", "ggplot2", "ggrepel", "ggpubr", "sf", "terra", "units", "vegan",
+  "lme4", "Matrix", "reformulas", "DHARMa", "yaml", "checkmate",
+  # The revised model set (steps 17-20).
+  "glmmTMB", "brglm2", "detectseparation", "marginaleffects", "mgcv"
 )
 
 missing_pkgs <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
@@ -89,11 +91,15 @@ source("R/functions/validate.R", encoding = "UTF-8")
 source("R/functions/imputation.R", encoding = "UTF-8")
 source("R/functions/protection.R", encoding = "UTF-8")
 source("R/functions/sites.R", encoding = "UTF-8")
+source("R/functions/connectivity.R", encoding = "UTF-8")
 source("R/functions/strukt_pozn.R", encoding = "UTF-8")
 source("R/functions/derive_variables.R", encoding = "UTF-8")
+source("R/functions/design_variables.R", encoding = "UTF-8")
 source("R/functions/report_helpers.R", encoding = "UTF-8")
 source("R/functions/model_helpers.R", encoding = "UTF-8")
 source("R/functions/model_specs_legacy.R", encoding = "UTF-8")
+source("R/functions/model_revised.R", encoding = "UTF-8")
+source("R/functions/model_specs_revised.R", encoding = "UTF-8")
 source("R/functions/ordination_legacy.R", encoding = "UTF-8")
 source("R/functions/summary_tables.R", encoding = "UTF-8")
 source("R/functions/habitat_layers.R", encoding = "UTF-8")

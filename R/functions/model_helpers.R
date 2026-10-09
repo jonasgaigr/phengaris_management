@@ -176,12 +176,11 @@ model_diagnostics <- function(m, settings = CONFIG$diagnostics, seed = CONFIG$se
     out$dharma_dispersion_p <- DHARMa::testDispersion(residuals, plot = FALSE)$p.value
   }
 
+  separated <- isTRUE(out$max_abs_estimate > settings$separation_abs_estimate) ||
+    isTRUE(out$max_std_error > settings$separation_std_error)
   flags <- c(
     if (isTRUE(out$singular)) "singular fit",
-    if (isTRUE(out$max_abs_estimate > settings$separation_abs_estimate) ||
-          isTRUE(out$max_std_error > settings$separation_std_error)) {
-      "possible separation"
-    },
+    if (separated) "possible separation",
     if (isTRUE(out$max_random_variance > settings$max_random_variance)) "random-effect variance inflated",
     if (!is.na(m$warnings)) "fitting warnings"
   )

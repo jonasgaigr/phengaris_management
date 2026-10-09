@@ -33,8 +33,13 @@
 #--------------------------------------------------#
 
 #' Escape the characters that have a meaning in a regular expression.
+#'
+#' The pattern needs perl = TRUE: in the default (TRE) engine a backslash
+#' inside brackets is literal, and the class then matched almost nothing, so
+#' nothing was escaped. The keys of the form contain no special characters,
+#' so this mattered only for the threat items, which contain parentheses.
 .regex_escape <- function(x) {
-  gsub("([.|()\\^{}+$*?\\[\\]\\\\])", "\\\\\\1", x)
+  gsub("([.|()\\^{}+$*?\\[\\]\\\\])", "\\\\\\1", x, perl = TRUE)
 }
 
 #' Split one structured note into its key-value pairs.
@@ -123,6 +128,72 @@ threat_class_flags <- function(threats, classes, missing = 0) {
     ifelse(is.na(threats), missing, as.numeric(hit))
   })
   tibble::as_tibble(flags)
+}
+
+#' Does a threat list contain an item, as a whole item?
+#'
+#' Items are separated by "," with or without a space, and an item can carry
+#' a free-text comment after ":". An item therefore matches when it starts
+#' the list or follows a comma, and is followed by a comma, a colon or the
+#' end of the list. "eutrofizace" does not match inside "(např. sešlap,
+#' eutrofizace apod.)", nor "sukcese" inside "sukcese všeobecně".
+#'
+#' @param threats  character vector of threat lists
+#' @param item     one item, verbatim
+#' @return logical, FALSE where the list is NA
+has_threat_item <- function(threats, item) {
+  pattern <- paste0("(?:^|,)\\s*", .regex_escape(item), "\\s*(?=,|:|$)")
+  !is.na(threats) & grepl(pattern, threats, perl = TRUE)
+}
+
+#' Flag each threat class by whole-item matching (the harmonised vocabulary).
+#'
+#' @param threats  character vector, the `threats` column of
+#'                 parse_strukt_pozn()
+#' @param items    named list, class = character vector of items, as in
+#'                 config.yml `strukt_pozn: threat_items`
+#' @param missing  value for records without a threat list
+#' @return a tibble with one 0/1 column per class
+threat_item_flags <- function(threats, items, missing = NA) {
+  flags <- lapply(items, function(class_items) {
+    hit <- Reduce(`|`, lapply(class_items, has_threat_item, threats = threats))
+    ifelse(is.na(threats), missing, as.numeric(hit))
+  })
+  tibble::as_tibble(flags)
+}
+
+#' How much of the threat lists the harmonised vocabulary recognises.
+#'
+#' @param threats    character vector of threat lists
+#' @param items      config.yml `strukt_pozn: threat_items`
+#' @param unmapped   config.yml `strukt_pozn: threat_items_unmapped`
+#' @param no_threat  config.yml `strukt_pozn: no_threat_phrase`
+#' @return a list: `items`, the records containing each known item with its
+#'         class; `unrecognised`, the text left over once every known item is
+#'         removed, with the records it occurs in
+threat_vocabulary_coverage <- function(threats, items = CONFIG$strukt_pozn$threat_items,
+                                       unmapped = unlist(CONFIG$strukt_pozn$threat_items_unmapped),
+                                       no_threat = CONFIG$strukt_pozn$no_threat_phrase) {
+  known <- dplyr::bind_rows(
+    tibble::tibble(
+      class = rep(names(items), lengths(items)),
+      item = unlist(items, use.names = FALSE)
+    ),
+    tibble::tibble(class = "(unmapped)", item = unmapped),
+    tibble::tibble(class = "(no threat)", item = no_threat)
+  )
+  known$records <- vapply(known$item, function(i) sum(has_threat_item(threats, i)), integer(1), USE.NAMES = FALSE)
+
+  # Remove every known item, longest first, with any comment after it.
+  rest <- threats[!is.na(threats)]
+  for (i in known$item[order(nchar(known$item), decreasing = TRUE)]) {
+    rest <- gsub(paste0("(?:^|,)\\s*", .regex_escape(i), "\\s*(?::[^,]*)?(?=,|$)"), "", rest, perl = TRUE)
+  }
+  rest <- trimws(gsub("^[,[:space:]]+|[,[:space:]]+$", "", rest))
+  unrecognised <- tibble::tibble(text = rest[nzchar(rest)]) %>%
+    dplyr::count(text, name = "records", sort = TRUE)
+
+  list(items = known, unrecognised = unrecognised)
 }
 
 #----------------------------------------------------------#
