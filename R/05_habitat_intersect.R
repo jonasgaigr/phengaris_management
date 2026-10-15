@@ -12,28 +12,37 @@
 # so that each site can be described by the habitat segments it covers: the
 # habitat code (BIOTOP) and its share of the segment (STEJ_PR), the habitat
 # quality evaluation (FSB), the mosaic composition (BIOTOP_SEZ) and the area
-# of the overlap. It also overlays them on the ecosystem layer KVES 2025,
-# which covers the whole country, also where VMB maps no natural habitat.
+# of the overlap. It also overlays them on the ecosystem layer KVES, which
+# covers the whole country, also where VMB maps no natural habitat.
 #
 # Each specification chooses its intersection in step 06 (config.yml,
 # `habitat_source`). This step writes every one it can:
 #
 #   frozen   the intersection of the original analysis, copied as it is.
 #            It cannot be recomputed and is used by the legacy specification.
-#   current  the sites intersected with the current VMB layer: the local copy
-#            of config.yml `habitat: layer`, made by
+#   current  the site areas intersected with the current VMB layer: the local
+#            copy of config.yml `habitat: layer`, made by
 #            R/tools/download_habitat_layers.R, or else the AOPK network
 #            share //bali.nature.cz (AOPK network only).
-#   KVES     the sites intersected with the local copy of KVES 2025
-#            (`habitat: kves_layer`), made by the same tool.
+#   KVES     the site areas intersected with the local copies of KVES
+#            (`habitat: kves_layers`), made by the same tool.
+#
+# The site areas. A record takes its KVES information from the KVES version
+# of its year (`habitat: kves_version_of_year`), so each site is taken once
+# per KVES version of its records' years. A polygon site is described over
+# its own area. A point or line site has none, and is described over the KVES
+# polygon it lies in, from that version, cut to `habitat: margin_m` around
+# the site (site_areas()). Both current intersections are therefore keyed by
+# ID_LOKAL and KVES_VERSION.
 #
 # A missing layer is skipped cleanly, and step 06 falls back as it describes.
 #
-# Reads:  Data/Processed/common/sites.gpkg   (step 01)
-#         the frozen intersection, the VMB layer, the KVES layer
+# Reads:  Data/Processed/common/sites.gpkg, records.csv   (step 01)
+#         the frozen intersection, the VMB layer, the KVES layers
 # Writes: Data/Processed/common/data_lokal_vmb.csv           frozen
 #         Data/Processed/common/data_lokal_vmb_current.csv   current
 #         Data/Processed/common/data_lokal_kves.csv          KVES
+#         Data/Processed/common/site_areas.gpkg              the site areas
 #
 #----------------------------------------------------------#
 
@@ -45,7 +54,7 @@ report_start(
   "Habitat layer intersection",
   paste(
     "Monitoring site geometries overlaid on the national habitat mapping",
-    "layer (VMB) and on the ecosystem layer (KVES 2025). One row per site x",
+    "layer (VMB) and on the ecosystem layer (KVES). One row per site x",
     "habitat segment (or ecosystem polygon) overlap, with the real area and",
     "length of each overlap."
   )
@@ -56,9 +65,10 @@ sites <- read_sites()
 path_frozen <- processed_path("data_lokal_vmb.csv", "common")
 path_current <- processed_path("data_lokal_vmb_current.csv", "common")
 path_kves <- processed_path("data_lokal_kves.csv", "common")
+path_areas <- processed_path("site_areas.gpkg", "common")
 
 # A file left over from an earlier run must not be mistaken for a result.
-for (path in c(path_frozen, path_current, path_kves)) {
+for (path in c(path_frozen, path_current, path_kves, path_areas)) {
   if (file.exists(path)) file.remove(path)
 }
 
@@ -74,50 +84,81 @@ if (file.exists(CONFIG$paths$habitat_legacy_intersection)) {
 }
 
 #----------------------------------------------------------#
-# The current VMB layer -----
+# The site areas, per KVES version -----
 #----------------------------------------------------------#
 
-current_source <- if (file.exists(CONFIG$habitat$layer)) {
+# The KVES versions of each site: those of its records' years.
+site_versions <- read_records() %>%
+  dplyr::transmute(
+    ID_LOKAL,
+    KVES_VERSION = kves_version_of(as.integer(substr(DATUM_OD, 1, 4)))
+  ) %>%
+  dplyr::distinct()
+versions <- sort(unique(site_versions$KVES_VERSION))
+kves_paths <- unlist(CONFIG$habitat$kves_layers)
+kves_available <- versions[versions %in% names(kves_paths) & file.exists(kves_paths[versions])]
+
+vmb_source <- if (file.exists(CONFIG$habitat$layer)) {
   CONFIG$habitat$layer
 } else if (vmb_available()) {
   "the AOPK network share"
 } else {
   NA_character_
 }
+habitat_layer <- if (is.na(vmb_source)) {
+  NULL
+} else if (file.exists(CONFIG$habitat$layer)) {
+  read_habitat_layer(CONFIG$habitat$layer)
+} else {
+  load_vmb(vmb_x = 0)$vmb_shp_sjtsk_akt
+}
 
-if (!is.na(current_source)) {
-  habitat_layer <- if (file.exists(CONFIG$habitat$layer)) {
-    read_habitat_layer(CONFIG$habitat$layer)
-  } else {
-    load_vmb(vmb_x = 0)$vmb_shp_sjtsk_akt
+areas <- lokal_vmb <- lokal_kves <- list()
+for (version in versions) {
+  kves <- if (version %in% kves_available) read_kves_layer(kves_paths[[version]]) else NULL
+  version_sites <- site_versions$ID_LOKAL[site_versions$KVES_VERSION == version]
+  version_areas <- site_areas(sites[sites$ID_LOKAL %in% version_sites, ], kves)
+  version_areas$KVES_VERSION <- version
+  areas[[version]] <- version_areas
+
+  # The keys first, then the attributes of the layer.
+  overlaps <- function(layer) {
+    sf::st_drop_geometry(intersect_sites_with_habitats(version_areas, layer)) %>%
+      dplyr::relocate(ID_LOKAL, KVES_VERSION, AREA_SOURCE)
   }
+  if (!is.null(kves)) {
+    lokal_kves[[version]] <- overlaps(kves) %>%
+      dplyr::select(ID_LOKAL, KVES_VERSION, AREA_SOURCE, KVES_ID, KOD, KATEGORIE, AREA_real, LENGTH_real)
+  }
+  if (!is.null(habitat_layer)) lokal_vmb[[version]] <- overlaps(habitat_layer)
+}
+rm(habitat_layer)
+areas <- dplyr::bind_rows(areas)
+areas$AREA_m2 <- units::drop_units(sf::st_area(areas))
+sf::st_write(areas, path_areas, quiet = TRUE)
 
-  lokal_vmb <- sf::st_drop_geometry(intersect_sites_with_habitats(sites, habitat_layer))
+#----------------------------------------------------------#
+# The current VMB and KVES intersections -----
+#----------------------------------------------------------#
 
+if (length(lokal_vmb)) {
+  lokal_vmb <- dplyr::bind_rows(lokal_vmb)
   validate_table(
     lokal_vmb, "site x habitat overlaps",
-    columns = c(ID_LOKAL = "numeric", AREA_real = "numeric", LENGTH_real = "numeric"),
-    not_na = c("ID_LOKAL", "SEGMENT_ID", "AREA_real")
+    columns = c(ID_LOKAL = "numeric", KVES_VERSION = "character", AREA_real = "numeric", LENGTH_real = "numeric"),
+    not_na = c("ID_LOKAL", "KVES_VERSION", "SEGMENT_ID", "AREA_real")
   )
-
   # Semicolon-separated with a decimal comma, as the original intersection.
   utils::write.csv2(lokal_vmb, path_current, row.names = FALSE)
 }
 
-#----------------------------------------------------------#
-# KVES 2025 -----
-#----------------------------------------------------------#
-
-if (file.exists(CONFIG$habitat$kves_layer)) {
-  lokal_kves <- sf::st_drop_geometry(intersect_sites_with_habitats(sites, read_kves_layer())) %>%
-    dplyr::select(ID_LOKAL, KVES_ID, KOD, KATEGORIE, AREA_real, LENGTH_real)
-
+if (length(lokal_kves)) {
+  lokal_kves <- dplyr::bind_rows(lokal_kves)
   validate_table(
     lokal_kves, "site x KVES overlaps",
-    columns = c(ID_LOKAL = "numeric", KOD = "character", AREA_real = "numeric"),
-    not_na = c("ID_LOKAL", "KVES_ID", "KOD", "AREA_real")
+    columns = c(ID_LOKAL = "numeric", KVES_VERSION = "character", KATEGORIE = "character", AREA_real = "numeric"),
+    not_na = c("ID_LOKAL", "KVES_VERSION", "KVES_ID", "KATEGORIE", "AREA_real")
   )
-
   utils::write.csv2(lokal_kves, path_kves, row.names = FALSE)
 }
 
@@ -154,6 +195,10 @@ retrieved_note <- function(layer, path) {
   paste0(path, " (", r$source, ", retrieved ", r$retrieved, ")")
 }
 
+kves_origin <- paste(
+  vapply(kves_available, function(v) retrieved_note(paste0("kves_", v), kves_paths[[v]]), character(1)),
+  collapse = "; "
+)
 report_table(
   rbind(
     source_row(
@@ -162,13 +207,13 @@ report_table(
     ),
     source_row(
       "current", specs_using("current"), path_current,
-      if (identical(current_source, CONFIG$habitat$layer)) {
-        retrieved_note("habitat_segments", current_source)
+      if (identical(vmb_source, CONFIG$habitat$layer)) {
+        retrieved_note("habitat_segments", vmb_source)
       } else {
-        current_source
+        vmb_source
       }
     ),
-    source_row("KVES", "-", path_kves, retrieved_note("kves", CONFIG$habitat$kves_layer))
+    source_row("KVES", specs_using("current"), path_kves, kves_origin)
   ),
   "Site x habitat intersections written by this step, and the specifications using them",
   "05_habitat_sources"
@@ -182,6 +227,15 @@ if (!file.exists(path_current)) {
     "intersection fall back to the frozen one in step 06."
   )
 }
+missing_versions <- setdiff(versions, kves_available)
+if (length(missing_versions)) {
+  report_warning(
+    "No local copy of KVES", paste(missing_versions, collapse = ", "),
+    "(config.yml `habitat: kves_layers`), so the point and line sites of",
+    "the records of those years are intersected as they are, with no area,",
+    "and get no KVES class. Run R/tools/download_habitat_layers.R."
+  )
+}
 if (!file.exists(path_frozen)) {
   report_warning(
     "The frozen intersection", CONFIG$paths$habitat_legacy_intersection,
@@ -189,6 +243,30 @@ if (!file.exists(path_frozen)) {
     "in step 06."
   )
 }
+
+#--------------------------------------------------#
+## The site areas -----
+#--------------------------------------------------#
+
+report_section("The site areas")
+
+report_table(
+  sf::st_drop_geometry(areas) %>%
+    dplyr::mutate(GEOMETRY = as.character(sf::st_geometry_type(sites))[match(ID_LOKAL, sites$ID_LOKAL)]) %>%
+    dplyr::group_by(KVES_VERSION, GEOMETRY, AREA_SOURCE) %>%
+    dplyr::summarise(
+      sites = dplyr::n(),
+      median_area_ha = stats::median(AREA_m2) / 10000,
+      .groups = "drop"
+    ),
+  paste(
+    "Site areas by KVES version and site geometry. A polygon site is",
+    "described over its own area (site); a point or line site over the KVES",
+    "polygon it lies in, cut to", CONFIG$habitat$margin_m, "m around it",
+    "(KVES), or as it is when it lies outside KVES (none)"
+  ),
+  "05_site_areas"
+)
 
 #--------------------------------------------------#
 ## Extent of each VMB intersection -----
@@ -217,9 +295,14 @@ for (which in c("current", "frozen")) {
   if (!file.exists(path)) next
   tbl <- readr::read_csv2(path, show_col_types = FALSE, progress = FALSE)
   # The current layer has one row per segment x mapped habitat, so its
-  # overlaps are counted once per segment. The frozen table is counted as it
-  # always was, once per row.
-  if (which == "current") tbl <- dplyr::distinct(tbl, ID_LOKAL, SEGMENT_ID, FSB, AREA_real)
+  # overlaps are counted once per segment. A site is counted once, for its
+  # first KVES version. The frozen table is counted as it always was, once
+  # per row.
+  if (which == "current") {
+    tbl <- tbl %>%
+      dplyr::filter(KVES_VERSION == ave(KVES_VERSION, ID_LOKAL, FUN = min)) %>%
+      dplyr::distinct(ID_LOKAL, SEGMENT_ID, FSB, AREA_real)
+  }
 
   report_section(paste("The", which, "VMB intersection"))
   report_table(
@@ -249,9 +332,13 @@ for (which in c("current", "frozen")) {
 if (file.exists(path_current) && file.exists(path_frozen)) {
   report_section("The current VMB intersection against the frozen one")
 
+  # Only the polygon sites: the frozen intersection took point and line sites
+  # as they are, the current one over their KVES polygon.
   current <- readr::read_csv2(path_current, show_col_types = FALSE, progress = FALSE) %>%
+    dplyr::filter(AREA_SOURCE == "site") %>%
     dplyr::distinct(ID_LOKAL, SEGMENT_ID, ROK_AKT, FSB, FSB_EVAL, BIOTOP_SEZ, AREA_real)
   frozen <- readr::read_csv2(path_frozen, show_col_types = FALSE, progress = FALSE) %>%
+    dplyr::filter(ID_LOKAL %in% areas$ID_LOKAL[areas$AREA_SOURCE == "site"]) %>%
     dplyr::distinct(ID_LOKAL, SEGMENT_ID, ROK_AKT = ROK_AKT.x, FSB, FSB_EVAL, BIOTOP_SEZ, AREA_real)
   stopifnot(
     !anyDuplicated(current[c("ID_LOKAL", "SEGMENT_ID")]),
@@ -264,7 +351,7 @@ if (file.exists(path_current) && file.exists(path_frozen)) {
   )
   unchanged <- pairs %>% dplyr::filter(ROK_AKT_frozen == ROK_AKT_current)
   agree <- function(x, y) sum(x == y | (is.na(x) & is.na(y)), na.rm = TRUE)
-  # Within 1 %, or 1 m2 for the overlaps of points and lines (area 0).
+  # Within 1 %, or 1 m2 for the smallest overlaps.
   same_area <- sum(
     abs(unchanged$AREA_real_current - unchanged$AREA_real_frozen) <= 0.01 * pmax(unchanged$AREA_real_frozen, 1)
   )
@@ -273,7 +360,7 @@ if (file.exists(path_current) && file.exists(path_frozen)) {
   report_table(
     data.frame(
       measure = c(
-        "sites in the frozen intersection that are in the current one",
+        "polygon sites in the frozen intersection that are in the current one",
         "frozen site x segment overlaps found in the current intersection",
         "of these, segments not updated since (same ROK_AKT)",
         "unchanged segments: same FSB",
@@ -293,12 +380,13 @@ if (file.exists(path_current) && file.exists(path_frozen)) {
       stringsAsFactors = FALSE
     ),
     paste(
-      "The current intersection checked against the frozen one. Where a",
-      "segment has not been updated since, the two should agree. FSB_EVAL",
-      "differs by design: the frozen one kept 'moz.' for mosaics of X",
-      "habitats only, and for some mosaics whose natural part has a Natura",
-      "2000 record, which the network-share tables count twice; the current",
-      "one is X for every mapped segment less than half natural"
+      "The current intersection checked against the frozen one, on the",
+      "polygon sites. Where a segment has not been updated since, the two",
+      "should agree. FSB_EVAL differs by design: the frozen one kept 'moz.'",
+      "for mosaics of X habitats only, and for some mosaics whose natural",
+      "part has a Natura 2000 record, which the network-share tables count",
+      "twice; the current one is X for every mapped segment less than half",
+      "natural"
     ),
     "05_current_vs_frozen"
   )
@@ -309,19 +397,21 @@ if (file.exists(path_current) && file.exists(path_frozen)) {
 #--------------------------------------------------#
 
 if (file.exists(path_kves)) {
-  report_section("KVES 2025 ecosystem classes at the sites")
+  report_section("KVES ecosystem classes at the sites")
 
   kves_sites <- summarise_kves(
-    data.frame(ID_LOKAL = unique(sites$ID_LOKAL)),
-    read_kves_overlaps(path_kves)
+    sf::st_drop_geometry(areas)[c("ID_LOKAL", "KVES_VERSION")],
+    read_kves_overlaps(path_kves),
+    by = c("ID_LOKAL", "KVES_VERSION")
   )
   report_table(
     kves_sites %>%
-      dplyr::count(KVES_KOD, KVES_KATEGORIE, name = "sites") %>%
-      dplyr::arrange(dplyr::desc(sites)),
+      dplyr::count(KVES_KOD, KVES_KATEGORIE, name = "site_areas") %>%
+      dplyr::arrange(dplyr::desc(site_areas)),
     paste(
-      "Sites by their dominant KVES class (by area; a point or line site by",
-      "the class it lies in, NA on a boundary between classes or outside the layer)"
+      "Site areas (site x KVES version) by their dominant KVES class, by",
+      "area (NA: outside the layer, or a point or line left as it is). The",
+      "versions before 2025 have no code for some classes"
     ),
     "05_kves_dominant_class"
   )

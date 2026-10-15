@@ -68,7 +68,7 @@ The environment works:
 | 5 | `STRUKT_POZN` parsed with `grepl()` on the whole string | biases | a + b | [x] parser (a), b04 |
 | 6 | Unknown coded as 0 (`GRAZE`, `OVERALL`, `MOW`, threats) | biases | b | [x] b05 |
 | 7 | Dead filters, unused sources, `ZDROJ` year ≠ record year | cosmetic | a | [x] (a) |
-| 8 | Habitat segment rule keeps the least natural, smallest segment | biases | c | [~] area-weighted on the current VMB layer (revised, P3.9); buffer widths and *Sanguisorba* codes TODO |
+| 8 | Habitat segment rule keeps the least natural, smallest segment | biases | c | [x] area-weighted on the current VMB layer, point sites over their KVES polygon (revised, P3.9) |
 | 9 | AIC tables compare models fitted on different n | blocks | b | [x] b07 |
 | 10 | `X:Y` fixed effect; `(1 \| YEAR)` entered twice | blocks | c | [x] P3.1, P3.6 (revised) |
 | 11 | Single visits: naive occupancy, no detection covariates | biases | c | [x] P3.3 (revised) |
@@ -960,16 +960,30 @@ area in 99.9 % (`05_current_vs_frozen`).
   habitats with a Natura record twice (389 overlaps differ); the new one is
   X for every mapped segment less than half natural.
 
+**Decisions** (2026-10-15):
+
+| | Answer | Implemented as |
+|---|---|---|
+| Mosaic share column | `STEJ_PR` | `habitat: share_column` |
+| Margin around the sites | 200 m | `habitat: margin_m` |
+| Natura 2000 code (`HABITAT`) | A crosswalk from `BIOTOP` will be added later | `TODO(Jonáš)` in `config.yml`; `HABITAT` stays empty |
+| X habitats | May be valuable for the species too | `X_SHARE`, the share of a site in X habitats, kept apart from the unmapped area |
+| Buffer widths for point sites | None: a point site takes the KVES polygon it lies in, from the KVES version of the record's year | `site_areas()`; KVES 2021, 2022, 2023 and 2025 downloaded; the year → version map is PROPOSED |
+| *Sanguisorba* habitat codes | T1.1, T1.4, T1.5, T1.7, T1.10 | `habitat: sanguisorba_meadow_codes`; `SANGUISORBA_AREA`, `SANGUISORBA_SHARE` |
+
+The results are in `CHANGELOG.md`.
+
 **Open, needing domain input**, in addition to the list above:
 
-- the mosaic share column: `STEJ_PR` is now PROPOSED, since it adds up to 100
-  in every downloaded segment;
-- the margin kept around the sites, 200 m (PROPOSED);
-- buffer widths: 214 point and line records now lie in a mosaic segment and
-  get no dominant habitat;
-- *Sanguisorba* codes: T1.5 is now the third commonest dominant habitat at
-  occupied *P. nausithous* sites (221 records), after unmapped (584) and T1.1
-  (307).
+- the KVES version of each record year: the closest version, and for 2024,
+  equally close to 2023 and 2025, the later one (PROPOSED);
+- the crosswalk from `BIOTOP` to the Natura 2000 habitat codes;
+- a crosswalk between the KVES versions. The versions before 2025 publish
+  only the category name, and 13 of their 38 categories (16 in 2021) have no
+  2025 category of the same name: the forests, which 2025 splits, the
+  shrubs, the urban classes and, in 2021 only, "Hospodářské louky" (managed
+  meadows). `KVES_KATEGORIE` holds the name for every record; `KVES_KOD` is
+  NA for these (`RETRIEVED.yml`).
 
 ---
 

@@ -523,6 +523,7 @@ None of these touches a legacy number.
 
 ## (c) Habitat from the current VMB layer and KVES 2025
 
+- **Commit:** `0b24725`
 - **Decision:** P3.9 (habitat), now run on real data. Two values are
   PROPOSED: the mosaic share column `STEJ_PR` and the 200 m margin kept
   around the sites.
@@ -622,3 +623,79 @@ habitat with a Natura record twice (62). No model uses `FSB_EVAL`.
 
 **What changed in the models.** Nothing: no revised model uses the habitat
 variables, and every table of steps 17-20 is identical.
+
+---
+
+## (c) Point sites over their KVES polygon; X and *Sanguisorba* shares
+
+- **Decisions** (2026-10-15, `REVIEW.md`, "Status after the habitat
+  download"):
+  - `STEJ_PR` as the mosaic share column, and the 200 m margin, are decided;
+  - a crosswalk to the Natura 2000 codes will be added later;
+  - X habitats may be valuable for the species too;
+  - a point site takes the KVES polygon it lies in, from the KVES version of
+    the record's year, instead of a buffer;
+  - the *Sanguisorba* meadows are T1.1, T1.4, T1.5, T1.7 and T1.10.
+- **PROPOSED:** the KVES version of each record year.
+- **Legacy specification:** unchanged; the comparison is in
+  [`changes/c03_habitat_decisions_legacy.md`](changes/c03_habitat_decisions_legacy.md).
+  Only the common outputs of step 05 change, and legacy reads none of them.
+- **Full diff:** [`changes/c03_habitat_decisions.md`](changes/c03_habitat_decisions.md)
+
+**KVES versions.** The download tool now also fetches KVES 2021, 2022 and
+2023 (ds/101, 102, 108), all 14 kraje, and writes one layer per version:
+259 978, 215 900, 197 227 and 232 107 (2025) polygons near the sites.
+
+- A record takes its KVES information from the closest version
+  (`habitat: kves_version_of_year`): 2019-2021 from 2021 (4201 records),
+  2022 from 2022 (1171), 2023 from 2023 (559), and 2024 from 2025 (645). 2024
+  is as close to 2023 as to 2025; the later version includes that year's
+  habitat mapping.
+- The versions before 2025 publish only the category name. Their `KOD` is the
+  2025 code of the category of the same name. 13 of their 38 categories (16 in
+  2021) have none, so 1720 records have a `KVES_KATEGORIE` without a
+  `KVES_KOD`. These are the forests (split in 2025), the shrubs, the urban
+  classes and, in 2021, "Hospodářské louky" (managed meadows). That class is
+  the second commonest for *P. nausithous* records (786), since the records
+  of 2019-2021 take KVES 2021.
+- The intersections are keyed by `ID_LOKAL` and `KVES_VERSION`.
+
+**Point and line sites.** Each is described over the KVES polygon it lies in
+or crosses, from its version, cut to 200 m around it (`site_areas()`, written
+to `Data/Processed/common/site_areas.gpkg`). Every one of them lies in a KVES
+polygon. The median area is 1.1-1.5 ha by version for a point, 3.8-7.5 ha
+for a line (`05_site_areas`). `point_buffer_m` and `line_buffer_m` are
+removed from `config.yml`.
+
+**New variables** (revised, area-weighted rule): `X_SHARE`, the share of the
+site in X habitats, kept apart from the unmapped area; `SANGUISORBA_SHARE`
+beside `SANGUISORBA_AREA`; `AREA_SOURCE` and `KVES_VERSION`.
+
+**What changed in the revised data** (`data_analysis.csv`, 6576 records).
+
+| | before | after |
+|---|---|---|
+| records with a site area (`AREA_SITE` > 0) | 3447 | 6576 |
+| records with a dominant habitat (`NATURAL` known) | 6324 | 6576 |
+| records in a natural dominant habitat (`NATURAL` = 1) | 2805 | 2985 |
+| median natural share, all records with an area | 0.410 | 0.288 |
+| records with a *Sanguisorba* meadow (`SANGUISORBA_AREA` > 0) | NA | 3272 |
+| records with some X habitat (`X_SHARE` > 0) | – | 2866 (median share 0.15) |
+
+- The median natural share falls because the points now count, and their
+  KVES polygon is less natural than a polygon site: a median of 0.09
+  (*P. nausithous*) and 0.02 (*P. teleius*), against 0.41 for polygon sites.
+- At occupied against unoccupied sites (`06_habitat_shares_by_occupancy`),
+  descriptive only:
+
+  | | natural share | records with a *Sanguisorba* meadow |
+  |---|---|---|
+  | *P. nausithous* | 0.39 against 0.30 | 52 % against 50 % |
+  | *P. teleius* | 0.80 against 0.16 | 63 % against 47 % |
+
+- The polygon sites are unchanged: `05_current_vs_frozen`, now on the 3068
+  polygon sites, agrees as before (FSB 100 %, overlap area 99.9 % for the
+  unchanged segments).
+
+**What changed in the models.** Nothing: every table of steps 17-20 is
+identical.

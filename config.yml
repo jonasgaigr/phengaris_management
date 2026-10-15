@@ -456,14 +456,14 @@ revised_models:
 # Habitat mapping and ecosystem layers -----
 #--------------------------------------------------#
 
-# The habitat mapping (VMB) and the ecosystem layer (KVES 2025) of AOPK ČR,
-# read by step 05 from local copies. R/tools/download_habitat_layers.R makes
-# the copies: it downloads the kraj archives from data.nature.cz and keeps
-# the features within `download: extract_margin_m` of a site. It is run by
-# hand; RETRIEVED.yml next to the copies says when and from where. Without
-# the VMB copy, step 05 tries the AOPK network share, and the specifications
-# using the current layer fall back to the frozen intersection of the
-# original analysis (paths$habitat_legacy_intersection).
+# The habitat mapping (VMB) and the ecosystem layer (KVES) of AOPK ČR, read
+# by step 05 from local copies. R/tools/download_habitat_layers.R makes the
+# copies: it downloads the kraj archives from data.nature.cz and keeps the
+# features within `margin_m` of a site. It is run by hand; RETRIEVED.yml next
+# to the copies says when and from where. Without the VMB copy, step 05 tries
+# the AOPK network share, and the specifications using the current layers
+# fall back to the frozen intersection of the original analysis
+# (paths$habitat_legacy_intersection).
 habitat:
   # The habitat input contract: one feature per habitat segment x mapped
   # habitat (a mosaic segment has several rows), as a GeoPackage in S-JTSK.
@@ -472,73 +472,100 @@ habitat:
   # Columns the layer must have. SEGMENT_ID identifies the segment; BIOTOP is
   # the habitat code (X codes = non-natural) and STEJ_PR its share of the
   # segment, in per cent; BIOTOP_SEZ the mosaic composition; FSB the habitat
-  # quality evaluation; HABITAT the Natura 2000 habitat code (not published
-  # on data.nature.cz, so empty in the downloaded layer); REPRE and ZACH the
-  # habitat's representativeness and conservation.
+  # quality evaluation; HABITAT the Natura 2000 habitat code; REPRE and ZACH
+  # the habitat's representativeness and conservation. HABITAT is not
+  # published on data.nature.cz and is empty in the downloaded layer; a
+  # crosswalk from BIOTOP will fill it. TODO(Jonáš): the crosswalk.
   required_columns: [SEGMENT_ID, BIOTOP, BIOTOP_SEZ, FSB, FSB_EVAL, HABITAT, STEJ_PR, REPRE, ZACH]
-  # KVES 2025, one feature per ecosystem polygon (KVES_ID, KOD, KATEGORIE),
-  # as a GeoPackage in S-JTSK.
-  kves_layer: Data/Input/habitats/kves.gpkg
+  # KVES, one local copy per version: one feature per ecosystem polygon
+  # (KVES_ID, KATEGORIE, KOD), as a GeoPackage in S-JTSK. The versions before
+  # 2025 publish only the category name; their KOD is the 2025 code of the
+  # category of the same name, NA where 2025 has no such category.
+  kves_layers:
+    "2021": Data/Input/habitats/kves_2021.gpkg
+    "2022": Data/Input/habitats/kves_2022.gpkg
+    "2023": Data/Input/habitats/kves_2023.gpkg
+    "2025": Data/Input/habitats/kves_2025.gpkg
+  # The KVES version each record takes its KVES information from, by the
+  # record's year: the closest version; on a tie (2024) the later one, which
+  # includes the habitat mapping of that year. PROPOSED.
+  kves_version_of_year: {"2019": "2021", "2020": "2021", "2021": "2021", "2022": "2022", "2023": "2023", "2024": "2025"}
+  # Distance from a site (m). The local copies keep the features within it,
+  # and a point or line site's KVES polygon is cut to it. Decided 2026-10-15.
+  margin_m: 200
   # Optional loader for the AOPK network share (R/functions/habitat_layers.R,
   # load_vmb()).
   network_share: "//bali.nature.cz/du/Mapovani/Biotopy"
-  # The download of the two layers by R/tools/download_habitat_layers.R,
-  # following the alcon-spatial project. Both are published as one zip per
+  # The download of the layers by R/tools/download_habitat_layers.R,
+  # following the alcon-spatial project. Each is published as one zip per
   # kraj, clipped at the kraj boundary. The login is an ISOP login; the NDOP
-  # account (NDOP_USER, NDOP_PWD in ~/.Renviron) is one.
+  # account (NDOP_USER, NDOP_PWD in ~/.Renviron) is one. `archive` is a
+  # sprintf pattern of the dataset URL and the kraj's file stem, `stem` which
+  # of the kraj's two stems (below) the archive uses.
   download:
     login_url: https://login.nature.cz/login.php
     # ISOP application id of the data.nature.cz download portal.
     login_appid: "75"
     licence: CC BY 4.0, (c) AOPK ČR
-    # Features within this distance of a site (m) are kept, and the kraje
-    # within it are downloaded. It covers any point or line buffer up to that
-    # width. Raise it, and re-run the tool, for covariates of the landscape
-    # around the sites; the archives stay in the cache. PROPOSED.
-    extract_margin_m: 200
     vmb:
       dataset: https://data.nature.cz/ds/21
-      # sprintf pattern: the dataset URL, the kraj's file stem.
       archive: "%s/download/kraj/%s.zip"
+      stem: stem
       # The .cpg says "ANSI 1250", which GDAL does not recognise.
       encoding: CP1250
     kves:
-      dataset: https://data.nature.cz/ds/145
-      archive: "%s/download/kraj/%s_KVES_2025.zip"
-      encoding: UTF-8
-    # NUTS3 code of each kraj, and the file stems of its two archives.
+      "2021":
+        dataset: https://data.nature.cz/ds/101
+        archive: "%s/download/kraj/KVES_%s.zip"
+        stem: stem
+        encoding: UTF-8
+      "2022":
+        dataset: https://data.nature.cz/ds/102
+        archive: "%s/download/kraj/KVES_%s.zip"
+        stem: stem
+        encoding: CP1250
+      "2023":
+        dataset: https://data.nature.cz/ds/108
+        archive: "%s/download/kraj/KVES_%s.zip"
+        stem: stem
+        encoding: CP1250
+      "2025":
+        dataset: https://data.nature.cz/ds/145
+        archive: "%s/download/kraj/%s_KVES_2025.zip"
+        stem: stem_kraj
+        encoding: UTF-8
+    # NUTS3 code of each kraj, and the two file stems its archives use.
     kraje:
-      CZ010: {vmb: Praha, kves: Praha}
-      CZ020: {vmb: Stredocesky, kves: StredoceskyKraj}
-      CZ031: {vmb: Jihocesky, kves: JihoceskyKraj}
-      CZ032: {vmb: Plzensky, kves: PlzenskyKraj}
-      CZ041: {vmb: Karlovarsky, kves: KarlovarskyKraj}
-      CZ042: {vmb: Ustecky, kves: UsteckyKraj}
-      CZ051: {vmb: Liberecky, kves: LibereckyKraj}
-      CZ052: {vmb: Kralovehradecky, kves: KralovehradeckyKraj}
-      CZ053: {vmb: Pardubicky, kves: PardubickyKraj}
-      CZ063: {vmb: Vysocina, kves: Vysocina}
-      CZ064: {vmb: Jihomoravsky, kves: JihomoravskyKraj}
-      CZ071: {vmb: Olomoucky, kves: OlomouckyKraj}
-      CZ072: {vmb: Zlinsky, kves: ZlinskyKraj}
-      CZ080: {vmb: Moravskoslezsky, kves: MoravskoslezskyKraj}
-  # Point and line sites have no area. When a width is given they are
-  # buffered by it before the intersection; when it is null they are
-  # intersected as they are, which gives them an overlap area of 0 (the
-  # original behaviour). TODO(Jonáš): buffer widths in metres.
-  point_buffer_m: null
-  line_buffer_m: null
-  # Habitat codes counted as "suitable for Sanguisorba meadows" by the
-  # area-weighted segment rule. While the list is empty that summary is NA,
-  # never 0. TODO(Jonáš): the code list.
-  sanguisorba_meadow_codes: []
+      CZ010: {stem: Praha, stem_kraj: Praha}
+      CZ020: {stem: Stredocesky, stem_kraj: StredoceskyKraj}
+      CZ031: {stem: Jihocesky, stem_kraj: JihoceskyKraj}
+      CZ032: {stem: Plzensky, stem_kraj: PlzenskyKraj}
+      CZ041: {stem: Karlovarsky, stem_kraj: KarlovarskyKraj}
+      CZ042: {stem: Ustecky, stem_kraj: UsteckyKraj}
+      CZ051: {stem: Liberecky, stem_kraj: LibereckyKraj}
+      CZ052: {stem: Kralovehradecky, stem_kraj: KralovehradeckyKraj}
+      CZ053: {stem: Pardubicky, stem_kraj: PardubickyKraj}
+      CZ063: {stem: Vysocina, stem_kraj: Vysocina}
+      CZ064: {stem: Jihomoravsky, stem_kraj: JihomoravskyKraj}
+      CZ071: {stem: Olomoucky, stem_kraj: OlomouckyKraj}
+      CZ072: {stem: Zlinsky, stem_kraj: ZlinskyKraj}
+      CZ080: {stem: Moravskoslezsky, stem_kraj: MoravskoslezskyKraj}
+  # Point and line sites have no area of their own. With the current layers
+  # each is described over the KVES polygon(s) it lies in, from the KVES
+  # version of the record's year, cut to `margin_m` around the site (step 05,
+  # site_areas()). A site outside KVES, and every site of the frozen
+  # intersection, keeps its own geometry. Decided 2026-10-15.
+  # Habitat codes of the meadows with Sanguisorba officinalis, summarised by
+  # the area-weighted rule (SANGUISORBA_AREA, SANGUISORBA_SHARE). Decided
+  # 2026-10-15.
+  sanguisorba_meadow_codes: [T1.1, T1.4, T1.5, T1.7, T1.10]
   # Column holding a habitat's share of a mosaic segment, in per cent. The
   # area-weighted rule multiplies each overlap with the current layer by it,
   # so that a mosaic segment's area is not counted once per habitat. In the
   # downloaded layer STEJ_PR is that share: it adds up to 100 in every
   # segment (RETRIEVED.yml). The frozen intersection has one row per Natura
   # habitat record instead, which no share describes, so it is never
-  # weighted. PROPOSED.
+  # weighted. Decided 2026-10-15.
   share_column: STEJ_PR
 
 #--------------------------------------------------#

@@ -187,3 +187,78 @@ test_that("the KVES layer is checked for its columns and CRS", {
   sf::st_write(sf::st_transform(kves, 4326), wrong_crs, quiet = TRUE)
   expect_error(read_kves_layer(wrong_crs), "EPSG")
 })
+
+#----------------------------------------------------------#
+# Shares of natural, X and Sanguisorba habitats -----
+#----------------------------------------------------------#
+
+test_that("the area-weighted rule gives the shares of natural, X and Sanguisorba habitats", {
+  segs <- overlaps(point_buffer_m = NULL, line_buffer_m = NULL)
+  out <- select_habitat_segment(records, segs, rule = "area_weighted", sanguisorba_codes = "T1.1")
+  a <- out[out$ID_RECORD == "a", ]
+  # Site 1: 6000 m2 of T1.1, 2000 m2 of X7.
+  expect_equal(a$NATURAL_SHARE, 0.75)
+  expect_equal(a$X_SHARE, 0.25)
+  expect_equal(a$SANGUISORBA_SHARE, 0.75)
+  # A site without area has no shares.
+  b <- out[out$ID_RECORD == "b", ]
+  expect_true(is.na(b$X_SHARE))
+  expect_true(is.na(b$SANGUISORBA_SHARE))
+  no_codes <- select_habitat_segment(records, segs, rule = "area_weighted", sanguisorba_codes = character(0))
+  expect_true(all(is.na(no_codes$SANGUISORBA_SHARE)))
+})
+
+#----------------------------------------------------------#
+# Site areas and KVES versions -----
+#----------------------------------------------------------#
+
+test_that("each record year takes the KVES version of config.yml", {
+  expect_equal(kves_version_of(c(2019, 2022, 2024)), c("2021", "2022", "2025"))
+  expect_error(kves_version_of(2018), "No KVES version for the year")
+})
+
+test_that("a point site is described over the KVES polygon it lies in, cut to the margin", {
+  far <- sf::st_sf(ID_LOKAL = 3, geometry = sf::st_sfc(sf::st_point(c(-690000, -1099950)), crs = 5514))
+  on_boundary <- sf::st_sf(ID_LOKAL = 4, geometry = sf::st_sfc(sf::st_point(c(-699900, -1099950)), crs = 5514))
+  all_sites <- rbind(sites, far, on_boundary)
+
+  out <- site_areas(all_sites, kves, margin_m = 200)
+  expect_equal(out$AREA_SOURCE, c("site", "KVES", "none", "KVES"))
+  area <- units::drop_units(sf::st_area(out))
+  # The polygon site keeps its own area; the point in cell 3 gets the cell.
+  expect_equal(area[1], 8000)
+  expect_equal(area[2], 10000)
+  # A point outside KVES stays as it is.
+  expect_equal(area[3], 0)
+  # A point on the boundary of two polygons gets both.
+  expect_equal(area[4], 20000)
+
+  # Cut to 30 m around the point: a disc inside the cell.
+  cut <- site_areas(all_sites, kves, margin_m = 30)
+  expect_equal(units::drop_units(sf::st_area(cut))[2], pi * 30^2, tolerance = 0.01)
+
+  expect_equal(site_areas(all_sites, NULL)$AREA_SOURCE, c("site", "none", "none", "none"))
+})
+
+test_that("records are joined to the site area of their KVES version", {
+  versioned_overlaps <- function(areas, layer, version) {
+    suppressWarnings(intersect_sites_with_habitats(areas, layer)) %>%
+      sf::st_drop_geometry() %>%
+      dplyr::mutate(KVES_VERSION = version)
+  }
+  areas <- site_areas(sites, kves, margin_m = 200)
+  segs <- dplyr::bind_rows(
+    versioned_overlaps(areas, segments, "2021"),
+    # The same site in a later version, over a smaller area.
+    versioned_overlaps(site_areas(sites, kves, margin_m = 30), segments, "2025")
+  )
+  versioned <- tibble::tibble(ID_RECORD = c("b1", "b2"), ID_LOKAL = c(2, 2), KVES_VERSION = c("2021", "2025"))
+  out <- select_habitat_segment(versioned, segs, rule = "area_weighted", by = c("ID_LOKAL", "KVES_VERSION"))
+  expect_equal(out$AREA_SITE[1], 10000)
+  expect_equal(out$AREA_SITE[2], pi * 30^2, tolerance = 0.01)
+  # Now the point has an area, it gets a dominant habitat.
+  expect_equal(out$BIOTOP, c("T1.9", "T1.9"))
+
+  k <- summarise_kves(versioned, versioned_overlaps(areas, kves, "2021"), by = c("ID_LOKAL", "KVES_VERSION"))
+  expect_equal(k$KVES_KOD, c("C111", NA))
+})

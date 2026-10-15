@@ -16,7 +16,7 @@
 # choose_habitat_overlaps()):
 #
 #   frozen   the site x segment intersection of the original analysis
-#   current  the sites intersected with the current VMB layer, taken from
+#   current  the site areas intersected with the current VMB layer, taken from
 #            1. the file named in config.yml `habitat: layer`, a GeoPackage
 #               made by R/tools/download_habitat_layers.R that must satisfy
 #               the input contract checked by read_habitat_layer();
@@ -26,8 +26,12 @@
 #                 vmb_x = 1   original mapping (CR_20060501)
 #                 vmb_x = 2   first update (CR_Aktualizace1)
 #
-# and the sites intersected with the KVES 2025 ecosystem layer
-# (`habitat: kves_layer`, read_kves_layer()).
+# and the site areas intersected with the KVES ecosystem layer
+# (`habitat: kves_layers`, read_kves_layer()). With the current layers a
+# record takes its KVES information from the KVES version of its year
+# (kves_version_of()), and a point or line site is described over the KVES
+# polygon it lies in (site_areas()). Both intersections are therefore keyed
+# by ID_LOKAL and KVES_VERSION.
 #
 # How a site is described by the segments it overlaps is chosen in step 06
 # by select_habitat_segment(), with a rule set per specification, and by
@@ -80,9 +84,10 @@ vmb_available <- function(path = CONFIG$habitat$network_share) {
 
 #' Intersect the site geometries with the habitat segments.
 #'
-#' Point and line sites have no area of their own. When a buffer width is
-#' given they are buffered by it first, so that their overlap with each
-#' segment has an area; when it is NULL they are intersected as they are.
+#' Point and line sites have no area of their own. Step 05 gives them the
+#' KVES polygon they lie in (site_areas()); alternatively, when a buffer
+#' width is given they are buffered by it first. When it is NULL they are
+#' intersected as they are.
 #'
 #' @param sites           site geometries with ID_LOKAL (sf)
 #' @param habitats        habitat segments (sf)
@@ -90,9 +95,7 @@ vmb_available <- function(path = CONFIG$habitat$network_share) {
 #' @param line_buffer_m   buffer width for line sites, or NULL
 #' @return one row per site x segment overlap, with AREA_real and LENGTH_real
 #'         (m2 and m) of the overlap
-intersect_sites_with_habitats <- function(sites, habitats,
-                                          point_buffer_m = CONFIG$habitat$point_buffer_m,
-                                          line_buffer_m = CONFIG$habitat$line_buffer_m) {
+intersect_sites_with_habitats <- function(sites, habitats, point_buffer_m = NULL, line_buffer_m = NULL) {
   type <- as.character(sf::st_geometry_type(sites))
   geometry <- sf::st_geometry(sites)
   if (!is.null(point_buffer_m)) {
@@ -105,10 +108,12 @@ intersect_sites_with_habitats <- function(sites, habitats,
   }
   sf::st_geometry(sites) <- geometry
 
-  overlaps <- sf::st_intersection(
-    sites,
-    sf::st_transform(habitats, sf::st_crs(sites))
-  )
+  # The attributes are those of the whole site or segment, which saying so
+  # tells sf, silencing its warning about them.
+  habitats <- sf::st_transform(habitats, sf::st_crs(sites))
+  sf::st_agr(sites) <- "constant"
+  sf::st_agr(habitats) <- "constant"
+  overlaps <- sf::st_intersection(sites, habitats)
   overlaps$AREA_real <- units::drop_units(sf::st_area(overlaps))
   overlaps$LENGTH_real <- units::drop_units(sf::st_length(overlaps))
   overlaps
@@ -117,11 +122,13 @@ intersect_sites_with_habitats <- function(sites, habitats,
 #' Read the site x segment overlaps written by step 05.
 #'
 #' The file is semicolon-separated with a decimal comma, as the original
-#' intersection was written.
+#' intersection was written. The current intersection also has
+#' KVES_VERSION, the KVES version of the site area, and AREA_SOURCE.
 read_habitat_overlaps <- function(path) {
   readr::read_csv2(path, show_col_types = FALSE, progress = FALSE) %>%
     dplyr::transmute(
       ID_LOKAL,
+      dplyr::across(dplyr::any_of(c("KVES_VERSION", "AREA_SOURCE")), as.character),
       SEGMENT_ID,
       BIOTOP      = as.character(BIOTOP),
       BIOTOP_SEZ  = as.character(BIOTOP_SEZ),
@@ -148,6 +155,15 @@ is_natural_habitat <- function(biotop) {
   !is.na(biotop) & biotop != "-1" & !grepl("X", biotop)
 }
 
+#' Is a habitat code an X habitat?
+#'
+#' X habitats are mapped but not natural (arable land, intensive meadows,
+#' ruderal vegetation, ...). They can still hold the species, so they are
+#' summarised on their own (X_SHARE), not lumped with the unmapped area.
+is_x_habitat <- function(biotop) {
+  !is.na(biotop) & biotop != "-1" & grepl("X", biotop)
+}
+
 #' Attach habitat attributes to the records, one value per record.
 #'
 #' Two rules:
@@ -156,28 +172,31 @@ is_natural_habitat <- function(biotop) {
 #'                  segment: the first after sorting by NATURAL and then by
 #'                  overlap area, both ascending, i.e. the least natural and
 #'                  smallest. AREA_SITE is that one overlap's area.
-#'   area_weighted  Each site is summarised over
-#'                  all its overlaps: AREA_SITE is the total overlap area,
-#'                  NATURAL_SHARE the share of it in natural habitats,
-#'                  SANGUISORBA_AREA the area in the habitat codes of
-#'                  `sanguisorba_codes` (NA when that list is empty), and
+#'   area_weighted  Each site is summarised over all its overlaps:
+#'                  AREA_SITE is the total overlap area; NATURAL_SHARE and
+#'                  X_SHARE the shares of it in natural and in X habitats
+#'                  (the rest is unmapped); SANGUISORBA_AREA and
+#'                  SANGUISORBA_SHARE the area and share in the habitat codes
+#'                  of `sanguisorba_codes` (NA when that list is empty); and
 #'                  BIOTOP / FSB / HABITAT / NATURAL those of the dominant
 #'                  habitat by area (for a site without area, of the one
 #'                  habitat it lies in; NA in a mosaic). With
 #'                  `share_column`, each overlap's area is first multiplied
 #'                  by that column / 100.
 #'
-#' @param records       the cleaned records, with ID_LOKAL
+#' @param records       the cleaned records, with the `by` columns
 #' @param segments      site x segment overlaps, from read_habitat_overlaps()
 #' @param rule          "legacy" or "area_weighted"
 #' @param share_column  NULL, or the column holding each habitat's share of
 #'                      its segment: config.yml `habitat: share_column` for
 #'                      the current layer; NULL for the frozen intersection
+#' @param by            the columns identifying a site area: ID_LOKAL, and
+#'                      KVES_VERSION for the current intersection
 #' @return `records` with the habitat columns added, one row per record in the
 #'         original order
 select_habitat_segment <- function(records, segments, rule = c("legacy", "area_weighted"),
                                    sanguisorba_codes = unlist(CONFIG$habitat$sanguisorba_meadow_codes),
-                                   share_column = NULL) {
+                                   share_column = NULL, by = "ID_LOKAL") {
   rule <- match.arg(rule)
   if (rule == "legacy") {
     out <- records %>%
@@ -186,7 +205,7 @@ select_habitat_segment <- function(records, segments, rule = c("legacy", "area_w
       ) %>%
       dplyr::left_join(
         segments,
-        by = "ID_LOKAL",
+        by = by,
         relationship = "many-to-many"
       ) %>%
       dplyr::mutate(
@@ -232,9 +251,9 @@ select_habitat_segment <- function(records, segments, rule = c("legacy", "area_w
   # of several. A segment without a habitat code (BIOTOP NA, "-1") counts as
   # a non-natural habitat, as in the legacy rule.
   dominant <- weighted %>%
-    dplyr::group_by(ID_LOKAL, BIOTOP, FSB, HABITAT) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(by)), BIOTOP, FSB, HABITAT) %>%
     dplyr::summarise(.area = sum(.area, na.rm = TRUE), .groups = "drop") %>%
-    dplyr::group_by(ID_LOKAL) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(by))) %>%
     dplyr::mutate(
       .ambiguous = sum(.area) == 0 & dplyr::n_distinct(BIOTOP) > 1
     ) %>%
@@ -245,29 +264,29 @@ select_habitat_segment <- function(records, segments, rule = c("legacy", "area_w
       NATURAL = dplyr::if_else(.ambiguous, NA_real_, as.numeric(is_natural_habitat(BIOTOP))),
       dplyr::across(c(BIOTOP, FSB, HABITAT), ~ dplyr::if_else(.ambiguous, NA, .x))
     ) %>%
-    dplyr::select(ID_LOKAL, BIOTOP, FSB, HABITAT, NATURAL)
+    dplyr::select(dplyr::all_of(by), BIOTOP, FSB, HABITAT, NATURAL)
 
+  # A share of a site without area is NA, never 0.
+  share_of <- function(area, total) if (total > 0) area / total else NA_real_
   per_site <- weighted %>%
-    dplyr::group_by(ID_LOKAL) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(by))) %>%
     dplyr::summarise(
       AREA_SITE = sum(.area, na.rm = TRUE),
-      NATURAL_SHARE = if (sum(.area, na.rm = TRUE) > 0) {
-        sum(.area[.natural], na.rm = TRUE) / sum(.area, na.rm = TRUE)
-      } else {
-        NA_real_
-      },
+      NATURAL_SHARE = share_of(sum(.area[.natural], na.rm = TRUE), AREA_SITE),
+      X_SHARE = share_of(sum(.area[is_x_habitat(BIOTOP)], na.rm = TRUE), AREA_SITE),
       SANGUISORBA_AREA = if (length(sanguisorba_codes)) {
         sum(.area[BIOTOP %in% sanguisorba_codes], na.rm = TRUE)
       } else {
         NA_real_
       },
+      SANGUISORBA_SHARE = if (length(sanguisorba_codes)) share_of(SANGUISORBA_AREA, AREA_SITE) else NA_real_,
       N_HABITATS = dplyr::n_distinct(BIOTOP[.natural]),
       .groups = "drop"
     ) %>%
-    dplyr::left_join(dominant, by = "ID_LOKAL")
+    dplyr::left_join(dominant, by = by)
 
   out <- records %>%
-    dplyr::left_join(per_site, by = "ID_LOKAL")
+    dplyr::left_join(per_site, by = by)
   stopifnot(nrow(out) == nrow(records))
   out
 }
@@ -301,11 +320,11 @@ choose_habitat_overlaps <- function(source = c("frozen", "current"), current, fr
 ## The KVES ecosystem layer -----
 #--------------------------------------------------#
 
-#' Read the KVES layer and check its columns and CRS.
+#' Read a KVES layer and check its columns and CRS.
 #'
-#' @param path  GeoPackage written by R/tools/download_habitat_layers.R,
-#'              config.yml `habitat: kves_layer`
-read_kves_layer <- function(path = CONFIG$habitat$kves_layer) {
+#' @param path  GeoPackage written by R/tools/download_habitat_layers.R, one
+#'              of config.yml `habitat: kves_layers`
+read_kves_layer <- function(path) {
   if (!file.exists(path)) {
     stop("KVES layer not found: ", path, call. = FALSE)
   }
@@ -325,6 +344,7 @@ read_kves_overlaps <- function(path) {
   readr::read_csv2(path, show_col_types = FALSE, progress = FALSE) %>%
     dplyr::transmute(
       ID_LOKAL,
+      dplyr::across(dplyr::any_of("KVES_VERSION"), as.character),
       KVES_ID = as.character(KVES_ID),
       KOD = as.character(KOD),
       KATEGORIE = as.character(KATEGORIE),
@@ -332,34 +352,97 @@ read_kves_overlaps <- function(path) {
     )
 }
 
+#' The KVES version a record takes its KVES information from, by its year.
+#'
+#' @param year      record years
+#' @param versions  config.yml `habitat: kves_version_of_year`
+#' @return the versions, e.g. "2021"
+kves_version_of <- function(year, versions = CONFIG$habitat$kves_version_of_year) {
+  out <- unname(unlist(versions)[as.character(year)])
+  if (anyNA(out)) {
+    stop(
+      "No KVES version for the year(s) ", paste(sort(unique(year[is.na(out)])), collapse = ", "),
+      " (config.yml habitat: kves_version_of_year).",
+      call. = FALSE
+    )
+  }
+  out
+}
+
+#' The area each site is described over.
+#'
+#' A polygon site is described over its own area. A point or line site has
+#' none: it takes the KVES polygon(s) it lies in or crosses, merged and cut
+#' to `margin_m` around the site, the extent of the local copies. A point or
+#' line outside the KVES layer keeps its own geometry.
+#'
+#' @param sites     site geometries with ID_LOKAL (sf)
+#' @param kves      a KVES layer (sf), or NULL for none
+#' @param margin_m  distance from the site (m) the KVES polygon is cut to
+#' @return `sites` with the geometry of each point and line site replaced,
+#'         and AREA_SOURCE: "site" (a polygon site), "KVES" (the KVES polygon)
+#'         or "none" (a point or line left as it is)
+site_areas <- function(sites, kves, margin_m = CONFIG$habitat$margin_m) {
+  type <- as.character(sf::st_geometry_type(sites))
+  no_area <- which(type %in% c("POINT", "MULTIPOINT", "LINESTRING", "MULTILINESTRING"))
+  sites$AREA_SOURCE <- "site"
+  sites$AREA_SOURCE[no_area] <- "none"
+  if (is.null(kves) || !length(no_area)) {
+    return(sites)
+  }
+
+  geometry <- sf::st_geometry(sites)
+  kves_geometry <- sf::st_transform(sf::st_geometry(kves), sf::st_crs(sites))
+  hits <- sf::st_intersects(geometry[no_area], kves_geometry)
+  areas <- lapply(seq_along(no_area), function(i) {
+    if (!length(hits[[i]])) {
+      return(NULL)
+    }
+    around <- sf::st_buffer(geometry[no_area[i]], margin_m)
+    cut <- sf::st_intersection(sf::st_union(kves_geometry[hits[[i]]]), around)
+    if (any(sf::st_geometry_type(cut) == "GEOMETRYCOLLECTION")) {
+      cut <- sf::st_collection_extract(cut, "POLYGON", warn = FALSE)
+    }
+    if (!length(cut) || all(sf::st_is_empty(cut))) NULL else sf::st_union(cut)[[1]]
+  })
+  found <- !vapply(areas, is.null, logical(1))
+  geometry[no_area[found]] <- sf::st_sfc(areas[found], crs = sf::st_crs(geometry))
+  sf::st_geometry(sites) <- geometry
+  sites$AREA_SOURCE[no_area[found]] <- "KVES"
+  sites
+}
+
 #' Attach the dominant KVES ecosystem class of each record's site.
 #'
 #' KVES_KOD and KVES_KATEGORIE are the class covering most of the site. A
-#' site without area (a point or a line, unbuffered) gets the class it lies
-#' in, and NA when it lies on the boundary between two classes. A site
-#' outside the layer gets NA.
+#' site without area gets the class it lies in, and NA when it lies on the
+#' boundary between two classes. A site outside the layer gets NA. The
+#' category name identifies the class: the KVES versions before 2025 have no
+#' code for some categories.
 #'
-#' @param records   records (or sites) with ID_LOKAL
+#' @param records   records (or sites) with the `by` columns
 #' @param overlaps  site x KVES overlaps, from read_kves_overlaps()
+#' @param by        the columns identifying a site area: ID_LOKAL, and
+#'                  KVES_VERSION for the current intersection
 #' @return `records` with KVES_KOD and KVES_KATEGORIE added, one row per
 #'         record in the original order
-summarise_kves <- function(records, overlaps) {
+summarise_kves <- function(records, overlaps, by = "ID_LOKAL") {
   dominant <- overlaps %>%
-    dplyr::group_by(ID_LOKAL, KOD, KATEGORIE) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(by)), KATEGORIE, KOD) %>%
     dplyr::summarise(.area = sum(AREA_real, na.rm = TRUE), .groups = "drop") %>%
-    dplyr::group_by(ID_LOKAL) %>%
-    dplyr::mutate(.ambiguous = sum(.area) == 0 & dplyr::n_distinct(KOD) > 1) %>%
-    dplyr::arrange(dplyr::desc(.area), KOD, .by_group = TRUE) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(by))) %>%
+    dplyr::mutate(.ambiguous = sum(.area) == 0 & dplyr::n_distinct(KATEGORIE) > 1) %>%
+    dplyr::arrange(dplyr::desc(.area), KATEGORIE, .by_group = TRUE) %>%
     dplyr::slice(1) %>%
     dplyr::ungroup() %>%
     dplyr::transmute(
-      ID_LOKAL,
+      dplyr::across(dplyr::all_of(by)),
       KVES_KOD = dplyr::if_else(.ambiguous, NA_character_, KOD),
       KVES_KATEGORIE = dplyr::if_else(.ambiguous, NA_character_, KATEGORIE)
     )
 
   out <- records %>%
-    dplyr::left_join(dominant, by = "ID_LOKAL")
+    dplyr::left_join(dominant, by = by)
   stopifnot(nrow(out) == nrow(records))
   out
 }

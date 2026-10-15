@@ -13,16 +13,22 @@
 #
 # Each specification chooses its site x segment intersection (config.yml,
 # habitat_source): "frozen", the intersection of the original analysis, or
-# "current", the sites intersected with the current VMB layer by step 05
+# "current", the site areas intersected with the current VMB layer by step 05
 # (falling back to the frozen one when step 05 had no current layer).
+#
+# With the current layers a record takes its KVES information from the KVES
+# version of its year (KVES_VERSION, config.yml `habitat:
+# kves_version_of_year`), and a point or line site is described over the
+# KVES polygon of that version it lies in (AREA_SOURCE "KVES"). The current
+# intersections are joined to the records by ID_LOKAL and KVES_VERSION.
 #
 # A monitoring site can overlap many habitat segments, so they have to be
 # reduced to one description per record. The rule is set per specification
 # (config.yml, habitat_segment_rule) and implemented in
 # select_habitat_segment(): "legacy" keeps the original rule (order by
 # NATURAL, then by AREA_SITE, keep the first segment), "area_weighted"
-# summarises all the segments of a site. With the current layer, the
-# specification also gets the dominant KVES 2025 ecosystem class of the site
+# summarises all the segments of a site. With the current layers, the
+# specification also gets the dominant KVES ecosystem class of the site
 # (KVES_KOD, KVES_KATEGORIE; summarise_kves()).
 #
 # Variables added under the legacy rule:
@@ -64,12 +70,19 @@ overlaps <- choose_habitat_overlaps(
 )
 path_kves <- processed_path("data_lokal_kves.csv", "common")
 
+# The current intersections describe a site per KVES version.
+current_key <- c("ID_LOKAL", "KVES_VERSION")
+if (habitat_source == "current") {
+  data_clean$KVES_VERSION <- kves_version_of(data_clean$YEAR)
+}
+
 #----------------------------------------------------------#
 # Join the habitat attributes -----
 #----------------------------------------------------------#
 
 if (overlaps$source != "none") {
   habitat_segments <- read_habitat_overlaps(overlaps$path)
+  key <- if (overlaps$source == "current") current_key else "ID_LOKAL"
 
   # How each record is described by the segments its site overlaps; the rule
   # is set per specification in config.yml. Only the current layer has one
@@ -79,8 +92,15 @@ if (overlaps$source != "none") {
     data_clean,
     habitat_segments,
     rule = spec_settings()$habitat_segment_rule,
-    share_column = if (overlaps$source == "current") CONFIG$habitat$share_column else NULL
+    share_column = if (overlaps$source == "current") CONFIG$habitat$share_column else NULL,
+    by = key
   )
+  # Which area each record's site is described over.
+  if (overlaps$source == "current") {
+    data_analysis <- data_analysis %>%
+      dplyr::left_join(dplyr::distinct(habitat_segments, dplyr::across(dplyr::all_of(key)), AREA_SOURCE), by = key)
+    stopifnot(nrow(data_analysis) == nrow(data_clean))
+  }
 
   habitat_join_available <- TRUE
 
@@ -129,7 +149,7 @@ if (overlaps$source != "none") {
 # intersection of the original analysis had no ecosystem layer.
 kves_join_available <- habitat_source == "current" && file.exists(path_kves)
 if (kves_join_available) {
-  data_analysis <- summarise_kves(data_analysis, read_kves_overlaps(path_kves))
+  data_analysis <- summarise_kves(data_analysis, read_kves_overlaps(path_kves), by = current_key)
 }
 
 #----------------------------------------------------------#
@@ -144,19 +164,26 @@ if (habitat_join_available && habitat_rule == "area_weighted") {
     if (overlaps$source == "current") {
       paste(
         "the current VMB layer, each overlap weighted by the habitat's share",
-        "of the segment (`habitat: share_column`, PROPOSED). Step 05 checks",
-        "that intersection against the frozen one (05_current_vs_frozen)."
+        "of the segment (`habitat: share_column`). A point or line site is",
+        "described over the KVES polygon it lies in, from the KVES version of",
+        "the record's year, cut to", CONFIG$habitat$margin_m, "m around it.",
+        "Step 05 checks the intersection against the frozen one on the",
+        "polygon sites (05_current_vs_frozen)."
       )
     } else {
-      "the frozen site x segment intersection of the original analysis."
+      paste(
+        "the frozen site x segment intersection of the original analysis.",
+        "Point sites have no area there: their AREA_SITE is 0 and their",
+        "shares NA, and they get the habitat they lie in only when it is a",
+        "single one."
+      )
     },
-    "The rule itself is tested on synthetic fixtures.",
-    "Point sites are not buffered (config.yml `habitat: point_buffer_m`), so",
-    "they have no area: their AREA_SITE is 0 and their NATURAL_SHARE NA, and",
-    "they get the habitat they lie in only when it is a single one. The",
-    "Sanguisorba-meadow area is NA until the habitat codes are given",
-    "(`habitat: sanguisorba_meadow_codes`). No revised model uses these",
-    "variables."
+    "The rule itself is tested on synthetic fixtures. NATURAL_SHARE and",
+    "X_SHARE are the shares of the site in natural and in X habitats; X",
+    "habitats are kept apart from the unmapped area, since they can hold the",
+    "species. The Sanguisorba-meadow habitats are",
+    paste0(paste(unlist(CONFIG$habitat$sanguisorba_meadow_codes), collapse = ", "), "."),
+    "No revised model uses these variables."
   )
 
   report_table(
@@ -166,17 +193,46 @@ if (habitat_join_available && habitat_rule == "area_weighted") {
         records = dplyr::n(),
         with_overlaps = sum(!is.na(AREA_SITE)),
         with_area = sum(AREA_SITE > 0, na.rm = TRUE),
+        area_from_kves = if ("AREA_SOURCE" %in% names(data_analysis)) sum(AREA_SOURCE == "KVES", na.rm = TRUE) else NA,
         dominant_habitat_known = sum(!is.na(NATURAL)),
+        median_area_ha = stats::median(AREA_SITE, na.rm = TRUE) / 10000,
         median_natural_share = stats::median(NATURAL_SHARE, na.rm = TRUE),
+        median_x_share = stats::median(X_SHARE, na.rm = TRUE),
+        median_sanguisorba_share = stats::median(SANGUISORBA_SHARE, na.rm = TRUE),
+        records_with_sanguisorba_meadow = sum(SANGUISORBA_AREA > 0, na.rm = TRUE),
         median_habitats = stats::median(N_HABITATS, na.rm = TRUE),
         .groups = "drop"
       ),
     paste(
       "Coverage of the area-weighted habitat summaries by species and site",
-      "geometry: records whose site overlaps the habitat layer, with an overlap",
-      "area, and with a dominant habitat"
+      "geometry: records whose site overlaps the habitat layer, with an",
+      "overlap area, with the area of their KVES polygon, and with a dominant",
+      "habitat; median site area and shares of natural, X and",
+      "Sanguisorba-meadow habitats"
     ),
     "06_area_weighted_coverage"
+  )
+
+  report_table(
+    data_analysis %>%
+      dplyr::group_by(DRUH) %>%
+      dplyr::summarise(
+        records = dplyr::n(),
+        occupied = sum(POSITIVE == 1),
+        natural_share_occupied = stats::median(NATURAL_SHARE[POSITIVE == 1], na.rm = TRUE),
+        natural_share_unoccupied = stats::median(NATURAL_SHARE[POSITIVE == 0], na.rm = TRUE),
+        x_share_occupied = stats::median(X_SHARE[POSITIVE == 1], na.rm = TRUE),
+        x_share_unoccupied = stats::median(X_SHARE[POSITIVE == 0], na.rm = TRUE),
+        with_sanguisorba_meadow_occupied = mean(SANGUISORBA_AREA[POSITIVE == 1] > 0, na.rm = TRUE),
+        with_sanguisorba_meadow_unoccupied = mean(SANGUISORBA_AREA[POSITIVE == 0] > 0, na.rm = TRUE),
+        .groups = "drop"
+      ),
+    paste(
+      "Median shares of natural and X habitats, and the share of records with",
+      "a Sanguisorba meadow, at occupied and unoccupied sites. Descriptive;",
+      "no model uses them"
+    ),
+    "06_habitat_shares_by_occupancy"
   )
 
   report_table(

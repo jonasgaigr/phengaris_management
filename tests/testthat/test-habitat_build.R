@@ -134,6 +134,22 @@ test_that("KVES polygons are identified by their kraj and feature id", {
     NUTS3 = c("A", "B"), geometry = sf::st_geometry(cells[1:2, ])
   )
   out <- build_kves_layer(kves)
-  expect_equal(out$KVES_ID, c("A:1", "B:1"))
-  expect_named(out, c("KVES_ID", "KOD", "KATEGORIE", "NUTS3", "geometry"))
+  expect_equal(out$layer$KVES_ID, c("A:1", "B:1"))
+  expect_named(out$layer, c("KVES_ID", "KOD", "KATEGORIE", "NUTS3", "geometry"))
+  expect_length(out$uncoded, 0)
+})
+
+test_that("a KVES version without codes takes them from another by the category name", {
+  older <- sf::st_sf(
+    kves_fid = c(1, 2), KATEGORIE = c("Aluviální a vlhké louky ", "Městské zelené plochy"),
+    NUTS3 = c("A", "A"), geometry = sf::st_geometry(cells[1:2, ])
+  )
+  codes <- data.frame(KATEGORIE = c("Aluviální a vlhké louky", "Městská zeleň"), KOD = c("C111", "A611"))
+  out <- build_kves_layer(older, codes)
+  # The name is trimmed before the lookup; a renamed category gets no code.
+  expect_equal(out$layer$KOD, c("C111", NA))
+  expect_equal(out$uncoded, "Městské zelené plochy")
+  expect_true(all(is.na(build_kves_layer(older)$layer$KOD)))
+  two_codes <- rbind(codes, data.frame(KATEGORIE = "Městská zeleň", KOD = "A612"))
+  expect_error(build_kves_layer(older, two_codes), "more than one code")
 })

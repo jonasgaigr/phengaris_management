@@ -7,11 +7,12 @@
 #----------------------------------------------------------#
 #
 # R/tools/download_habitat_layers.R downloads the habitat mapping (VMB) and
-# the ecosystem layer (KVES) from data.nature.cz, one archive per kraj, and
-# keeps the features near the sites. The functions below put the kraje
-# together into the two layers the cascade reads (config.yml `habitat: layer`
-# and `habitat: kves_layer`). They touch neither the network nor the disk,
-# so that they can be tested on small fixtures (tests/testthat).
+# the versions of the ecosystem layer (KVES) from data.nature.cz, one archive
+# per kraj, and keeps the features near the sites. The functions below put
+# the kraje together into the layers the cascade reads (config.yml
+# `habitat: layer` and `habitat: kves_layers`). They touch neither the
+# network nor the disk, so that they can be tested on small fixtures
+# (tests/testthat).
 #
 # The archives are clipped at the kraj boundary. A VMB segment that crosses a
 # kraj line is therefore split into pieces with the same SEGMENT_ID, and its
@@ -239,13 +240,32 @@ build_habitat_segments <- function(segments, biotopes, unmapped_fsb = "-") {
 #' its kraj and id. A polygon cut by a kraj line stays as two pieces: they do
 #' not overlap, so areas can be summed over them.
 #'
-#' @param kves  KVES polygons of every kraj (sf), with kves_fid, KOD,
-#'              KATEGORIE and NUTS3
-#' @return sf with KVES_ID, KOD, KATEGORIE, NUTS3
-build_kves_layer <- function(kves) {
-  kves %>%
+#' The versions before 2025 publish only the category name (KATEGORIE). Their
+#' KOD is looked up in `codes`, the categories of a version that has codes,
+#' by the name; a category not found there gets NA.
+#'
+#' @param kves   KVES polygons of every kraj (sf), with kves_fid, KATEGORIE,
+#'               NUTS3 and, from 2025 on, KOD
+#' @param codes  NULL, or a table of KATEGORIE and KOD to look the codes up in
+#' @return list(layer = sf with KVES_ID, KOD, KATEGORIE, NUTS3; uncoded = the
+#'         categories left without a code)
+build_kves_layer <- function(kves, codes = NULL) {
+  kves$KATEGORIE <- trimws(kves$KATEGORIE)
+  if (!"KOD" %in% names(kves)) {
+    lookup <- if (is.null(codes)) {
+      tibble::tibble(KATEGORIE = character(), KOD = character())
+    } else {
+      dplyr::distinct(tibble::as_tibble(codes), KATEGORIE = trimws(KATEGORIE), KOD)
+    }
+    if (anyDuplicated(lookup$KATEGORIE)) {
+      stop("A KVES category has more than one code in the lookup table.", call. = FALSE)
+    }
+    kves <- dplyr::left_join(kves, lookup, by = "KATEGORIE")
+  }
+  layer <- kves %>%
     dplyr::mutate(KVES_ID = paste0(NUTS3, ":", kves_fid)) %>%
     dplyr::select(KVES_ID, KOD, KATEGORIE, NUTS3)
+  list(layer = layer, uncoded = sort(unique(layer$KATEGORIE[is.na(layer$KOD)])))
 }
 
 #----------------------------------------------------------#

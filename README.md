@@ -40,7 +40,8 @@ The cascade runs two specifications side by side:
   - connectivity, spatial autocorrelation, per-threat models and an
     abundance supplement;
   - habitat described from the current habitat mapping (VMB) and the
-    ecosystem layer KVES 2025, downloaded from data.nature.cz.
+    ecosystem layer KVES (2021-2025), downloaded from data.nature.cz; point
+    sites described over the KVES polygon they lie in.
 
 The models of both specifications are *naive occupancy* models. The
 monitoring is essentially one visit per site and year, so detection is not
@@ -90,7 +91,7 @@ PHENGARIS_SPEC=revised Rscript R/07_describe_tables.R   # under a chosen specifi
 |---|---|---|---|---|
 | 01 | `01_load_source_data.R` | common | occurrence exports, site shapefiles | `records.csv`, `sites.gpkg` |
 | 03 | `03_protected_areas.R` | common | 01, reference EVL / MZCHU / Natura 2000 subjects | `protected_area_id.csv` |
-| 05 | `05_habitat_intersect.R` | common | 01, frozen intersection, VMB and KVES copies (each optional) | `data_lokal_vmb.csv`, `data_lokal_vmb_current.csv`, `data_lokal_kves.csv` |
+| 05 | `05_habitat_intersect.R` | common | 01, frozen intersection, VMB and KVES copies (each optional) | `data_lokal_vmb.csv`, `data_lokal_vmb_current.csv`, `data_lokal_kves.csv`, `site_areas.gpkg` |
 | 16 | `16_site_design.R` | common | 01 | `site_design.csv`, `flight_window.csv`, `connectivity.csv` |
 | 02 | `02_impute_absences.R` | spec | 01, reporting ranges | `data_with_imputed.csv` |
 | 04 | `04_clean_occurrence.R` | spec | 02, 03, 16 | `data_clean.csv` |
@@ -144,7 +145,7 @@ What each step does:
    connectivity). It keeps one record per species × site × visit.
 5. **Habitat intersection.** Copies the frozen site × segment intersection of
    the original analysis, and overlays the sites on the current habitat
-   mapping (VMB) and on KVES 2025. It checks the current intersection against
+   mapping (VMB) and on KVES. It checks the current intersection against
    the frozen one.
 6. **Habitat attributes.** Describes each record by the habitat segments its
    site overlaps, using the specification's habitat source and segment rule.
@@ -245,10 +246,8 @@ specification until they are confirmed. The open ones are:
 - the connectivity alpha, 1 per km (proposed);
 - the flight-season cut-off, 45 days (proposed);
 - the unmapped habitat categories;
-- the buffer widths for point and line sites;
-- the *Sanguisorba*-meadow habitat codes;
-- the mosaic share column, `STEJ_PR` (proposed);
-- the margin around the sites kept from the habitat layers, 200 m (proposed).
+- the KVES version of each record year, the closest one (proposed);
+- the crosswalk from the habitat codes to the Natura 2000 habitat codes.
 
 ## Data
 
@@ -260,9 +259,9 @@ Data/Input/
   reference/                       local copies of remote layers, with RETRIEVED.yml
   habitats/legacy/                 the frozen site x habitat intersection of the original analysis
   habitats/habitat_segments.gpkg   VMB near the sites (not tracked; made by the download tool)
-  habitats/kves.gpkg               KVES 2025 near the sites (not tracked; made by the download tool)
-  habitats/RETRIEVED.yml           the archives the two layers were made from, with their md5
-Data/Cache/aopk/                   the VMB and KVES kraj archives and per-kraj extracts (not tracked, ~6.5 GB)
+  habitats/kves_<version>.gpkg     KVES 2021, 2022, 2023, 2025 near the sites (not tracked; made by the download tool)
+  habitats/RETRIEVED.yml           the archives the layers were made from, with their md5
+Data/Cache/aopk/                   the VMB and KVES kraj archives and per-kraj extracts (not tracked, ~20 GB)
 ```
 
 **Reference layers.** `Data/Input/reference/` holds copies of the remote
@@ -277,30 +276,47 @@ up to date, run `R/tools/refresh_reference_layers.R` by hand. Then re-run the
 cascade and diff the outputs with `R/tools/compare_snapshots.R`.
 
 **Habitat layers.** The habitat mapping (VMB, data.nature.cz ds/21) and the
-ecosystem layer KVES 2025 (ds/145) of AOPK ČR, CC BY 4.0. They are too large
-for git, so they are made by a tool, following the alcon-spatial project:
+ecosystem layer KVES of AOPK ČR in its versions 2021, 2022, 2023 and 2025
+(ds/101, 102, 108, 145), CC BY 4.0. They are too large for git, so they are
+made by a tool, following the alcon-spatial project:
 
 ```r
 source("R/00_setup.R")
 source("R/tools/download_habitat_layers.R")
-download_habitat_layers()    # about 45 minutes the first time; needs step 01
+download_habitat_layers()    # about 2 hours the first time; needs step 01
 ```
 
 - It needs an ISOP login. The NDOP account is one: `NDOP_USER` and `NDOP_PWD`
   in `~/.Renviron`, never in a script.
 - It downloads the archives of the kraje within 200 m of a site (all 14 at
-  present: 0.6 GB VMB, 4.5 GB KVES) into `Data/Cache/aopk/`. They are not
-  downloaded again unless `refresh = TRUE`.
-- It keeps the features within 200 m of a site (`habitat: download:
-  extract_margin_m`) and cuts them to that area. It puts the VMB segments cut
-  by kraj lines back together.
+  present: 0.6 GB VMB, about 4 GB per KVES version) into `Data/Cache/aopk/`.
+  They are not downloaded again unless `refresh = TRUE`.
+- It keeps the features within 200 m of a site (`habitat: margin_m`) and cuts
+  them to that area. It puts the VMB segments cut by kraj lines back
+  together.
 - It writes `habitat_segments.gpkg` (one row per segment × mapped habitat,
-  the input contract of `config.yml` `habitat: required_columns`), `kves.gpkg`
-  and `RETRIEVED.yml`.
-- The published VMB has no Natura 2000 habitat code, so `HABITAT` is empty.
-  `FSB_EVAL` is derived: X for a mapped segment less than half natural. This
-  is the network share's rule without two artefacts of its table joins
-  (`CHANGELOG.md`).
+  the input contract of `config.yml` `habitat: required_columns`), one
+  `kves_<version>.gpkg` per KVES version, and `RETRIEVED.yml`.
+- The published VMB has no Natura 2000 habitat code, so `HABITAT` is empty
+  until a crosswalk is added. `FSB_EVAL` is derived: X for a mapped segment
+  less than half natural. This is the network share's rule without two
+  artefacts of its table joins (`CHANGELOG.md`).
+- KVES before 2025 publishes only the category name. Its code is the 2025
+  code of the category of the same name; `RETRIEVED.yml` lists the categories
+  left without one.
+
+**How the current layers describe a site.**
+
+- A record takes its KVES information from the KVES version closest to its
+  year (`habitat: kves_version_of_year`): 2019-2021 from 2021, 2022 from
+  2022, 2023 from 2023, 2024 from 2025.
+- A polygon site is described over its own area. A point or line site is
+  described over the KVES polygon it lies in, from that version, cut to
+  200 m around it (`site_areas()`; `Data/Processed/common/site_areas.gpkg`).
+- Over that area: the habitat shares from VMB, each weighted by `STEJ_PR`,
+  including the shares of natural habitats, of X habitats (kept apart from
+  the unmapped area) and of the *Sanguisorba* meadows (T1.1, T1.4, T1.5,
+  T1.7, T1.10); and the dominant KVES class.
 
 **Which habitat layer a specification uses** (`habitat_source` in
 `config.yml`):
@@ -308,10 +324,12 @@ download_habitat_layers()    # about 45 minutes the first time; needs step 01
 - *legacy* uses the frozen intersection of the original analysis, so its
   outputs stay unchanged.
 - *revised* uses the current VMB and KVES layers. Step 05 checks the current
-  intersection against the frozen one (`05_current_vs_frozen`).
+  intersection against the frozen one on the polygon sites
+  (`05_current_vs_frozen`).
 - Without the VMB copy, step 05 tries the AOPK network share. Failing that,
   *revised* falls back to the frozen intersection with a warning in its
-  report.
+  report. Without a KVES copy, the point and line sites of its years stay as
+  they are, with no area.
 
 ## Development
 
