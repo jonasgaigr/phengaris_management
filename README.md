@@ -38,7 +38,9 @@ The cascade runs two specifications side by side:
   - multivariable glmmTMB models fitted with and without the imputed
     absences, with diagnostics;
   - connectivity, spatial autocorrelation, per-threat models and an
-    abundance supplement.
+    abundance supplement;
+  - habitat described from the current habitat mapping (VMB) and the
+    ecosystem layer KVES 2025, downloaded from data.nature.cz.
 
 The models of both specifications are *naive occupancy* models. The
 monitoring is essentially one visit per site and year, so detection is not
@@ -69,8 +71,9 @@ PHENGARIS_SPEC=revised Rscript R/07_describe_tables.R   # under a chosen specifi
 - R ≥ 4.6 and the packages in `renv.lock`. `R/00_setup.R` checks for them and
   stops with an instruction when one is missing; it never installs anything
   itself.
-- **No internet connection is needed.** The remote reference layers are read
-  from the local copies in `Data/Input/reference/` (see *Data* below).
+- **No internet connection is needed.** The remote reference layers and the
+  habitat layers are read from the local copies in `Data/Input/reference/`
+  and `Data/Input/habitats/` (see *Data* below).
 
 **How the steps run.**
 
@@ -87,7 +90,7 @@ PHENGARIS_SPEC=revised Rscript R/07_describe_tables.R   # under a chosen specifi
 |---|---|---|---|---|
 | 01 | `01_load_source_data.R` | common | occurrence exports, site shapefiles | `records.csv`, `sites.gpkg` |
 | 03 | `03_protected_areas.R` | common | 01, reference EVL / MZCHU / Natura 2000 subjects | `protected_area_id.csv` |
-| 05 | `05_habitat_intersect.R` | common | 01, habitat layer (optional) | `data_lokal_vmb.csv` |
+| 05 | `05_habitat_intersect.R` | common | 01, frozen intersection, VMB and KVES copies (each optional) | `data_lokal_vmb.csv`, `data_lokal_vmb_current.csv`, `data_lokal_kves.csv` |
 | 16 | `16_site_design.R` | common | 01 | `site_design.csv`, `flight_window.csv`, `connectivity.csv` |
 | 02 | `02_impute_absences.R` | spec | 01, reporting ranges | `data_with_imputed.csv` |
 | 04 | `04_clean_occurrence.R` | spec | 02, 03, 16 | `data_clean.csv` |
@@ -139,9 +142,13 @@ What each step does:
    variables (observer, flight-season timing, field-form era, persistent site,
    site area, protection designated for the record's own species,
    connectivity). It keeps one record per species × site × visit.
-5. **Habitat intersection.** Overlays the sites on the habitat mapping layer.
+5. **Habitat intersection.** Copies the frozen site × segment intersection of
+   the original analysis, and overlays the sites on the current habitat
+   mapping (VMB) and on KVES 2025. It checks the current intersection against
+   the frozen one.
 6. **Habitat attributes.** Describes each record by the habitat segments its
-   site overlaps, using the specification's segment rule.
+   site overlaps, using the specification's habitat source and segment rule.
+   With the current layers it adds the site's dominant KVES class.
 7. and 8. Descriptive tables and figures.
 9. to 13. *Legacy:* the original models and the ordination.
 14. **Maps.**
@@ -168,7 +175,8 @@ Outputs/
            Exports/                      data exports for Excel (step 13)
   revised/ Tables/ Figures/ Reports/     steps 02, 04, 06-08, 14, 17-20 of the revised specification
 Data/Processed/
-  common/  records.csv, sites.gpkg, protected_area_id.csv, data_lokal_vmb.csv,
+  common/  records.csv, sites.gpkg, protected_area_id.csv,
+           data_lokal_vmb.csv (frozen), data_lokal_vmb_current.csv, data_lokal_kves.csv,
            site_design.csv, flight_window.csv, connectivity.csv
   legacy/  data_with_imputed.csv, data_clean.csv, data_analysis.csv
   revised/ data_with_imputed.csv, data_clean.csv, data_analysis.csv
@@ -217,7 +225,8 @@ regenerates them.
   categories;
 - the imputation rule, the host-plant filter and the threat vocabulary of
   each specification;
-- the habitat input contract;
+- the habitat input contract, the habitat source of each specification and
+  the download of the VMB and KVES layers;
 - the site-matching distance;
 - the flight season, the observer aliases and the connectivity parameters;
 - the random effects and thresholds of the revised models;
@@ -238,7 +247,8 @@ specification until they are confirmed. The open ones are:
 - the unmapped habitat categories;
 - the buffer widths for point and line sites;
 - the *Sanguisorba*-meadow habitat codes;
-- the mosaic share column.
+- the mosaic share column, `STEJ_PR` (proposed);
+- the margin around the sites kept from the habitat layers, 200 m (proposed).
 
 ## Data
 
@@ -249,6 +259,10 @@ Data/Input/
   Reporting_range/                 Article 17 reporting ranges, 10 x 10 km cells
   reference/                       local copies of remote layers, with RETRIEVED.yml
   habitats/legacy/                 the frozen site x habitat intersection of the original analysis
+  habitats/habitat_segments.gpkg   VMB near the sites (not tracked; made by the download tool)
+  habitats/kves.gpkg               KVES 2025 near the sites (not tracked; made by the download tool)
+  habitats/RETRIEVED.yml           the archives the two layers were made from, with their md5
+Data/Cache/aopk/                   the VMB and KVES kraj archives and per-kraj extracts (not tracked, ~6.5 GB)
 ```
 
 **Reference layers.** `Data/Input/reference/` holds copies of the remote
@@ -262,17 +276,42 @@ layers the cascade needs:
 up to date, run `R/tools/refresh_reference_layers.R` by hand. Then re-run the
 cascade and diff the outputs with `R/tools/compare_snapshots.R`.
 
-**Habitat layer: NOT VALIDATED ON REAL DATA.** The habitat mapping layer is
-expected as a GeoPackage at `Data/Input/habitats/habitat_segments.gpkg`. It
-must be in EPSG:5514 and have the columns listed in `config.yml`
-(`habitat: required_columns`); `read_habitat_layer()` checks this contract.
+**Habitat layers.** The habitat mapping (VMB, data.nature.cz ds/21) and the
+ecosystem layer KVES 2025 (ds/145) of AOPK ČR, CC BY 4.0. They are too large
+for git, so they are made by a tool, following the alcon-spatial project:
 
-- The contract and the area-weighted segment rule have been tested only on a
-  synthetic fixture (`tests/testthat/test-habitat.R`).
-- Until the file is supplied, step 05 tries the AOPK network share, then the
-  frozen intersection of the original analysis.
-- When neither is available it skips cleanly. The habitat models then report
-  themselves as skipped.
+```r
+source("R/00_setup.R")
+source("R/tools/download_habitat_layers.R")
+download_habitat_layers()    # about 45 minutes the first time; needs step 01
+```
+
+- It needs an ISOP login. The NDOP account is one: `NDOP_USER` and `NDOP_PWD`
+  in `~/.Renviron`, never in a script.
+- It downloads the archives of the kraje within 200 m of a site (all 14 at
+  present: 0.6 GB VMB, 4.5 GB KVES) into `Data/Cache/aopk/`. They are not
+  downloaded again unless `refresh = TRUE`.
+- It keeps the features within 200 m of a site (`habitat: download:
+  extract_margin_m`) and cuts them to that area. It puts the VMB segments cut
+  by kraj lines back together.
+- It writes `habitat_segments.gpkg` (one row per segment × mapped habitat,
+  the input contract of `config.yml` `habitat: required_columns`), `kves.gpkg`
+  and `RETRIEVED.yml`.
+- The published VMB has no Natura 2000 habitat code, so `HABITAT` is empty.
+  `FSB_EVAL` is derived: X for a mapped segment less than half natural. This
+  is the network share's rule without two artefacts of its table joins
+  (`CHANGELOG.md`).
+
+**Which habitat layer a specification uses** (`habitat_source` in
+`config.yml`):
+
+- *legacy* uses the frozen intersection of the original analysis, so its
+  outputs stay unchanged.
+- *revised* uses the current VMB and KVES layers. Step 05 checks the current
+  intersection against the frozen one (`05_current_vs_frozen`).
+- Without the VMB copy, step 05 tries the AOPK network share. Failing that,
+  *revised* falls back to the frozen intersection with a warning in its
+  report.
 
 ## Development
 
@@ -290,6 +329,6 @@ data and result tables and lists every cell a change alters:
 - a refactoring must give an empty diff;
 - a bug fix is documented in `CHANGELOG.md`.
 
-**Other tools.** `R/tools/download_habitat_layers.R` (credentials from the
-environment variables `AOPK_USER` and `AOPK_PASSWORD`, never in a script)
-fetches the habitat layers over HTTP.
+**Other tools.** `R/tools/download_habitat_layers.R` downloads the VMB and
+KVES layers (see *Data*); `R/tools/refresh_reference_layers.R` the reference
+layers.

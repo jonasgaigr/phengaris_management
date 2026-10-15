@@ -2,27 +2,36 @@
 #
 #       Phengaris spp. management in Czechia
 #
-#       Helper functions: national habitat mapping layer (VMB)
+#       Helper functions: habitat mapping (VMB) and ecosystem (KVES) layers
 #
 #----------------------------------------------------------#
 #
-# NOT VALIDATED ON REAL DATA: the habitat input contract and the segment
-# rules below were tested only on a small synthetic fixture
-# (tests/testthat/test-habitat.R).
+# The habitat input contract and the segment rules below are tested on small
+# synthetic fixtures (tests/testthat/test-habitat.R). On real data, step 05
+# checks the current intersection against the frozen one
+# (05_current_vs_frozen).
 #
-# Where the habitat layer comes from, in order of preference (step 05):
+# Step 05 writes up to two site x segment intersections, and step 06 uses the
+# one a specification asks for (config.yml `habitat_source`,
+# choose_habitat_overlaps()):
 #
-#   1. the file named in config.yml `habitat: layer`, a GeoPackage that must
-#      satisfy the input contract checked by read_habitat_layer();
-#   2. the AOPK network share (config.yml `habitat: network_share`), read by
-#      load_vmb(), which only works inside the AOPK network:
-#        vmb_x = 0   current layer (CR_AKTUALNI)      <- used by step 05
-#        vmb_x = 1   original mapping (CR_20060501)
-#        vmb_x = 2   first update (CR_Aktualizace1)
-#   3. the frozen site x segment intersection of the original analysis.
+#   frozen   the site x segment intersection of the original analysis
+#   current  the sites intersected with the current VMB layer, taken from
+#            1. the file named in config.yml `habitat: layer`, a GeoPackage
+#               made by R/tools/download_habitat_layers.R that must satisfy
+#               the input contract checked by read_habitat_layer();
+#            2. else the AOPK network share (`habitat: network_share`), read
+#               by load_vmb(), which only works inside the AOPK network:
+#                 vmb_x = 0   current layer (CR_AKTUALNI)   <- used by step 05
+#                 vmb_x = 1   original mapping (CR_20060501)
+#                 vmb_x = 2   first update (CR_Aktualizace1)
+#
+# and the sites intersected with the KVES 2025 ecosystem layer
+# (`habitat: kves_layer`, read_kves_layer()).
 #
 # How a site is described by the segments it overlaps is chosen in step 06
-# by select_habitat_segment(), with a rule set per specification.
+# by select_habitat_segment(), with a rule set per specification, and by
+# its dominant KVES class, summarise_kves().
 #
 #----------------------------------------------------------#
 
@@ -147,7 +156,7 @@ is_natural_habitat <- function(biotop) {
 #'                  segment: the first after sorting by NATURAL and then by
 #'                  overlap area, both ascending, i.e. the least natural and
 #'                  smallest. AREA_SITE is that one overlap's area.
-#'   area_weighted  NOT VALIDATED ON REAL DATA. Each site is summarised over
+#'   area_weighted  Each site is summarised over
 #'                  all its overlaps: AREA_SITE is the total overlap area,
 #'                  NATURAL_SHARE the share of it in natural habitats,
 #'                  SANGUISORBA_AREA the area in the habitat codes of
@@ -158,14 +167,17 @@ is_natural_habitat <- function(biotop) {
 #'                  `share_column`, each overlap's area is first multiplied
 #'                  by that column / 100.
 #'
-#' @param records   the cleaned records, with ID_LOKAL
-#' @param segments  site x segment overlaps, from read_habitat_overlaps()
-#' @param rule      "legacy" or "area_weighted"
+#' @param records       the cleaned records, with ID_LOKAL
+#' @param segments      site x segment overlaps, from read_habitat_overlaps()
+#' @param rule          "legacy" or "area_weighted"
+#' @param share_column  NULL, or the column holding each habitat's share of
+#'                      its segment: config.yml `habitat: share_column` for
+#'                      the current layer; NULL for the frozen intersection
 #' @return `records` with the habitat columns added, one row per record in the
 #'         original order
 select_habitat_segment <- function(records, segments, rule = c("legacy", "area_weighted"),
                                    sanguisorba_codes = unlist(CONFIG$habitat$sanguisorba_meadow_codes),
-                                   share_column = CONFIG$habitat$share_column) {
+                                   share_column = NULL) {
   rule <- match.arg(rule)
   if (rule == "legacy") {
     out <- records %>%
@@ -256,6 +268,98 @@ select_habitat_segment <- function(records, segments, rule = c("legacy", "area_w
 
   out <- records %>%
     dplyr::left_join(per_site, by = "ID_LOKAL")
+  stopifnot(nrow(out) == nrow(records))
+  out
+}
+
+#--------------------------------------------------#
+## Which intersection a specification uses -----
+#--------------------------------------------------#
+
+#' The site x segment overlaps a specification uses.
+#'
+#' @param source   config.yml `habitat_source` of the specification: "frozen"
+#'                 (the intersection of the original analysis) or "current"
+#'                 (the current VMB layer)
+#' @param current  the current intersection written by step 05
+#' @param frozen   the frozen intersection written by step 05
+#' @return list(path = the file to read, NA when there is none; source = the
+#'         intersection it holds, "none" when there is none). "current" falls
+#'         back to the frozen intersection when there is no current one.
+choose_habitat_overlaps <- function(source = c("frozen", "current"), current, frozen) {
+  source <- match.arg(source)
+  if (source == "current" && file.exists(current)) {
+    return(list(path = current, source = "current"))
+  }
+  if (file.exists(frozen)) {
+    return(list(path = frozen, source = "frozen"))
+  }
+  list(path = NA_character_, source = "none")
+}
+
+#--------------------------------------------------#
+## The KVES ecosystem layer -----
+#--------------------------------------------------#
+
+#' Read the KVES layer and check its columns and CRS.
+#'
+#' @param path  GeoPackage written by R/tools/download_habitat_layers.R,
+#'              config.yml `habitat: kves_layer`
+read_kves_layer <- function(path = CONFIG$habitat$kves_layer) {
+  if (!file.exists(path)) {
+    stop("KVES layer not found: ", path, call. = FALSE)
+  }
+  x <- sf::st_read(path, quiet = TRUE)
+  missing <- setdiff(c("KVES_ID", "KOD", "KATEGORIE"), names(x))
+  if (length(missing)) {
+    stop("The KVES layer ", path, " lacks the column(s): ", paste(missing, collapse = ", "), call. = FALSE)
+  }
+  if (is.na(sf::st_crs(x)) || sf::st_crs(x) != sf::st_crs(CONFIG$habitat$crs_epsg)) {
+    stop("The KVES layer ", path, " is not in EPSG:", CONFIG$habitat$crs_epsg, call. = FALSE)
+  }
+  x
+}
+
+#' Read the site x KVES overlaps written by step 05.
+read_kves_overlaps <- function(path) {
+  readr::read_csv2(path, show_col_types = FALSE, progress = FALSE) %>%
+    dplyr::transmute(
+      ID_LOKAL,
+      KVES_ID = as.character(KVES_ID),
+      KOD = as.character(KOD),
+      KATEGORIE = as.character(KATEGORIE),
+      AREA_real
+    )
+}
+
+#' Attach the dominant KVES ecosystem class of each record's site.
+#'
+#' KVES_KOD and KVES_KATEGORIE are the class covering most of the site. A
+#' site without area (a point or a line, unbuffered) gets the class it lies
+#' in, and NA when it lies on the boundary between two classes. A site
+#' outside the layer gets NA.
+#'
+#' @param records   records (or sites) with ID_LOKAL
+#' @param overlaps  site x KVES overlaps, from read_kves_overlaps()
+#' @return `records` with KVES_KOD and KVES_KATEGORIE added, one row per
+#'         record in the original order
+summarise_kves <- function(records, overlaps) {
+  dominant <- overlaps %>%
+    dplyr::group_by(ID_LOKAL, KOD, KATEGORIE) %>%
+    dplyr::summarise(.area = sum(AREA_real, na.rm = TRUE), .groups = "drop") %>%
+    dplyr::group_by(ID_LOKAL) %>%
+    dplyr::mutate(.ambiguous = sum(.area) == 0 & dplyr::n_distinct(KOD) > 1) %>%
+    dplyr::arrange(dplyr::desc(.area), KOD, .by_group = TRUE) %>%
+    dplyr::slice(1) %>%
+    dplyr::ungroup() %>%
+    dplyr::transmute(
+      ID_LOKAL,
+      KVES_KOD = dplyr::if_else(.ambiguous, NA_character_, KOD),
+      KVES_KATEGORIE = dplyr::if_else(.ambiguous, NA_character_, KATEGORIE)
+    )
+
+  out <- records %>%
+    dplyr::left_join(dominant, by = "ID_LOKAL")
   stopifnot(nrow(out) == nrow(records))
   out
 }

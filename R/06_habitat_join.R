@@ -11,12 +11,19 @@
 # Brings the habitat mapping attributes onto the cleaned occurrence records and
 # writes the table the models are fitted on.
 #
+# Each specification chooses its site x segment intersection (config.yml,
+# habitat_source): "frozen", the intersection of the original analysis, or
+# "current", the sites intersected with the current VMB layer by step 05
+# (falling back to the frozen one when step 05 had no current layer).
+#
 # A monitoring site can overlap many habitat segments, so they have to be
 # reduced to one description per record. The rule is set per specification
 # (config.yml, habitat_segment_rule) and implemented in
 # select_habitat_segment(): "legacy" keeps the original rule (order by
 # NATURAL, then by AREA_SITE, keep the first segment), "area_weighted"
-# summarises all the segments of a site and is NOT VALIDATED ON REAL DATA.
+# summarises all the segments of a site. With the current layer, the
+# specification also gets the dominant KVES 2025 ecosystem class of the site
+# (KVES_KOD, KVES_KATEGORIE; summarise_kves()).
 #
 # Variables added under the legacy rule:
 #
@@ -26,8 +33,10 @@
 #               listed in the segment mosaic BIOTOP_SEZ
 #   NATURAL     1 when a natural habitat is mapped, 0 for X codes and no data
 #
-# Reads:  Data/Processed/<spec>/data_clean.csv       (step 04)
-#         Data/Processed/common/data_lokal_vmb.csv   (step 05)
+# Reads:  Data/Processed/<spec>/data_clean.csv               (step 04)
+#         Data/Processed/common/data_lokal_vmb.csv           (step 05, frozen)
+#         Data/Processed/common/data_lokal_vmb_current.csv   (step 05, current)
+#         Data/Processed/common/data_lokal_kves.csv          (step 05, KVES)
 # Writes: Data/Processed/<spec>/data_analysis.csv
 #
 #----------------------------------------------------------#
@@ -47,24 +56,41 @@ report_start(
 
 data_clean <- read_data_clean()
 
-path_lokal_vmb_csv <- processed_path("data_lokal_vmb.csv", "common")
+habitat_source <- spec_settings()$habitat_source
+overlaps <- choose_habitat_overlaps(
+  habitat_source,
+  current = processed_path("data_lokal_vmb_current.csv", "common"),
+  frozen = processed_path("data_lokal_vmb.csv", "common")
+)
+path_kves <- processed_path("data_lokal_kves.csv", "common")
 
 #----------------------------------------------------------#
 # Join the habitat attributes -----
 #----------------------------------------------------------#
 
-if (file.exists(path_lokal_vmb_csv)) {
-  habitat_segments <- read_habitat_overlaps(path_lokal_vmb_csv)
+if (overlaps$source != "none") {
+  habitat_segments <- read_habitat_overlaps(overlaps$path)
 
   # How each record is described by the segments its site overlaps; the rule
-  # is set per specification in config.yml.
+  # is set per specification in config.yml. Only the current layer has one
+  # row per segment x mapped habitat with its share; the frozen intersection
+  # has one row per Natura habitat record, which no share describes.
   data_analysis <- select_habitat_segment(
     data_clean,
     habitat_segments,
-    rule = spec_settings()$habitat_segment_rule
+    rule = spec_settings()$habitat_segment_rule,
+    share_column = if (overlaps$source == "current") CONFIG$habitat$share_column else NULL
   )
 
   habitat_join_available <- TRUE
+
+  if (habitat_source == "current" && overlaps$source == "frozen") {
+    report_warning(
+      "This specification asks for the current VMB layer, but step 05 had",
+      "none, so the frozen intersection of the original analysis is used.",
+      "Run R/tools/download_habitat_layers.R to make the local copy."
+    )
+  }
 } else {
   # Keep the cascade running without habitat data: the analysis table is the
   # cleaned table with empty habitat columns, and the habitat models in later
@@ -92,11 +118,18 @@ if (file.exists(path_lokal_vmb_csv)) {
   habitat_join_available <- FALSE
 
   report_warning(
-    "Data/Processed/common/data_lokal_vmb.csv does not exist, so no habitat",
+    "Step 05 wrote no site x habitat intersection, so no habitat",
     "attributes could be attached. The habitat columns are empty and the",
     "models that use AREA_SITE, FSB, BIOTOP or HET_OUT will be skipped.",
-    "Run step 05 from a machine with access to //bali.nature.cz."
+    "Run R/tools/download_habitat_layers.R, then step 05."
   )
+}
+
+# The KVES class of the site, with the current layers only: the frozen
+# intersection of the original analysis had no ecosystem layer.
+kves_join_available <- habitat_source == "current" && file.exists(path_kves)
+if (kves_join_available) {
+  data_analysis <- summarise_kves(data_analysis, read_kves_overlaps(path_kves))
 }
 
 #----------------------------------------------------------#
@@ -107,9 +140,17 @@ habitat_rule <- spec_settings()$habitat_segment_rule
 
 if (habitat_join_available && habitat_rule == "area_weighted") {
   report_warning(
-    "Habitat attributes by the area-weighted rule, which is NOT VALIDATED ON",
-    "REAL DATA: it was tested on a synthetic fixture only, and here it runs on",
-    "the frozen site x segment intersection of the original analysis.",
+    "Habitat attributes by the area-weighted rule, on",
+    if (overlaps$source == "current") {
+      paste(
+        "the current VMB layer, each overlap weighted by the habitat's share",
+        "of the segment (`habitat: share_column`, PROPOSED). Step 05 checks",
+        "that intersection against the frozen one (05_current_vs_frozen)."
+      )
+    } else {
+      "the frozen site x segment intersection of the original analysis."
+    },
+    "The rule itself is tested on synthetic fixtures.",
     "Point sites are not buffered (config.yml `habitat: point_buffer_m`), so",
     "they have no area: their AREA_SITE is 0 and their NATURAL_SHARE NA, and",
     "they get the habitat they lie in only when it is a single one. The",
@@ -147,6 +188,28 @@ if (habitat_join_available && habitat_rule == "area_weighted") {
       dplyr::ungroup(),
     "Dominant habitats at occupied sites, the ten most frequent per species",
     "06_dominant_habitats"
+  )
+}
+
+if (kves_join_available) {
+  report_table(
+    data_analysis %>%
+      dplyr::group_by(DRUH, KVES_KOD, KVES_KATEGORIE) %>%
+      dplyr::summarise(
+        records = dplyr::n(),
+        occupied_records = sum(POSITIVE == 1),
+        .groups = "drop"
+      ) %>%
+      dplyr::mutate(occupied_share = round(occupied_records / records, 3)) %>%
+      dplyr::group_by(DRUH) %>%
+      dplyr::slice_max(records, n = 10, with_ties = FALSE) %>%
+      dplyr::ungroup(),
+    paste(
+      "Records and occupied records by the dominant KVES 2025 class of the",
+      "site, the ten most frequent classes per species (NA: a point on a",
+      "boundary between classes, or outside the layer). No model uses the class."
+    ),
+    "06_kves_classes"
   )
 }
 

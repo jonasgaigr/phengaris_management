@@ -103,6 +103,7 @@ source("R/functions/model_specs_revised.R", encoding = "UTF-8")
 source("R/functions/ordination_legacy.R", encoding = "UTF-8")
 source("R/functions/summary_tables.R", encoding = "UTF-8")
 source("R/functions/habitat_layers.R", encoding = "UTF-8")
+source("R/functions/habitat_build.R", encoding = "UTF-8")
 
 #----------------------------------------------------------#
 # Project constants -----

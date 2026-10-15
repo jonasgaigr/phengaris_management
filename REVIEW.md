@@ -68,7 +68,7 @@ The environment works:
 | 5 | `STRUKT_POZN` parsed with `grepl()` on the whole string | biases | a + b | [x] parser (a), b04 |
 | 6 | Unknown coded as 0 (`GRAZE`, `OVERALL`, `MOW`, threats) | biases | b | [x] b05 |
 | 7 | Dead filters, unused sources, `ZDROJ` year ≠ record year | cosmetic | a | [x] (a) |
-| 8 | Habitat segment rule keeps the least natural, smallest segment | biases | c | [~] area-weighted in revised, not validated (P3.9) |
+| 8 | Habitat segment rule keeps the least natural, smallest segment | biases | c | [~] area-weighted on the current VMB layer (revised, P3.9); buffer widths and *Sanguisorba* codes TODO |
 | 9 | AIC tables compare models fitted on different n | blocks | b | [x] b07 |
 | 10 | `X:Y` fixed effect; `(1 \| YEAR)` entered twice | blocks | c | [x] P3.1, P3.6 (revised) |
 | 11 | Single visits: naive occupancy, no detection covariates | biases | c | [x] P3.3 (revised) |
@@ -926,6 +926,50 @@ changed). Results and numbers are in `CHANGELOG.md` and
 - *Sanguisorba* codes;
 - the mosaic share column;
 - the `ZDROJ` year.
+
+## Status after the habitat download (2026-10-15)
+
+**Done.** The VMB and KVES 2025 layers were downloaded from data.nature.cz
+for all 14 kraje, following the alcon-spatial project
+(`R/tools/download_habitat_layers.R`). The revised specification now
+describes the habitat from them (P3.9 on real data); legacy keeps the frozen
+intersection and its outputs are unchanged
+(`changes/c02_habitat_layers_legacy.md`). Numbers are in `CHANGELOG.md`.
+
+The current intersection reproduces the frozen one where the segments have
+not been updated since: 99.6 % of the frozen overlaps are found again, and for
+the unchanged segments FSB and `BIOTOP_SEZ` agree in 100 % and the overlap
+area in 99.9 % (`05_current_vs_frozen`).
+
+**Found while downloading the habitat layers.**
+
+- **31. The frozen intersection sees only Natura 2000 habitats.** Its
+  `BIOTOP` is filled in exactly the 7245 of 18 816 rows with a `HABITAT`
+  code. T1.5 (2104 rows in the current layer), T1.4 (445), every X habitat and
+  the unmapped parts never appear. Under the legacy rule this is part of why
+  only 684 of 4540 rows kept a `BIOTOP` (item 8). Under the area-weighted rule
+  the median natural share of polygon sites was 0.019; on the current layer
+  it is 0.410.
+- **32. The frozen intersection counts a segment once per Natura record.**
+  Summed over a site, the overlap area exceeded the site's own area for 4.3 %
+  of polygon records; with each habitat weighted by `STEJ_PR` it matches the
+  site area within 1 % for 99.9 %.
+- **33. The published VMB has no Natura 2000 code.** `HABITAT` is empty in
+  the downloaded layer, and `FSB_EVAL` has to be derived. The network share's
+  derivation kept `moz.` for mosaics of X habitats only and counted natural
+  habitats with a Natura record twice (389 overlaps differ); the new one is
+  X for every mapped segment less than half natural.
+
+**Open, needing domain input**, in addition to the list above:
+
+- the mosaic share column: `STEJ_PR` is now PROPOSED, since it adds up to 100
+  in every downloaded segment;
+- the margin kept around the sites, 200 m (PROPOSED);
+- buffer widths: 214 point and line records now lie in a mosaic segment and
+  get no dominant habitat;
+- *Sanguisorba* codes: T1.5 is now the third commonest dominant habitat at
+  occupied *P. nausithous* sites (221 records), after unmapped (584) and T1.1
+  (307).
 
 ---
 

@@ -57,6 +57,12 @@ pipeline_step <- function(id, file, title, scope = c("common", "spec", "final"),
 .site_design <- "{processed}/common/site_design.csv"
 .flight_window <- "{processed}/common/flight_window.csv"
 .connectivity <- "{processed}/common/connectivity.csv"
+# The frozen and the current site x VMB intersections and the site x KVES
+# one; each is written only when its source is there.
+.habitat_overlaps <- paste0(
+  "?{processed}/common/",
+  c("data_lokal_vmb.csv", "data_lokal_vmb_current.csv", "data_lokal_kves.csv")
+)
 
 PIPELINE <- list(
   pipeline_step(
@@ -77,8 +83,11 @@ PIPELINE <- list(
   ),
   pipeline_step(
     "05", "R/05_habitat_intersect.R", "Habitat intersection", "common",
-    inputs = c(.sites, paste0("?", CONFIG$paths$habitat_legacy_intersection)),
-    outputs = "?{processed}/common/data_lokal_vmb.csv"
+    inputs = c(
+      .sites,
+      paste0("?", c(CONFIG$paths$habitat_legacy_intersection, CONFIG$habitat$layer, CONFIG$habitat$kves_layer))
+    ),
+    outputs = .habitat_overlaps
   ),
   pipeline_step(
     "16", "R/16_site_design.R", "Sites, flight season and connectivity", "common",
@@ -103,10 +112,7 @@ PIPELINE <- list(
   ),
   pipeline_step(
     "06", "R/06_habitat_join.R", "Habitat attributes", "spec",
-    inputs = c(
-      "{processed}/{spec}/data_clean.csv",
-      "?{processed}/common/data_lokal_vmb.csv"
-    ),
+    inputs = c("{processed}/{spec}/data_clean.csv", .habitat_overlaps),
     outputs = .analysis
   ),
   pipeline_step("07", "R/07_describe_tables.R", "Descriptive tables", "spec", inputs = .analysis),

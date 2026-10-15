@@ -518,3 +518,107 @@ None of these touches a legacy number.
 - **`match_sites()` is faster.** It took 4 minutes per distance (pairwise
   distances) and now takes seconds (spatial index plus exact distances), with
   identical sites.
+
+---
+
+## (c) Habitat from the current VMB layer and KVES 2025
+
+- **Decision:** P3.9 (habitat), now run on real data. Two values are
+  PROPOSED: the mosaic share column `STEJ_PR` and the 200 m margin kept
+  around the sites.
+- **Legacy specification:** unchanged; the comparison of its outputs before
+  and after is in
+  [`changes/c02_habitat_layers_legacy.md`](changes/c02_habitat_layers_legacy.md)
+- **Full diff:** [`changes/c02_habitat_layers.md`](changes/c02_habitat_layers.md)
+
+**Why.** The revised habitat description (P3.9) ran on the frozen
+intersection of the original analysis. That intersection describes a segment
+only by its habitats that have a Natura 2000 record:
+
+- `BIOTOP` is filled in exactly the 7245 of 18 816 rows that have a `HABITAT`
+  code, and in no other.
+- Natural habitats outside Natura 2000 never appear: T1.5 (0 rows, 2104 in
+  the current layer), T1.4 (0, 445). Neither do the X habitats or the
+  unmapped parts ("-1").
+- A segment with several Natura records is repeated once per record, so the
+  area-weighted rule counted its overlap with a site more than once.
+
+**What was done.**
+
+- `R/tools/download_habitat_layers.R` was rewritten, following the
+  alcon-spatial project. It logs in to data.nature.cz with the ISOP (NDOP)
+  account and downloads the VMB (ds/21) and KVES 2025 (ds/145) archives of
+  the kraje within 200 m of a site: all 14, 0.6 GB VMB and 4.5 GB KVES,
+  cached in `Data/Cache/aopk/`.
+  - It keeps the features within 200 m of a site, cut to that area, and puts
+    the 480 segments split by kraj lines back together.
+  - It writes `Data/Input/habitats/habitat_segments.gpkg` (55 814 segments,
+    64 699 segment × habitat rows, the habitat input contract) and
+    `kves.gpkg` (232 107 polygons). `RETRIEVED.yml` records the archives
+    and their md5.
+  - The old tool referred to `PATHS$temp`, which no longer exists, so it
+    stopped before downloading anything; it fetched only VMB.
+- Step 05 still copies the frozen intersection. It also intersects the sites
+  with the current VMB layer (`data_lokal_vmb_current.csv`) and with KVES
+  (`data_lokal_kves.csv`), and checks the current intersection against the
+  frozen one.
+- `habitat_source`, a new setting of each specification: legacy uses the
+  frozen intersection, revised the current layers. Revised falls back to the
+  frozen intersection, with a warning, when the VMB copy is missing.
+- `habitat: share_column: STEJ_PR`. In the current layer `STEJ_PR` adds up to
+  100 in every one of the 55 814 segments. It weights only the current
+  layer; the frozen intersection has no such share.
+- The revised analysis table gets the site's dominant KVES class, `KVES_KOD`
+  and `KVES_KATEGORIE`.
+
+**The current intersection against the frozen one** (`05_current_vs_frozen`).
+
+| measure | value |
+|---|---|
+| frozen sites in the current intersection | 8678 of 8678 |
+| frozen site × segment overlaps found again | 18 308 of 18 387 (99.6 %) |
+| of these, segments not updated since | 17 914 (97.8 %) |
+| unchanged segments: same FSB, same `BIOTOP_SEZ` | 100 %, 100 % |
+| unchanged segments: overlap area within 1 % | 99.9 % |
+| unchanged segments: same `FSB_EVAL` | 97.8 % |
+
+`FSB_EVAL` differs by design in 389 overlaps. The new value is X for every
+mapped segment less than half natural. The network share's table joins kept
+`moz.` for mosaics of X habitats only (327 overlaps), and counted a natural
+habitat with a Natura record twice (62). No model uses `FSB_EVAL`.
+
+**What changed in the revised data** (`data_analysis.csv`, 6576 records).
+
+| | before (frozen) | after (current) |
+|---|---|---|
+| records with a habitat code (`BIOTOP`) | 1896 | 6324 |
+| records in a natural dominant habitat (`NATURAL` = 1) | 1896 | 2805 |
+| records with a dominant habitat (`NATURAL` known) | 6538 | 6324 |
+| median natural share of polygon sites (`NATURAL_SHARE`) | 0.019 | 0.410 |
+| polygon records with `AREA_SITE` within 1 % of the site area | 95.7 % | 99.9 % |
+| polygon records with `AREA_SITE` above the site area (> 1 %) | 4.3 % | 0 % |
+| records with a Natura 2000 code (`HABITAT`) | 1896 | 0 |
+| records with a KVES class | – | 6572 |
+
+- 214 fewer records have a dominant habitat. These are points and lines
+  lying in a mosaic segment, which now lists all its habitats, not only the
+  Natura ones. A point site has no area to weigh them by (buffer widths are
+  still `TODO(Jonáš)`).
+- `HABITAT` is empty because the published VMB has no Natura 2000 code. No
+  revised model uses it.
+- Dominant habitats at occupied *P. nausithous* sites (`06_dominant_habitats`):
+
+  | | before | after |
+  |---|---|---|
+  | none (NA) | 1117 | 62 |
+  | unmapped ("-1") | 0 | 584 |
+  | T1.1 | 332 | 307 |
+  | T1.5 | 0 | 221 |
+  | X5 | 0 | 110 |
+
+- The commonest KVES classes at the sites (`05_kves_dominant_class`) are
+  B311 degraded grassland (2624 sites), C111 alluvial and wet meadows (2146)
+  and C113 mesophile meadows (1852).
+
+**What changed in the models.** Nothing: no revised model uses the habitat
+variables, and every table of steps 17-20 is identical.

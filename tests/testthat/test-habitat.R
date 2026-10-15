@@ -122,3 +122,68 @@ test_that("the habitat layer is checked against the input contract", {
 
   expect_error(read_habitat_layer(tempfile(fileext = ".gpkg")), "not found")
 })
+
+#----------------------------------------------------------#
+# The intersection a specification uses -----
+#----------------------------------------------------------#
+
+test_that("the current intersection falls back to the frozen one when it is missing", {
+  current <- tempfile(fileext = ".csv")
+  frozen <- tempfile(fileext = ".csv")
+  writeLines("x", frozen)
+  expect_equal(choose_habitat_overlaps("current", current, frozen), list(path = frozen, source = "frozen"))
+  writeLines("x", current)
+  expect_equal(choose_habitat_overlaps("current", current, frozen), list(path = current, source = "current"))
+  expect_equal(choose_habitat_overlaps("frozen", current, frozen)$source, "frozen")
+  file.remove(frozen)
+  expect_equal(choose_habitat_overlaps("frozen", current, frozen)$source, "none")
+})
+
+#----------------------------------------------------------#
+# KVES ecosystem classes -----
+#----------------------------------------------------------#
+
+# The same three cells as KVES polygons: wet meadow, arable land, wet meadow.
+kves <- segments["geometry"]
+kves$KVES_ID <- c("A:1", "A:2", "A:3")
+kves$KOD <- c("C111", "B111", "C111")
+kves$KATEGORIE <- c("Aluviální a vlhké louky", "Orná půda", "Aluviální a vlhké louky")
+
+kves_overlaps <- function(...) {
+  suppressWarnings(intersect_sites_with_habitats(sites, kves, ...)) %>%
+    sf::st_drop_geometry()
+}
+
+test_that("each site gets the KVES class covering most of it", {
+  out <- summarise_kves(records, kves_overlaps(point_buffer_m = NULL, line_buffer_m = NULL))
+  expect_equal(out$ID_RECORD, records$ID_RECORD)
+  # Site 1: 6000 m2 of wet meadow against 2000 m2 of arable land.
+  expect_equal(out$KVES_KOD[out$ID_RECORD == "a"], "C111")
+  expect_equal(out$KVES_KOD[out$ID_RECORD == "c"], "C111")
+  # Site 2, a point, lies in the wet meadow of cell 3.
+  expect_equal(out$KVES_KOD[out$ID_RECORD == "b"], "C111")
+})
+
+test_that("a point on the boundary between two KVES classes gets no class", {
+  on_boundary <- sites
+  sf::st_geometry(on_boundary)[2] <- sf::st_point(c(-699900, -1099950))
+  overlaps <- suppressWarnings(intersect_sites_with_habitats(on_boundary, kves, point_buffer_m = NULL)) %>%
+    sf::st_drop_geometry()
+  out <- summarise_kves(records, overlaps)
+  expect_true(is.na(out$KVES_KOD[out$ID_RECORD == "b"]))
+  expect_true(is.na(out$KVES_KATEGORIE[out$ID_RECORD == "b"]))
+})
+
+test_that("the KVES layer is checked for its columns and CRS", {
+  path <- tempfile(fileext = ".gpkg")
+  sf::st_write(kves, path, quiet = TRUE)
+  expect_s3_class(read_kves_layer(path), "sf")
+
+  missing_col <- tempfile(fileext = ".gpkg")
+  sf::st_write(kves[, setdiff(names(kves), "KOD")], missing_col, quiet = TRUE)
+  expect_error(read_kves_layer(missing_col), "KOD")
+
+  wrong_crs <- tempfile(fileext = ".gpkg")
+  sf::st_write(sf::st_transform(kves, 4326), wrong_crs, quiet = TRUE)
+  expect_error(read_kves_layer(wrong_crs), "EPSG")
+})

@@ -8,5 +8,12 @@ Data/Processed/
 Data/Temp/
 Outputs/
 
+# The VMB and KVES kraj archives (several GB) and their per-kraj extracts,
+# kept by R/tools/download_habitat_layers.R, and the two layers it builds
+# from them (about 330 MB); not tracked. RETRIEVED.yml, which records the
+# archives and their md5, is.
+Data/Cache/
+Data/Input/habitats/*.gpkg
+
 # Output snapshots used to diff code changes (R/tools/compare_snapshots.R).
 Data/Snapshots/

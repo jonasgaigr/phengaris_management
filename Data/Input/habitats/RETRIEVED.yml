@@ -1,0 +1,200 @@
+habitat_segments:
+  source: https://data.nature.cz/ds/21
+  file: habitat_segments.gpkg
+  retrieved: '2026-10-15'
+  licence: CC BY 4.0, (c) AOPK ČR
+  extract_margin_m: 200
+  sites: 8678
+  kraje:
+  - CZ010
+  - CZ020
+  - CZ031
+  - CZ032
+  - CZ041
+  - CZ042
+  - CZ051
+  - CZ052
+  - CZ053
+  - CZ063
+  - CZ064
+  - CZ071
+  - CZ072
+  - CZ080
+  features: 64699
+  segments: 55814
+  segments_merged_across_kraj_lines: 480
+  segments_with_shares_not_adding_to_100: 0
+  geometries_repaired: 1025
+  size_mb: 61.22
+  note: One feature per segment x mapped habitat, cut to the area within extract_margin_m
+    of a site; SHAPE_Area is the area of the whole segment. HABITAT (the Natura 2000
+    code) is not published and is empty. FSB_EVAL is derived (habitat_build.R). The
+    mappers' names and free-text notes are not kept.
+  archives:
+    CZ010:
+      url: https://data.nature.cz/ds/21/download/kraj/Praha.zip
+      last_modified: Tue, 04 Aug 2026 07:42:18 GMT
+      md5: 2fb868498d777411e37bf25f8d0ba2a9
+      downloaded: 2026-10-15 17:20:24 CEST
+    CZ020:
+      url: https://data.nature.cz/ds/21/download/kraj/Stredocesky.zip
+      last_modified: Wed, 30 Sep 2026 12:32:43 GMT
+      md5: fcaf71190dbb9fb95576e509cf52c3f6
+      downloaded: 2026-10-15 17:20:34 CEST
+    CZ031:
+      url: https://data.nature.cz/ds/21/download/kraj/Jihocesky.zip
+      last_modified: Wed, 26 Aug 2026 11:52:55 GMT
+      md5: d6abdb505d882af8235852841849c666
+      downloaded: 2026-10-15 17:20:42 CEST
+    CZ032:
+      url: https://data.nature.cz/ds/21/download/kraj/Plzensky.zip
+      last_modified: Wed, 30 Sep 2026 12:32:03 GMT
+      md5: 68cfdaa73259eafdd4ea512d39edf452
+      downloaded: 2026-10-15 17:20:50 CEST
+    CZ041:
+      url: https://data.nature.cz/ds/21/download/kraj/Karlovarsky.zip
+      last_modified: Wed, 30 Sep 2026 12:30:12 GMT
+      md5: df43279b2c538e1ead7dd5597ec7de36
+      downloaded: 2026-10-15 17:20:55 CEST
+    CZ042:
+      url: https://data.nature.cz/ds/21/download/kraj/Ustecky.zip
+      last_modified: Wed, 30 Sep 2026 12:33:19 GMT
+      md5: f2507beffc603c470e97af0682f71308
+      downloaded: 2026-10-15 17:21:01 CEST
+    CZ051:
+      url: https://data.nature.cz/ds/21/download/kraj/Liberecky.zip
+      last_modified: Wed, 26 Aug 2026 11:53:18 GMT
+      md5: 0d90bcf8c7ebd532ed3e09ed90836be3
+      downloaded: 2026-10-15 17:21:06 CEST
+    CZ052:
+      url: https://data.nature.cz/ds/21/download/kraj/Kralovehradecky.zip
+      last_modified: Wed, 30 Sep 2026 12:30:44 GMT
+      md5: 81aa5d9f4c4af9fe92c6539759d33b2c
+      downloaded: 2026-10-15 17:21:10 CEST
+    CZ053:
+      url: https://data.nature.cz/ds/21/download/kraj/Pardubicky.zip
+      last_modified: Thu, 28 May 2026 14:47:56 GMT
+      md5: dffb1c923b8d64ec99b360e7ff659078
+      downloaded: 2026-10-15 17:21:15 CEST
+    CZ063:
+      url: https://data.nature.cz/ds/21/download/kraj/Vysocina.zip
+      last_modified: Wed, 30 Sep 2026 12:33:51 GMT
+      md5: 08f9b0468012da4b1f75479977810892
+      downloaded: 2026-10-15 17:21:19 CEST
+    CZ064:
+      url: https://data.nature.cz/ds/21/download/kraj/Jihomoravsky.zip
+      last_modified: Wed, 30 Sep 2026 12:29:33 GMT
+      md5: a1cf4eed04abeefb369bfd5ba7a50a04
+      downloaded: 2026-10-15 17:21:26 CEST
+    CZ071:
+      url: https://data.nature.cz/ds/21/download/kraj/Olomoucky.zip
+      last_modified: Tue, 16 Jun 2026 17:17:01 GMT
+      md5: bb1c7fea96fde764c666fb2cfc69b633
+      downloaded: 2026-10-15 17:21:30 CEST
+    CZ072:
+      url: https://data.nature.cz/ds/21/download/kraj/Zlinsky.zip
+      last_modified: Wed, 30 Sep 2026 12:34:22 GMT
+      md5: 2987c6a8cf34f042e84752a233f2756a
+      downloaded: 2026-10-15 17:21:35 CEST
+    CZ080:
+      url: https://data.nature.cz/ds/21/download/kraj/Moravskoslezsky.zip
+      last_modified: Wed, 30 Sep 2026 12:31:16 GMT
+      md5: bcfddfdfa4197b871023fa1af330bf40
+      downloaded: 2026-10-15 17:21:40 CEST
+kves:
+  source: https://data.nature.cz/ds/145
+  file: kves.gpkg
+  retrieved: '2026-10-15'
+  licence: CC BY 4.0, (c) AOPK ČR
+  extract_margin_m: 200
+  sites: 8678
+  kraje:
+  - CZ010
+  - CZ020
+  - CZ031
+  - CZ032
+  - CZ041
+  - CZ042
+  - CZ051
+  - CZ052
+  - CZ053
+  - CZ063
+  - CZ064
+  - CZ071
+  - CZ072
+  - CZ080
+  features: 232107
+  geometries_repaired: 979
+  size_mb: 265.93
+  note: Polygons cut to the area within extract_margin_m of a site.
+  archives:
+    CZ010:
+      url: https://data.nature.cz/ds/145/download/kraj/Praha_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:15:48 GMT
+      md5: a133dd0b3aa26afa99732617e41c1c08
+      downloaded: 2026-10-15 17:21:45 CEST
+    CZ020:
+      url: https://data.nature.cz/ds/145/download/kraj/StredoceskyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:16:56 GMT
+      md5: 1df0ad2b74ba28013d8b880ada9643c8
+      downloaded: 2026-10-15 17:22:49 CEST
+    CZ031:
+      url: https://data.nature.cz/ds/145/download/kraj/JihoceskyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:09:47 GMT
+      md5: beac1ce038e4dd09a8d5771a8c548729
+      downloaded: 2026-10-15 17:23:53 CEST
+    CZ032:
+      url: https://data.nature.cz/ds/145/download/kraj/PlzenskyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:15:34 GMT
+      md5: bccb65f68abdc9b455bc9c9eee894653
+      downloaded: 2026-10-15 17:24:35 CEST
+    CZ041:
+      url: https://data.nature.cz/ds/145/download/kraj/KarlovarskyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:11:06 GMT
+      md5: 7ffba2c1fb7468c0b62c8d475017724e
+      downloaded: 2026-10-15 17:24:58 CEST
+    CZ042:
+      url: https://data.nature.cz/ds/145/download/kraj/UsteckyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:17:44 GMT
+      md5: ce5e672f4913fd9f6880b5828945afa6
+      downloaded: 2026-10-15 17:25:33 CEST
+    CZ051:
+      url: https://data.nature.cz/ds/145/download/kraj/LibereckyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:12:19 GMT
+      md5: 475ffc7cf706b3affe1147f023d72ac3
+      downloaded: 2026-10-15 17:26:03 CEST
+    CZ052:
+      url: https://data.nature.cz/ds/145/download/kraj/KralovehradeckyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:11:44 GMT
+      md5: add925bc11b8b4c51e1871801545235b
+      downloaded: 2026-10-15 17:26:36 CEST
+    CZ053:
+      url: https://data.nature.cz/ds/145/download/kraj/PardubickyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:14:38 GMT
+      md5: cc302204242ef0d523ac56ed64bd8525
+      downloaded: 2026-10-15 17:27:06 CEST
+    CZ063:
+      url: https://data.nature.cz/ds/145/download/kraj/Vysocina_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:18:41 GMT
+      md5: b56713725ac2353e50f705510094e560
+      downloaded: 2026-10-15 17:27:53 CEST
+    CZ064:
+      url: https://data.nature.cz/ds/145/download/kraj/JihomoravskyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:10:36 GMT
+      md5: 491775240de40f84d732fa76a67e0c33
+      downloaded: 2026-10-15 17:28:25 CEST
+    CZ071:
+      url: https://data.nature.cz/ds/145/download/kraj/OlomouckyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:13:59 GMT
+      md5: 5f7c2845f2e0b970a25e221b9eed519f
+      downloaded: 2026-10-15 17:28:54 CEST
+    CZ072:
+      url: https://data.nature.cz/ds/145/download/kraj/ZlinskyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:19:26 GMT
+      md5: d8c4a408140c773c4914471d709f37a2
+      downloaded: 2026-10-15 17:29:24 CEST
+    CZ080:
+      url: https://data.nature.cz/ds/145/download/kraj/MoravskoslezskyKraj_KVES_2025.zip
+      last_modified: Thu, 12 Mar 2026 12:13:14 GMT
+      md5: 18ec150cc2a690c089da967023794628
+      downloaded: 2026-10-15 17:30:04 CEST
