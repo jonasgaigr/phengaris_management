@@ -125,7 +125,8 @@ if (design_variables) {
     "{processed}/common/site_design.csv",
     "{processed}/common/flight_window.csv",
     "{processed}/common/flight_curve.csv",
-    "{processed}/common/connectivity.csv"
+    "{processed}/common/connectivity.csv",
+    "{processed}/common/site_history.csv"
   ))
   n_before_collapse <- nrow(data_clean)
   data_clean <-
@@ -135,7 +136,8 @@ if (design_variables) {
       site_design = readr::read_csv(processed_path("site_design.csv", "common"), show_col_types = FALSE),
       connectivity = readr::read_csv(processed_path("connectivity.csv", "common"), show_col_types = FALSE),
       protected_area_id = protected_area_id,
-      flight_curve = readr::read_csv(processed_path("flight_curve.csv", "common"), show_col_types = FALSE)
+      flight_curve = readr::read_csv(processed_path("flight_curve.csv", "common"), show_col_types = FALSE),
+      site_history = readr::read_csv(processed_path("site_history.csv", "common"), show_col_types = FALSE)
     ) %>%
     collapse_to_visits()
 }
@@ -404,6 +406,28 @@ if (design_variables) {
       )
     },
     "04_design_by_era"
+  )
+
+  report_table(
+    data_clean %>%
+      dplyr::filter(IMPUTED) %>%
+      dplyr::group_by(DRUH, PROTOCOL_ERA) %>%
+      dplyr::summarise(
+        imputed = dplyr::n(),
+        in_flight_season = sum(IN_FLIGHT_WINDOW),
+        plausible = sum(IMPUTED_PLAUSIBLE & IN_FLIGHT_WINDOW),
+        median_km_to_positive = stats::median(NEAREST_POSITIVE_KM),
+        .groups = "drop"
+      ),
+    sprintf(
+      paste(
+        "Imputed absences: those in the imputed species' flight season, and of",
+        "these the plausible ones, within %g km of a positive record of the",
+        "species (any source, 2012-2024; P4.3)"
+      ),
+      CONFIG$imputation$plausible_radius_km
+    ),
+    "04_imputed_plausible"
   )
 
   report_table(

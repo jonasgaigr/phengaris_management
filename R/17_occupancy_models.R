@@ -13,8 +13,8 @@
 #   P3.1  one record per species x site x visit; random intercepts for the
 #         mapping grid square, the year and the observer, and a persistent
 #         site as a sensitivity check at three matching distances;
-#   P3.2  every model fitted with the imputed absences and on the observed
-#         records only;
+#   P3.2  every model fitted with the imputed absences, with only the
+#         plausible ones (P4.3) and on the observed records only;
 #   P3.3  the position of the visit in the flight season (a quadratic in the
 #         deviation from the year's median positive record) and the observer;
 #   P4.1  the flight season cut by the flight curve of step 16; the
@@ -54,7 +54,7 @@ report_start(
     "in every model: random intercepts for the mapping grid square, the year and",
     "the observer, and the field-form era and the position of the visit in the",
     "flight season as covariates. Each model is fitted with the imputed",
-    "absences and on the observed records only."
+    "absences, with only the plausible ones (P4.3) and on the observed records only."
   )
 )
 
@@ -98,7 +98,7 @@ report_table(
       )
     )
   }), .id = "sample") %>%
-    dplyr::mutate(sample = sub("^.* (with imputed|observed only)$", "\\1", sample)),
+    dplyr::mutate(sample = sub(paste0("^(", SPECIES_NAU, "|", SPECIES_TEL, ") "), "", sample)),
   paste(
     "In-season records by species and sample, with the records complete on the",
     "management variables (mowing timing and method, host plant, protection)",
@@ -285,14 +285,14 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
 
   coefs <- tmb_coef_table(models)
   key_models <- paste0(code, "_", c("management", "management_conn", "management_2021"))
-  key_models <- c(key_models, paste0(key_models, "_obs"))
+  key_models <- c(key_models, paste0(key_models, "_pls"), paste0(key_models, "_obs"))
   key <- key_estimates(coefs %>% dplyr::filter(model %in% key_models))
   report_table(
     key,
     paste(
       "Odds ratios (95% CI) of the management model, the same with connectivity,",
       "and the 2021-2024 model with grazing and site area; with the imputed",
-      "absences and on the observed records only. TIMING 1 = mowing timed",
+      "absences, the plausible ones only and the observed records only. TIMING 1 = mowing timed",
       "appropriately, METHOD 1 = patches left uncut, PLANT against single",
       "plants, EVL_species = inside an EVL designated for the species, LOG_CONN",
       "per tenfold connectivity, LOG_AREA per tenfold site area"
@@ -306,12 +306,12 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   #--------------------------------------------------#
 
   sensitivity <- key %>%
-    dplyr::filter(model %in% paste0(code, c("_management", "_management_obs"))) %>%
+    dplyr::filter(model %in% paste0(code, c("_management", "_management_pls", "_management_obs"))) %>%
     dplyr::select(term, sample, ratio_ci) %>%
     tidyr::pivot_wider(names_from = sample, values_from = ratio_ci)
   report_table(
     sensitivity,
-    "The management model with and without the imputed absences (odds ratio, 95% CI)",
+    "The management model with all, with the plausible and without the imputed absences (odds ratio, 95% CI)",
     paste0(prefix, "_imputation_sensitivity")
   )
 
@@ -327,7 +327,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       d <- revised_model_data(data, species, sample, window = days)
       d <- d[stats::complete.cases(d[, c("TIMING", "METHOD", "PLANT", "EVL_species")]), , drop = FALSE]
       list(
-        id = paste0(code, "_management_w", days, if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else ""),
+        id = paste0(code, "_management_w", days, sample_suffix(sample)),
         label = sprintf("Management model, visits within %d days of the median", days),
         group = "Window", formula = revised_formula(terms = MANAGEMENT_TERMS), data = d, sample = sample
       )
@@ -335,7 +335,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   }), recursive = FALSE))
   window_key <- dplyr::bind_rows(
     key %>%
-      dplyr::filter(model %in% paste0(code, c("_management", "_management_obs"))) %>%
+      dplyr::filter(model %in% paste0(code, c("_management", "_management_pls", "_management_obs"))) %>%
       dplyr::mutate(window = "flight season (curve)"),
     key_estimates(tmb_coef_table(window_models)) %>%
       dplyr::mutate(window = paste(sub("^.*_w([0-9]+).*$", "\\1", model), "days"))
@@ -373,7 +373,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       report_table(
         tab,
         sprintf("%s, %s (all on the same %d records)", cmp$caption, sample, if (nrow(tab)) tab$n_obs[1] else 0L),
-        paste0(prefix, "_aic_", cmp$stem, if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else "")
+        paste0(prefix, "_aic_", cmp$stem, sample_suffix(sample))
       )
     }
   }
@@ -382,7 +382,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   ## Marginal predictions -----
   #--------------------------------------------------#
 
-  management <- models[paste0(code, c("_management", "_management_obs"))]
+  management <- models[paste0(code, c("_management", "_management_pls", "_management_obs"))]
   pred_mgmt <- dplyr::bind_rows(lapply(management, marginal_predictions, by = c("TIMING", "METHOD")))
   report_table(
     pred_mgmt,
@@ -397,7 +397,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       plot_management_predictions(pred_mgmt, species_names[[code]]),
       paste("Predicted occupancy by mowing timing and method,", species_names[[code]]),
       paste0(prefix, "_predictions_management"),
-      width = 9
+      width = 11
     )
   }
 
@@ -412,7 +412,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   )
 
   curve <- dplyr::bind_rows(lapply(
-    models[paste0(code, c("_baseline", "_baseline_obs"))], season_curve,
+    models[paste0(code, c("_baseline", "_baseline_pls", "_baseline_obs"))], season_curve,
     curve = flight_curve
   ))
   if (nrow(curve)) {
@@ -509,7 +509,7 @@ report_table(proportions, "Share of positive records by species, test of two pro
 
 species_models <- fit_tmb_set(lapply(REVISED_SAMPLES, function(sample) {
   list(
-    id = paste0("both_species", if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else ""),
+    id = paste0("both_species", sample_suffix(sample)),
     label = "Species as a fixed effect", group = "Species",
     formula = revised_formula(terms = "DRUH"),
     data = revised_model_data(data, NULL, sample),

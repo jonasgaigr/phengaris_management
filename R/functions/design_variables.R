@@ -156,14 +156,20 @@ normalise_observer <- function(x, aliases = CONFIG$design$observer_aliases) {
 #' @param flight_curve       flight_curve_table() of step 16, or NULL (only
 #'                           with config.yml `design: flight_window: cutoff:
 #'                           fixed`)
+#' @param site_history       site_history_table() of step 16, or NULL
 #' @param window             config.yml `design: flight_window`
+#' @param plausible_km       config.yml `imputation: plausible_radius_km`
 #' @return `data` with DOY, DOY_DEV, PROTOCOL_ERA, OBSERVER, EVL_species, the
 #'         site design columns, the connectivity columns, FLIGHT_ACTIVITY and
 #'         LOG_ACTIVITY (the relative activity of the flight curve and its
 #'         log), IN_FLIGHT_WINDOW and IN_WINDOW_<d> for each of
-#'         `window$sensitivity_days`; every row kept
+#'         `window$sensitivity_days`; with the site history also
+#'         NEAREST_POSITIVE_KM, HIST_POSITIVE, HIST_LAST_YEAR and
+#'         IMPUTED_PLAUSIBLE (an imputed absence within `plausible_km` of a
+#'         positive record of its species, P4.3); every row kept
 add_design_variables <- function(data, flight_window, site_design, connectivity, protected_area_id,
-                                 flight_curve = NULL, window = CONFIG$design$flight_window) {
+                                 flight_curve = NULL, site_history = NULL, window = CONFIG$design$flight_window,
+                                 plausible_km = CONFIG$imputation$plausible_radius_km) {
   if (is.null(flight_curve) && window$cutoff == "flight_curve") {
     stop("The flight season is cut by the flight curve, but no flight curve was given.", call. = FALSE)
   }
@@ -198,6 +204,15 @@ add_design_variables <- function(data, flight_window, site_design, connectivity,
   out$IN_FLIGHT_WINDOW <- in_flight_season(out$DOY_DEV, out$FLIGHT_ACTIVITY, window)
   for (d in unlist(window$sensitivity_days)) {
     out[[paste0("IN_WINDOW_", d)]] <- !is.na(out$DOY_DEV) & abs(out$DOY_DEV) <= d
+  }
+
+  if (!is.null(site_history)) {
+    out <- out %>%
+      dplyr::left_join(
+        dplyr::select(site_history, ID_LOKAL, DRUH, NEAREST_POSITIVE_KM, HIST_POSITIVE, HIST_LAST_YEAR),
+        by = c("ID_LOKAL", "DRUH")
+      ) %>%
+      dplyr::mutate(IMPUTED_PLAUSIBLE = IMPUTED & !is.na(NEAREST_POSITIVE_KM) & NEAREST_POSITIVE_KM <= plausible_km)
   }
 
   stopifnot(nrow(out) == nrow(data))

@@ -858,3 +858,63 @@ data prefer: the EVLs lie where the populations cluster.
 **Isolated sites.** With sources up to 25 km, fewer records have no occupied
 site within reach (`04_design_flags`): 19 *P. nausithous* records instead of
 118, 400 *P. teleius* instead of 912.
+
+---
+
+## (c) P4.3: plausible imputed absences, and the 2012-2018 records
+
+- **Decision:** P4.3 of `REVIEW.md`. The 3 km radius is PROPOSED.
+- **Legacy specification:** unchanged.
+- **Full diff:** [`changes/c06_plausible_imputation.md`](changes/c06_plausible_imputation.md)
+
+**Why.** A record of the other species shows that someone surveyed, not that
+the imputed species is absent (Phillips et al. 2009). The review proposed to
+impute an absence only where the imputed species could have been found: in
+its flight season, and near a known population of it.
+
+**What was done.**
+
+- Step 01 reads the 2012-2018 exports again, with their sites
+  (`records_2012_2018.csv`, 4436 records; `sites_2012_2018.gpkg`). No model
+  is fitted on them; they say where each species was known.
+- Step 16 gives every surveyed site of 2019-2024 the distance to the nearest
+  positive record of each species, from any source in 2012-2024, and whether
+  a site with a positive record of 2012-2018 lies within 50 m
+  (`site_history.csv`, `16_site_history`).
+- Step 04 flags an imputed absence as plausible within 3 km of such a
+  record (`IMPUTED_PLAUSIBLE`; the longest recorded *P. teleius* move is
+  2.94 km). The flight season of the imputed species is already required of
+  every record in the models (P4.1).
+- Every revised model is fitted on a third sample, "with plausible imputed"
+  (model ids ending `_pls`), beside "with imputed" and "observed only".
+
+**The imputed absences** (`04_imputed_plausible`, in the flight season):
+
+| | imputed | plausible | median distance to a positive record |
+|---|---|---|---|
+| *P. nausithous* | 310 | 216 (70 %) | 0.5 km |
+| *P. teleius* | 1821 | 673 (37 %) | 5 km |
+
+2357 of the 4206 surveyed sites lie within 1 km of a positive *P.
+nausithous* record, but only 738 within 1 km of a *P. teleius* one; 431 and
+190 sites had the species in 2012-2018.
+
+**What changed.** No number of the existing samples: the diff adds rows and
+tables only. In the new sample:
+
+| | with imputed | with plausible imputed | observed only |
+|---|---|---|---|
+| *P. teleius* records (management model) | 1339 | 745 | 398 |
+| `tel_management`: EVL_species | 6.12 (2.13-17.60) | 3.75 (1.44-9.78) | 880 (1.3-594 082) |
+| `tel_management`: host plant dominant | 2.62 (1.07-6.43) | 3.06 (1.23-7.58) | 14.5 (0.8-262) |
+| `tel_management_conn`: EVL_species | 2.38 (1.08-5.27) | 1.96 (0.93-4.14) | 5.14 (0.71-37.12) |
+| `nau_management`: timing | 2.16 (1.48-3.15) | 2.17 (1.50-3.16) | 2.40 (1.59-3.62) |
+| share of positive *P. teleius* records | 7.8 % | 13.6 % | 23.8 % |
+
+- For *P. teleius* the imputed absences far from any known population
+  strengthen the association with the EVLs. Without them it falls from 6.1
+  to 3.8, and with connectivity it is no longer clear (1.96, 0.93-4.14). The
+  management estimates barely move.
+- *P. nausithous* is unchanged within 0.1.
+- In the plausible sample the random-effect variance of the observer or the
+  year is at zero in most *P. teleius* models (flagged in the diagnostics).

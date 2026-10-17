@@ -58,6 +58,9 @@ pipeline_step <- function(id, file, title, scope = c("common", "spec", "final"),
 .flight_window <- "{processed}/common/flight_window.csv"
 .flight_curve <- "{processed}/common/flight_curve.csv"
 .connectivity <- "{processed}/common/connectivity.csv"
+.records_history <- "{processed}/common/records_2012_2018.csv"
+.sites_history <- "{processed}/common/sites_2012_2018.gpkg"
+.site_history <- "{processed}/common/site_history.csv"
 # The frozen and the current site x VMB intersections and the site x KVES
 # one; each is written only when its source is there. The site areas of step
 # 05 are an optional output of their own.
@@ -71,9 +74,11 @@ PIPELINE <- list(
     "01", "R/01_load_source_data.R", "Load source data", "common",
     inputs = c(
       unlist(CONFIG$paths$occurrence),
-      unlist(CONFIG$paths$site_layers)
+      unlist(CONFIG$paths$site_layers),
+      unlist(CONFIG$paths$occurrence_history),
+      unlist(CONFIG$paths$site_layers_history)
     ),
-    outputs = c(.records, .sites)
+    outputs = c(.records, .sites, .records_history, .sites_history)
   ),
   pipeline_step(
     "03", "R/03_protected_areas.R", "Protected areas", "common",
@@ -95,8 +100,11 @@ PIPELINE <- list(
   ),
   pipeline_step(
     "16", "R/16_site_design.R", "Sites, flight season and connectivity", "common",
-    inputs = c(.records, .sites, paste0("?", file.path(CONFIG$paths$reference, "elevation.tif"))),
-    outputs = c(.site_design, .flight_window, .flight_curve, .connectivity)
+    inputs = c(
+      .records, .sites, .records_history, .sites_history,
+      paste0("?", file.path(CONFIG$paths$reference, "elevation.tif"))
+    ),
+    outputs = c(.site_design, .flight_window, .flight_curve, .connectivity, .site_history)
   ),
   pipeline_step(
     "02", "R/02_impute_absences.R", "Impute absences", "spec",
@@ -110,7 +118,7 @@ PIPELINE <- list(
       "{processed}/common/protected_area_id.csv",
       # Needed only by the specifications with design_variables: true; step
       # 04 checks for them itself.
-      paste0("?", c(.site_design, .flight_window, .flight_curve, .connectivity))
+      paste0("?", c(.site_design, .flight_window, .flight_curve, .connectivity, .site_history))
     ),
     outputs = "{processed}/{spec}/data_clean.csv"
   ),

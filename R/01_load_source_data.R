@@ -15,10 +15,14 @@
 #                with explicit column types (see read_occurrence_csv())
 #   sites.gpkg   the site geometries (points, polygons and lines), one row
 #                per ID_LOKAL, in S-JTSK
+#   records_2012_2018.csv, sites_2012_2018.gpkg
+#                the same for the earlier exports, which say where the
+#                species were known before the monitoring analysed here
+#                (P4.3, P4.8; step 16)
 #
 # Reads:  the occurrence exports and site shapefiles named in config.yml
-# Writes: Data/Processed/common/records.csv
-#         Data/Processed/common/sites.gpkg
+# Writes: Data/Processed/common/records.csv, sites.gpkg,
+#         records_2012_2018.csv, sites_2012_2018.gpkg
 #
 #----------------------------------------------------------#
 
@@ -54,6 +58,25 @@ lokal_new <-
   dplyr::rename(
     ID_LOKAL = idx_nd_lok
   ) %>%
+  sf::st_as_sf() %>%
+  sf::st_make_valid() %>%
+  dplyr::distinct()
+
+#----------------------------------------------------------#
+# The earlier exports -----
+#----------------------------------------------------------#
+
+# Read the same way. They hold a few records from before 2012, which are kept.
+data_history <-
+  dplyr::bind_rows(
+    read_occurrence_csv(CONFIG$paths$occurrence_history$nausithous),
+    read_occurrence_csv(CONFIG$paths$occurrence_history$teleius)
+  )
+lokal_history <-
+  dplyr::bind_rows(lapply(unlist(CONFIG$paths$site_layers_history), function(dir) {
+    dplyr::bind_rows(read_lokal(dir, "b"), read_lokal(dir, "p"), read_lokal(dir, "l"))
+  })) %>%
+  dplyr::rename(ID_LOKAL = idx_nd_lok) %>%
   sf::st_as_sf() %>%
   sf::st_make_valid() %>%
   dplyr::distinct()
@@ -100,6 +123,29 @@ checkmate::assert_true(
   .var.name = "CRS of the site geometries is S-JTSK"
 )
 
+n_lines_history <- sum(vapply(
+  CONFIG$paths$occurrence_history,
+  function(f) length(readr::read_lines(f, progress = FALSE)) - 1L,
+  integer(1)
+))
+validate_table(
+  data_history, "records_2012_2018",
+  columns = c(ID_NALEZ = "numeric", DRUH = "character", ID_LOKAL = "numeric", DATUM_OD = "numeric", NEGATIV = "numeric"),
+  key = "ID_NALEZ",
+  not_na = c("ID_NALEZ", "DRUH", "ID_LOKAL", "DATUM_OD", "X", "Y", "NEGATIV"),
+  values = list(DRUH = c(SPECIES_NAU, SPECIES_TEL), NEGATIV = c(0, 1)),
+  xy = c("X", "Y"),
+  n_rows = n_lines_history
+)
+validate_table(
+  sf::st_drop_geometry(lokal_history), "sites_2012_2018",
+  key = "ID_LOKAL", not_na = "ID_LOKAL"
+)
+checkmate::assert_subset(
+  unique(data_history$ID_LOKAL), lokal_history$ID_LOKAL,
+  .var.name = "ID_LOKAL of the 2012-2018 records (every record needs a site geometry)"
+)
+
 #----------------------------------------------------------#
 # Export -----
 #----------------------------------------------------------#
@@ -116,7 +162,16 @@ sf::st_write(
   quiet = TRUE
 )
 
+readr::write_csv(data_history, processed_path("records_2012_2018.csv", "common"))
+sf::st_write(
+  lokal_history,
+  processed_path("sites_2012_2018.gpkg", "common"),
+  delete_dsn = TRUE,
+  quiet = TRUE
+)
+
 message("  ", nrow(data_new), " records, ", nrow(lokal_new), " site geometries")
+message("  2012-2018: ", nrow(data_history), " records, ", nrow(lokal_history), " site geometries")
 
 step_end("01")
 

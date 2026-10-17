@@ -93,6 +93,17 @@ test_that("add_design_variables places each visit in its season and flags protec
   expect_equal(by_curve$LOG_ACTIVITY, log(c(1, 0.04)))
   expect_equal(by_curve$IN_FLIGHT_WINDOW, c(TRUE, FALSE))
   expect_error(add_design_variables(data, fw, sd, conn, pa, window = list(cutoff = "flight_curve")), "no flight curve")
+
+  # An imputed absence is plausible near a positive record of its species.
+  data$IMPUTED <- c(FALSE, TRUE)
+  history <- tibble::tibble(
+    ID_LOKAL = c(1, 2), DRUH = c(SPECIES_NAU, SPECIES_TEL), NEAREST_POSITIVE_KM = c(0, 2.5),
+    HIST_POSITIVE = c(1, 0), HIST_LAST_YEAR = c(2016L, NA)
+  )
+  with_history <- add_design_variables(data, fw, sd, conn, pa, site_history = history, window = fixed, plausible_km = 3)
+  expect_equal(with_history$IMPUTED_PLAUSIBLE, c(FALSE, TRUE))
+  expect_equal(add_design_variables(data, fw, sd, conn, pa, site_history = history, window = fixed, plausible_km = 2)$IMPUTED_PLAUSIBLE, c(FALSE, FALSE))
+  expect_equal(with_history$HIST_POSITIVE, c(1, 0))
 })
 
 test_that("the flight season is cut by the curve and by the outer window", {

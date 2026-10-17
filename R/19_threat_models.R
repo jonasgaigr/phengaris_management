@@ -127,7 +127,7 @@ if (nrow(estimates)) {
     ) +
     ggplot2::facet_wrap(~species) +
     ggplot2::scale_x_log10() +
-    ggplot2::scale_colour_manual(values = c("black", "grey55"), name = NULL) +
+    ggplot2::scale_colour_manual(values = c("black", "grey40", "grey70"), name = NULL) +
     ggplot2::labs(x = "\nodds ratio (95% CI, log scale)", y = NULL) +
     ggplot2::theme_classic(base_size = 13) +
     ggplot2::theme(legend.position = "bottom")

@@ -18,8 +18,8 @@
 #     relative activity of the flight curve or as a quadratic in DOY_DEV
 #     (config.yml `revised_models: season_term`; P3.3, P4.1, item 20);
 #   * is fitted on the records inside the flight season only;
-#   * is fitted twice, with the imputed absences and on the observed records
-#     only (P3.2).
+#   * is fitted three times: with the imputed absences, with only the
+#     plausible ones (P4.3) and on the observed records only (P3.2).
 #
 # Each builder returns specs, the arguments of fit_tmb(); the steps fit them
 # with fit_tmb_set().
@@ -30,8 +30,14 @@
 ## Data -----
 #--------------------------------------------------#
 
-#' The two samples every revised model is fitted on.
-REVISED_SAMPLES <- c(with_imputed = "with imputed", observed = "observed only")
+#' The samples every revised model is fitted on: with the imputed absences,
+#' with only the plausible ones (P4.3), and on the observed records only.
+REVISED_SAMPLES <- c(with_imputed = "with imputed", plausible = "with plausible imputed", observed = "observed only")
+
+#' The suffix of the model ids of a sample.
+sample_suffix <- function(sample) {
+  c("with imputed" = "", "with plausible imputed" = "_pls", "observed only" = "_obs")[[sample]]
+}
 
 #' Short code of a species, for model ids.
 species_code <- function(species) {
@@ -43,7 +49,8 @@ species_code <- function(species) {
 #' @param data     the analysis table of a specification with design
 #'                 variables
 #' @param species  the species, or NULL for both
-#' @param sample   "with imputed" or "observed only"
+#' @param sample   "with imputed", "with plausible imputed" (the imputed
+#'                 absences near a known population, P4.3) or "observed only"
 #' @param window   NULL for the records in the flight season
 #'                 (IN_FLIGHT_WINDOW), or a number of days: the records
 #'                 within that many days of the year's median instead
@@ -68,6 +75,7 @@ revised_model_data <- function(data, species = NULL, sample = REVISED_SAMPLES[["
   out <- data[in_season, , drop = FALSE]
   if (!is.null(species)) out <- dplyr::filter(out, DRUH == species)
   if (sample == REVISED_SAMPLES[["observed"]]) out <- dplyr::filter(out, !IMPUTED)
+  if (sample == REVISED_SAMPLES[["plausible"]]) out <- dplyr::filter(out, !IMPUTED | IMPUTED_PLAUSIBLE)
 
   conn_columns <- grep("^CONN($|_A)", names(out), value = TRUE)
   out <- out %>%
@@ -159,7 +167,7 @@ MANAGEMENT_TERMS <- c("TIMING * METHOD", "PLANT", "EVL_species")
 #' @param sample   the sample, for the ids and labels
 revised_occupancy_specs <- function(data, species, sample) {
   code <- species_code(species)
-  suffix <- if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else ""
+  suffix <- sample_suffix(sample)
   id <- function(x) paste0(code, "_", x, suffix)
   spec <- function(name, label, group, formula, d) {
     list(id = id(name), label = label, group = group, formula = formula, data = d, sample = sample)
@@ -227,7 +235,7 @@ revised_occupancy_specs <- function(data, species, sample) {
 #' @return specs for fit_tmb_set(), each with `alpha` and `b`
 connectivity_profile_specs <- function(data, species, sample) {
   code <- species_code(species)
-  suffix <- if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else ""
+  suffix <- sample_suffix(sample)
   mgmt_vars <- c("TIMING", "METHOD", "PLANT", "EVL_species")
   d_mgmt <- data[stats::complete.cases(data[, mgmt_vars]), , drop = FALSE]
   pairs <- connectivity_grid()
@@ -283,7 +291,7 @@ connectivity_profile <- function(models, specs) {
 #' The AIC comparisons of one species and sample: ids, caption, stem suffix.
 revised_occupancy_comparisons <- function(species, sample) {
   code <- species_code(species)
-  suffix <- if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else ""
+  suffix <- sample_suffix(sample)
   id <- function(x) paste0(code, "_", x, suffix)
   dists <- unlist(CONFIG$sites$sensitivity_distances_m)
   list(
@@ -347,7 +355,7 @@ cooccurrence_data <- function(data, species) {
 #'         out
 revised_threat_specs <- function(data, species, sample, classes = names(CONFIG$strukt_pozn$threat_items)) {
   code <- species_code(species)
-  suffix <- if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else ""
+  suffix <- sample_suffix(sample)
   d <- data[!is.na(data$SUM_THREATS), , drop = FALSE]
   minimum <- CONFIG$revised_models$threats$min_records_per_outcome
 

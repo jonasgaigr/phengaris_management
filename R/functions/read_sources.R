@@ -13,6 +13,7 @@
 #   read_range()              one Article 17 reporting-range layer
 #   read_records()            the parsed records written by step 01
 #   read_sites()              the site geometries written by step 01
+#   read_records_history(), read_sites_history()   the same for 2012-2018
 #   read_records_with_sites() the two joined, as an sf object
 #
 #----------------------------------------------------------#
@@ -132,6 +133,20 @@ read_records <- function() {
 #' Read the site geometries written by step 01.
 read_sites <- function() {
   sf::st_read(processed_path("sites.gpkg", "common"), quiet = TRUE)
+}
+
+#' Read the 2012-2018 records written by step 01.
+read_records_history <- function() {
+  readr::read_csv(
+    processed_path("records_2012_2018.csv", "common"),
+    col_types = OCCURRENCE_COL_TYPES,
+    progress = FALSE
+  )
+}
+
+#' Read the 2012-2018 site geometries written by step 01.
+read_sites_history <- function() {
+  sf::st_read(processed_path("sites_2012_2018.gpkg", "common"), quiet = TRUE)
 }
 
 #' The occurrence records with their site geometry, as an sf object.

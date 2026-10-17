@@ -173,6 +173,15 @@ imputation:
   # site-level fields (site, date, observer, habitat, management, threats,
   # host plant) are kept.
   species_specific_columns: [POCET, ODHAD, POCITANO, REL_POC, ETOLOGIE, TAX_POZN]
+  # A record of the other species shows effort, not absence (Phillips et al.
+  # 2009). An imputed absence is plausible (P4.3) when the visit falls in the
+  # imputed species' flight season (which every revised model requires, P4.1)
+  # and a positive record of that species, from any source in 2012-2024,
+  # lies within this distance (km) of the site: the longest recorded move of
+  # P. teleius is 2.94 km (Nowicki et al. 2014). The revised models are
+  # fitted on a third sample with only the plausible imputed absences.
+  # PROPOSED.
+  plausible_radius_km: 3
 
 #--------------------------------------------------#
 # Habitat description (POP_BIOT) -----
@@ -674,6 +683,16 @@ paths:
   site_layers:
     nausithous: Data/Input/Phengaris_nausithous_2019_2024
     teleius: Data/Input/Phengaris_teleius_2019_2024
+  # The earlier exports (2012-2018, every source) and their sites. They say
+  # where each species was known before the monitoring analysed here: the
+  # plausibility of an imputed absence (P4.3) and the persistence of the
+  # populations (P4.8). No model is fitted on them.
+  occurrence_history:
+    nausithous: Data/Input/Phengaris_nausithous_2012_2018.csv
+    teleius: Data/Input/Phengaris_teleius_2012_2018.csv
+  site_layers_history:
+    nausithous: Data/Input/Phengaris_nausithous_2012_2018
+    teleius: Data/Input/Phengaris_teleius_2012_2018
   # Article 17 reporting range, 10 x 10 km ETRS grid cells.
   ranges:
     nausithous: Data/Input/Reporting_range/nausithous.shp

@@ -23,14 +23,18 @@
 #                      which places every visit in the season (P4.1)
 #   connectivity.csv   per surveyed site, year and species, the
 #                      connectivity to the occupied sites around it (P3.5)
+#   site_history.csv   per surveyed site and species, the distance to the
+#                      nearest positive record of 2012-2024 and whether the
+#                      species was found there in 2012-2018 (P4.3, P4.8)
 #
 # Step 04 joins them onto the records of the specifications with
 # design_variables: true.
 #
-# Reads:  Data/Processed/common/records.csv, sites.gpkg   (step 01)
+# Reads:  Data/Processed/common/records.csv, sites.gpkg,
+#         records_2012_2018.csv, sites_2012_2018.gpkg   (step 01)
 #         Data/Input/reference/elevation.tif   (optional)
 # Writes: Data/Processed/common/site_design.csv, flight_window.csv,
-#         flight_curve.csv, connectivity.csv
+#         flight_curve.csv, connectivity.csv, site_history.csv
 #
 #----------------------------------------------------------#
 
@@ -272,6 +276,43 @@ report_table(
 )
 
 #----------------------------------------------------------#
+# The populations known around each site -----
+#----------------------------------------------------------#
+
+records_history <- read_records_history()
+site_history <- site_history_table(
+  site_design, sites, records, records_history, read_sites_history(),
+  surveyed = unique(records$ID_LOKAL[records$ZDROJ %in% target_mon_zdroj])
+)
+
+report_note(sprintf(
+  paste(
+    "The populations known around the surveyed sites (P4.3, P4.8): the distance",
+    "to the nearest positive record of the species from any source in",
+    "2012-2024 (%d records of 2012-2018, %d of 2019-2024), and whether a site",
+    "with a positive record of 2012-2018 lies within %g m. An imputed absence",
+    "is plausible within %g km of such a record."
+  ),
+  sum(records_history$NEGATIV == 0), sum(records$NEGATIV == 0),
+  CONFIG$sites$match_distance_m, CONFIG$imputation$plausible_radius_km
+))
+report_table(
+  site_history %>%
+    dplyr::group_by(DRUH) %>%
+    dplyr::summarise(
+      sites = dplyr::n(),
+      within_1_km = sum(NEAREST_POSITIVE_KM <= 1),
+      within_plausible_radius = sum(NEAREST_POSITIVE_KM <= CONFIG$imputation$plausible_radius_km),
+      within_10_km = sum(NEAREST_POSITIVE_KM <= 10),
+      median_km = stats::median(NEAREST_POSITIVE_KM),
+      known_2012_2018 = sum(HIST_POSITIVE == 1),
+      .groups = "drop"
+    ),
+  "Surveyed sites by the distance to the nearest positive record of each species (2012-2024), and those with the species in 2012-2018",
+  "16_site_history"
+)
+
+#----------------------------------------------------------#
 # Validate -----
 #----------------------------------------------------------#
 
@@ -303,6 +344,12 @@ validate_table(
   key = c("ID_LOKAL", "YEAR", "DRUH"),
   not_na = names(connectivity)
 )
+validate_table(
+  site_history, "site_history",
+  key = c("ID_LOKAL", "DRUH"),
+  not_na = c("ID_LOKAL", "DRUH", "NEAREST_POSITIVE_KM", "HIST_POSITIVE"),
+  values = list(HIST_POSITIVE = c(0, 1))
+)
 
 #----------------------------------------------------------#
 # Export -----
@@ -312,6 +359,7 @@ readr::write_csv(site_design, processed_path("site_design.csv", "common"))
 readr::write_csv(flight_window, processed_path("flight_window.csv", "common"))
 readr::write_csv(flight_curve, processed_path("flight_curve.csv", "common"))
 readr::write_csv(connectivity, processed_path("connectivity.csv", "common"))
+readr::write_csv(site_history, processed_path("site_history.csv", "common"))
 
 report_finish()
 

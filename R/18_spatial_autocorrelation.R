@@ -55,7 +55,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     d <- revised_model_data(data, species, sample)
     specs <- revised_occupancy_specs(d, species, sample)
     ids <- vapply(specs, `[[`, character(1), "id")
-    suffix <- if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else ""
+    suffix <- sample_suffix(sample)
     models <- fit_tmb_set(specs[ids %in% paste0(code, c("_baseline", "_management"), suffix)])
 
     for (m in models) {
