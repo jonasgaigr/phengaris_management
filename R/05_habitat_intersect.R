@@ -43,6 +43,7 @@
 #         Data/Processed/common/data_lokal_vmb_current.csv   current
 #         Data/Processed/common/data_lokal_kves.csv          KVES
 #         Data/Processed/common/site_areas.gpkg              the site areas
+#         Data/Processed/common/site_area_shape.csv          their area and edge share
 #
 #----------------------------------------------------------#
 
@@ -66,9 +67,10 @@ path_frozen <- processed_path("data_lokal_vmb.csv", "common")
 path_current <- processed_path("data_lokal_vmb_current.csv", "common")
 path_kves <- processed_path("data_lokal_kves.csv", "common")
 path_areas <- processed_path("site_areas.gpkg", "common")
+path_shape <- processed_path("site_area_shape.csv", "common")
 
 # A file left over from an earlier run must not be mistaken for a result.
-for (path in c(path_frozen, path_current, path_kves, path_areas)) {
+for (path in c(path_frozen, path_current, path_kves, path_areas, path_shape)) {
   if (file.exists(path)) file.remove(path)
 }
 
@@ -135,7 +137,15 @@ for (version in versions) {
 rm(habitat_layer)
 areas <- dplyr::bind_rows(areas)
 areas$AREA_m2 <- units::drop_units(sf::st_area(areas))
+# The share of a polygon site near its edge, a proxy for the habitat of the
+# host ants (P4.6).
+areas$EDGE_SHARE <- edge_share(areas)
 sf::st_write(areas, path_areas, quiet = TRUE)
+utils::write.csv2(
+  sf::st_drop_geometry(areas)[, c("ID_LOKAL", "KVES_VERSION", "AREA_SOURCE", "AREA_m2", "EDGE_SHARE")],
+  path_shape,
+  row.names = FALSE
+)
 
 #----------------------------------------------------------#
 # The current VMB and KVES intersections -----
@@ -257,6 +267,7 @@ report_table(
     dplyr::summarise(
       sites = dplyr::n(),
       median_area_ha = stats::median(AREA_m2) / 10000,
+      median_edge_share = stats::median(EDGE_SHARE),
       .groups = "drop"
     ),
   paste(

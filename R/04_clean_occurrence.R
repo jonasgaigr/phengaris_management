@@ -137,7 +137,11 @@ if (design_variables) {
       connectivity = readr::read_csv(processed_path("connectivity.csv", "common"), show_col_types = FALSE),
       protected_area_id = protected_area_id,
       flight_curve = readr::read_csv(processed_path("flight_curve.csv", "common"), show_col_types = FALSE),
-      site_history = readr::read_csv(processed_path("site_history.csv", "common"), show_col_types = FALSE)
+      site_history = readr::read_csv(processed_path("site_history.csv", "common"), show_col_types = FALSE),
+      # Written by step 21 only when the landscape rasters are there.
+      landscape = if (file.exists(processed_path("landscape.csv", "common"))) {
+        readr::read_csv(processed_path("landscape.csv", "common"), show_col_types = FALSE)
+      }
     ) %>%
     collapse_to_visits()
 }

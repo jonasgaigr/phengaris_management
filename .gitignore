@@ -17,3 +17,7 @@ Data/Input/habitats/*.gpkg
 
 # Output snapshots used to diff code changes (R/tools/compare_snapshots.R).
 Data/Snapshots/
+
+# The landscape rasters built from the cache by
+# R/tools/build_landscape_layers.R (about 50 MB); not tracked. BUILT.yml is.
+Data/Input/landscape/*.tif

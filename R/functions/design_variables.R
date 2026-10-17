@@ -157,6 +157,7 @@ normalise_observer <- function(x, aliases = CONFIG$design$observer_aliases) {
 #'                           with config.yml `design: flight_window: cutoff:
 #'                           fixed`)
 #' @param site_history       site_history_table() of step 16, or NULL
+#' @param landscape          landscape_shares() of step 21, or NULL
 #' @param window             config.yml `design: flight_window`
 #' @param plausible_km       config.yml `imputation: plausible_radius_km`
 #' @return `data` with DOY, DOY_DEV, PROTOCOL_ERA, OBSERVER, EVL_species, the
@@ -166,9 +167,11 @@ normalise_observer <- function(x, aliases = CONFIG$design$observer_aliases) {
 #'         `window$sensitivity_days`; with the site history also
 #'         NEAREST_POSITIVE_KM, HIST_POSITIVE, HIST_LAST_YEAR and
 #'         IMPUTED_PLAUSIBLE (an imputed absence within `plausible_km` of a
-#'         positive record of its species, P4.3); every row kept
+#'         positive record of its species, P4.3); with the landscape its
+#'         <VARIABLE>_<radius> shares (P4.7); every row kept
 add_design_variables <- function(data, flight_window, site_design, connectivity, protected_area_id,
-                                 flight_curve = NULL, site_history = NULL, window = CONFIG$design$flight_window,
+                                 flight_curve = NULL, site_history = NULL, landscape = NULL,
+                                 window = CONFIG$design$flight_window,
                                  plausible_km = CONFIG$imputation$plausible_radius_km) {
   if (is.null(flight_curve) && window$cutoff == "flight_curve") {
     stop("The flight season is cut by the flight curve, but no flight curve was given.", call. = FALSE)
@@ -213,6 +216,9 @@ add_design_variables <- function(data, flight_window, site_design, connectivity,
         by = c("ID_LOKAL", "DRUH")
       ) %>%
       dplyr::mutate(IMPUTED_PLAUSIBLE = IMPUTED & !is.na(NEAREST_POSITIVE_KM) & NEAREST_POSITIVE_KM <= plausible_km)
+  }
+  if (!is.null(landscape)) {
+    out <- dplyr::left_join(out, landscape, by = "ID_LOKAL")
   }
 
   stopifnot(nrow(out) == nrow(data))

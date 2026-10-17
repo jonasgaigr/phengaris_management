@@ -1000,3 +1000,89 @@ the odds ratios grow as p falls: the timing OR is 1.75 in the GLM at p = 1,
 records more than half the visits found the species. For *P. teleius*
 (with imputed) every p from 1 to 0.5 can be fitted, and the estimates move
 little (EVL 4.2 to 5.2).
+
+---
+
+## (c) P4.5-P4.7: mowing-timing check, habitat proxies, landscape at several scales
+
+- **Decisions:** P4.5, P4.6 and P4.7 of `REVIEW.md`. The wet-meadow codes,
+  the 25 m edge zone, the land-cover groups, the radii and the 2 AIC
+  threshold are PROPOSED.
+- **Legacy specification:** unchanged. No existing number of the revised
+  specification changes: the new columns and the new steps 21 and 22 add to
+  it.
+- **Full diff:** [`changes/c08_habitat_landscape.md`](changes/c08_habitat_landscape.md)
+
+**What was done.**
+
+- **Landscape rasters** (`R/tools/build_landscape_layers.R`, 28 minutes from
+  the cache). KVES 2025 and VMB are rasterised for all of Czechia: the
+  land-cover group of every 25 m cell (grassland B311 and C11x; arable land
+  B111; forest D1xx; water and wetlands E, F; settlements A), the per cent of
+  each cell's VMB segment in natural habitats and in *Sanguisorba* meadows,
+  and the same aggregated to 100 m. KVES covers 99.9996 % of the cells inside
+  the border; the 500 m grassland share from the 25 m and the 100 m rasters
+  correlate at 0.9993. Not tracked (48 MB); `BUILT.yml` is.
+- **Step 21** gives each of the 4206 surveyed sites the shares of the five
+  groups and of the natural and *Sanguisorba* habitats in circles of 0.2,
+  0.5, 1, 2, 3 and 4 km (`landscape.csv`; 42 columns). Step 04 joins them.
+- **Step 05** gives each polygon site its share within 25 m of its edge
+  (`site_area_shape.csv`, `EDGE_SHARE`), and the area-weighted rule gives each
+  site its share of wet meadows (`WET_SHARE`: T1.4, T1.5, T1.6, T1.7, T1.9,
+  T1.10).
+- **Step 22**: the mowing-timing check, the host plant as linear or
+  unordered, the local habitat added to the management model and to the
+  2021-2024 polygon model, the radius of each landscape variable chosen by AIC
+  (sample with the imputed absences), and a combined model with the
+  landscape variables that improve the management model by more than 2 AIC.
+
+**Mowing timing** (`22_timing_check`). The form records no cut dates, so the
+AOPK rule (no cut 1 July - 1 September) cannot be applied. The 9 observed
+*P. nausithous* records whose note says the site was freshly mown at a visit
+inside that window all have their timing recorded as inappropriate; 2 more
+have no timing recorded. The surveyors' judgement agrees with the only
+objective evidence there is.
+
+**Host plant** (`22_<species>_host_plant_aic`). For *P. nausithous* the
+unordered factor fits better than a linear term (ΔAIC 9.8): abundant and
+dominant host plant go with the same odds (quadratic contrast 0.65,
+0.51-0.83). For *P. teleius* a linear term is enough (ΔAIC −2.0, OR per
+class 1.5-2).
+
+**Local habitat** (`22_<species>_local_estimates`, per 10 percentage
+points):
+
+- *P. nausithous*: the *Sanguisorba* share is weakly positive (OR 1.03,
+  1.00-1.07; 1.06, 1.00-1.11 on the 2021-2024 polygons, p 0.03); the wet,
+  X and edge shares show nothing (OR 0.99-1.02). ΔAIC −1.9.
+- *P. teleius*: none of them (OR 0.99-1.05).
+- The edge share varies little: half the polygon records lie wholly within
+  25 m of their edge (median 1, lower quartile 0.78). The monitored polygons
+  are small (median 0.6-0.9 ha) and often strips along ditches and roads, so
+  the proxy of the review, made for large uniformly mown meadows, does not
+  fit them. 35 % of the records have some wet meadow.
+
+**Landscape scales** (`22_<species>_landscape_best`; odds ratio per 10
+percentage points; ΔAIC against the management model):
+
+| variable | *P. nausithous* radius | OR | ΔAIC | *P. teleius* radius | OR | ΔAIC |
+|---|---|---|---|---|---|---|
+| arable land | 4 km | 0.81 | −21.2 | 4 km | 0.61 | −21.7 |
+| grassland | 3 km | 1.18 | −3.6 | 1 km | 1.50 | −17.0 |
+| forest | 4 km | 1.18 | −12.2 | 4 km | 1.24 | −3.1 |
+| settlements | 1 km | 1.26 | −8.8 | 4 km | 0.27 | −9.5 |
+| water and wetlands | 4 km | 0.31 | −8.6 | 4 km | 4.56 | −8.1 |
+| natural habitats (VMB) | 4 km | 1.12 | −1.0 | 4 km | 1.52 | −9.4 |
+| *Sanguisorba* meadows (VMB) | 0.2 km | 1.07 | −1.5 | 3 km | 3.26 | −10.8 |
+
+- Arable land around the site is the strongest landscape variable for both
+  species, at the largest radius, and grassland within 1 km for *P.
+  teleius*, close to the 3-4 km and 0.3-0.4 km of Kajzer-Bonk et al. (2016)
+  for grassland and arable cover.
+- Most radii chosen are the largest, 4 km: the scale of effect may lie
+  beyond it, or the variable may stand for the region.
+- In the combined models the landscape variables share their effect
+  (adjusted GVIF up to 3.3, flagged) and the management estimates hold:
+  *P. nausithous* timing 2.19 (1.50-3.21), patches left uncut 2.10
+  (1.29-3.43); *P. teleius* EVL_species 4.31 (1.57-11.84), with water
+  within 4 km 5.99 (1.77-20.29).

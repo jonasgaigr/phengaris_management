@@ -482,6 +482,55 @@ connectivity:
   log_offset: 0.001
 
 #--------------------------------------------------#
+# Landscape -----
+#--------------------------------------------------#
+
+# The landscape around the sites at several scales (P4.7; step 21,
+# R/functions/landscape.R), from the rasters R/tools/build_landscape_layers.R
+# builds out of the KVES 2025 and VMB kraj archives in the cache.
+landscape:
+  dir: Data/Input/landscape
+  resolution_m: 25
+  coarse_resolution_m: 100
+  # The KVES version the land cover comes from: the only one with codes for
+  # every category.
+  kves_version: "2025"
+  # Land-cover groups, by the prefixes of the KVES codes: grassland (the
+  # meadows and the degraded grassland), arable land, forest, water and
+  # wetlands, settlements. The other classes (orchards, scattered and shrub
+  # greenery, rocks) belong to no group. PROPOSED.
+  groups:
+    GRASSLAND: [B311, C11]
+    ARABLE: [B111]
+    FOREST: [D1]
+    WATER: [E, F]
+    URBAN: [A]
+  # Radii (m) of the circles around each site: the eight radii of
+  # Kajzer-Bonk et al. (2016) span 0.1-4 km, the review proposed 0.2-4 km.
+  radii_m: [200, 500, 1000, 2000, 3000, 4000]
+  # Radii up to this are summarised on the 25 m rasters, larger ones on the
+  # 100 m rasters.
+  fine_max_radius_m: 500
+  # A landscape variable, at its best radius, enters the combined habitat
+  # model of step 22 when it improves the management model by more than this
+  # much AIC.
+  min_aic_gain: 2
+
+#--------------------------------------------------#
+# Management -----
+#--------------------------------------------------#
+
+# The objective check of the recorded mowing timing (P4.5, step 22).
+management:
+  # No cut should fall between these days (AOPK ČR: no second cut from early
+  # July to early September). MM-DD.
+  no_cut_window: ["07-01", "09-01"]
+  # A note (POZNAMKA) saying the site was freshly mown at the visit (a Perl
+  # regular expression, case-insensitive). It finds all 11 such notes of the
+  # targeted records.
+  fresh_mown_pattern: "čerstvě (po)?(se[čc]|kos)|pokoseno (ještě )?v den|v době (kontroly|návštěvy|monitoringu|průzkumu) (čerstvě )?(po)?(se[čc]|kos)|právě (po)?(se[čc]|kos)"
+
+#--------------------------------------------------#
 # Revised models -----
 #--------------------------------------------------#
 
@@ -668,6 +717,18 @@ habitat:
   # the area-weighted rule (SANGUISORBA_AREA, SANGUISORBA_SHARE). Decided
   # 2026-10-15.
   sanguisorba_meadow_codes: [T1.1, T1.4, T1.5, T1.7, T1.10]
+  # Habitat codes of the wet meadows, summarised by the area-weighted rule
+  # (WET_SHARE): a proxy for the habitat of the Myrmica host ants, which
+  # limit both species (Anton et al. 2008) and prefer moist meadows (P4.6).
+  # The alluvial, wet Cirsium, wet tall-herb, flooded and Molinia meadows
+  # and the vegetation of wet disturbed soils; the literature review named
+  # T1.5 and T1.10 as examples. PROPOSED. TODO(Jonáš): check the list.
+  wet_meadow_codes: [T1.4, T1.5, T1.6, T1.7, T1.9, T1.10]
+  # Width (m) of the edge zone of a polygon site (EDGE_SHARE, the share of
+  # the site within it). The host ants are missing from the interior of
+  # large, uniformly mown meadows (Oder 2026); the review proposed 20-30 m.
+  # PROPOSED.
+  edge_width_m: 25
   # Column holding a habitat's share of a mosaic segment, in per cent. The
   # area-weighted rule multiplies each overlap with the current layer by it,
   # so that a mosaic segment's area is not counted once per habitat. In the

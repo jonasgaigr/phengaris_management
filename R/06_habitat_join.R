@@ -95,10 +95,20 @@ if (overlaps$source != "none") {
     share_column = if (overlaps$source == "current") CONFIG$habitat$share_column else NULL,
     by = key
   )
-  # Which area each record's site is described over.
+  # Which area each record's site is described over, and for a polygon site
+  # the share of it near its edge (P4.6).
   if (overlaps$source == "current") {
     data_analysis <- data_analysis %>%
       dplyr::left_join(dplyr::distinct(habitat_segments, dplyr::across(dplyr::all_of(key)), AREA_SOURCE), by = key)
+    path_shape <- processed_path("site_area_shape.csv", "common")
+    if (file.exists(path_shape)) {
+      data_analysis <- data_analysis %>%
+        dplyr::left_join(
+          readr::read_csv2(path_shape, show_col_types = FALSE, progress = FALSE) %>%
+            dplyr::transmute(ID_LOKAL, KVES_VERSION = as.character(KVES_VERSION), EDGE_SHARE),
+          by = key
+        )
+    }
     stopifnot(nrow(data_analysis) == nrow(data_clean))
   }
 
@@ -225,12 +235,25 @@ if (habitat_join_available && habitat_rule == "area_weighted") {
         x_share_unoccupied = stats::median(X_SHARE[POSITIVE == 0], na.rm = TRUE),
         with_sanguisorba_meadow_occupied = mean(SANGUISORBA_AREA[POSITIVE == 1] > 0, na.rm = TRUE),
         with_sanguisorba_meadow_unoccupied = mean(SANGUISORBA_AREA[POSITIVE == 0] > 0, na.rm = TRUE),
+        with_wet_meadow_occupied = mean(WET_SHARE[POSITIVE == 1] > 0, na.rm = TRUE),
+        with_wet_meadow_unoccupied = mean(WET_SHARE[POSITIVE == 0] > 0, na.rm = TRUE),
+        edge_share_occupied = if ("EDGE_SHARE" %in% names(data_analysis)) {
+          stats::median(EDGE_SHARE[POSITIVE == 1], na.rm = TRUE)
+        } else {
+          NA_real_
+        },
+        edge_share_unoccupied = if ("EDGE_SHARE" %in% names(data_analysis)) {
+          stats::median(EDGE_SHARE[POSITIVE == 0], na.rm = TRUE)
+        } else {
+          NA_real_
+        },
         .groups = "drop"
       ),
     paste(
       "Median shares of natural and X habitats, and the share of records with",
-      "a Sanguisorba meadow, at occupied and unoccupied sites. Descriptive;",
-      "no model uses them"
+      "a Sanguisorba meadow and with a wet meadow, at occupied and unoccupied",
+      "sites; the median share of a polygon site within the edge zone",
+      "(P4.6). Descriptive; the habitat models of step 22 use them"
     ),
     "06_habitat_shares_by_occupancy"
   )

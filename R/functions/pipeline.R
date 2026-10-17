@@ -61,12 +61,13 @@ pipeline_step <- function(id, file, title, scope = c("common", "spec", "final"),
 .records_history <- "{processed}/common/records_2012_2018.csv"
 .sites_history <- "{processed}/common/sites_2012_2018.gpkg"
 .site_history <- "{processed}/common/site_history.csv"
+.landscape <- "{processed}/common/landscape.csv"
 # The frozen and the current site x VMB intersections and the site x KVES
 # one; each is written only when its source is there. The site areas of step
 # 05 are an optional output of their own.
 .habitat_overlaps <- paste0(
   "?{processed}/common/",
-  c("data_lokal_vmb.csv", "data_lokal_vmb_current.csv", "data_lokal_kves.csv")
+  c("data_lokal_vmb.csv", "data_lokal_vmb_current.csv", "data_lokal_kves.csv", "site_area_shape.csv")
 )
 
 PIPELINE <- list(
@@ -107,6 +108,15 @@ PIPELINE <- list(
     outputs = c(.site_design, .flight_window, .flight_curve, .connectivity, .site_history)
   ),
   pipeline_step(
+    "21", "R/21_landscape.R", "Landscape around the sites", "common",
+    inputs = c(
+      .records, .site_design,
+      paste0("?", file.path(CONFIG$landscape$dir, c("landcover_25m.tif", "vmb_25m.tif", "landscape_100m.tif", "BUILT.yml")))
+    ),
+    # Written only when the landscape rasters are there.
+    outputs = paste0("?", .landscape)
+  ),
+  pipeline_step(
     "02", "R/02_impute_absences.R", "Impute absences", "spec",
     inputs = c(.records, .sites, unlist(CONFIG$paths$ranges)),
     outputs = "{processed}/{spec}/data_with_imputed.csv"
@@ -118,7 +128,7 @@ PIPELINE <- list(
       "{processed}/common/protected_area_id.csv",
       # Needed only by the specifications with design_variables: true; step
       # 04 checks for them itself.
-      paste0("?", c(.site_design, .flight_window, .flight_curve, .connectivity, .site_history))
+      paste0("?", c(.site_design, .flight_window, .flight_curve, .connectivity, .site_history, .landscape))
     ),
     outputs = "{processed}/{spec}/data_clean.csv"
   ),
@@ -157,6 +167,9 @@ PIPELINE <- list(
     inputs = .analysis, model_sets = "revised"
   ),
   pipeline_step("20", "R/20_abundance_models.R", "Abundance models", "spec",
+    inputs = .analysis, model_sets = "revised"
+  ),
+  pipeline_step("22", "R/22_habitat_models.R", "Habitat and landscape models", "spec",
     inputs = .analysis, model_sets = "revised"
   ),
   pipeline_step("23", "R/23_detection_models.R", "Detection sensitivity", "spec",

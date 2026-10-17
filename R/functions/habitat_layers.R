@@ -177,7 +177,10 @@ is_x_habitat <- function(biotop) {
 #'                  X_SHARE the shares of it in natural and in X habitats
 #'                  (the rest is unmapped); SANGUISORBA_AREA and
 #'                  SANGUISORBA_SHARE the area and share in the habitat codes
-#'                  of `sanguisorba_codes` (NA when that list is empty); and
+#'                  of `sanguisorba_codes` (NA when that list is empty);
+#'                  WET_SHARE the share in the wet meadows of `wet_codes`,
+#'                  a proxy for the habitat of the Myrmica host ants (P4.6);
+#'                  and
 #'                  BIOTOP / FSB / HABITAT / NATURAL those of the dominant
 #'                  habitat by area (for a site without area, of the one
 #'                  habitat it lies in; NA in a mosaic). With
@@ -196,6 +199,7 @@ is_x_habitat <- function(biotop) {
 #'         original order
 select_habitat_segment <- function(records, segments, rule = c("legacy", "area_weighted"),
                                    sanguisorba_codes = unlist(CONFIG$habitat$sanguisorba_meadow_codes),
+                                   wet_codes = unlist(CONFIG$habitat$wet_meadow_codes),
                                    share_column = NULL, by = "ID_LOKAL") {
   rule <- match.arg(rule)
   if (rule == "legacy") {
@@ -280,6 +284,11 @@ select_habitat_segment <- function(records, segments, rule = c("legacy", "area_w
         NA_real_
       },
       SANGUISORBA_SHARE = if (length(sanguisorba_codes)) share_of(SANGUISORBA_AREA, AREA_SITE) else NA_real_,
+      WET_SHARE = if (length(wet_codes)) {
+        share_of(sum(.area[BIOTOP %in% wet_codes], na.rm = TRUE), AREA_SITE)
+      } else {
+        NA_real_
+      },
       N_HABITATS = dplyr::n_distinct(BIOTOP[.natural]),
       .groups = "drop"
     ) %>%
@@ -410,6 +419,32 @@ site_areas <- function(sites, kves, margin_m = CONFIG$habitat$margin_m) {
   sf::st_geometry(sites) <- geometry
   sites$AREA_SOURCE[no_area[found]] <- "KVES"
   sites
+}
+
+#' The share of each polygon within `width` metres of its boundary.
+#'
+#' The Myrmica host ants are missing from the interior of large, uniformly
+#' mown meadows and live along their edges (Oder 2026), so the share of a
+#' site near its edge is a proxy for their habitat (P4.6). Only a site's own
+#' polygon has a real edge: the KVES polygon of a point site is cut at 200 m,
+#' and that cut is no edge, so it gets NA.
+#'
+#' @param areas  site_areas(): geometries with AREA_SOURCE
+#' @param width  config.yml `habitat: edge_width_m`
+#' @return the edge share of each row, NA unless AREA_SOURCE is "site"
+edge_share <- function(areas, width = CONFIG$habitat$edge_width_m) {
+  out <- rep(NA_real_, nrow(areas))
+  own <- which(areas$AREA_SOURCE == "site")
+  if (!length(own)) {
+    return(out)
+  }
+  geometry <- sf::st_geometry(areas)[own]
+  area <- units::drop_units(sf::st_area(geometry))
+  core <- sf::st_buffer(geometry, -width)
+  core_area <- units::drop_units(sf::st_area(core))
+  core_area[sf::st_is_empty(core)] <- 0
+  out[own] <- ifelse(area > 0, pmin(1, pmax(0, 1 - core_area / area)), NA_real_)
+  out
 }
 
 #' Attach the dominant KVES ecosystem class of each record's site.

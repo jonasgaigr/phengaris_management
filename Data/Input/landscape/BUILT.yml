@@ -1,0 +1,197 @@
+built: '2026-10-17'
+licence: CC BY 4.0, (c) AOPK ČR
+crs: EPSG:5514
+resolution_m: 25.0
+coarse_resolution_m: 100.0
+kves_version: '2025'
+groups:
+  GRASSLAND:
+  - B311
+  - C11
+  ARABLE: B111
+  FOREST: D1
+  WATER:
+  - E
+  - F
+  URBAN: A
+kves_codes_by_group:
+  other:
+  - B211
+  - B221
+  - B231
+  - B411
+  - D211
+  - D212
+  - D221
+  - D222
+  - G111
+  - G121
+  GRASSLAND:
+  - B311
+  - C111
+  - C112
+  - C113
+  - C114
+  - C115
+  ARABLE: B111
+  FOREST:
+  - D111
+  - D112
+  - D113
+  - D114
+  - D115
+  - D116
+  - D117
+  - D121
+  - D122
+  - D123
+  - D124
+  - D125
+  - D126
+  - D127
+  WATER:
+  - E111
+  - E121
+  - E131
+  - F111
+  - F121
+  - F211
+  URBAN:
+  - A111
+  - A211
+  - A311
+  - A411
+  - A511
+  - A611
+  - A612
+sanguisorba_meadow_codes:
+- T1.1
+- T1.4
+- T1.5
+- T1.7
+- T1.10
+files:
+  landcover:
+    file: landcover_25m.tif
+    size_mb: 18.31
+  vmb:
+    file: vmb_25m.tif
+    size_mb: 13.4
+  coarse:
+    file: landscape_100m.tif
+    size_mb: 16.73
+archives:
+  kves:
+    CZ010:
+      url: https://data.nature.cz/ds/145/download/kraj/Praha_KVES_2025.zip
+      md5: a133dd0b3aa26afa99732617e41c1c08
+      downloaded: 2026-10-15 17:21:45 CEST
+    CZ020:
+      url: https://data.nature.cz/ds/145/download/kraj/StredoceskyKraj_KVES_2025.zip
+      md5: 1df0ad2b74ba28013d8b880ada9643c8
+      downloaded: 2026-10-15 17:22:49 CEST
+    CZ031:
+      url: https://data.nature.cz/ds/145/download/kraj/JihoceskyKraj_KVES_2025.zip
+      md5: beac1ce038e4dd09a8d5771a8c548729
+      downloaded: 2026-10-15 17:23:53 CEST
+    CZ032:
+      url: https://data.nature.cz/ds/145/download/kraj/PlzenskyKraj_KVES_2025.zip
+      md5: bccb65f68abdc9b455bc9c9eee894653
+      downloaded: 2026-10-15 17:24:35 CEST
+    CZ041:
+      url: https://data.nature.cz/ds/145/download/kraj/KarlovarskyKraj_KVES_2025.zip
+      md5: 7ffba2c1fb7468c0b62c8d475017724e
+      downloaded: 2026-10-15 17:24:58 CEST
+    CZ042:
+      url: https://data.nature.cz/ds/145/download/kraj/UsteckyKraj_KVES_2025.zip
+      md5: ce5e672f4913fd9f6880b5828945afa6
+      downloaded: 2026-10-15 17:25:33 CEST
+    CZ051:
+      url: https://data.nature.cz/ds/145/download/kraj/LibereckyKraj_KVES_2025.zip
+      md5: 475ffc7cf706b3affe1147f023d72ac3
+      downloaded: 2026-10-15 17:26:03 CEST
+    CZ052:
+      url: https://data.nature.cz/ds/145/download/kraj/KralovehradeckyKraj_KVES_2025.zip
+      md5: add925bc11b8b4c51e1871801545235b
+      downloaded: 2026-10-15 17:26:36 CEST
+    CZ053:
+      url: https://data.nature.cz/ds/145/download/kraj/PardubickyKraj_KVES_2025.zip
+      md5: cc302204242ef0d523ac56ed64bd8525
+      downloaded: 2026-10-15 17:27:06 CEST
+    CZ063:
+      url: https://data.nature.cz/ds/145/download/kraj/Vysocina_KVES_2025.zip
+      md5: b56713725ac2353e50f705510094e560
+      downloaded: 2026-10-15 17:27:53 CEST
+    CZ064:
+      url: https://data.nature.cz/ds/145/download/kraj/JihomoravskyKraj_KVES_2025.zip
+      md5: 491775240de40f84d732fa76a67e0c33
+      downloaded: 2026-10-15 17:28:25 CEST
+    CZ071:
+      url: https://data.nature.cz/ds/145/download/kraj/OlomouckyKraj_KVES_2025.zip
+      md5: 5f7c2845f2e0b970a25e221b9eed519f
+      downloaded: 2026-10-15 17:28:54 CEST
+    CZ072:
+      url: https://data.nature.cz/ds/145/download/kraj/ZlinskyKraj_KVES_2025.zip
+      md5: d8c4a408140c773c4914471d709f37a2
+      downloaded: 2026-10-15 17:29:24 CEST
+    CZ080:
+      url: https://data.nature.cz/ds/145/download/kraj/MoravskoslezskyKraj_KVES_2025.zip
+      md5: 18ec150cc2a690c089da967023794628
+      downloaded: 2026-10-15 17:30:04 CEST
+  vmb:
+    CZ010:
+      url: https://data.nature.cz/ds/21/download/kraj/Praha.zip
+      md5: 2fb868498d777411e37bf25f8d0ba2a9
+      downloaded: 2026-10-15 17:20:24 CEST
+    CZ020:
+      url: https://data.nature.cz/ds/21/download/kraj/Stredocesky.zip
+      md5: fcaf71190dbb9fb95576e509cf52c3f6
+      downloaded: 2026-10-15 17:20:34 CEST
+    CZ031:
+      url: https://data.nature.cz/ds/21/download/kraj/Jihocesky.zip
+      md5: d6abdb505d882af8235852841849c666
+      downloaded: 2026-10-15 17:20:42 CEST
+    CZ032:
+      url: https://data.nature.cz/ds/21/download/kraj/Plzensky.zip
+      md5: 68cfdaa73259eafdd4ea512d39edf452
+      downloaded: 2026-10-15 17:20:50 CEST
+    CZ041:
+      url: https://data.nature.cz/ds/21/download/kraj/Karlovarsky.zip
+      md5: df43279b2c538e1ead7dd5597ec7de36
+      downloaded: 2026-10-15 17:20:55 CEST
+    CZ042:
+      url: https://data.nature.cz/ds/21/download/kraj/Ustecky.zip
+      md5: f2507beffc603c470e97af0682f71308
+      downloaded: 2026-10-15 17:21:01 CEST
+    CZ051:
+      url: https://data.nature.cz/ds/21/download/kraj/Liberecky.zip
+      md5: 0d90bcf8c7ebd532ed3e09ed90836be3
+      downloaded: 2026-10-15 17:21:06 CEST
+    CZ052:
+      url: https://data.nature.cz/ds/21/download/kraj/Kralovehradecky.zip
+      md5: 81aa5d9f4c4af9fe92c6539759d33b2c
+      downloaded: 2026-10-15 17:21:10 CEST
+    CZ053:
+      url: https://data.nature.cz/ds/21/download/kraj/Pardubicky.zip
+      md5: dffb1c923b8d64ec99b360e7ff659078
+      downloaded: 2026-10-15 17:21:15 CEST
+    CZ063:
+      url: https://data.nature.cz/ds/21/download/kraj/Vysocina.zip
+      md5: 08f9b0468012da4b1f75479977810892
+      downloaded: 2026-10-15 17:21:19 CEST
+    CZ064:
+      url: https://data.nature.cz/ds/21/download/kraj/Jihomoravsky.zip
+      md5: a1cf4eed04abeefb369bfd5ba7a50a04
+      downloaded: 2026-10-15 17:21:26 CEST
+    CZ071:
+      url: https://data.nature.cz/ds/21/download/kraj/Olomoucky.zip
+      md5: bb1c7fea96fde764c666fb2cfc69b633
+      downloaded: 2026-10-15 17:21:30 CEST
+    CZ072:
+      url: https://data.nature.cz/ds/21/download/kraj/Zlinsky.zip
+      md5: 2987c6a8cf34f042e84752a233f2756a
+      downloaded: 2026-10-15 17:21:35 CEST
+    CZ080:
+      url: https://data.nature.cz/ds/21/download/kraj/Moravskoslezsky.zip
+      md5: bcfddfdfa4197b871023fa1af330bf40
+      downloaded: 2026-10-15 17:21:40 CEST
