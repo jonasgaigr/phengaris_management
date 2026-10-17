@@ -35,3 +35,11 @@ relief_shaded:
   retrieved: '2026-10-08'
   file: relief_shaded.tif
   size_mb: 3.02
+elevation:
+  source: RCzechia::vyskopis(format = 'actual', cropped = FALSE), RCzechia 1.12.10;
+    projected to EPSG:5514 (bilinear), clipped to the border; metres above sea level
+  resolution_m: 98.5
+  cells: 1.4242732e+07
+  retrieved: '2026-10-17'
+  file: elevation.tif
+  size_mb: 6.15

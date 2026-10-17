@@ -414,32 +414,56 @@ marginal_predictions <- function(m, by) {
 
 #' Predicted occupancy across the flight season.
 #'
-#' Sets DOY_STD to each value of a grid in turn for every record of the
-#' model's data, and back-transforms the average linear predictor (random
-#' effects at zero), as in marginal_predictions().
+#' Sets the visit's day to each value of a grid in turn for every record of
+#' the model's data, and back-transforms the average linear predictor (random
+#' effects at zero), as in marginal_predictions(). With the quadratic season
+#' term the day is DOY_STD; with the flight curve it is DOY_DEV, and each
+#' record takes the log relative activity of its species' curve at that day
+#' and its own elevation.
 #'
-#' @param m     a fitted-model record with DOY_STD in its formula
-#' @param grid  values of DOY_STD
-season_curve <- function(m, grid = seq(min(m$data$DOY_STD), max(m$data$DOY_STD), length.out = 25)) {
+#' @param m      a fitted-model record with DOY_STD or LOG_ACTIVITY in its
+#'               formula
+#' @param curve  flight_curve_table() of step 16, for LOG_ACTIVITY
+#' @param days   values of DOY_DEV
+season_curve <- function(m, curve = NULL, days = seq(min(m$data$DOY_DEV), max(m$data$DOY_DEV), length.out = 25)) {
   if (is.null(m$fit)) {
     return(data.frame())
   }
-  p <- tryCatch(
-    as.data.frame(marginaleffects::avg_predictions(
-      m$fit,
-      newdata = m$data[, intersect(all.vars(m$formula_object), names(m$data)), drop = FALSE],
-      variables = list(DOY_STD = grid), by = "DOY_STD", re.form = NA,
-      type = "link", transform = stats::plogis
-    )),
-    error = function(e) NULL
-  )
-  if (is.null(p)) {
+  vars <- all.vars(m$formula_object)
+  newdata <- m$data[, intersect(c(vars, "DRUH", "DOY_DEV", "ELEVATION"), names(m$data)), drop = FALSE]
+  predict_at <- function(nd) {
+    tryCatch(
+      as.data.frame(marginaleffects::avg_predictions(
+        m$fit,
+        newdata = nd, re.form = NA, type = "link", transform = stats::plogis
+      )),
+      error = function(e) NULL
+    )
+  }
+  rows <- if ("LOG_ACTIVITY" %in% vars) {
+    if (is.null(curve)) stop("season_curve() needs the flight curve for ", m$id, call. = FALSE)
+    days <- unique(round(days))
+    lapply(days, function(day) {
+      nd <- newdata
+      nd$LOG_ACTIVITY <- log(relative_activity(nd$DRUH, rep(day, nrow(nd)), nd$ELEVATION, curve))
+      p <- predict_at(nd)
+      if (is.null(p)) NULL else data.frame(DOY_DEV = day, p[, c("estimate", "conf.low", "conf.high")])
+    })
+  } else {
+    lapply(days, function(day) {
+      nd <- newdata
+      nd$DOY_STD <- day / CONFIG$revised_models$doy_unit_days
+      p <- predict_at(nd)
+      if (is.null(p)) NULL else data.frame(DOY_DEV = day, p[, c("estimate", "conf.low", "conf.high")])
+    })
+  }
+  rows <- do.call(rbind, Filter(Negate(is.null), rows))
+  if (is.null(rows)) {
     return(data.frame())
   }
   data.frame(
-    model = m$id, sample = m$sample,
-    DOY_DEV = p$DOY_STD * CONFIG$revised_models$doy_unit_days,
-    estimate = p$estimate, conf_low = p$conf.low, conf_high = p$conf.high
+    model = m$id, sample = m$sample, DOY_DEV = rows$DOY_DEV,
+    estimate = rows$estimate, conf_low = rows$conf.low, conf_high = rows$conf.high
   )
 }
 
@@ -447,7 +471,7 @@ season_curve <- function(m, grid = seq(min(m$data$DOY_STD), max(m$data$DOY_STD),
 #'
 #' @param coefs  tmb_coef_table() (or a table of the same layout)
 #' @param drop   regular expression of the terms to leave out
-key_estimates <- function(coefs, drop = "^\\(Intercept\\)$|^ERA|DOY_STD") {
+key_estimates <- function(coefs, drop = "^\\(Intercept\\)$|^ERA|DOY_STD|LOG_ACTIVITY") {
   coefs %>%
     dplyr::filter(!grepl(drop, term)) %>%
     dplyr::transmute(

@@ -15,6 +15,9 @@
 #   DOY_DEV       the visit's day of year minus the median day of year of the
 #                 positive records of the same species in the same year, i.e.
 #                 where the visit falls in that year's flight season
+#   FLIGHT_ACTIVITY  the relative activity of the species' flight curve at
+#                 that day (and the site's elevation; P4.1), which decides
+#                 whether the visit is in the flight season
 #   OBSERVER      who surveyed, normalised from AUTOR
 #   PROTOCOL_ERA  the field form of 2019-2020 or of 2021-2024 (item 20)
 #
@@ -73,6 +76,27 @@ flight_window_reference <- function(records, sources = NULL,
     )
 }
 
+#' Is a visit inside the flight season of its species?
+#'
+#' @param doy_dev   DOY_DEV of each visit
+#' @param activity  the relative activity of the flight curve at each visit
+#'                  (relative_activity()), or NA
+#' @param settings  config.yml `design: flight_window`: `cutoff`
+#'                  ("flight_curve" or "fixed"), `min_relative_activity` and
+#'                  `max_abs_deviation_days`
+#' @return TRUE inside the season. Under either rule a visit farther than
+#'         `max_abs_deviation_days` from the median is outside; under
+#'         "flight_curve" so is a visit where the relative activity is below
+#'         `min_relative_activity`.
+in_flight_season <- function(doy_dev, activity, settings = CONFIG$design$flight_window) {
+  cutoff <- match.arg(settings$cutoff, c("flight_curve", "fixed"))
+  inside <- !is.na(doy_dev) & abs(doy_dev) <= settings$max_abs_deviation_days
+  if (cutoff == "flight_curve") {
+    inside <- inside & !is.na(activity) & activity >= settings$min_relative_activity
+  }
+  inside
+}
+
 #' The field-form era of a year.
 #'
 #' @param year         calendar year
@@ -129,13 +153,20 @@ normalise_observer <- function(x, aliases = CONFIG$design$observer_aliases) {
 #' @param site_design        site_design_table() of step 16
 #' @param connectivity       connectivity_table() of step 16
 #' @param protected_area_id  the protected-area membership of step 03
-#' @param max_deviation      config.yml `design: flight_window:
-#'                           max_abs_deviation_days`
-#' @return `data` with DOY, DOY_DEV, IN_FLIGHT_WINDOW, PROTOCOL_ERA,
-#'         OBSERVER, the site design columns, EVL_species and the
-#'         connectivity columns, every row kept
+#' @param flight_curve       flight_curve_table() of step 16, or NULL (only
+#'                           with config.yml `design: flight_window: cutoff:
+#'                           fixed`)
+#' @param window             config.yml `design: flight_window`
+#' @return `data` with DOY, DOY_DEV, PROTOCOL_ERA, OBSERVER, EVL_species, the
+#'         site design columns, the connectivity columns, FLIGHT_ACTIVITY and
+#'         LOG_ACTIVITY (the relative activity of the flight curve and its
+#'         log), IN_FLIGHT_WINDOW and IN_WINDOW_<d> for each of
+#'         `window$sensitivity_days`; every row kept
 add_design_variables <- function(data, flight_window, site_design, connectivity, protected_area_id,
-                                 max_deviation = CONFIG$design$flight_window$max_abs_deviation_days) {
+                                 flight_curve = NULL, window = CONFIG$design$flight_window) {
+  if (is.null(flight_curve) && window$cutoff == "flight_curve") {
+    stop("The flight season is cut by the flight curve, but no flight curve was given.", call. = FALSE)
+  }
   # An EVL designated for the record's own species (REVIEW.md, item 24).
   designated <- protected_area_id %>%
     dplyr::filter(PA_TYPE == "EVL_target") %>%
@@ -153,12 +184,21 @@ add_design_variables <- function(data, flight_window, site_design, connectivity,
       flight_window %>% dplyr::select(DRUH, YEAR, FLIGHT_MEDIAN_DOY = median_doy),
       by = c("DRUH", "YEAR")
     ) %>%
-    dplyr::mutate(
-      DOY_DEV = DOY - FLIGHT_MEDIAN_DOY,
-      IN_FLIGHT_WINDOW = !is.na(DOY_DEV) & abs(DOY_DEV) <= max_deviation
-    ) %>%
+    dplyr::mutate(DOY_DEV = DOY - FLIGHT_MEDIAN_DOY) %>%
     dplyr::left_join(site_design, by = "ID_LOKAL") %>%
     dplyr::left_join(connectivity, by = c("ID_LOKAL", "YEAR", "DRUH"))
+
+  out$FLIGHT_ACTIVITY <- if (is.null(flight_curve)) {
+    NA_real_
+  } else {
+    elevation <- if ("ELEVATION" %in% names(out)) out$ELEVATION else rep(NA_real_, nrow(out))
+    relative_activity(out$DRUH, out$DOY_DEV, elevation, flight_curve)
+  }
+  out$LOG_ACTIVITY <- log(out$FLIGHT_ACTIVITY)
+  out$IN_FLIGHT_WINDOW <- in_flight_season(out$DOY_DEV, out$FLIGHT_ACTIVITY, window)
+  for (d in unlist(window$sensitivity_days)) {
+    out[[paste0("IN_WINDOW_", d)]] <- !is.na(out$DOY_DEV) & abs(out$DOY_DEV) <= d
+  }
 
   stopifnot(nrow(out) == nrow(data))
   out

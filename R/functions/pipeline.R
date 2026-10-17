@@ -56,6 +56,7 @@ pipeline_step <- function(id, file, title, scope = c("common", "spec", "final"),
 .analysis <- "{processed}/{spec}/data_analysis.csv"
 .site_design <- "{processed}/common/site_design.csv"
 .flight_window <- "{processed}/common/flight_window.csv"
+.flight_curve <- "{processed}/common/flight_curve.csv"
 .connectivity <- "{processed}/common/connectivity.csv"
 # The frozen and the current site x VMB intersections and the site x KVES
 # one; each is written only when its source is there. The site areas of step
@@ -94,8 +95,8 @@ PIPELINE <- list(
   ),
   pipeline_step(
     "16", "R/16_site_design.R", "Sites, flight season and connectivity", "common",
-    inputs = c(.records, .sites),
-    outputs = c(.site_design, .flight_window, .connectivity)
+    inputs = c(.records, .sites, paste0("?", file.path(CONFIG$paths$reference, "elevation.tif"))),
+    outputs = c(.site_design, .flight_window, .flight_curve, .connectivity)
   ),
   pipeline_step(
     "02", "R/02_impute_absences.R", "Impute absences", "spec",
@@ -109,7 +110,7 @@ PIPELINE <- list(
       "{processed}/common/protected_area_id.csv",
       # Needed only by the specifications with design_variables: true; step
       # 04 checks for them itself.
-      paste0("?", c(.site_design, .flight_window, .connectivity))
+      paste0("?", c(.site_design, .flight_window, .flight_curve, .connectivity))
     ),
     outputs = "{processed}/{spec}/data_clean.csv"
   ),
@@ -138,7 +139,7 @@ PIPELINE <- list(
   ),
   # The revised model set.
   pipeline_step("17", "R/17_occupancy_models.R", "Occupancy models", "spec",
-    inputs = .analysis, model_sets = "revised"
+    inputs = c(.analysis, .flight_curve), model_sets = "revised"
   ),
   pipeline_step("18", "R/18_spatial_autocorrelation.R", "Spatial autocorrelation", "spec",
     inputs = .analysis, model_sets = "revised"

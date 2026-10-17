@@ -14,8 +14,9 @@
 #   * has random intercepts for the mapping grid square, the year and the
 #     observer, config.yml `revised_models: random_effects` (P3.1, P3.3);
 #   * has the detection covariates: the field-form era and the position of
-#     the visit in the flight season of its species and year, as a quadratic
-#     (P3.3, item 20);
+#     the visit in the flight season of its species and year, as the log
+#     relative activity of the flight curve or as a quadratic in DOY_DEV
+#     (config.yml `revised_models: season_term`; P3.3, P4.1, item 20);
 #   * is fitted on the records inside the flight season only;
 #   * is fitted twice, with the imputed absences and on the observed records
 #     only (P3.2).
@@ -43,7 +44,11 @@ species_code <- function(species) {
 #'                 variables
 #' @param species  the species, or NULL for both
 #' @param sample   "with imputed" or "observed only"
-#' @return the in-season records of the sample, with
+#' @param window   NULL for the records in the flight season
+#'                 (IN_FLIGHT_WINDOW), or a number of days: the records
+#'                 within that many days of the year's median instead
+#'                 (IN_WINDOW_<days>), for the sensitivity analysis (P4.1)
+#' @return the records of the sample in the season, with
 #'         DOY_STD   DOY_DEV in units of config.yml `revised_models:
 #'                   doy_unit_days`
 #'         ERA       PROTOCOL_ERA as a factor, the older form first
@@ -52,10 +57,14 @@ species_code <- function(species) {
 #'         LOG_AREA  log10 of the site area in ha (polygon sites)
 #'         LOG_CONN and LOG_CONN_<alpha>  log10(connectivity + offset)
 revised_model_data <- function(data, species = NULL, sample = REVISED_SAMPLES[["with_imputed"]],
-                               unit = CONFIG$revised_models$doy_unit_days) {
+                               unit = CONFIG$revised_models$doy_unit_days, window = NULL) {
   sample <- match.arg(sample, unname(REVISED_SAMPLES))
-  out <- data %>%
-    dplyr::filter(IN_FLIGHT_WINDOW)
+  in_season <- if (is.null(window)) {
+    data$IN_FLIGHT_WINDOW
+  } else {
+    !is.na(data$DOY_DEV) & abs(data$DOY_DEV) <= window
+  }
+  out <- data[in_season, , drop = FALSE]
   if (!is.null(species)) out <- dplyr::filter(out, DRUH == species)
   if (sample == REVISED_SAMPLES[["observed"]]) out <- dplyr::filter(out, !IMPUTED)
 
@@ -83,6 +92,22 @@ revised_random_effects <- function(extra = NULL) {
   paste(sprintf("(1 | %s)", groups), collapse = " + ")
 }
 
+#' The fixed terms placing a visit in the flight season.
+#'
+#' @param season  "activity": the log relative activity of the flight curve
+#'                (P4.1); "quadratic": DOY_DEV and its square (P3.3)
+season_terms <- function(season = CONFIG$revised_models$season_term) {
+  switch(match.arg(season, c("activity", "quadratic")),
+    activity = "LOG_ACTIVITY",
+    quadratic = c("DOY_STD", "I(DOY_STD^2)")
+  )
+}
+
+#' The season term not chosen in config.yml, for the comparison of the two.
+other_season_term <- function(season = CONFIG$revised_models$season_term) {
+  setdiff(c("activity", "quadratic"), season)
+}
+
 #' A revised model formula from its fixed terms.
 #'
 #' @param response  the response
@@ -90,8 +115,10 @@ revised_random_effects <- function(extra = NULL) {
 #' @param era       include the field-form era (leave it out for data of one
 #'                  era)
 #' @param extra_re  additional random-intercept grouping factors
-revised_formula <- function(response = "POSITIVE", terms = character(), era = TRUE, extra_re = NULL) {
-  detection <- c(if (era) "ERA", "DOY_STD", "I(DOY_STD^2)")
+#' @param season    the season term, season_terms()
+revised_formula <- function(response = "POSITIVE", terms = character(), era = TRUE, extra_re = NULL,
+                            season = CONFIG$revised_models$season_term) {
+  detection <- c(if (era) "ERA", season_terms(season))
   stats::as.formula(paste(
     response, "~",
     paste(c(terms, detection), collapse = " + "),
@@ -110,6 +137,8 @@ MANAGEMENT_TERMS <- c("TIMING * METHOD", "PLANT", "EVL_species")
 #'
 #'   baseline           the detection covariates and random effects only, on
 #'                      every in-season record
+#'   baseline_season    the same with the other season term (quadratic
+#'                      against flight curve, P4.1)
 #'   management_null    the same, on the records complete on the management
 #'                      variables (the reference of the management model)
 #'   management         mowing timing x method, host-plant abundance and
@@ -147,6 +176,10 @@ revised_occupancy_specs <- function(data, species, sample) {
       spec(
         "baseline", "Detection covariates and random effects, every in-season record", "Baseline",
         revised_formula(), data
+      ),
+      spec(
+        "baseline_season", sprintf("Baseline with the %s season term", other_season_term()), "Baseline",
+        revised_formula(season = other_season_term()), data
       ),
       spec(
         "management_null", "Detection covariates only, records with the management recorded", "Management",
@@ -199,6 +232,14 @@ revised_occupancy_comparisons <- function(species, sample) {
   alphas <- unlist(CONFIG$connectivity$alpha_sensitivity_per_km)
   dists <- unlist(CONFIG$sites$sensitivity_distances_m)
   list(
+    list(
+      ids = id(c("baseline", "baseline_season")),
+      caption = sprintf(
+        "Season term: %s (baseline) against %s (baseline_season)",
+        CONFIG$revised_models$season_term, other_season_term()
+      ),
+      stem = "season"
+    ),
     list(
       ids = id(c("management_null", "management", "management_conn", paste0("management_conn_a", alphas))),
       caption = "Management and connectivity",

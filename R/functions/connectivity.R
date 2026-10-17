@@ -37,12 +37,16 @@ site_id_column <- function(distance_m) {
 #' @param sites        site geometries with ID_LOKAL (sf), sites.gpkg of step 01
 #' @param distance_m   config.yml `sites: match_distance_m`
 #' @param sensitivity  config.yml `sites: sensitivity_distances_m`
+#' @param elevation    the elevation model (a SpatRaster in S-JTSK, metres),
+#'                     or NULL for none
 #' @return a tibble: ID_LOKAL, SITE_ID and SITE_ID_<d>M for each sensitivity
 #'         distance, GEOMETRY_TYPE ("point", "line", "polygon"), SITE_AREA_HA
 #'         (NA for points and lines), SITE_X and SITE_Y (a point on the
-#'         surface, S-JTSK)
+#'         surface, S-JTSK), and ELEVATION at that point (NA without an
+#'         elevation model)
 site_design_table <- function(sites, distance_m = CONFIG$sites$match_distance_m,
-                              sensitivity = unlist(CONFIG$sites$sensitivity_distances_m)) {
+                              sensitivity = unlist(CONFIG$sites$sensitivity_distances_m),
+                              elevation = NULL) {
   type <- as.character(sf::st_geometry_type(sites))
   geometry_type <- dplyr::case_when(
     type %in% c("POINT", "MULTIPOINT") ~ "point",
@@ -57,7 +61,12 @@ site_design_table <- function(sites, distance_m = CONFIG$sites$match_distance_m,
     GEOMETRY_TYPE = geometry_type,
     SITE_AREA_HA = ifelse(geometry_type == "polygon", area, NA_real_),
     SITE_X = points[, "X"],
-    SITE_Y = points[, "Y"]
+    SITE_Y = points[, "Y"],
+    ELEVATION = if (is.null(elevation)) {
+      NA_real_
+    } else {
+      terra::extract(elevation, unname(points[, c("X", "Y"), drop = FALSE]))[, 1]
+    }
   )
   for (d in unique(c(distance_m, sensitivity))) {
     out[[site_id_column(d)]] <- match_sites(sites, d)$SITE_ID

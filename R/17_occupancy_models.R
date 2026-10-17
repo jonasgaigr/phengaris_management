@@ -17,6 +17,10 @@
 #         records only;
 #   P3.3  the position of the visit in the flight season (a quadratic in the
 #         deviation from the year's median positive record) and the observer;
+#   P4.1  the flight season cut by the flight curve of step 16; the
+#         quadratic compared with the log relative activity of the curve as
+#         the season term, and the management model refitted on fixed
+#         windows of 28 and 45 days around the median;
 #   P3.4  one multivariable management model per species: mowing timing x
 #         method, host-plant abundance and protection designated for the
 #         species, with the field-form era; for 2021-2024 polygon sites also
@@ -60,6 +64,7 @@ report_warning(
 )
 
 data <- read_data_analysis()
+flight_curve <- readr::read_csv(processed_path("flight_curve.csv", "common"), show_col_types = FALSE)
 
 #----------------------------------------------------------#
 # Records -----
@@ -213,6 +218,54 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   )
 
   #--------------------------------------------------#
+  ## Flight-season window sensitivity -----
+  #--------------------------------------------------#
+
+  # The management model refitted on the visits within fixed windows around
+  # the year's median instead of the flight season of the curve (P4.1).
+  window_days <- unlist(CONFIG$design$flight_window$sensitivity_days)
+  window_models <- fit_tmb_set(unlist(lapply(window_days, function(days) {
+    lapply(REVISED_SAMPLES, function(sample) {
+      d <- revised_model_data(data, species, sample, window = days)
+      d <- d[stats::complete.cases(d[, c("TIMING", "METHOD", "PLANT", "EVL_species")]), , drop = FALSE]
+      list(
+        id = paste0(code, "_management_w", days, if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else ""),
+        label = sprintf("Management model, visits within %d days of the median", days),
+        group = "Window", formula = revised_formula(terms = MANAGEMENT_TERMS), data = d, sample = sample
+      )
+    })
+  }), recursive = FALSE))
+  window_key <- dplyr::bind_rows(
+    key %>%
+      dplyr::filter(model %in% paste0(code, c("_management", "_management_obs"))) %>%
+      dplyr::mutate(window = "flight season (curve)"),
+    key_estimates(tmb_coef_table(window_models)) %>%
+      dplyr::mutate(window = paste(sub("^.*_w([0-9]+).*$", "\\1", model), "days"))
+  ) %>%
+    dplyr::left_join(
+      tmb_fit_table(c(models, window_models))[, c("model", "n_obs")],
+      by = "model"
+    )
+  window_key <- dplyr::bind_rows(
+    dplyr::select(window_key, sample, window, term, ratio_ci),
+    window_key %>%
+      dplyr::distinct(sample, window, n_obs) %>%
+      dplyr::transmute(sample, window, term = "records", ratio_ci = as.character(n_obs))
+  ) %>%
+    tidyr::pivot_wider(names_from = window, values_from = ratio_ci)
+  report_table(
+    window_key,
+    paste(
+      "The management model on the flight season of the curve and on fixed",
+      "windows around the year's median (odds ratio, 95% CI; and the records",
+      "each is fitted on)"
+    ),
+    paste0(prefix, "_window_sensitivity"),
+    max_rows = nrow(window_key)
+  )
+  report_tmb_set(window_models, paste0(prefix, "_window"))
+
+  #--------------------------------------------------#
   ## Model comparisons -----
   #--------------------------------------------------#
 
@@ -260,7 +313,10 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     paste0(prefix, "_predictions_plant_protection")
   )
 
-  curve <- dplyr::bind_rows(lapply(models[paste0(code, c("_baseline", "_baseline_obs"))], season_curve))
+  curve <- dplyr::bind_rows(lapply(
+    models[paste0(code, c("_baseline", "_baseline_obs"))], season_curve,
+    curve = flight_curve
+  ))
   if (nrow(curve)) {
     report_figure(
       plot_season(curve, species_names[[code]]),

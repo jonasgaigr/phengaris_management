@@ -124,6 +124,7 @@ if (design_variables) {
   require_inputs(c(
     "{processed}/common/site_design.csv",
     "{processed}/common/flight_window.csv",
+    "{processed}/common/flight_curve.csv",
     "{processed}/common/connectivity.csv"
   ))
   n_before_collapse <- nrow(data_clean)
@@ -133,7 +134,8 @@ if (design_variables) {
       flight_window = readr::read_csv(processed_path("flight_window.csv", "common"), show_col_types = FALSE),
       site_design = readr::read_csv(processed_path("site_design.csv", "common"), show_col_types = FALSE),
       connectivity = readr::read_csv(processed_path("connectivity.csv", "common"), show_col_types = FALSE),
-      protected_area_id = protected_area_id
+      protected_area_id = protected_area_id,
+      flight_curve = readr::read_csv(processed_path("flight_curve.csv", "common"), show_col_types = FALSE)
     ) %>%
     collapse_to_visits()
 }
@@ -357,6 +359,8 @@ if (design_variables) {
     n_before_collapse - nrow(data_clean)
   ))
 
+  window_settings <- CONFIG$design$flight_window
+  sensitivity_windows <- unlist(window_settings$sensitivity_days)
   report_table(
     data_clean %>%
       dplyr::group_by(DRUH, PROTOCOL_ERA) %>%
@@ -365,28 +369,50 @@ if (design_variables) {
         positive = sum(POSITIVE == 1),
         imputed = sum(IMPUTED),
         outside_flight_window = sum(!IN_FLIGHT_WINDOW),
+        positive_outside = sum(!IN_FLIGHT_WINDOW & POSITIVE == 1),
+        dplyr::across(
+          dplyr::all_of(paste0("IN_WINDOW_", sensitivity_windows)),
+          ~ sum(!.x),
+          .names = "outside_{sub('IN_WINDOW_', '', .col)}_days"
+        ),
         min_doy_dev = min(DOY_DEV),
         max_doy_dev = max(DOY_DEV),
+        median_activity = stats::median(FLIGHT_ACTIVITY, na.rm = TRUE),
         .groups = "drop"
       ),
-    sprintf(
-      paste(
-        "Records by species and field-form era; DOY_DEV is the day of year",
-        "minus the median of the year's positive records. Records more than",
-        "%d days from it lie outside the flight season and are left out of the",
-        "models."
-      ),
-      CONFIG$design$flight_window$max_abs_deviation_days
-    ),
+    if (window_settings$cutoff == "flight_curve") {
+      sprintf(
+        paste(
+          "Records by species and field-form era; DOY_DEV is the day of year",
+          "minus the median of the year's positive records. A record is outside",
+          "the flight season where the flight curve of its species is below %g",
+          "of its peak, or more than %d days from the median, and is left out of",
+          "the models. outside_<d>_days: outside the fixed windows of the",
+          "sensitivity analysis."
+        ),
+        window_settings$min_relative_activity, window_settings$max_abs_deviation_days
+      )
+    } else {
+      sprintf(
+        paste(
+          "Records by species and field-form era; DOY_DEV is the day of year",
+          "minus the median of the year's positive records. Records more than",
+          "%d days from it lie outside the flight season and are left out of the",
+          "models."
+        ),
+        window_settings$max_abs_deviation_days
+      )
+    },
     "04_design_by_era"
   )
 
   report_table(
     data_clean %>%
       dplyr::filter(!IN_FLIGHT_WINDOW) %>%
-      dplyr::select(ID_RECORD, DRUH, DATUM_OD, DOY, DOY_DEV, POSITIVE, IMPUTED, AUTOR),
+      dplyr::select(ID_RECORD, DRUH, DATUM_OD, DOY, DOY_DEV, ELEVATION, FLIGHT_ACTIVITY, POSITIVE, IMPUTED, AUTOR),
     "Records outside the flight season",
-    "04_outside_flight_window"
+    "04_outside_flight_window",
+    max_rows = 60
   )
 
   observers <- data_clean %>%
@@ -472,6 +498,12 @@ if (design_variables) {
     not_na = c("DOY", "DOY_DEV", "PROTOCOL_ERA", "SITE_ID", "SITE_X", "SITE_Y", "GEOMETRY_TYPE", "CONN"),
     values = list(EVL_species = flag_values, IN_FLIGHT_WINDOW = c(TRUE, FALSE)),
     xy = c("SITE_X", "SITE_Y")
+  )
+  # Every record in the flight season has a relative activity, whichever
+  # rule cuts the season.
+  checkmate::assert_true(
+    !anyNA(data_clean$LOG_ACTIVITY[data_clean$IN_FLIGHT_WINDOW]),
+    .var.name = "LOG_ACTIVITY known for every record in the flight season"
   )
   checkmate::assert_true(
     all(data_clean$EVL_species <= data_clean$EVL_target),

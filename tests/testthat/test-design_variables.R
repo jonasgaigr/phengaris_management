@@ -68,11 +68,39 @@ test_that("add_design_variables places each visit in its season and flags protec
   sd <- tibble::tibble(ID_LOKAL = c(1, 2), SITE_ID = c("S1", "S2"))
   conn <- tibble::tibble(ID_LOKAL = c(1, 2), YEAR = 2022L, DRUH = c(SPECIES_NAU, SPECIES_TEL), CONN = c(0.5, 0))
   pa <- tibble::tibble(ID_LOKAL = c(1, 2), PA_TYPE = "EVL_target", PA_SPECIES = c(SPECIES_TEL, SPECIES_TEL))
-  out <- add_design_variables(data, fw, sd, conn, pa, max_deviation = 45)
+  fixed <- list(cutoff = "fixed", max_abs_deviation_days = 45, min_relative_activity = 0.05, sensitivity_days = 28)
+  out <- add_design_variables(data, fw, sd, conn, pa, window = fixed)
   expect_equal(out$DOY_DEV, c(0, day_of_year(20221020) - 200))
   expect_equal(out$IN_FLIGHT_WINDOW, c(TRUE, FALSE))
+  expect_equal(out$IN_WINDOW_28, c(TRUE, FALSE))
+  expect_true(all(is.na(out$FLIGHT_ACTIVITY)))
   # Site 1 lies in an EVL designated for P. teleius only.
   expect_equal(out$EVL_species, c(0, 1))
   expect_equal(out$OBSERVER[1], out$OBSERVER[2])
   expect_equal(out$CONN, c(0.5, 0))
+
+  # The flight curve cuts the season where the relative activity is low.
+  curve <- tibble::tibble(
+    DRUH = rep(c(SPECIES_NAU, SPECIES_TEL), each = 3), ELEVATION = NA_real_,
+    DOY_DEV = rep(c(-1L, 0L, 1L), 2), RELATIVE_ACTIVITY = c(0.5, 1, 0.5, 0.01, 0.02, 0.04)
+  )
+  data$DATUM_OD <- c(20220725, 20220720)
+  by_curve <- add_design_variables(
+    data, fw, sd, conn, pa,
+    flight_curve = curve, window = utils::modifyList(fixed, list(cutoff = "flight_curve"))
+  )
+  expect_equal(by_curve$FLIGHT_ACTIVITY, c(1, 0.04))
+  expect_equal(by_curve$LOG_ACTIVITY, log(c(1, 0.04)))
+  expect_equal(by_curve$IN_FLIGHT_WINDOW, c(TRUE, FALSE))
+  expect_error(add_design_variables(data, fw, sd, conn, pa, window = list(cutoff = "flight_curve")), "no flight curve")
+})
+
+test_that("the flight season is cut by the curve and by the outer window", {
+  window <- list(cutoff = "flight_curve", max_abs_deviation_days = 45, min_relative_activity = 0.05)
+  expect_equal(
+    in_flight_season(c(0, 10, 50, NA, 5), c(1, 0.04, 0.5, 1, NA), window),
+    c(TRUE, FALSE, FALSE, FALSE, FALSE)
+  )
+  window$cutoff <- "fixed"
+  expect_equal(in_flight_season(c(0, 10, 50, NA), c(1, 0.04, 0.5, 1), window), c(TRUE, TRUE, FALSE, FALSE))
 })

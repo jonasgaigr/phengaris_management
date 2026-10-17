@@ -364,13 +364,52 @@ design:
     # count. "all" gives 184-1231 records per species and year, against 10-420
     # targeted ones; the medians differ by at most 7 days.
     reference_sources: all
-    # Visits farther than this from the median (in days) fall outside the
-    # flight season: the species cannot be detected, so they say nothing about
-    # occupancy. They stay in the data (IN_FLIGHT_WINDOW = FALSE) and are left
-    # out of the revised models. Positive targeted records lie at most 40 days
+    # Which visits fall inside the flight season (IN_FLIGHT_WINDOW): outside
+    # it the species cannot be detected, so a visit there says nothing about
+    # occupancy. Such visits stay in the data and are left out of the revised
+    # models.
+    #
+    #   flight_curve  where the species' flight curve (below) is at least
+    #                 `min_relative_activity` of its peak (P4.1)
+    #   fixed         within `max_abs_deviation_days` of the median (Phase 3)
+    #
+    # The literature review (P4.1) found the 45 days of Phase 3 about twice
+    # the documented flight period of 6-8 weeks and proposed the cut-off
+    # where the flight curve falls below 5 % of its peak. PROPOSED.
+    cutoff: flight_curve
+    min_relative_activity: 0.05
+    # The flight curve is fitted on the visits within this many days of the
+    # median, and evaluated only there; a visit farther away is outside the
+    # season under either rule. Positive targeted records lie at most 40 days
     # from their median; the three visits of October and December 2024 lie
-    # 99-143 days from it (REVIEW.md, item 25). PROPOSED.
+    # 99-143 days from it (REVIEW.md, item 25).
     max_abs_deviation_days: 45
+    # The management models are refitted on the visits within these many
+    # days of the median too: 28 days is the 8-week flight period of the
+    # literature centred on the median, 45 the window of Phase 3 (P4.1).
+    sensitivity_days: [28, 45]
+
+  # The flight curve (P4.1): the expected count of adults at a visit across
+  # the season, pooled over the sites, as the butterfly monitoring schemes
+  # estimate it (Dennis et al. 2013; Schmucki et al. 2016). For each species,
+  # a negative-binomial GAM of the count at the targeted visits (0 at a
+  # negative visit) against DOY_DEV, with random intercepts for the year and
+  # the mapping grid square (R/functions/flight_curve.R, step 16). The
+  # relative activity of a visit is the expected count divided by the peak of
+  # the curve.
+  flight_curve:
+    # Basis dimension of the smooth of DOY_DEV. Small, because the visits
+    # cover the early part of the season thinly (P. teleius: 12 visits more
+    # than 10 days before the median).
+    k: 5
+    # The season may run differently higher up. "when_better" lets the curve
+    # change with the elevation (ti(DOY_DEV, ELEVATION)) when that lowers the
+    # AIC; "always" or "never" force the choice. Without the elevation layer
+    # (Data/Input/reference/elevation.tif) the curve has no elevation.
+    elevation: when_better
+    # The curve is tabulated every this many metres of elevation; a record
+    # takes the nearest.
+    elevation_step_m: 25
 
   # The observer, from AUTOR, enters the revised models as a random effect
   # (P3.3). Names are normalised (case, diacritics, academic titles, word
@@ -427,7 +466,19 @@ revised_models:
   # Random intercepts of every revised model (P3.1, P3.3): the mapping grid
   # square, the year and the observer.
   random_effects: [SITMAP, YEAR, OBSERVER]
-  # The day-of-year deviation enters as a quadratic, in units of this many
+  # How the position of the visit in the flight season enters every model:
+  # "quadratic", DOY_DEV and its square (Phase 3); or "activity", the log of
+  # the relative activity of the flight curve (LOG_ACTIVITY), as the
+  # literature review proposed (P4.1). On the complementary log-log scale
+  # the log activity would enter with a coefficient of 1, since the chance of
+  # seeing at least one adult is 1 - exp(-expected count); on the logit scale
+  # its coefficient is estimated. Step 17 compares the two: the quadratic
+  # fits the P. nausithous records better (delta AIC 6), the activity the
+  # P. teleius records about equally (1.8 in its favour), and the
+  # management estimates hardly differ. The quadratic is kept; the flight
+  # curve cuts the season and is the offset of the count models. PROPOSED.
+  season_term: quadratic
+  # The day-of-year deviation of the quadratic is in units of this many
   # days, so that its coefficients are of the order of the others.
   doy_unit_days: 10
   # Generalised VIF (GVIF^(1/(2 df))) above which a term is flagged.

@@ -73,12 +73,25 @@ test_that("an AIC table refuses models fitted on different records", {
 })
 
 test_that("revised formulas carry the detection covariates and the random effects", {
-  f <- revised_formula(terms = c("TIMING * METHOD", "PLANT"), extra_re = "SITE_ID")
+  f <- revised_formula(terms = c("TIMING * METHOD", "PLANT"), extra_re = "SITE_ID", season = "quadratic")
   labels <- attr(stats::terms(reformulas::nobars(f)), "term.labels")
   expect_true(all(c("ERA", "DOY_STD", "I(DOY_STD^2)", "TIMING:METHOD") %in% labels))
   bars <- vapply(reformulas::findbars(f), function(b) deparse(b[[3]]), character(1))
   expect_equal(bars, c(unlist(CONFIG$revised_models$random_effects), "SITE_ID"))
   expect_false("ERA" %in% attr(stats::terms(reformulas::nobars(revised_formula(era = FALSE))), "term.labels"))
+  activity <- attr(stats::terms(reformulas::nobars(revised_formula(season = "activity"))), "term.labels")
+  expect_equal(activity, c("ERA", "LOG_ACTIVITY"))
+  expect_equal(other_season_term("activity"), "quadratic")
+})
+
+test_that("a fixed window selects the records by their distance from the median", {
+  d <- tibble::tibble(
+    DRUH = SPECIES_NAU, DOY_DEV = c(-30, 0, 20, 40), IN_FLIGHT_WINDOW = c(FALSE, TRUE, TRUE, FALSE),
+    IMPUTED = FALSE, PROTOCOL_ERA = "2021-2024", PLANT_QUANT = 1, SITE_AREA_HA = 1
+  )
+  expect_equal(revised_model_data(d)$DOY_DEV, c(0, 20))
+  expect_equal(revised_model_data(d, window = 28)$DOY_DEV, c(0, 20))
+  expect_equal(revised_model_data(d, window = 45)$DOY_DEV, c(-30, 0, 20, 40))
 })
 
 test_that("co-occurrence uses observed records of both species only", {

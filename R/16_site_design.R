@@ -14,10 +14,13 @@
 #   site_design.csv    every site geometry with its persistent site
 #                      (SITE_ID, at config.yml `sites: match_distance_m`,
 #                      and at the sensitivity distances), its geometry type,
-#                      area and a representative point (P3.1)
+#                      area, a representative point (P3.1) and its elevation
 #   flight_window.csv  per species and year, the median day of year of the
 #                      positive records, against which every visit is placed
 #                      in the flight season (P3.3)
+#   flight_curve.csv   per species, the flight curve: the relative activity
+#                      of adults by day from that median (and by elevation),
+#                      which places every visit in the season (P4.1)
 #   connectivity.csv   per surveyed site, year and species, the
 #                      connectivity to the occupied sites around it (P3.5)
 #
@@ -25,8 +28,9 @@
 # design_variables: true.
 #
 # Reads:  Data/Processed/common/records.csv, sites.gpkg   (step 01)
+#         Data/Input/reference/elevation.tif   (optional)
 # Writes: Data/Processed/common/site_design.csv, flight_window.csv,
-#         connectivity.csv
+#         flight_curve.csv, connectivity.csv
 #
 #----------------------------------------------------------#
 
@@ -51,7 +55,18 @@ report_start(
 # Persistent sites -----
 #----------------------------------------------------------#
 
-site_design <- site_design_table(sites)
+path_elevation <- file.path(CONFIG$paths$reference, "elevation.tif")
+site_design <- site_design_table(
+  sites,
+  elevation = if (file.exists(path_elevation)) terra::rast(path_elevation) else NULL
+)
+if (!file.exists(path_elevation)) {
+  report_warning(
+    "No elevation model (", path_elevation, "): the sites have no elevation and",
+    "the flight curve none. Run refresh_reference_layers(layers = \"elevation\")",
+    "(R/tools/refresh_reference_layers.R)."
+  )
+}
 
 report_table(
   summarise_persistent_sites(
@@ -73,9 +88,12 @@ report_table(
       sites = dplyr::n(),
       median_area_ha = stats::median(SITE_AREA_HA),
       max_area_ha = max(SITE_AREA_HA),
+      min_elevation = min(ELEVATION),
+      median_elevation = stats::median(ELEVATION),
+      max_elevation = max(ELEVATION),
       .groups = "drop"
     ),
-  "Site geometries of the targeted records by type, with the polygon areas",
+  "Site geometries of the targeted records by type, with the polygon areas and the elevation (m)",
   "16_site_geometries"
 )
 
@@ -99,6 +117,119 @@ report_table(
     window_settings$reference_sources
   ),
   "16_flight_window"
+)
+
+#--------------------------------------------------#
+## Flight curve -----
+#--------------------------------------------------#
+
+curve_settings <- CONFIG$design$flight_curve
+curve_data <- flight_curve_data(records, flight_window, site_design)
+curves <- lapply(
+  stats::setNames(c(SPECIES_NAU, SPECIES_TEL), c(SPECIES_NAU, SPECIES_TEL)),
+  function(species) {
+    fit_flight_curve(
+      curve_data[curve_data$DRUH == species, ],
+      k = curve_settings$k, elevation = curve_settings$elevation
+    )
+  }
+)
+flight_curve <- dplyr::bind_rows(lapply(names(curves), function(s) flight_curve_table(curves[[s]], s)))
+
+report_note(sprintf(
+  paste(
+    "The flight curve of each species (P4.1): a negative-binomial GAM of the",
+    "number of adults counted at the targeted visits with an exact date (0 at a",
+    "negative visit) against DOY_DEV, the day of year minus the year's median",
+    "positive record, s(DOY_DEV, k = %d), with random intercepts for the year",
+    "and the mapping grid square; the elevation and its interaction with DOY_DEV",
+    "enter when they lower the AIC (`elevation: %s`). The relative activity is",
+    "the expected count divided by the peak of the curve at the same elevation.",
+    "A visit is in the flight season where it is at least %g (cut-off:",
+    "%s). The visits cover the season unevenly: few lie more than 10 days",
+    "before the median, so the early side of the curve rests on few visits."
+  ),
+  curve_settings$k, curve_settings$elevation,
+  CONFIG$design$flight_window$min_relative_activity, CONFIG$design$flight_window$cutoff
+))
+
+report_table(
+  dplyr::bind_rows(lapply(names(curves), function(s) {
+    dplyr::mutate(curves[[s]]$comparison, DRUH = s, .before = 1)
+  })) %>%
+    dplyr::group_by(DRUH) %>%
+    dplyr::mutate(delta_AIC = AIC - min(AIC), .after = AIC) %>%
+    dplyr::ungroup(),
+  "Flight curve with and without the elevation, by species (AIC of the negative-binomial GAMs)",
+  "16_flight_curve_models"
+)
+
+report_table(
+  curve_data %>%
+    dplyr::mutate(days = cut(DOY_DEV, seq(-45, 45, by = 5), include.lowest = TRUE)) %>%
+    dplyr::group_by(DRUH, days) %>%
+    dplyr::summarise(
+      visits = dplyr::n(),
+      positive = sum(COUNT > 0),
+      median_count_positive = stats::median(COUNT[COUNT > 0]),
+      .groups = "drop"
+    ),
+  "Targeted visits the flight curve is fitted on, by species and 5-day class of DOY_DEV",
+  "16_flight_curve_visits",
+  max_rows = 40
+)
+
+# The season at the median, the lower and the upper decile of the sites'
+# elevation (one row per species when the curve has no elevation).
+elevation_of_sites <- stats::quantile(curve_data$ELEVATION, c(0.1, 0.5, 0.9), na.rm = TRUE)
+bounds <- flight_season_bounds(flight_curve)
+if (any(!is.na(bounds$ELEVATION))) {
+  shown <- unique(unlist(lapply(elevation_of_sites, function(e) {
+    levels <- sort(unique(bounds$ELEVATION[!is.na(bounds$ELEVATION)]))
+    levels[which.min(abs(levels - e))]
+  })))
+  bounds <- dplyr::filter(bounds, is.na(ELEVATION) | ELEVATION %in% shown)
+}
+report_table(
+  bounds,
+  sprintf(
+    paste(
+      "Flight season from the curve: the peak and the first and last day (DOY_DEV)",
+      "with a relative activity of at least %g, and the range of the visits;",
+      "where the curve has an elevation, at the lower decile, the median and the",
+      "upper decile of the visits' elevation (m)"
+    ),
+    CONFIG$design$flight_window$min_relative_activity
+  ),
+  "16_flight_season"
+)
+
+curve_plot <- flight_curve %>%
+  dplyr::filter(is.na(ELEVATION) | ELEVATION %in% bounds$ELEVATION) %>%
+  dplyr::mutate(
+    species = sub("Phengaris", "P.", DRUH),
+    elevation = if (all(is.na(ELEVATION))) "all elevations" else paste(ELEVATION, "m")
+  )
+report_figure(
+  ggplot2::ggplot(curve_plot, ggplot2::aes(x = DOY_DEV, y = RELATIVE_ACTIVITY, linetype = elevation)) +
+    ggplot2::geom_hline(
+      yintercept = CONFIG$design$flight_window$min_relative_activity, colour = "grey60", linetype = "dashed"
+    ) +
+    ggplot2::geom_line() +
+    ggplot2::geom_line(data = dplyr::filter(curve_plot, IN_DATA_RANGE), linewidth = 1) +
+    ggplot2::facet_wrap(~species) +
+    ggplot2::labs(
+      x = "\ndays from the year's median positive record",
+      y = "relative activity of adults\n", linetype = NULL
+    ) +
+    ggplot2::theme_classic(base_size = 14) +
+    ggplot2::theme(legend.position = "bottom"),
+  paste(
+    "Flight curves: relative activity of adults across the season (thick: the",
+    "range of the visits; dashed: the cut-off of the flight season)"
+  ),
+  "16_flight_curve",
+  width = 10
 )
 
 #----------------------------------------------------------#
@@ -158,6 +289,13 @@ validate_table(
   n_rows = 2 * length(seq(CONFIG$years$first, CONFIG$years$last))
 )
 validate_table(
+  flight_curve, "flight_curve",
+  key = c("DRUH", "ELEVATION", "DOY_DEV"),
+  not_na = c("DRUH", "DOY_DEV", "RELATIVE_ACTIVITY"),
+  values = list(DRUH = c(SPECIES_NAU, SPECIES_TEL))
+)
+checkmate::assert_numeric(flight_curve$RELATIVE_ACTIVITY, lower = 0, upper = 1, .var.name = "RELATIVE_ACTIVITY")
+validate_table(
   connectivity, "connectivity",
   key = c("ID_LOKAL", "YEAR", "DRUH"),
   not_na = names(connectivity)
@@ -169,6 +307,7 @@ validate_table(
 
 readr::write_csv(site_design, processed_path("site_design.csv", "common"))
 readr::write_csv(flight_window, processed_path("flight_window.csv", "common"))
+readr::write_csv(flight_curve, processed_path("flight_curve.csv", "common"))
 readr::write_csv(connectivity, processed_path("connectivity.csv", "common"))
 
 report_finish()

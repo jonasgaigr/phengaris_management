@@ -699,3 +699,88 @@ beside `SANGUISORBA_AREA`; `AREA_SOURCE` and `KVES_VERSION`.
 
 **What changed in the models.** Nothing: every table of steps 17-20 is
 identical.
+
+---
+
+## (c) P4.1: the flight season from a flight curve
+
+- **Decision:** P4.1 of `REVIEW.md` (Phase 4, the literature review). The
+  5 % cut-off and the 28-day sensitivity window are PROPOSED.
+- **Legacy specification:** unchanged (no legacy file in the diff).
+- **Full diff:** [`changes/c04_flight_curve.md`](changes/c04_flight_curve.md)
+
+**Why.** Phase 3 kept the visits within 45 days of the year's median
+positive record. The review found that about twice the documented flight
+period of 6-8 weeks, and proposed a flight curve, as the butterfly
+monitoring schemes estimate it, with the season cut where it falls below
+5 % of its peak, and the log relative activity of the curve in place of the
+quadratic season term.
+
+**What was done.**
+
+- An elevation model of Czechia, `Data/Input/reference/elevation.tif`
+  (RCzechia `vyskopis("actual")`, 98 m, whole metres, 6 MB). The reference
+  tool can now refresh single layers (`refresh_reference_layers(layers =
+  "elevation")`), which left every other copy as it was. Step 16 gives each
+  site its elevation (`ELEVATION` in `site_design.csv`): 159-923 m for the
+  points, 160-1019 m for the polygons, median about 410 m.
+- Step 16 fits a flight curve per species (`R/functions/flight_curve.R`): a
+  negative-binomial GAM of the count at the targeted visits with an exact
+  date within 45 days of the median (0 at a negative visit), s(DOY_DEV, k =
+  5) with random intercepts for the year and the grid square, and a smooth of
+  the elevation. The interaction ti(DOY_DEV, ELEVATION) enters when it
+  lowers the AIC: for *P. nausithous* it does (ΔAIC 5.3), for *P. teleius*
+  not (ΔAIC 1.6 against). The relative activity is the expected count
+  divided by the peak within the range of the visits, capped at 1 outside
+  it. New `flight_curve.csv`, tables `16_flight_curve_models`,
+  `16_flight_curve_visits`, `16_flight_season`, figure `16_flight_curve`.
+- Step 04 gives every record `FLIGHT_ACTIVITY` and `LOG_ACTIVITY`, and
+  `IN_FLIGHT_WINDOW` is now "activity at least 5 % of the peak, and within
+  45 days" (`design: flight_window: cutoff: flight_curve`). `IN_WINDOW_28`
+  and `IN_WINDOW_45` flag the fixed windows.
+- Step 17 compares the season terms (`17_<species>_aic_season`) and refits
+  the management model on the fixed windows (`17_<species>_window_sensitivity`).
+
+**The flight season the curve gives** (`16_flight_season`, DOY_DEV):
+
+| | peak | first day ≥ 5 % | last day ≥ 5 % | visits |
+|---|---|---|---|---|
+| *P. nausithous*, 225 m | +1 | −36 | +45 | −25 to +43 |
+| *P. nausithous*, 425 m | −6 | before −45 | +37 | |
+| *P. nausithous*, 625 m | −4 | before −45 | +43 | |
+| *P. teleius* | −17 (first visit) | before −45 | +31 | −17 to +40 |
+
+The pooled curve of the monitoring visits is wider than the 6-8 weeks of a
+single site: the sites and years differ in phenology even after centring on
+the year's median. The visits barely reach the early season: 30 *P.
+nausithous* and 12 *P. teleius* visits lie more than 10 days before the
+median, and the *P. teleius* counts already decline from the first visit.
+
+**What changed in the data.** 12 more *P. teleius* records are outside the
+season, all negatives (9 imputed, 3 observed), dated 33-43 days after the
+median: 14 instead of 2 (`04_outside_flight_window`). *P. nausithous* is
+unchanged (4 records, all more than 45 days from the median). No positive
+record is outside.
+
+**Season term.** The quadratic in DOY_DEV fits better than the log relative
+activity for *P. nausithous* (baseline model, ΔAIC 6.1 on 3842 records); for
+*P. teleius* the activity is marginally better (ΔAIC 1.8, one parameter
+fewer). The quadratic is kept (`revised_models: season_term: quadratic`);
+the management estimates hardly differ between the two.
+
+**What changed in the models.** Only the *P. teleius* models and those
+using its records, through the 12 records:
+
+| model | term | before | after |
+|---|---|---|---|
+| `tel_management` | EVL_species | 6.10 (2.12-17.59) | 6.12 (2.13-17.60) |
+| | host plant dominant | 2.56 (1.04-6.26) | 2.62 (1.07-6.43) |
+| `tel_cooccurrence` | other species found | 3.32 (1.31-8.42) | 3.32 (1.31-8.41) |
+| `nau_cooccurrence` | other species found | 4.28 (1.72-10.61) | 4.27 (1.72-10.60) |
+| species proportions | *P. teleius* share, with imputed | 0.0781 | 0.0784 |
+
+**Window sensitivity** (`17_<species>_window_sensitivity`). The management
+odds ratios on the season of the curve, and within 28 and 45 days of the
+median, differ by at most 0.05 for *P. nausithous* (e.g. timing 2.17, 2.15,
+2.17) and 0.06 for *P. teleius*. The 28-day window drops 10 *P. nausithous*
+and 13 *P. teleius* management records.
