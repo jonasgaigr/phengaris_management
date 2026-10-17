@@ -21,8 +21,8 @@ of them, and its output is saved as `review/review_evidence.txt`.
 
 The status box is ticked when an item is resolved on the `revision` branch:
 [x] resolved, [~] partly resolved, [ ] open. bNN refers to the bug fixes in
-`CHANGELOG.md`, P3.n to the Phase 3 proposals below, implemented in the
-`revised` specification.
+`CHANGELOG.md`, P3.n and P4.n to the Phase 3 and Phase 4 proposals below,
+implemented in the `revised` specification.
 
 ## Baseline
 
@@ -71,20 +71,20 @@ The environment works:
 | 8 | Habitat segment rule keeps the least natural, smallest segment | biases | c | [x] area-weighted on the current VMB layer, point sites over their KVES polygon (revised, P3.9) |
 | 9 | AIC tables compare models fitted on different n | blocks | b | [x] b07 |
 | 10 | `X:Y` fixed effect; `(1 \| YEAR)` entered twice | blocks | c | [x] P3.1, P3.6 (revised) |
-| 11 | Single visits: naive occupancy, no detection covariates | biases | c | [x] P3.3 (revised) |
+| 11 | Single visits: naive occupancy, no detection covariates | biases | c | [x] P3.3 (revised); detection sensitivity P4.4 |
 | 12 | Ordination on 4 rows, 1 residual df | blocks | c | [x] P3.7 (revised) |
 | 13 | No diagnostics; separation and degenerate fits go unnoticed | biases | a + c | [x] b08; P3.4 (revised) |
 | 14 | `00_setup.R` installs packages, bypassing renv | cosmetic | a | [x] (a) |
 | 15 | Remote layers fetched live on every run | biases (drift) | a | [x] (a) |
 | 16 | Steps 02, 03, 14 depend on session objects | cosmetic | a | [x] (a) |
 | 17 | Hard-coded paths, stale outputs, tracked intermediates, no seeds | cosmetic | a | [x] (a), b08 |
-| 18 | Two threat codebooks; legacy patterns miss 46 % of the older one | biases | c | [~] mapping proposed (revised), TODO check |
+| 18 | Two threat codebooks; legacy patterns miss 46 % of the older one | biases | c | [~] mapping proposed (revised), TODO check; Article 17 codes P4.11 |
 | 19 | `PRIKOP` misses plain "příkop"; `HET_INN` = 0 when unmatched | biases | b | [x] b06 |
 | 20 | The field form changed in 2021; geometry and keys confounded with year | biases | c | [x] P3.4 (revised) |
 | 21 | The host-plant filter silently drops 869 records | biases | a (report) + c | [x] reported (a); revised keeps the unknown-plant records |
 | 22 | Inherited counts contaminate the abundance comparisons | biases | b + c | [x] b03; P3.8 (revised) |
 | 23 | Step 02 silently drops 365 records outside the species' own range | biases | a (report) + c | [x] reported (a); kept in revised (Q2) |
-| 24 | `EVL_target` is species-blind, contradicting its own documentation | biases | c | [x] `EVL_species` (revised) |
+| 24 | `EVL_target` is species-blind, contradicting its own documentation | biases | c | [x] `EVL_species` (revised); matching P4.8 |
 | 25 | Small data oddities: out-of-season dates, wrong `.prj`, candidate sources | cosmetic | a + TODO | [~] out-of-season flagged (revised); TODOs in config.yml |
 | 26 | SPEC_NUM is 1 only on positive records: separation by construction | blocks | c | [x] co-occurrence reformulated (revised) |
 
@@ -985,6 +985,113 @@ The results are in `CHANGELOG.md`.
   meadows). `KVES_KATEGORIE` holds the name for every record; `KVES_KOD` is
   NA for these (`RETRIEVED.yml`).
 
+## Status after Phase 4 (2026-10-17)
+
+**Done.** The twelve proposals of the literature review (P4.1-P4.12, see
+the plan below) are implemented in the `revised` specification, one commit
+each, with their numbers in `CHANGELOG.md` and their cell-by-cell diffs in
+`changes/c04`-`c12`. New steps: 21 (landscape, common), 22 (habitat and
+landscape models), 23 (detection sensitivity), 24 (Natura 2000 and
+persistence). Every revised model is now fitted on a third sample, with only
+the plausible imputed absences. Legacy is unchanged.
+
+**What Phase 4 found.**
+
+- **The management results hold.** For *P. nausithous*, appropriate mowing
+  timing and patches left uncut each roughly double the odds of recording
+  the species (2.16 and 2.18), and together add no more. Abundant host
+  plant triples them. This holds:
+  - in each of the three samples;
+  - on the windows of 28 and 45 days;
+  - with connectivity at its best kernel;
+  - with the habitat and the landscape;
+  - with a spatial random field in place of the grid, and under spatial+;
+  - on the occupancy scale of the mixed-design model, where the effects grow
+    (timing 6.6), as they must when detection dilutes them.
+
+  For *P. teleius* no management term is clear in any analysis.
+- **Detection (P4.4).** For *P. nausithous* the 224 site-years visited more
+  than once identify a detection probability at the median day of 0.78
+  (older form) and 0.69 (newer form), the same under a vague prior. A
+  detection of 0.5 is incompatible with the data. For *P. teleius* the
+  imputed absences behave as non-detections (p 0.3, against 0.8 on the
+  observed records).
+- **The *P. teleius* imputed absences (P4.3).** Only 37 % lie within 3 km
+  of any *P. teleius* record of 2012-2024; the median distance is 5 km. Read
+  them with care, and the *P. teleius* results of the sample with all
+  imputed absences above all.
+- **The Natura 2000 association (P4.8, P4.12).** For *P. nausithous* there
+  is none once comparable sites are compared (1.09-1.16).
+
+  For *P. teleius* it is 4.9 unmatched and falls under every analysis that
+  accounts for where the sites are:
+  - 3.8 in the plausible sample;
+  - 2.4 with connectivity;
+  - 1.5-1.8 after matching or covariate adjustment;
+  - 3.6 with a spatial field.
+
+  The EVLs lie where the populations cluster. Populations known in
+  2012-2018 persisted about equally inside and outside them.
+- **Flight season (P4.1).** The pooled flight curve of the monitoring visits
+  is wider than the 6-8 weeks of a single site, so the cut-off at 5 % of
+  its peak moves only 12 *P. teleius* records, and the estimates are the
+  same on windows of 28 and 45 days. The visits barely sample the early
+  season. The quadratic season term fits *P. nausithous* better than the
+  flight curve and is kept.
+- **Connectivity (P4.2).** The occupancy pattern supports a flat kernel
+  (mean distance 1 km for *P. nausithous*, 2 km for *P. teleius*) and no
+  area weighting (b = 0). The mark-recapture scales the review proposed
+  (80-270 m) fit 12-22 AIC worse: occupancy follows colonisation and
+  regional clustering, not daily movement.
+- **Landscape (P4.7).** Arable land within 4 km is the strongest landscape
+  variable for both species (odds ratio 0.81 and 0.61 per 10 percentage
+  points), and grassland within 1 km for *P. teleius* (1.50). Most chosen
+  radii are the largest tested.
+- **Habitat proxies (P4.5, P4.6).** The wet-meadow, X and edge shares show
+  nothing. The edge share hardly varies on the small, strip-like monitored
+  polygons. The 9 visits noted as freshly mown inside the no-cut window
+  all have their timing recorded as inappropriate.
+- **Threats (P4.11).** Fertiliser use is the robust association: the
+  species is recorded less often where it is noted, and it is noted less
+  often where the species was found. It passes Holm in its family.
+- **Counts (P4.10) and space (P4.12).** Standardising the counts by the
+  flight curve changes no estimate. The spatial field fits better than the
+  grid (ΔAIC −13 to −34, range 34-55 km), and spatial+ flags no estimate.
+
+**What to report as what.**
+
+- The occupancy estimates are associations with the probability of
+  recording the species (Guillera-Arroita et al. 2014). Step 23 bounds how
+  far detection could move them.
+- Report the Natura 2000 association as an association. Its matched and
+  covariate-adjusted versions are the ones to cite.
+- For *P. teleius*, the plausible sample is the one to read beside the
+  observed one.
+
+**Recommendations for the monitoring,** from the review and from what the
+analyses could not do:
+
+- A second visit to 5-10 % of the sites each year: it would identify the
+  detection directly (von Hirschheydt et al. 2023).
+- Record the dates of the cuts. The objective timing rule (no cut 1 July -
+  1 September) needs them.
+- Record the cover of *Sanguisorba* in per cent, and, where possible,
+  Myrmica nests.
+- Record explicit *P. teleius* negatives at every visit where it was
+  searched for. That would make the imputation unnecessary.
+
+**Open, needing domain input** (PROPOSED or `TODO(Jonáš)` in `config.yml`),
+in addition to the lists above:
+
+- the flight-season cut-off at 5 % of the curve, and the season term;
+- the connectivity grids, and their choice by profile likelihood;
+- the 3 km radius of a plausible imputed absence;
+- the detection priors (p around 0.7);
+- the wet-meadow codes and the 25 m edge zone;
+- the land-cover groups and the radii;
+- the matching covariates;
+- the Article 17 codes of the threat classes and the confirmatory threats.
+
 ---
 
 ## Plan
@@ -1084,7 +1191,7 @@ and `revised` side by side.
   and a clean skip when the layer is missing. Marked **not validated on real
   data**.
 
-### Phase 4: the literature review, category (c)
+### Phase 4: the literature review, category (c), implemented (see "Status after Phase 4")
 
 A literature review of the twelve gaps a reviewer would raise against the
 revised analysis (methods, parameter values and published precedents; the

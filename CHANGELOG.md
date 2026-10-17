@@ -1330,3 +1330,18 @@ plausible sample 3.75 → 2.83, −0.57 SE) and the host-plant terms of *P.
 nausithous* (2.93 → 2.74, −0.48 SE). The management estimates are not
 confounded with space; the *P. teleius* EVL association partly is, as the
 matching (P4.8) and the plausible sample (P4.3) also found.
+
+---
+
+## Phase 4: how its numbers were produced, and the legacy check
+
+- Each Phase 4 commit re-ran the steps its change affects in the working
+  tree (not a clean worktree; the run of each commit is listed in its
+  entry), snapshotted the outputs and diffed them against the snapshot of
+  the commit before.
+- After the last commit the whole cascade was run from scratch, in 93
+  minutes: every processed CSV and result table is identical to the
+  step-by-step results (`changes/a09_restyle_phase4.md`, 346 files).
+- The legacy specification is unchanged across Phase 4: its 81 processed
+  files and tables are identical to those before P4.1
+  ([`changes/c13_phase4_legacy.md`](changes/c13_phase4_legacy.md)).

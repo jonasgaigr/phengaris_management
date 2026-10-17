@@ -42,10 +42,28 @@ The cascade runs two specifications side by side:
   - habitat described from the current habitat mapping (VMB) and the
     ecosystem layer KVES (2021-2025), downloaded from data.nature.cz; point
     sites described over the KVES polygon they lie in.
+- Phase 4 (`REVIEW.md`, P4.1-P4.12) adds to **revised** what a literature
+  review of the reviewers' likely objections proposed:
+  - the flight season cut by a flight curve fitted to the counts, with
+    fixed windows of 28 and 45 days as a sensitivity check;
+  - alpha and b of the connectivity chosen by profile likelihood;
+  - a third sample with only the plausible imputed absences, near a
+    population known from 2012-2024;
+  - detection sensitivity: known detection probabilities and a Bayesian
+    mixed-design occupancy model (spOccupancy);
+  - habitat proxies for the host ants, the landscape at 0.2-4 km with the
+    radius chosen by AIC, and a check of the recorded mowing timing;
+  - matching on the propensity score for the Natura 2000 association, and
+    the persistence of the 2012-2018 populations;
+  - counts standardised by the flight curve and a hurdle model;
+  - threats with their Article 17 codes, a stacked model, Holm and
+    Benjamini-Hochberg;
+  - an SPDE spatial field and spatial+.
 
 The models of both specifications are *naive occupancy* models. The
 monitoring is essentially one visit per site and year, so detection is not
-separated from occupancy (`REVIEW.md`, item 11).
+separated from occupancy (`REVIEW.md`, item 11). Step 23 shows how far the
+management estimates could owe to that (P4.4).
 
 - [`REVIEW.md`](REVIEW.md) is the critical review of the code and the data,
   with what has been resolved.
@@ -61,7 +79,7 @@ source("run_all.R")          # everything, in dependency order
 ```
 
 ```sh
-Rscript run_all.R            # everything (about 20 minutes)
+Rscript run_all.R            # everything (about 95 minutes; the MCMC of step 23 takes 40)
 Rscript run_all.R 07 08 15   # selected steps only
 Rscript R/09_models_nausithous.R   # one step on its own
 PHENGARIS_SPEC=revised Rscript R/07_describe_tables.R   # under a chosen specification
@@ -89,12 +107,13 @@ PHENGARIS_SPEC=revised Rscript R/07_describe_tables.R   # under a chosen specifi
 
 | Step | Script | Scope | Reads | Writes |
 |---|---|---|---|---|
-| 01 | `01_load_source_data.R` | common | occurrence exports, site shapefiles | `records.csv`, `sites.gpkg` |
+| 01 | `01_load_source_data.R` | common | occurrence exports 2019-2024 and 2012-2018, site shapefiles | `records.csv`, `sites.gpkg`, `records_2012_2018.csv`, `sites_2012_2018.gpkg` |
 | 03 | `03_protected_areas.R` | common | 01, reference EVL / MZCHU / Natura 2000 subjects | `protected_area_id.csv` |
-| 05 | `05_habitat_intersect.R` | common | 01, frozen intersection, VMB and KVES copies (each optional) | `data_lokal_vmb.csv`, `data_lokal_vmb_current.csv`, `data_lokal_kves.csv`, `site_areas.gpkg` |
-| 16 | `16_site_design.R` | common | 01 | `site_design.csv`, `flight_window.csv`, `connectivity.csv` |
+| 05 | `05_habitat_intersect.R` | common | 01, frozen intersection, VMB and KVES copies (each optional) | `data_lokal_vmb.csv`, `data_lokal_vmb_current.csv`, `data_lokal_kves.csv`, `site_areas.gpkg`, `site_area_shape.csv` |
+| 16 | `16_site_design.R` | common | 01, elevation model (optional) | `site_design.csv`, `flight_window.csv`, `flight_curve.csv`, `connectivity.csv`, `site_history.csv` |
+| 21 | `21_landscape.R` | common | 01, 16, landscape rasters (optional) | `landscape.csv` |
 | 02 | `02_impute_absences.R` | spec | 01, reporting ranges | `data_with_imputed.csv` |
-| 04 | `04_clean_occurrence.R` | spec | 02, 03, 16 | `data_clean.csv` |
+| 04 | `04_clean_occurrence.R` | spec | 02, 03, 16, 21 | `data_clean.csv` |
 | 06 | `06_habitat_join.R` | spec | 04, 05 | `data_analysis.csv`, the table every model uses |
 | 07 | `07_describe_tables.R` | spec | 06 | descriptive tables |
 | 08 | `08_describe_figures.R` | spec | 06 | descriptive figures |
@@ -103,10 +122,13 @@ PHENGARIS_SPEC=revised Rscript R/07_describe_tables.R   # under a chosen specifi
 | 11 | `11_models_both_species.R` | legacy | 06 | both-species models, species comparisons |
 | 12 | `12_model_figures.R` | legacy | 06 | figures accompanying the models |
 | 13 | `13_threats_ordination.R` | legacy | 06 | the original ordination of threats |
-| 17 | `17_occupancy_models.R` | revised | 06 | occupancy models of both species, co-occurrence, species comparison |
-| 18 | `18_spatial_autocorrelation.R` | revised | 06 | residual spatial autocorrelation; grid against smooth |
-| 19 | `19_threat_models.R` | revised | 06 | occupancy against each threat class |
-| 20 | `20_abundance_models.R` | revised | 06 | counts at occupied sites |
+| 17 | `17_occupancy_models.R` | revised | 06, 16 | occupancy models of both species, connectivity profile, window sensitivity, co-occurrence, species comparison; `connectivity_selected.csv` |
+| 18 | `18_spatial_autocorrelation.R` | revised | 06 | residual spatial autocorrelation; grid against smooth and SPDE field; spatial+ |
+| 19 | `19_threat_models.R` | revised | 06 | occupancy against each threat class; stacked threat model |
+| 20 | `20_abundance_models.R` | revised | 06 | counts at occupied sites; hurdle model with the flight-curve offset |
+| 22 | `22_habitat_models.R` | revised | 06 | mowing-timing check, host plant, local habitat, landscape scales |
+| 23 | `23_detection_models.R` | revised | 06 | known detection, mixed-design occupancy model |
+| 24 | `24_natura2000.R` | revised | 06, 17 | matching for the Natura 2000 association, persistence of the 2012-2018 populations |
 | 14 | `14_maps.R` | spec | 01, 06, reference border / grid / relief | maps |
 | 15 | `15_compile_report.R` | final | every step report | `Outputs/REPORT.md` |
 
@@ -155,32 +177,51 @@ What each step does:
 14. **Maps.**
 15. **Compile the report.**
 16. **Persistent sites, flight season and connectivity.**
-    - Reconstructs persistent sites across years, at 50 m and at 0 and 200 m.
-    - Finds the median day of the positive records per species and year.
+    - Reconstructs persistent sites across years, at 50 m and at 0 and 200 m,
+      and gives each site its elevation.
+    - Finds the median day of the positive records per species and year, and
+      fits the flight curve of each species (P4.1).
     - Computes each surveyed site's connectivity to the occupied sites
-      around it.
+      around it, at every alpha x b pair of the profile (P4.2).
+    - Finds the populations known around each site: the nearest positive
+      record of 2012-2024, and a record of 2012-2018 at the site (P4.3, P4.8).
 17. to 20. *Revised:*
     - multivariable occupancy models with diagnostics and marginal
-      predictions, with co-occurrence;
-    - residual spatial autocorrelation;
-    - per-threat models;
-    - zero-truncated models of the counts.
+      predictions, the connectivity profile, the window sensitivity and
+      co-occurrence;
+    - residual spatial autocorrelation, an SPDE spatial field and spatial+;
+    - per-threat models and a stacked threat model;
+    - zero-truncated models of the counts and a hurdle model.
+21. **The landscape around the sites** (P4.7): shares of grassland, arable
+    land, forest, water and settlements (KVES 2025) and of natural habitats
+    and *Sanguisorba* meadows (VMB) in circles of 0.2-4 km.
+22. to 24. *Revised:*
+    - habitat and landscape models, with the radius of each landscape
+      variable chosen by AIC, and a check of the recorded mowing timing
+      (P4.5-P4.7);
+    - detection sensitivity (P4.4);
+    - the Natura 2000 association after matching, and the persistence of the
+      2012-2018 populations (P4.8, P4.9).
 
 ## Outputs
 
 ```
 Outputs/
   REPORT.md                 all step reports collected, with a table of contents
-  common/  Tables/ Figures/ Reports/     steps 01, 03, 05, 16
+  common/  Tables/ Figures/ Reports/     steps 01, 03, 05, 16, 21
   legacy/  Tables/ Figures/ Reports/     steps 02, 04, 06-14 of the legacy specification
            Exports/                      data exports for Excel (step 13)
-  revised/ Tables/ Figures/ Reports/     steps 02, 04, 06-08, 14, 17-20 of the revised specification
+  revised/ Tables/ Figures/ Reports/     steps 02, 04, 06-08, 14, 17-20, 22-24 of the revised specification
 Data/Processed/
-  common/  records.csv, sites.gpkg, protected_area_id.csv,
+  common/  records.csv, sites.gpkg, records_2012_2018.csv, sites_2012_2018.gpkg,
+           protected_area_id.csv,
            data_lokal_vmb.csv (frozen), data_lokal_vmb_current.csv, data_lokal_kves.csv,
-           site_design.csv, flight_window.csv, connectivity.csv
+           site_areas.gpkg, site_area_shape.csv,
+           site_design.csv, flight_window.csv, flight_curve.csv, connectivity.csv,
+           site_history.csv, landscape.csv
   legacy/  data_with_imputed.csv, data_clean.csv, data_analysis.csv
-  revised/ data_with_imputed.csv, data_clean.csv, data_analysis.csv
+  revised/ data_with_imputed.csv, data_clean.csv, data_analysis.csv,
+           connectivity_selected.csv
 ```
 
 Start at `Outputs/REPORT.md`.
@@ -208,10 +249,17 @@ The revised steps (`17_<species>_…` and so on) add:
 | Table | Contents |
 |---|---|
 | `_key_estimates` | odds (or rate) ratios with 95 % CIs of the terms of interest |
-| `_imputation_sensitivity` | the management model with and without the imputed absences |
+| `_imputation_sensitivity` | the management model with all, with the plausible and without the imputed absences |
 | `_predictions_*` | marginal predicted probabilities (or counts) with 95 % CIs |
 | `_gvif` | generalised variance inflation factors |
 | `_bias_reduced` | bias-reduced refits (brglm2) of the models flagged for separation |
+| `_connectivity_profile` | the management model at every alpha x b of the connectivity (step 17) |
+| `_window_sensitivity` | the management model on fixed windows of 28 and 45 days (step 17) |
+| `_known_detection`, `_occupancy_*`, `_detection_probability` | the detection sensitivity (step 23) |
+
+Every revised model is fitted on three samples: with the imputed absences
+(ids without a suffix), with only the plausible ones (`_pls`) and on the
+observed records only (`_obs`).
 
 `Data/Processed` and `Outputs` are not tracked by git; `Rscript run_all.R`
 regenerates them.
@@ -243,11 +291,15 @@ specification until they are confirmed. The open ones are:
 - the meaning of a missing grazing or mowing entry;
 - the mapping of the older (2019-2020) threat list (proposed);
 - the observer aliases (proposed);
-- the connectivity alpha, 1 per km (proposed);
-- the flight-season cut-off, 45 days (proposed);
 - the unmapped habitat categories;
 - the KVES version of each record year, the closest one (proposed);
-- the crosswalk from the habitat codes to the Natura 2000 habitat codes.
+- the crosswalk from the habitat codes to the Natura 2000 habitat codes;
+- from Phase 4 (proposed): the flight-season cut-off at 5 % of the flight
+  curve, the season term, the connectivity grids and their choice by
+  profile likelihood, the 3 km radius of a plausible imputed absence, the
+  detection priors, the wet-meadow codes and the 25 m edge, the land-cover
+  groups and radii, the matching covariates, the Article 17 codes of the
+  threat classes and the confirmatory threats.
 
 ## Data
 
@@ -255,6 +307,11 @@ specification until they are confirmed. The open ones are:
 Data/Input/
   Phengaris_*_2019_2024.csv        AOPK occurrence exports (Windows-1250, ';', '.' decimal mark)
   Phengaris_*_2019_2024/           site geometries (points, polygons, lines); coordinates in S-JTSK
+  Phengaris_*_2012_2018.csv, Phengaris_*_2012_2018/
+                                   the earlier exports and their sites: where the species were
+                                   known before (P4.3, P4.8); no model is fitted on them
+  landscape/                       KVES land cover and VMB shares at 25 m and 100 m, for all of
+                                   Czechia (not tracked; made by build_landscape_layers()), with BUILT.yml
   Reporting_range/                 Article 17 reporting ranges, 10 x 10 km cells
   reference/                       local copies of remote layers, with RETRIEVED.yml
   habitats/legacy/                 the frozen site x habitat intersection of the original analysis
@@ -268,12 +325,28 @@ Data/Cache/aopk/                   the VMB and KVES kraj archives and per-kraj e
 layers the cascade needs:
 
 - EVL, MZCHU and the mapping grid (AOPK WFS);
-- the border and the shaded relief (RCzechia);
+- the border, the shaded relief and the elevation model (RCzechia);
 - the Natura 2000 site-subject table (rn2kcz).
 
 `RETRIEVED.yml` records when and where each copy was fetched. To bring them
-up to date, run `R/tools/refresh_reference_layers.R` by hand. Then re-run the
-cascade and diff the outputs with `R/tools/compare_snapshots.R`.
+up to date, run `R/tools/refresh_reference_layers.R` by hand
+(`refresh_reference_layers(layers = ...)` for some of them only). Then
+re-run the cascade and diff the outputs with `R/tools/compare_snapshots.R`.
+
+**Landscape rasters.** The landscape around a site reaches 4 km, beyond the
+200 m the habitat copies keep. `R/tools/build_landscape_layers.R`
+rasterises the KVES 2025 and VMB kraj archives of the cache for all of
+Czechia (about 30 minutes; needs the cache of the download tool):
+
+```r
+source("R/00_setup.R")
+source("R/tools/download_habitat_layers.R")
+source("R/tools/build_landscape_layers.R")
+build_landscape_layers()
+```
+
+Without the rasters, step 21 writes no landscape table and step 22 skips
+the landscape models.
 
 **Habitat layers.** The habitat mapping (VMB, data.nature.cz ds/21) and the
 ecosystem layer KVES of AOPK ČR in its versions 2021, 2022, 2023 and 2025
@@ -348,5 +421,6 @@ data and result tables and lists every cell a change alters:
 - a bug fix is documented in `CHANGELOG.md`.
 
 **Other tools.** `R/tools/download_habitat_layers.R` downloads the VMB and
-KVES layers (see *Data*); `R/tools/refresh_reference_layers.R` the reference
-layers.
+KVES layers (see *Data*); `R/tools/build_landscape_layers.R` builds the
+landscape rasters from them; `R/tools/refresh_reference_layers.R` fetches
+the reference layers.
