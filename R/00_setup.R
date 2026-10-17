@@ -36,7 +36,10 @@ pkgs <- c(
   "forcats", "ggplot2", "ggrepel", "ggpubr", "sf", "terra", "units", "vegan",
   "lme4", "Matrix", "reformulas", "DHARMa", "yaml", "checkmate",
   # The revised model set (steps 17-20).
-  "glmmTMB", "brglm2", "detectseparation", "marginaleffects", "mgcv"
+  "glmmTMB", "brglm2", "detectseparation", "marginaleffects", "mgcv",
+  # Phase 4: the mixed-design occupancy model (step 23), the matching
+  # (step 24) and the SPDE spatial field (step 18).
+  "spOccupancy", "MatchIt", "optmatch", "sandwich", "sdmTMB"
 )
 
 missing_pkgs <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
