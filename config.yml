@@ -334,6 +334,25 @@ strukt_pozn:
     - "sešlapávání"                                                  # 29
     - "absence nebo narušení mezidruhových vztahů (např. opylovači, živné rostliny apod.)"  # 31
     - "používání pesticidů"                                          # 1
+  # The Article 17 pressure code of each threat class (reference list of
+  # threats, pressures and activities of the 2013-2018 reporting), so that
+  # both field-form lists, and other studies, speak the same language
+  # (P4.11). The current Czech threat list follows that list closely.
+  # PROPOSED. TODO(Jonáš): check against the reference list.
+  threat_article17:
+    LandUseChange: "A02"              # conversion from one agricultural land use to another
+    Abandonment: "A06"                # abandonment of grassland management
+    HarmfulMow: "A08"                 # mowing or cutting of grasslands
+    HarmfulGrazing: "A09"             # intensive grazing or overgrazing by livestock
+    GrazingByeffects: "A14"           # livestock farming (without grazing)
+    FertilizerUse: "A19, A20"         # natural and synthetic fertilisers
+    Afforestation: "B01"              # conversion to forest, afforestation
+    Invasives: "I01, I02"             # invasive alien species
+    NativeDominants: "I04"            # problematic native species
+    AbioticNaturalProcesses: "L01"    # abiotic natural processes (erosion, silting, drying out)
+    Encroachment: "L02"               # natural succession
+    BiomassAccumulation: "L03"        # accumulation of organic material
+    Eutrophization: "L04"             # natural eutrophication or acidification
 
 #--------------------------------------------------#
 # Persistent sites -----
@@ -598,6 +617,13 @@ revised_models:
   # negative; otherwise it is reported as too rare.
   threats:
     min_records_per_outcome: 5
+    # The threats with a direction expected before looking, from the
+    # management literature: harmful mowing, abandonment, harmful grazing,
+    # fertiliser use and encroachment. Their p-values are adjusted with Holm,
+    # the others' with Benjamini-Hochberg (P4.11). PROPOSED.
+    confirmatory: [HarmfulMow, Abandonment, HarmfulGrazing, FertilizerUse, Encroachment]
+    # The stacked model of all threat classes at once (P4.11).
+    stacked: true
 
 #--------------------------------------------------#
 # Detection sensitivity -----

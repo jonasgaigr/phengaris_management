@@ -16,9 +16,14 @@
 #
 # The threat classes come from the harmonised vocabulary (config.yml
 # `strukt_pozn: threat_items`), which maps the older 2019-2020 threat list to
-# the classes of the current one. The two lists were filled in on different
-# forms, so the era stays in every model. Records without a threat list are
-# left out. p-values are Holm-adjusted within each species and sample.
+# the classes of the current one, and are labelled with their Article 17
+# pressure codes (`strukt_pozn: threat_article17`, P4.11). The two lists were
+# filled in on different forms, so the era stays in every model. Records
+# without a threat list are left out. p-values are adjusted within each
+# species and sample: Holm for the threats with an expected direction,
+# Benjamini-Hochberg for the others (P4.11). A stacked model of all classes
+# at once, with the threat as the response, completes them
+# (R/functions/threats.R).
 #
 # Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
 # Writes: Outputs/<spec>/Tables/19_*.csv, Figures/19_*.png
@@ -58,6 +63,7 @@ species_files <- c(nau = "nausithous", tel = "teleius")
 
 estimates <- list()
 counts <- list()
+stacked <- list()
 
 for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   code <- species_code(species)
@@ -71,9 +77,35 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
 
     coefs <- tmb_coef_table(fitted)
     if (nrow(coefs)) {
+      coefs <- coefs %>%
+        dplyr::filter(term %in% names(CONFIG$strukt_pozn$threat_items))
+      adjusted <- adjust_threat_p(coefs$p_value, coefs$term)
       estimates[[paste(species, sample)]] <- coefs %>%
-        dplyr::filter(term %in% names(CONFIG$strukt_pozn$threat_items)) %>%
-        dplyr::mutate(species = species, p_holm = stats::p.adjust(p_value, "holm"), .before = 1)
+        dplyr::mutate(
+          species = species, p_adjusted = adjusted$adjusted, adjustment = adjusted$method,
+          .before = 1
+        )
+    }
+
+    # All classes in one stacked model (P4.11): which threats are recorded
+    # more or less often at the visits where the species was found.
+    if (isTRUE(CONFIG$revised_models$threats$stacked)) {
+      classes <- threat_set$counts$class[threat_set$counts$modelled]
+      d <- revised_model_data(data, species, sample)
+      stacked_model <- fit_stacked_threats(
+        stack_threats(d, classes),
+        id = paste0(code, "_threats_stacked", sample_suffix(sample)), sample = sample
+      )
+      models[[stacked_model$id]] <- stacked_model
+      stacked_coefs <- tmb_coef_table(list(stacked_model))
+      if (nrow(stacked_coefs)) {
+        stacked_coefs <- stacked_coefs %>%
+          dplyr::filter(grepl(":POSITIVE$", term)) %>%
+          dplyr::mutate(class = sub("^CLASS(.*):POSITIVE$", "\\1", term))
+        adjusted <- adjust_threat_p(stacked_coefs$p_value, stacked_coefs$class)
+        stacked[[paste(species, sample)]] <- stacked_coefs %>%
+          dplyr::mutate(species = species, p_adjusted = adjusted$adjusted, adjustment = adjusted$method)
+      }
     }
   }
   report_tmb_set(models, paste0("19_", species_files[[code]]))
@@ -105,15 +137,45 @@ if (nrow(estimates)) {
     dplyr::transmute(
       species, sample,
       threat = term,
+      article17 = article17_code(term),
       odds_ratio = sprintf("%.2f (%.2f-%.2f)", ratio, ratio_low, ratio_high),
-      p_value, p_holm
+      p_value, p_adjusted, adjustment
     )
   report_table(
     summary_table,
-    "Odds ratio (95% CI) of recording the species at visits with the threat, with Holm-adjusted p",
+    paste(
+      "Odds ratio (95% CI) of recording the species at visits with the threat,",
+      "with the Article 17 pressure code of the class and p adjusted within",
+      "species and sample: Holm for the threats with an expected direction",
+      "(config.yml `revised_models: threats: confirmatory`), Benjamini-Hochberg",
+      "for the others"
+    ),
     "19_threat_estimates",
     max_rows = nrow(summary_table)
   )
+
+  stacked <- dplyr::bind_rows(stacked)
+  if (nrow(stacked)) {
+    stacked_table <- stacked %>%
+      dplyr::transmute(
+        species, sample, threat = class, article17 = article17_code(class),
+        odds_ratio = sprintf("%.2f (%.2f-%.2f)", ratio, ratio_low, ratio_high),
+        p_value, p_adjusted, adjustment
+      )
+    report_table(
+      stacked_table,
+      paste(
+        "Stacked model of all threat classes (P4.11): the odds ratio (95% CI) of",
+        "the threat being recorded at a visit where the species was found against",
+        "one where it was not, each class with its own intercept and era effect,",
+        "random intercepts for the visit, the grid square and the observer;",
+        "p adjusted as above. The direction is the reverse of the per-threat",
+        "models: here the threat is the response"
+      ),
+      "19_threat_stacked",
+      max_rows = nrow(stacked_table)
+    )
+  }
 
   plot <- ggplot2::ggplot(
     estimates %>%

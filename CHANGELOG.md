@@ -1217,3 +1217,61 @@ coefficient tables list it with the prefix `zi:`. Step 20 adds, per species
   goes with whether the species is found rather than with how many adults
   are counted. The DHARMa tests of the hurdle models pass (uniformity p 0.74
   and 0.91).
+
+---
+
+## (c) P4.11: threats with their Article 17 codes, a stacked model, Holm and BH
+
+- **Decision:** P4.11 of `REVIEW.md`. The Article 17 codes and the list of
+  confirmatory threats are PROPOSED.
+- **Legacy specification:** unchanged. No odds ratio or p-value of the
+  per-threat models changes; their adjusted p-values do.
+- **Full diff:** [`changes/c11_threats.md`](changes/c11_threats.md)
+
+**What was done.**
+
+- Each threat class carries its Article 17 pressure code
+  (`strukt_pozn: threat_article17`: A02, A06, A08, A09, A14, A19/A20, B01,
+  I01/I02, I04, L01-L04).
+- The per-threat p-values are adjusted within each species and sample in
+  two families: Holm for the threats with a direction expected from the
+  management literature (harmful mowing, abandonment, harmful grazing,
+  fertiliser use, encroachment), Benjamini-Hochberg for the others. Before,
+  Holm across all classes (`p_holm` → `p_adjusted`, `adjustment`).
+- A stacked model of all modelled classes per species and sample
+  (`19_threat_stacked`, `R/functions/threats.R`): every record × class is a
+  row, the threat being recorded the response, each class with its own
+  intercept, its own term for the species being found and its own era
+  term, and random intercepts for the visit, the grid square and the
+  observer. Its class × occupancy odds ratios are adjusted the same way.
+
+**Per-threat models, adjusted p** (*P. nausithous*; the odds ratios are
+unchanged):
+
+| sample | threat | odds ratio | before (Holm, all) | after |
+|---|---|---|---|---|
+| with imputed | fertiliser use (A19, A20) | 0.35 (0.16-0.74) | 0.077 | 0.030 (Holm) |
+| with imputed | native dominants (I04) | 1.57 (1.11-2.21) | 0.126 | 0.077 (BH) |
+| plausible imputed | native dominants | 1.62 (1.15-2.29) | 0.073 | 0.048 (BH) |
+| observed only | biomass accumulation (L03) | 1.65 (1.22-2.24) | 0.014 | 0.009 (BH) |
+| observed only | fertiliser use | 0.34 (0.16-0.75) | 0.085 | 0.036 (Holm) |
+
+**Stacked model** (odds ratio of the threat being recorded where the species
+was found against where it was not; sample with the imputed absences):
+
+- *P. nausithous*: fertiliser use 0.32 (0.18-0.59, Holm 0.001), harmful
+  grazing 1.40 (1.09-1.79, Holm 0.03), native dominants 1.38 (BH 0.047),
+  abiotic processes 0.69 (BH 0.047), eutrophication 1.28 (BH 0.047).
+- *P. teleius*: harmful grazing 3.20 (2.03-5.04, Holm < 0.001), effects of
+  livestock farming 3.76 (BH 0.02), encroachment 0.59 (Holm 0.04),
+  eutrophication 0.44 (BH 0.01).
+
+Fertiliser use is the consistent result: the species is recorded less often
+where it is noted, and it is noted less often where the species was found.
+Harmful grazing turns round between the two (per-threat 0.67, stacked
+1.40): in the stacked model the visit intercept absorbs how many threats a
+surveyor lists at a visit, more at the visits without the species, so its
+class × occupancy terms compare the threats with each other. The stacked
+models are flagged for possible separation (some classes are rare in one
+field-form era), and the *P. nausithous* observed-only one did not converge;
+read them as a check on the per-threat models.
