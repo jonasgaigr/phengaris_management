@@ -1345,3 +1345,50 @@ matching (P4.8) and the plausible sample (P4.3) also found.
 - The legacy specification is unchanged across Phase 4: its 81 processed
   files and tables are identical to those before P4.1
   ([`changes/c13_phase4_legacy.md`](changes/c13_phase4_legacy.md)).
+
+---
+
+## (b) Threat classes off the 2019-2020 threat list are unknown there, not absent
+
+- **Specification:** revised only (the harmonised threat vocabulary); legacy
+  unchanged.
+- **Full diff:** [`changes/b09_threats_off_form.md`](changes/b09_threats_off_form.md)
+
+**Why.** The stacked threat model of P4.11 was flagged for separation, with
+era terms of about ±25 and standard errors in the thousands. The cause: three
+classes of the current threat list have no item on the 2019-2020 list. In
+2019-2020 they were recorded at 0, 0 and 2 of 1893 records:
+
+| class | records in 2019-2020 | in 2021-2024 (*P. nausithous*) |
+|---|---|---|
+| abandonment (A06) | 0 | 384 |
+| effects of livestock farming (A14) | 0 | 49 |
+| native dominants (I04) | 2 | 337 |
+
+Their 0 in 2019-2020 means "not on the form", not "not seen": the problem
+of review item 6, here in the harmonised vocabulary. The comment in
+`config.yml` that "no class exists in one era only" was wrong.
+
+**What changed.**
+
+- Step 04 sets a class to NA in an era where it was recorded at fewer than 5
+  records (`strukt_pozn: threat_min_records_per_era`;
+  `mask_unlisted_threats()`, table `04_threat_classes_off_form`). 5679 cells
+  of `data_analysis.csv` change from 0 (or 1, the two native-dominant
+  records) to NA.
+- The per-threat models of these classes are fitted on 2021-2024 alone,
+  without the era term.
+- The stacked model gives an era term only to the classes on both forms, and
+  has no rows for a class in an era it was not on.
+
+**What changed in the models.**
+
+- The stacked models no longer separate, and the *P. nausithous*
+  observed-only one now converges. Their class × occupancy odds ratios hardly
+  move (*P. nausithous*: fertiliser use 0.32, harmful grazing 1.40, native
+  dominants 1.38 → 1.39).
+- Per-threat models, *P. nausithous*, with imputed: abandonment 1.55
+  (1.07-2.24) → 1.48 (1.01-2.18); native dominants 1.57 → 1.55; effects of
+  livestock farming 0.83 → 0.81. The *P. teleius* livestock-farming model (5
+  positive records with the threat) now returns no standard error (0.78,
+  NaN), with its random-effect variance at zero.

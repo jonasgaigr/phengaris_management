@@ -362,16 +362,20 @@ revised_threat_specs <- function(data, species, sample, classes = names(CONFIG$s
   counts <- dplyr::bind_rows(lapply(classes, function(k) {
     tibble::tibble(
       class = k,
-      with_threat_positive = sum(d[[k]] == 1 & d$POSITIVE == 1),
-      with_threat_negative = sum(d[[k]] == 1 & d$POSITIVE == 0)
+      with_threat_positive = sum(d[[k]] == 1 & d$POSITIVE == 1, na.rm = TRUE),
+      with_threat_negative = sum(d[[k]] == 1 & d$POSITIVE == 0, na.rm = TRUE)
     )
   }))
   usable <- counts$class[counts$with_threat_positive >= minimum & counts$with_threat_negative >= minimum]
 
+  # A class that was not on the form of one era (NA there,
+  # mask_unlisted_threats()) is modelled on the other era alone, without the
+  # era term.
   specs <- lapply(usable, function(k) {
+    d_k <- d[!is.na(d[[k]]), , drop = FALSE]
     list(
       id = paste0(code, "_threat_", k, suffix), label = k, group = "Threat",
-      formula = revised_formula(terms = k), data = d, sample = sample
+      formula = revised_formula(terms = k, era = dplyr::n_distinct(d_k$ERA) > 1), data = d_k, sample = sample
     )
   })
   list(

@@ -144,6 +144,12 @@ if (design_variables) {
       }
     ) %>%
     collapse_to_visits()
+  # A threat class absent from the threat list of one field form is unknown
+  # there, not absent.
+  if (threat_vocabulary == "harmonised") {
+    unlisted <- mask_unlisted_threats(data_clean)
+    data_clean <- unlisted$data
+  }
 }
 
 #----------------------------------------------------------#
@@ -352,6 +358,19 @@ if (threat_vocabulary == "harmonised") {
     "Text of the threat lists that matches no known item (free-text notes, mostly)",
     "04_threat_items_unrecognised"
   )
+  if (design_variables) {
+    report_table(
+      unlisted$masked,
+      sprintf(
+        paste(
+          "Threat classes off the threat list of a field form: recorded at fewer",
+          "than %d records of the era, so set to NA there (unknown, not absent)"
+        ),
+        CONFIG$strukt_pozn$threat_min_records_per_era
+      ),
+      "04_threat_classes_off_form"
+    )
+  }
 }
 
 if (design_variables) {

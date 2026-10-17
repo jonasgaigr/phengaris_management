@@ -278,7 +278,10 @@ strukt_pozn:
   # An item may carry a free-text comment after ":", which is ignored. The
   # older items are mapped to the class of their nearest current item; the
   # ones without an equivalent in the current list are listed under
-  # `unmapped` and set no class, so that no class exists in one era only.
+  # `unmapped` and set no class. Three current classes have no item on the
+  # older list (abandonment, effects of livestock farming, native
+  # dominants); in 2019-2020 they are unknown, not absent
+  # (`threat_min_records_per_era`).
   # Counts are item occurrences in the targeted records of 2019-2024.
   # PROPOSED in Phase 3 (P3.7). TODO(Jonáš): check the mapping of the older
   # items (marked "older list").
@@ -334,6 +337,10 @@ strukt_pozn:
     - "sešlapávání"                                                  # 29
     - "absence nebo narušení mezidruhových vztahů (např. opylovači, živné rostliny apod.)"  # 31
     - "používání pesticidů"                                          # 1
+  # A threat class recorded at fewer than this many records of a field-form
+  # era (over both species) was not on that era's threat list: it is NA
+  # there rather than 0 (R/functions/threats.R, mask_unlisted_threats()).
+  threat_min_records_per_era: 5
   # The Article 17 pressure code of each threat class (reference list of
   # threats, pressures and activities of the 2013-2018 reporting), so that
   # both field-form lists, and other studies, speak the same language

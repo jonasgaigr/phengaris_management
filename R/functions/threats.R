@@ -26,14 +26,53 @@
 #
 #----------------------------------------------------------#
 
+#' Set the threat classes to NA in an era whose form could not record them.
+#'
+#' The 2019-2020 threat list has no item for some classes of the current list
+#' (e.g. abandonment), so in that era their 0 means "not on the form", not
+#' "not seen" (as REVIEW.md, item 6, for the other variables). A class
+#' recorded at fewer than `min_records` records of an era, over both species,
+#' is taken to be off that era's form, and is NA there.
+#'
+#' @param data         records with the class flags, SUM_THREATS and the era
+#' @param classes      the threat classes
+#' @param era          the era column
+#' @param min_records  config.yml `strukt_pozn: threat_min_records_per_era`
+#' @return list(data = `data` with the masked cells set to NA, masked = a
+#'         table of the class x era combinations masked and the records they
+#'         held)
+mask_unlisted_threats <- function(data, classes = names(CONFIG$strukt_pozn$threat_items), era = "PROTOCOL_ERA",
+                                  min_records = CONFIG$strukt_pozn$threat_min_records_per_era) {
+  listed <- !is.na(data$SUM_THREATS)
+  masked <- list()
+  for (k in classes) {
+    for (e in sort(unique(data[[era]]))) {
+      rows <- listed & data[[era]] == e
+      recorded <- sum(data[[k]][rows] == 1, na.rm = TRUE)
+      if (recorded < min_records) {
+        masked[[length(masked) + 1]] <- tibble::tibble(
+          class = k, era = e, records_with_threat = recorded, records_masked = sum(rows)
+        )
+        data[[k]][data[[era]] == e] <- NA
+      }
+    }
+  }
+  list(
+    data = data,
+    masked = if (length(masked)) dplyr::bind_rows(masked) else tibble::tibble(class = character(), era = character())
+  )
+}
+
 #' The records x threat classes, one row each, for the stacked model.
+#'
+#' A class that is NA (off the form of an era, mask_unlisted_threats()) has
+#' no rows in that era.
 #'
 #' @param data     revised_model_data() of one species and sample
 #' @param classes  the threat classes to stack
 #' @return the records with a threat list, one row per class: CLASS (a
 #'         factor), THREAT (0/1), POSITIVE, ERA, NEWER_FORM (1 for the newer
-#'         field form, so that each class gets one era term), ID_RECORD,
-#'         SITMAP, OBSERVER
+#'         field form), ID_RECORD, SITMAP, OBSERVER
 stack_threats <- function(data, classes) {
   d <- data[!is.na(data$SUM_THREATS), , drop = FALSE]
   newer <- as.numeric(as.integer(factor(d$ERA)) == 2)
@@ -43,19 +82,30 @@ stack_threats <- function(data, classes) {
       ID_RECORD = d$ID_RECORD, SITMAP = d$SITMAP, OBSERVER = d$OBSERVER
     )
   })) %>%
+    dplyr::filter(!is.na(THREAT)) %>%
     dplyr::mutate(CLASS = factor(CLASS, levels = classes))
 }
 
 #' Fit the stacked threat model.
+#'
+#' Each class recorded in both eras gets its own era term (ERA_<class>, 1 for
+#' a row of the class from the newer form); a class recorded in one era only
+#' gets none.
 #'
 #' @param stacked  stack_threats()
 #' @param id       model id
 #' @param sample   the sample, for the tables
 #' @return a fitted-model record of fit_tmb()
 fit_stacked_threats <- function(stacked, id, sample) {
-  era <- dplyr::n_distinct(stacked$NEWER_FORM) > 1
+  both <- names(which(tapply(stacked$NEWER_FORM, stacked$CLASS, function(x) dplyr::n_distinct(x) > 1)))
+  era_terms <- character()
+  for (k in both) {
+    column <- paste0("ERA_", k)
+    stacked[[column]] <- as.numeric(stacked$CLASS == k) * stacked$NEWER_FORM
+    era_terms <- c(era_terms, column)
+  }
   formula <- stats::as.formula(paste(
-    "THREAT ~ 0 + CLASS + CLASS:POSITIVE", if (era) "+ CLASS:NEWER_FORM",
+    "THREAT ~ 0 + CLASS + CLASS:POSITIVE", if (length(era_terms)) paste("+", paste(era_terms, collapse = " + ")),
     "+ (1 | ID_RECORD) + (1 | SITMAP) + (1 | OBSERVER)"
   ))
   fit_tmb(id, "All threat classes, stacked", formula, stacked, group = "Stacked threats", sample = sample)

@@ -23,3 +23,37 @@ test_that("threats are stacked one row per record and class", {
   expect_equal(s$THREAT, c(1, 0, 0, 0))
   expect_equal(s$NEWER_FORM, c(0, 1, 0, 1))
 })
+
+test_that("a class off the threat list of an era is NA there, not 0", {
+  d <- tibble::tibble(
+    PROTOCOL_ERA = rep(c("2019-2020", "2021-2024"), each = 6),
+    SUM_THREATS = c(rep(1, 5), NA, rep(1, 6)),
+    Abandonment = c(rep(0, 5), NA, 1, 1, 1, 1, 1, 0),
+    HarmfulMow = c(1, 1, 1, 1, 1, NA, 1, 0, 1, 1, 1, 1)
+  )
+  out <- mask_unlisted_threats(d, classes = c("Abandonment", "HarmfulMow"), min_records = 5)
+  expect_true(all(is.na(out$data$Abandonment[1:6])))
+  expect_equal(out$data$Abandonment[7:12], c(1, 1, 1, 1, 1, 0))
+  expect_equal(out$data$HarmfulMow, d$HarmfulMow)
+  expect_equal(out$masked$class, "Abandonment")
+  expect_equal(out$masked$records_masked, 5)
+})
+
+test_that("the stacked model gives an era term only to the classes on both forms", {
+  set.seed(5)
+  n <- 300
+  d <- tibble::tibble(
+    ID_RECORD = paste0("r", seq_len(n)), SUM_THREATS = 1, POSITIVE = stats::rbinom(n, 1, 0.4),
+    ERA = factor(sample(c("a", "b"), n, replace = TRUE)), SITMAP = sample(1:10, n, replace = TRUE),
+    OBSERVER = sample(c("o1", "o2", "o3"), n, replace = TRUE)
+  )
+  d$HarmfulMow <- stats::rbinom(n, 1, 0.3)
+  d$Abandonment <- ifelse(d$ERA == "a", NA, stats::rbinom(n, 1, 0.3))
+  s <- stack_threats(d, c("HarmfulMow", "Abandonment"))
+  expect_equal(nrow(s), n + sum(d$ERA == "b"))
+  m <- fit_stacked_threats(s, "stacked", "with imputed")
+  terms <- rownames(summary(m$fit)$coefficients$cond)
+  expect_true("ERA_HarmfulMow" %in% terms)
+  expect_false("ERA_Abandonment" %in% terms)
+  expect_true(all(c("CLASSHarmfulMow:POSITIVE", "CLASSAbandonment:POSITIVE") %in% terms))
+})
