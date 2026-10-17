@@ -1086,3 +1086,81 @@ percentage points; ΔAIC against the management model):
   *P. nausithous* timing 2.19 (1.50-3.21), patches left uncut 2.10
   (1.29-3.43); *P. teleius* EVL_species 4.31 (1.57-11.84), with water
   within 4 km 5.99 (1.77-20.29).
+
+---
+
+## (c) P4.8-P4.9: the Natura 2000 association after matching, and persistence
+
+- **Decisions:** P4.8 and P4.9 of `REVIEW.md`. The matching covariates are
+  PROPOSED.
+- **Legacy specification:** unchanged. No existing number changes: the new
+  step 24 adds tables only.
+- **Full diff:** [`changes/c09_natura2000.md`](changes/c09_natura2000.md)
+
+**Why.** The EVLs designated for a species were chosen where its populations
+and habitat were known, so a comparison inside and outside them mixes
+protection with selection. Across six butterfly monitoring schemes, the
+positive relationships with Natura 2000 mostly vanished once land cover was
+accounted for (Pellissier et al. 2020).
+
+**What was done** (new step 24, `R/functions/natura2000.R`).
+
+- **Matching.** The records inside an EVL designated for their species are
+  matched to those outside on the site's natural and *Sanguisorba* shares,
+  its elevation, the grassland within 3 km, the connectivity (at the alpha
+  and b of step 17) and the position, exactly within the field-form era:
+  full matching on the propensity score (MatchIt, optmatch). Then the
+  occupancy model with the matching weights (GLMM), and a quasi-binomial GLM
+  with the year as a fixed factor and a CI robust to clustering within the
+  matching subclasses, as MatchIt recommends; both with the covariates
+  again. Shown beside the unmatched and the covariate-adjusted GLMM. The
+  covariates are standardised, which leaves the matching and the estimate
+  unchanged but keeps the GLMMs well conditioned.
+- **Persistence.** The visits of 2019-2024 to sites where the species was
+  found in 2012-2018 (within 50 m): the EVL association there, and on all
+  visits whether it differs between sites with and without a known earlier
+  population. A dynamic occupancy model (P4.9) would need sites revisited
+  across years; 4.8 % are, so this is the version the data support.
+
+**Balance.** Matching removes the differences: for *P. nausithous* every
+standardised mean difference falls below 0.1 (connectivity 0.52 → 0.09,
+natural share 0.40 → −0.02). For *P. teleius* the differences were larger
+(connectivity 2.64, elevation 0.82, position −0.89 and −0.66) and three stay
+above 0.1 after matching (position 0.14 and −0.18, grassland −0.11); the
+effective number of control records is 90.
+
+**The EVL association** (odds ratio, 95 % CI, sample with the imputed
+absences; `24_<species>_designation`):
+
+| | *P. nausithous* | *P. teleius* |
+|---|---|---|
+| GLMM, unmatched | 1.40 (0.88-2.22) | 4.86 (2.03-11.64) |
+| GLMM, covariate-adjusted | 1.09 (0.71-1.67) | 1.82 (1.00-3.32) |
+| GLMM, matching weights | 1.10 (0.67-1.78) | 4.42 (1.90-10.27) |
+| GLM, cluster-robust | 1.16 (0.86-1.56) | 1.47 (0.78-2.80) |
+
+- *P. nausithous* has no association with its EVLs once the sites are
+  comparable.
+- For *P. teleius* the association falls from 4.9 to 1.5-1.8 with the
+  covariates, in line with selection of good sites for designation. The
+  weighted GLMM disagrees (4.4): its random intercepts absorb part of what
+  the matching balances, and the imperfect balance in position leaves room
+  for it. The two estimators that adjust for the covariates directly agree.
+  In the plausible sample: 3.68 unmatched, 1.61 adjusted, 1.47 matched GLM.
+
+**Persistence** (`24_<species>_persistence_counts`, `_estimates`):
+
+| | *P. nausithous* | *P. teleius* |
+|---|---|---|
+| visits to sites known in 2012-2018 | 414 (83 inside an EVL) | 169 (57 inside) |
+| species found again, outside / inside | 68 % / 61 % | 25 % / 40 % |
+| odds ratio inside against outside | 1.42 (0.65-3.11) | 2.85 (0.98-8.31) |
+| known earlier population, all visits | 3.04 (2.22-4.15) | 3.12 (1.67-5.83) |
+| EVL × known earlier population | 1.13 (0.49-2.63) | 0.61 (0.19-1.97) |
+
+A population known in 2012-2018 makes a record in 2019-2024 three times as
+likely. Whether the site lies in an EVL changes that little for *P.
+nausithous*; for *P. teleius* persistence inside the EVLs is higher, but the
+interval reaches 1, and the interaction shows no difference from the sites
+without a known population. Kajzer-Bonk & Nowicki (2022) found the declines
+mainly outside Natura 2000; these data are too few to confirm or refute it.

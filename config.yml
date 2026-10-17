@@ -517,6 +517,28 @@ landscape:
   min_aic_gain: 2
 
 #--------------------------------------------------#
+# Natura 2000 -----
+#--------------------------------------------------#
+
+# The association with the EVLs designated for the species, after matching,
+# and the persistence of the 2012-2018 populations (P4.8, P4.9; step 24,
+# R/functions/natura2000.R). PROPOSED.
+natura2000:
+  # Full matching on the propensity score (MatchIt with optmatch).
+  matching_method: full
+  # Covariates designation cannot have changed: the site's natural and
+  # Sanguisorba shares, its elevation, the grassland within 3 km (the scale
+  # of grassland cover in Kajzer-Bonk et al. 2016), the connectivity at the
+  # alpha and b of step 17, and the position. The connectivity reflects the
+  # populations the designation was made for, which is why it is matched on.
+  covariates: [NATURAL_SHARE, SANGUISORBA_SHARE, ELEVATION, GRASSLAND_3000, LOG_CONN, SITE_X, SITE_Y]
+  # Matched exactly: the field-form era (points in 2019-2020, polygons
+  # after).
+  exact: [ERA]
+  # The samples the matching and the persistence models are fitted on.
+  samples: [with_imputed, plausible, observed]
+
+#--------------------------------------------------#
 # Management -----
 #--------------------------------------------------#
 

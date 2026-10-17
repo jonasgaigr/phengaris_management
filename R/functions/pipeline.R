@@ -175,6 +175,9 @@ PIPELINE <- list(
   pipeline_step("23", "R/23_detection_models.R", "Detection sensitivity", "spec",
     inputs = .analysis, model_sets = "revised"
   ),
+  pipeline_step("24", "R/24_natura2000.R", "Natura 2000 and persistence", "spec",
+    inputs = c(.analysis, "{processed}/{spec}/connectivity_selected.csv"), model_sets = "revised"
+  ),
   pipeline_step(
     "14", "R/14_maps.R", "Maps", "spec",
     inputs = c(
