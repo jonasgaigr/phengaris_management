@@ -529,6 +529,39 @@ revised_models:
     min_records_per_outcome: 5
 
 #--------------------------------------------------#
+# Detection sensitivity -----
+#--------------------------------------------------#
+
+# The revised models are naive occupancy models (REVIEW.md, item 11). Step 23
+# shows how far their management estimates could owe to imperfect detection
+# (P4.4; R/functions/detection.R). No per-visit detection probability of
+# adult Phengaris is published; the closest are daily mark-recapture capture
+# probabilities of 0.4-0.5 (Nowicki & Vrabec 2011). PROPOSED.
+detection:
+  # The management model refitted with the detection fixed at each p.
+  fixed_p: [0.9, 0.7, 0.5]
+  # The Bayesian mixed-design occupancy model (spOccupancy::PGOcc): the
+  # occupancy unit, whose visits are its replicates ...
+  unit: [SITE_ID, YEAR]
+  # ... the prior on the detection probability at the median day: normal on
+  # the logit scale with mean logit(prior_p) and variance prior_var (0.24-0.94
+  # for p as a 95 % interval), and the vague variance of every other
+  # coefficient (spOccupancy's default), with which the model is refitted.
+  prior_p: 0.7
+  prior_var: 1
+  prior_var_vague: 2.72
+  # MCMC: samples per chain, burn-in, thinning, chains (1000 draws a chain).
+  mcmc:
+    samples: 15000
+    burn: 5000
+    thin: 10
+    chains: 3
+  # A fit whose largest Rhat exceeds max_rhat is run once more with chains
+  # extend_factor times longer (the same number of draws).
+  max_rhat: 1.1
+  extend_factor: 4
+
+#--------------------------------------------------#
 # Habitat mapping and ecosystem layers -----
 #--------------------------------------------------#
 

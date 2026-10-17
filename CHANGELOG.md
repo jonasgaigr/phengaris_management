@@ -918,3 +918,85 @@ tables only. In the new sample:
 - *P. nausithous* is unchanged within 0.1.
 - In the plausible sample the random-effect variance of the observer or the
   year is at zero in most *P. teleius* models (flagged in the diagnostics).
+
+---
+
+## (c) P4.4: detection sensitivity of the occupancy models
+
+- **Decision:** P4.4 of `REVIEW.md`. The fixed detection probabilities, the
+  prior on p and the MCMC settings are PROPOSED.
+- **Legacy specification:** unchanged. No existing number of the revised
+  specification changes: the new step 23 adds tables only.
+- **Full diff:** [`changes/c07_detection.md`](changes/c07_detection.md)
+
+**Why.** The revised models estimate the probability of recording the
+species, occupancy times detection. A reviewer will ask how much of the
+management estimates is detection. The review advised against a
+single-visit occupancy model as the headline, since its detection is
+identified only by the model's form (Knape & Korner-Nievergelt 2015), and
+proposed two sensitivity analyses instead.
+
+**What was done** (new step 23, `R/functions/detection.R`).
+
+- **Known detection.** The management model refitted with p fixed at 0.9,
+  0.7 and 0.5: P(record) = p × occupancy. lme4 accepts the custom link but
+  its numerical Hessian breaks down, so the refit is a GLM (the year as a
+  fixed factor), its likelihood maximised directly, beside the same GLM at
+  p = 1.
+- **Mixed design.** A Bayesian occupancy model (spOccupancy `PGOcc`) of the
+  persistent site × year: management in the occupancy part, with grid-square
+  and year random intercepts; era and the season quadratic in the detection
+  part, with an observer random intercept. The site-years visited more than
+  once identify the detection. The prior on p at the median day is
+  logit-normal around 0.7 (variance 1), and the model is refitted with a
+  vague prior. Fitted on the three samples. A fit whose largest Rhat exceeds
+  1.1 is rerun with chains four times longer; the three *P. teleius* fits
+  with imputed absences needed it, and all fits end with Rhat ≤ 1.07.
+
+**The data that identify the detection** (`23_<species>_occupancy_design`):
+*P. nausithous* has 1629 site-years, 224 visited more than once, 71 of them
+with the species found at some visits and not at others; *P. teleius* has
+1100, 175 and 46 (with the imputed absences), but only 23 and 4 on the
+observed records alone.
+
+**Detection probability at the median day** (posterior mean, 95 % CrI):
+
+| | older form | newer form |
+|---|---|---|
+| *P. nausithous*, with imputed | 0.78 (0.69-0.87) | 0.69 (0.59-0.78) |
+| *P. nausithous*, vague prior | 0.79 (0.70-0.87) | 0.69 (0.58-0.79) |
+| *P. teleius*, with imputed | 0.30 (0.16-0.51) | 0.24 (0.13-0.38) |
+| *P. teleius*, plausible imputed | 0.33 (0.19-0.52) | 0.30 (0.18-0.44) |
+| *P. teleius*, observed only | 0.82 (0.49-0.97) | 0.79 (0.16-0.99) |
+
+- For *P. nausithous* the repeated visits identify p: the vague prior gives
+  the same posterior.
+- For *P. teleius* the model with the imputed absences puts p at 0.3: an
+  imputed absence at a site where the species was found on another visit is,
+  to the model, a missed detection. On the observed records alone, p is
+  0.8, as for *P. nausithous*. The imputed absences of *P. teleius* behave
+  partly as non-detections, not as absences.
+
+**Occupancy odds ratios** (occupancy part against the naive GLMM, with
+imputed):
+
+| term | *P. nausithous* naive | occupancy | *P. teleius* naive | occupancy |
+|---|---|---|---|---|
+| timing appropriate | 2.16 (1.48-3.15) | 6.61 (2.75-18.12) | 1.24 (0.54-2.83) | 2.05 (0.29-14.78) |
+| patches left uncut | 2.18 (1.34-3.56) | 3.92 (1.39-11.79) | 1.50 (0.43-5.19) | 1.15 (0.14-11.46) |
+| host plant abundant | 2.93 (2.23-3.86) | 16.89 (6.28-56.12) | 1.73 (0.96-3.11) | 3.20 (0.53-23.69) |
+| EVL for the species | 1.29 (0.73-2.30) | 1.03 (0.32-3.33) | 6.12 (2.13-17.60) | 6.50 (0.41-83.21) |
+| timing × patches | 0.45 (0.25-0.80) | 0.27 (0.07-1.00) | 1.50 (0.38-5.96) | 4.70 (0.45-47.08) |
+
+- For *P. nausithous* every management effect keeps its direction and grows
+  on the occupancy scale, as it must when detection dilutes the naive
+  estimate. The intervals widen.
+- For *P. teleius* the occupancy model is too weakly identified to say more
+  than the naive one; every interval spans 1.
+
+**Known detection** (`23_<species>_known_detection`). For *P. nausithous*
+the odds ratios grow as p falls: the timing OR is 1.75 in the GLM at p = 1,
+1.83 at 0.9 and 2.22 at 0.7. p = 0.5 cannot be fitted: in some classes of
+records more than half the visits found the species. For *P. teleius*
+(with imputed) every p from 1 to 0.5 can be fitted, and the estimates move
+little (EVL 4.2 to 5.2).
