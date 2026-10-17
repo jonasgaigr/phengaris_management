@@ -243,14 +243,17 @@ report_note(sprintf(
   paste(
     "Connectivity S = sum exp(-alpha d) A^b over the sites occupied by the",
     "same species in the same or the previous year, other than the site's own",
-    "persistent site: alpha = %s per km (sensitivity %s), b = %s, sources",
-    "within %s km, occupied sites from %s sources. Point and line sources count",
-    "with the median area of the species' occupied polygon sites. The 2019",
-    "values miss the 2018 populations, which the 2019-2024 exports do not hold."
+    "persistent site, at every pair of alpha = %s per km and b = %s (P4.2);",
+    "step 17 picks the pair (`connectivity: choice: %s`). Sources within %s km,",
+    "occupied sites from %s sources. Point and line sources count with the",
+    "median area of the species' occupied polygon sites. The 2019 values miss",
+    "the 2018 populations, which the 2019-2024 exports do not hold. The table",
+    "describes CONN, the fixed pair alpha = %s, b = %s."
   ),
-  conn_settings$alpha_per_km,
-  paste(unlist(conn_settings$alpha_sensitivity_per_km), collapse = " and "),
-  conn_settings$area_exponent, conn_settings$max_distance_km, conn_settings$sources
+  paste(unlist(conn_settings$alpha_grid_per_km), collapse = ", "),
+  paste(unlist(conn_settings$area_exponent_grid), collapse = ", "),
+  conn_settings$choice, conn_settings$max_distance_km, conn_settings$sources,
+  conn_settings$alpha_per_km, conn_settings$area_exponent
 ))
 
 report_table(

@@ -784,3 +784,77 @@ odds ratios on the season of the curve, and within 28 and 45 days of the
 median, differ by at most 0.05 for *P. nausithous* (e.g. timing 2.17, 2.15,
 2.17) and 0.06 for *P. teleius*. The 28-day window drops 10 *P. nausithous*
 and 13 *P. teleius* management records.
+
+---
+
+## (c) P4.2: alpha and b of the connectivity by profile likelihood
+
+- **Decision:** P4.2 of `REVIEW.md`. The choice by profile likelihood, the
+  grids and the fixed pair alpha = 1, b = 1 are PROPOSED.
+- **Legacy specification:** unchanged.
+- **Full diff:** [`changes/c05_connectivity_profile.md`](changes/c05_connectivity_profile.md)
+
+**Why.** Phase 3 fixed alpha = 1 per km (mean dispersal 1 km) and b = 0.5,
+with alpha = 0.5 and 2 as a sensitivity check. The review found alpha = 1
+4-10 times flatter than the mark-recapture estimates of open Czech
+landscapes (mean dispersal 80-270 m, alpha 4-12; Nowicki & Vrabec 2011), but
+defensible at the scale of colonisation (forested landscapes 0.5-1.5 km),
+and proposed to estimate alpha and b from the occupancy data by profile
+likelihood, with b raised towards 1 (immigration area exponent 0.5-2.5).
+
+**What was done.**
+
+- Step 16 computes the connectivity at every pair of alpha in {0.25, 0.5,
+  1, 2, 3, 5, 8, 12} per km and b in {0, 0.25, 0.5, 1, 1.5}
+  (`CONN_A<alpha>_B<b>`, 40 pairs), with sources up to 25 km (15 km before,
+  too short for alpha = 0.25). `CONN` is the fixed pair, now alpha = 1,
+  b = 1. The review's grid was alpha 0.5-12, b 0.5-1.5; *P. teleius* had its
+  best pair at its corner (alpha 0.5, b 0.5), so alpha 0.25 and b 0 and 0.25
+  were added to see whether the profile turns.
+- Step 17 refits the management model with the connectivity at each pair,
+  per species and sample (`17_<species>_connectivity_profile`, table and
+  figure), and takes the pair with the lowest AIC on the sample with the
+  imputed absences as `LOG_CONN` for every sample (`connectivity: choice:
+  profile`). The choice is written to `connectivity_selected.csv` for the
+  later steps. The sensitivity models at alpha = 0.5 and 2 are gone: the
+  profile replaces them.
+
+**What the profile shows** (sample with the imputed absences):
+
+| | best alpha | mean distance | best b | next best | Phase 3 pair (alpha 1, b 0.5) | fixed pair (alpha 1, b 1) |
+|---|---|---|---|---|---|---|
+| *P. nausithous* | 1 per km | 1 km | 0 | alpha 1, b 0.25: +2.7 AIC | +6.2 | +16.5 |
+| *P. teleius* | 0.5 per km | 2 km | 0 | alpha 0.5, b 0.25: +4.3 | +16.7 | +24.2 |
+
+- The kernel the occupancy pattern supports is flat: a mean distance of 1-2
+  km, against 80-270 m in the mark-recapture studies. Kernels of 200-330 m
+  (alpha 3-5) fit 12-22 AIC worse for *P. nausithous*. Occupancy follows the
+  occupied sites over several kilometres, the scale of colonisation and of
+  regional clustering rather than of daily movement.
+- The area of the occupied sites does not help: b = 0, the number of
+  occupied sites weighted by distance alone, fits best for both species,
+  against the b of 0.5-2.5 of the mark-recapture immigration. The polygon
+  areas measure the surveyed area rather than the habitat, and the point
+  sites count with a median area.
+- alpha is inside the grid for both species (*P. teleius*: alpha 0.25 is 4.4
+  AIC worse, alpha 1 is 11.2 worse); b sits at its natural bound, 0.
+
+**What changed in the models.**
+
+| model | term | before | after |
+|---|---|---|---|
+| `nau_management_conn` | connectivity (per tenfold) | 1.97 (1.70-2.27) | 2.01 (1.74-2.32) |
+| | ΔAIC against the management model | −78.4 | −84.7 |
+| | EVL_species | 1.08 (0.64-1.83) | 1.10 (0.65-1.85) |
+| `tel_management_conn` | connectivity | 2.72 (2.15-3.44) | 4.13 (2.97-5.75) |
+| | ΔAIC against the management model | −60.8 | −77.4 |
+| | EVL_species | 3.31 (1.42-7.75) | 2.38 (1.08-5.27) |
+| `tel_management_conn_obs` | EVL_species | 12.23 (1.44-104.19) | 5.14 (0.71-37.12) |
+
+The management estimates move by at most 0.2. For *P. teleius* the EVL
+association weakens further once connectivity is measured at the scale the
+data prefer: the EVLs lie where the populations cluster.
+
+**Isolated sites.** With sources up to 25 km, fewer records have no occupied
+site within reach (`04_design_flags`): 19 *P. nausithous* records instead of
+118, 400 *P. teleius* instead of 912.

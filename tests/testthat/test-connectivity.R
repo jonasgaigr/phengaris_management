@@ -67,7 +67,7 @@ test_that("connectivity_table() counts occupied sites of the same species, this 
     ZDROJ = c("t", "o", "o", "o", "o")
   )
   settings <- list(
-    alpha_per_km = 1, alpha_sensitivity_per_km = list(), area_exponent = 0.5,
+    alpha_per_km = 1, area_exponent = 0.5, alpha_grid_per_km = c(1, 2), area_exponent_grid = c(0.5, 1),
     sources = "all", max_distance_km = 15
   )
   conn <- connectivity_table(records, sd, focal_sources = "t", settings = settings)
@@ -78,7 +78,18 @@ test_that("connectivity_table() counts occupied sites of the same species, this 
   d3 <- sqrt((sd$SITE_X[3] - sd$SITE_X[1])^2 + (sd$SITE_Y[3] - sd$SITE_Y[1])^2) / 1000
   d4 <- sqrt((sd$SITE_X[4] - sd$SITE_X[1])^2 + (sd$SITE_Y[4] - sd$SITE_Y[1])^2) / 1000
   expect_equal(nau$CONN, exp(-d3) * sqrt(2) + exp(-d4) * sqrt(2))
+  expect_equal(nau$CONN_A1_B0.5, nau$CONN)
+  expect_equal(nau$CONN_A2_B1, exp(-2 * d3) * 2 + exp(-2 * d4) * 2)
   expect_equal(nau$CONN_SOURCES, 2)
   # P. teleius: only site 4 in 2022.
   expect_equal(conn$CONN_SOURCES[conn$DRUH == SPECIES_TEL], 1)
+})
+
+test_that("the profile grid holds every alpha x b pair and the fixed pair", {
+  settings <- list(alpha_per_km = 4, area_exponent = 1, alpha_grid_per_km = c(1, 2), area_exponent_grid = c(0.5, 1))
+  grid <- connectivity_grid(settings)
+  expect_equal(nrow(grid), 5)
+  expect_true(any(grid$alpha == 4 & grid$b == 1))
+  expect_equal(connectivity_column(0.5, 1.5), "CONN_A0.5_B1.5")
+  expect_equal(connectivity_column(12, 1), "CONN_A12_B1")
 })

@@ -26,7 +26,8 @@
 #         species, with the field-form era; for 2021-2024 polygon sites also
 #         grazing and site area; diagnostics, GVIF, separation checks with a
 #         bias-reduced fallback, and marginal predicted probabilities;
-#   P3.5  connectivity, at three values of alpha;
+#   P3.5  connectivity, with alpha and b chosen by profile likelihood over a
+#         grid (P4.2); the choice is written for the later steps;
 #   item 26  co-occurrence as one species' occupancy against the other's
 #         recorded outcome at the same visit, observed records only;
 #   item 22  occupancy compared between the species.
@@ -35,7 +36,9 @@
 # R/functions/model_specs_revised.R, the helpers in R/functions/model_revised.R.
 #
 # Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
-# Writes: Outputs/<spec>/Tables/17_*.csv, Figures/17_*.png
+#         Data/Processed/common/flight_curve.csv   (step 16)
+# Writes: Data/Processed/<spec>/connectivity_selected.csv
+#         Outputs/<spec>/Tables/17_*.csv, Figures/17_*.png
 #         Outputs/<spec>/Reports/17_occupancy_models.md
 #
 #----------------------------------------------------------#
@@ -168,12 +171,107 @@ plot_season <- function(curve, species_label) {
     ggplot2::theme(legend.position = "bottom")
 }
 
+#' Profile of the connectivity: delta AIC against alpha, one line per b.
+plot_connectivity_profile <- function(profile, species_label) {
+  ggplot2::ggplot(
+    profile,
+    ggplot2::aes(x = alpha_per_km, y = delta_AIC, linetype = factor(area_exponent), shape = factor(area_exponent))
+  ) +
+    ggplot2::geom_hline(yintercept = 2, colour = "grey60", linetype = "dashed") +
+    ggplot2::geom_line() +
+    ggplot2::geom_point() +
+    ggplot2::facet_wrap(~sample, scales = "free_y") +
+    ggplot2::scale_x_log10(breaks = unlist(CONFIG$connectivity$alpha_grid_per_km)) +
+    ggplot2::labs(
+      x = "\nalpha (per km; mean dispersal distance 1 / alpha)",
+      y = paste0("delta AIC, ", species_label, "\n"),
+      linetype = "b", shape = "b"
+    ) +
+    ggplot2::theme_classic(base_size = 14) +
+    ggplot2::theme(legend.position = "bottom")
+}
+
 all_models <- list()
+connectivity_selected <- list()
 
 for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   code <- species_code(species)
   prefix <- paste0("17_", species_files[[code]])
   report_section(paste("Occupancy of", species_names[[code]]))
+
+  #--------------------------------------------------#
+  ## Connectivity: alpha and b by profile likelihood -----
+  #--------------------------------------------------#
+
+  # The management model with the connectivity at every alpha x b pair
+  # (P4.2). The pair with the lowest AIC on the sample with the imputed
+  # absences becomes LOG_CONN in every sample, unless config.yml fixes it.
+  profile_specs <- unlist(lapply(REVISED_SAMPLES, function(s) {
+    connectivity_profile_specs(model_data[[paste(species, s)]], species, s)
+  }), recursive = FALSE)
+  profile_models <- fit_tmb_set(profile_specs)
+  profile <- dplyr::bind_rows(lapply(REVISED_SAMPLES, function(s) {
+    connectivity_profile(profile_models, Filter(function(p) p$sample == s, profile_specs))
+  }))
+  conn_settings <- CONFIG$connectivity
+  main <- profile[profile$sample == REVISED_SAMPLES[["with_imputed"]], ]
+  chosen <- if (conn_settings$choice == "profile") {
+    main[which.min(main$AIC), ]
+  } else {
+    main[main$alpha_per_km == conn_settings$alpha_per_km & main$area_exponent == conn_settings$area_exponent, ]
+  }
+  aic_of <- function(a, b) main$AIC[main$alpha_per_km == a & main$area_exponent == b]
+  connectivity_selected[[code]] <- data.frame(
+    DRUH = species, choice = conn_settings$choice,
+    alpha_per_km = chosen$alpha_per_km, area_exponent = chosen$area_exponent,
+    mean_dispersal_m = 1000 / chosen$alpha_per_km,
+    column = connectivity_column(chosen$alpha_per_km, chosen$area_exponent),
+    delta_AIC_of_fixed_pair = aic_of(conn_settings$alpha_per_km, conn_settings$area_exponent) - chosen$AIC,
+    delta_AIC_of_phase3_pair = if (length(aic_of(1, 0.5))) aic_of(1, 0.5) - chosen$AIC else NA_real_,
+    pairs_within_2_AIC = paste(
+      sprintf("a%g/b%g", main$alpha_per_km[main$delta_AIC <= 2], main$area_exponent[main$delta_AIC <= 2]),
+      collapse = ", "
+    ),
+    stringsAsFactors = FALSE
+  )
+  for (s in REVISED_SAMPLES) {
+    d <- model_data[[paste(species, s)]]
+    d$LOG_CONN <- d[[paste0("LOG_", connectivity_selected[[code]]$column)]]
+    model_data[[paste(species, s)]] <- d
+  }
+
+  report_note(sprintf(
+    paste(
+      "Connectivity (P4.2): the management model was refitted with the",
+      "connectivity at each of %d pairs of alpha (%s per km) and b (%s). On the",
+      "sample with the imputed absences the %s pair is alpha = %g per km (mean",
+      "dispersal distance %g m) and b = %g; pairs within 2 AIC: %s. The",
+      "connectivity models below use it."
+    ),
+    nrow(main), paste(unlist(conn_settings$alpha_grid_per_km), collapse = ", "),
+    paste(unlist(conn_settings$area_exponent_grid), collapse = ", "),
+    if (conn_settings$choice == "profile") "best" else "fixed",
+    chosen$alpha_per_km, round(1000 / chosen$alpha_per_km), chosen$area_exponent,
+    connectivity_selected[[code]]$pairs_within_2_AIC
+  ))
+  report_table(
+    profile %>%
+      dplyr::select(sample, alpha_per_km, area_exponent, mean_dispersal_m, n_obs, logLik, AIC, delta_AIC, conn_odds_ratio, conn_or_low, conn_or_high, converged) %>%
+      dplyr::arrange(sample, delta_AIC),
+    paste(
+      "Profile likelihood of the connectivity: the management model with the",
+      "connectivity at each alpha and b, by sample (all on the same records",
+      "within a sample); conn_odds_ratio per tenfold connectivity"
+    ),
+    paste0(prefix, "_connectivity_profile"),
+    max_rows = 25
+  )
+  report_figure(
+    plot_connectivity_profile(profile, species_names[[code]]),
+    paste("Profile of the connectivity parameters (dashed: 2 AIC above the best),", species_names[[code]]),
+    paste0(prefix, "_connectivity_profile"),
+    width = 10
+  )
 
   specs <- unlist(lapply(REVISED_SAMPLES, function(s) {
     revised_occupancy_specs(model_data[[paste(species, s)]], species, s)
@@ -424,6 +522,26 @@ report_table(
   "17_species_estimates"
 )
 report_tmb_set(species_models, "17_both_species")
+
+#----------------------------------------------------------#
+# Export the chosen connectivity -----
+#----------------------------------------------------------#
+
+connectivity_selected <- dplyr::bind_rows(connectivity_selected)
+report_table(
+  connectivity_selected,
+  paste(
+    "The connectivity the revised models use, by species: alpha and b, and how",
+    "much worse the fixed pair of config.yml and the Phase 3 pair (alpha = 1,",
+    "b = 0.5) fit (delta AIC)"
+  ),
+  "17_connectivity_selected"
+)
+validate_table(
+  connectivity_selected, "connectivity_selected",
+  key = "DRUH", not_na = c("alpha_per_km", "area_exponent", "column"), n_rows = 2
+)
+readr::write_csv(connectivity_selected, processed_path("connectivity_selected.csv"))
 
 report_finish()
 

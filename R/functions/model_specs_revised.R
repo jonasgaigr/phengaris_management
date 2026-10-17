@@ -55,7 +55,8 @@ species_code <- function(species) {
 #'         PLANT     host-plant abundance as a factor: single, abundant,
 #'                   dominant
 #'         LOG_AREA  log10 of the site area in ha (polygon sites)
-#'         LOG_CONN and LOG_CONN_<alpha>  log10(connectivity + offset)
+#'         LOG_CONN and LOG_CONN_A<alpha>_B<b>  log10(connectivity + offset)
+#'                   at the fixed pair and at every pair of the profile
 revised_model_data <- function(data, species = NULL, sample = REVISED_SAMPLES[["with_imputed"]],
                                unit = CONFIG$revised_models$doy_unit_days, window = NULL) {
   sample <- match.arg(sample, unname(REVISED_SAMPLES))
@@ -68,7 +69,7 @@ revised_model_data <- function(data, species = NULL, sample = REVISED_SAMPLES[["
   if (!is.null(species)) out <- dplyr::filter(out, DRUH == species)
   if (sample == REVISED_SAMPLES[["observed"]]) out <- dplyr::filter(out, !IMPUTED)
 
-  conn_columns <- grep("^CONN($|_[0-9.]+$)", names(out), value = TRUE)
+  conn_columns <- grep("^CONN($|_A)", names(out), value = TRUE)
   out <- out %>%
     dplyr::mutate(
       DOY_STD = DOY_DEV / unit,
@@ -143,8 +144,9 @@ MANAGEMENT_TERMS <- c("TIMING * METHOD", "PLANT", "EVL_species")
 #'                      variables (the reference of the management model)
 #'   management         mowing timing x method, host-plant abundance and
 #'                      protection designated for the species (P3.4)
-#'   management_conn    + connectivity (P3.5), at the configured alpha and
-#'                      at the sensitivity values
+#'   management_conn    + connectivity (P3.5) as LOG_CONN, which step 17
+#'                      sets to the alpha and b the profile likelihood picks
+#'                      (P4.2; connectivity_profile_specs())
 #'   management_site    + a persistent-site random intercept, at the
 #'                      configured matching distance and the sensitivity
 #'                      distances (P3.1)
@@ -168,7 +170,6 @@ revised_occupancy_specs <- function(data, species, sample) {
   d_2021 <- d_mgmt %>%
     dplyr::filter(YEAR >= CONFIG$design$protocol_change_year, !is.na(GRAZE), !is.na(LOG_AREA))
 
-  alphas <- unlist(CONFIG$connectivity$alpha_sensitivity_per_km)
   site_distances <- unlist(CONFIG$sites$sensitivity_distances_m)
 
   c(
@@ -192,16 +193,7 @@ revised_occupancy_specs <- function(data, species, sample) {
       spec(
         "management_conn", "Management model + connectivity", "Connectivity",
         revised_formula(terms = c(MANAGEMENT_TERMS, "LOG_CONN")), d_mgmt
-      )
-    ),
-    lapply(alphas, function(a) {
-      spec(
-        paste0("management_conn_a", a), sprintf("Management model + connectivity, alpha = %g per km", a),
-        "Connectivity",
-        revised_formula(terms = c(MANAGEMENT_TERMS, paste0("LOG_", connectivity_column(a)))), d_mgmt
-      )
-    }),
-    list(
+      ),
       spec(
         "management_site", sprintf("Management model + persistent site (%g m)", CONFIG$sites$match_distance_m),
         "Persistent site",
@@ -224,12 +216,75 @@ revised_occupancy_specs <- function(data, species, sample) {
   )
 }
 
+#' The connectivity models of the profile likelihood (P4.2).
+#'
+#' The management model with the connectivity at each alpha x b pair of
+#' connectivity_grid(), on the records with the management recorded.
+#'
+#' @param data     revised_model_data() of the species and sample
+#' @param species  the species
+#' @param sample   the sample, for the ids and labels
+#' @return specs for fit_tmb_set(), each with `alpha` and `b`
+connectivity_profile_specs <- function(data, species, sample) {
+  code <- species_code(species)
+  suffix <- if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else ""
+  mgmt_vars <- c("TIMING", "METHOD", "PLANT", "EVL_species")
+  d_mgmt <- data[stats::complete.cases(data[, mgmt_vars]), , drop = FALSE]
+  pairs <- connectivity_grid()
+  lapply(seq_len(nrow(pairs)), function(i) {
+    a <- pairs$alpha[i]
+    b <- pairs$b[i]
+    list(
+      id = sprintf("%s_conn_a%g_b%g%s", code, a, b, suffix),
+      label = sprintf("Management model + connectivity, alpha = %g per km, b = %g", a, b),
+      group = "Connectivity profile",
+      formula = revised_formula(terms = c(MANAGEMENT_TERMS, paste0("LOG_", connectivity_column(a, b)))),
+      data = d_mgmt, sample = sample, alpha = a, b = b
+    )
+  })
+}
+
+#' The profile likelihood of alpha and b from the fitted profile models.
+#'
+#' @param models  the fitted connectivity_profile_specs()
+#' @param specs   the specs they were fitted from (for alpha and b)
+#' @return one row per pair: alpha, b, the log-likelihood and AIC, the
+#'         difference to the best pair, the odds ratio of connectivity, and
+#'         `best`; NULL rows for failed fits are left out
+connectivity_profile <- function(models, specs) {
+  rows <- lapply(seq_along(specs), function(i) {
+    m <- models[[specs[[i]]$id]]
+    if (is.null(m$fit)) {
+      return(NULL)
+    }
+    co <- summary(m$fit)$coefficients$cond
+    term <- paste0("LOG_", connectivity_column(specs[[i]]$alpha, specs[[i]]$b))
+    data.frame(
+      model = m$id, sample = m$sample, alpha_per_km = specs[[i]]$alpha, area_exponent = specs[[i]]$b,
+      mean_dispersal_m = 1000 / specs[[i]]$alpha,
+      n_obs = m$n_input, logLik = as.numeric(stats::logLik(m$fit)), AIC = stats::AIC(m$fit),
+      conn_odds_ratio = exp(co[term, 1]),
+      conn_or_low = exp(co[term, 1] - stats::qnorm(0.975) * co[term, 2]),
+      conn_or_high = exp(co[term, 1] + stats::qnorm(0.975) * co[term, 2]),
+      converged = tmb_converged(m),
+      stringsAsFactors = FALSE
+    )
+  })
+  out <- do.call(rbind, Filter(Negate(is.null), rows))
+  if (is.null(out)) {
+    return(data.frame())
+  }
+  stopifnot(length(unique(out$n_obs)) == 1)
+  out$delta_AIC <- out$AIC - min(out$AIC)
+  out$best <- out$delta_AIC == 0
+  out
+}
+
 #' The AIC comparisons of one species and sample: ids, caption, stem suffix.
 revised_occupancy_comparisons <- function(species, sample) {
   code <- species_code(species)
   suffix <- if (sample == REVISED_SAMPLES[["observed"]]) "_obs" else ""
   id <- function(x) paste0(code, "_", x, suffix)
-  alphas <- unlist(CONFIG$connectivity$alpha_sensitivity_per_km)
   dists <- unlist(CONFIG$sites$sensitivity_distances_m)
   list(
     list(
@@ -241,7 +296,7 @@ revised_occupancy_comparisons <- function(species, sample) {
       stem = "season"
     ),
     list(
-      ids = id(c("management_null", "management", "management_conn", paste0("management_conn_a", alphas))),
+      ids = id(c("management_null", "management", "management_conn")),
       caption = "Management and connectivity",
       stem = "management"
     ),

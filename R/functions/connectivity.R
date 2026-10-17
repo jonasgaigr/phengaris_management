@@ -19,7 +19,9 @@
 # over the sites j where the species was found in the same or the previous
 # year, other than the persistent site of i itself. d_ij is in km between
 # representative points, A_j in ha. Point and line sites have no area and
-# count with the median area of the species' occupied polygon sites.
+# count with the median area of the species' occupied polygon sites. It is
+# computed at every alpha x b pair of the profile likelihood of step 17
+# (P4.2, connectivity_grid()).
 #
 #----------------------------------------------------------#
 
@@ -122,9 +124,21 @@ connectivity_index <- function(focal, sources, alpha, b, max_km) {
   }, numeric(1))
 }
 
-#' Name of the connectivity column for one alpha.
-connectivity_column <- function(alpha) {
-  if (alpha == CONFIG$connectivity$alpha_per_km) "CONN" else paste0("CONN_", formatC(alpha, format = "fg"))
+#' Name of the connectivity column for one alpha and b.
+connectivity_column <- function(alpha, b) {
+  paste0("CONN_A", formatC(alpha, format = "fg"), "_B", formatC(b, format = "fg"))
+}
+
+#' The alpha x b pairs of the profile (P4.2), with the fixed pair.
+#'
+#' @param settings  config.yml `connectivity`
+#' @return a data frame of alpha and b, one row per pair
+connectivity_grid <- function(settings = CONFIG$connectivity) {
+  grid <- expand.grid(
+    alpha = unlist(settings$alpha_grid_per_km),
+    b = unlist(settings$area_exponent_grid)
+  )
+  unique(rbind(grid, data.frame(alpha = settings$alpha_per_km, b = settings$area_exponent)))
 }
 
 #' Connectivity of every surveyed site, by species and year.
@@ -135,11 +149,12 @@ connectivity_column <- function(alpha) {
 #'                     a connectivity
 #' @param settings     config.yml `connectivity`
 #' @return one row per surveyed site (ID_LOKAL), year and species: CONN at
-#'         the configured alpha, CONN_<alpha> at the sensitivity values, and
-#'         CONN_SOURCES, the occupied sites within reach
+#'         the fixed alpha and b, CONN_A<alpha>_B<b> at every pair of
+#'         connectivity_grid(), and CONN_SOURCES, the occupied sites within
+#'         reach
 connectivity_table <- function(records, site_design, focal_sources = target_mon_zdroj,
                                settings = CONFIG$connectivity) {
-  alphas <- unique(c(settings$alpha_per_km, unlist(settings$alpha_sensitivity_per_km)))
+  pairs <- connectivity_grid(settings)
   records <- records %>%
     dplyr::mutate(YEAR = as.integer(substr(DATUM_OD, 1, 4))) %>%
     dplyr::left_join(site_design, by = "ID_LOKAL")
@@ -177,9 +192,12 @@ connectivity_table <- function(records, site_design, focal_sources = target_mon_
       block <- focal %>%
         dplyr::select(ID_LOKAL, YEAR) %>%
         dplyr::mutate(DRUH = species)
-      for (alpha in alphas) {
-        block[[connectivity_column(alpha)]] <- connectivity_index(
-          focal, sources, alpha, settings$area_exponent, settings$max_distance_km
+      block$CONN <- connectivity_index(
+        focal, sources, settings$alpha_per_km, settings$area_exponent, settings$max_distance_km
+      )
+      for (i in seq_len(nrow(pairs))) {
+        block[[connectivity_column(pairs$alpha[i], pairs$b[i])]] <- connectivity_index(
+          focal, sources, pairs$alpha[i], pairs$b[i], settings$max_distance_km
         )
       }
       # Occupied sites within reach, whatever their distance weight.

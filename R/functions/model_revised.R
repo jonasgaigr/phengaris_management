@@ -76,8 +76,11 @@ fit_tmb <- function(id, label, formula, data, family = stats::binomial(),
 }
 
 #' Fit a list of model specifications with fit_tmb().
+#'
+#' Entries of a spec that fit_tmb() does not take (e.g. the alpha and b of a
+#' connectivity profile model) are left for the caller.
 fit_tmb_set <- function(specs) {
-  out <- lapply(specs, function(s) do.call(fit_tmb, s))
+  out <- lapply(specs, function(s) do.call(fit_tmb, s[intersect(names(s), names(formals(fit_tmb)))]))
   names(out) <- vapply(out, function(m) m$id, character(1))
   out
 }

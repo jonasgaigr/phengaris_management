@@ -434,23 +434,39 @@ design:
 # distance between the sites' representative points in km, A_j the site
 # area in ha. R/functions/connectivity.R; computed once, in step 16.
 connectivity:
-  # 1 / alpha is the mean dispersal distance, in km. Phengaris adults mostly
-  # stay within a few hundred metres of their patch, with rare movements of
-  # several km. PROPOSED: 1 km. TODO(Jonáš): confirm.
+  # How alpha and b are chosen (P4.2). "profile": for each species, the pair
+  # of the grids below under which the management model of the sample with
+  # the imputed absences has the highest likelihood (profile likelihood,
+  # step 17), as the literature review proposed; "fixed": the pair
+  # alpha_per_km, area_exponent. PROPOSED.
+  choice: profile
+  # 1 / alpha is the mean dispersal distance, in km. The fixed pair is also
+  # CONN in the data and the one the summary of step 16 describes. Phase 3
+  # used alpha = 1 and b = 0.5; the review proposed b = 1, since the
+  # immigration area exponent of the Czech mark-recapture studies is
+  # 0.5-1.5 (P. nausithous) and 1.1-2.5 (P. teleius) (Nowicki & Vrabec
+  # 2011).
   alpha_per_km: 1
-  # The models are refitted with these values too.
-  alpha_sensitivity_per_km: [0.5, 2]
-  # b, the exponent of the source area. 0.5 keeps a few very large polygons
-  # (up to 985 ha) from dominating; 0 counts occupied sites alone.
-  area_exponent: 0.5
+  area_exponent: 1
+  # The grids of the profile. alpha: the mean dispersal distances of the
+  # Czech mark-recapture studies, 80-270 m (alpha 4-12), and of forested
+  # landscapes, 0.5-1.5 km (alpha 0.7-2) (Nowicki & Vrabec 2011; Nowicki et
+  # al. 2014), and flatter kernels for colonisation. b: 0 counts the
+  # occupied sites alone, 0.5 keeps a few very large polygons (up to 985 ha)
+  # from dominating, 1.5 lets them. The review proposed alpha 0.5-12 and b
+  # 0.5-1.5; P. teleius had its best pair at the corner alpha 0.5, b 0.5, so
+  # alpha 0.25 and b 0 and 0.25 were added to see whether the profile turns.
+  alpha_grid_per_km: [0.25, 0.5, 1, 2, 3, 5, 8, 12]
+  area_exponent_grid: [0, 0.25, 0.5, 1, 1.5]
   # Point and line sites have no area; they count with the median area of
   # the occupied polygon sites of the same species.
   # Which positive records count as occupied sites: "all" sources or
   # "targeted" only. An opportunistic record is as good evidence of a
   # population as a monitoring one.
   sources: all
-  # Sources farther than this are ignored (exp(-alpha d) < 1e-6 at alpha = 1).
-  max_distance_km: 15
+  # Sources farther than this are ignored (exp(-alpha d) < 1e-10 at alpha =
+  # 1, 2e-3 at alpha = 0.25). Phase 3: 15 km.
+  max_distance_km: 25
   # The models take log10(S + offset): S spans orders of magnitude, and is 0
   # where no occupied site is within reach. 0.001 is about one 1 ha site
   # 7 km away.

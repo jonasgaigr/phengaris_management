@@ -139,7 +139,8 @@ PIPELINE <- list(
   ),
   # The revised model set.
   pipeline_step("17", "R/17_occupancy_models.R", "Occupancy models", "spec",
-    inputs = c(.analysis, .flight_curve), model_sets = "revised"
+    inputs = c(.analysis, .flight_curve), outputs = "{processed}/{spec}/connectivity_selected.csv",
+    model_sets = "revised"
   ),
   pipeline_step("18", "R/18_spatial_autocorrelation.R", "Spatial autocorrelation", "spec",
     inputs = .analysis, model_sets = "revised"
