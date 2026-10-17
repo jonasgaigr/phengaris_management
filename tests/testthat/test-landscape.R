@@ -5,7 +5,10 @@
 test_that("land-cover groups follow the code prefixes", {
   groups <- list(GRASSLAND = c("B311", "C11"), ARABLE = "B111", FOREST = "D1")
   source(file.path(project_root, "R/tools/build_landscape_layers.R"), local = TRUE)
-  expect_equal(landcover_group(c("C113", "B311", "B111", "D124", "D212", "A111", NA), groups), c(1L, 1L, 2L, 3L, 0L, 0L, NA))
+  expect_equal(
+    landcover_group(c("C113", "B311", "B111", "D124", "D212", "A111", NA), groups),
+    c(1L, 1L, 2L, 3L, 0L, 0L, NA)
+  )
 })
 
 test_that("shares in circles come from the fine raster for small radii and the coarse one for large", {

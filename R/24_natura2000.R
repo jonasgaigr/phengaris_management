@@ -114,7 +114,9 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       reference_coefs %>%
         dplyr::transmute(
           sample,
-          outcome_model = ifelse(grepl("_evl_unadjusted", model), "GLMM, unmatched", "GLMM, covariate-adjusted, unmatched"),
+          outcome_model = ifelse(
+            grepl("_evl_unadjusted", model), "GLMM, unmatched", "GLMM, covariate-adjusted, unmatched"
+          ),
           records = nrow(d), odds_ratio = ratio, or_low = ratio_low, or_high = ratio_high, p_value
         ),
       designation_estimates(m, covariates, season) %>%
@@ -147,7 +149,10 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   )
   report_table(
     dplyr::bind_rows(sizes),
-    "Records inside (treated) and outside (control) an EVL designated for the species, all and effective after matching",
+    paste(
+      "Records inside (treated) and outside (control) an EVL designated for the",
+      "species, all and effective after matching"
+    ),
     paste0(prefix, "_matched_sizes")
   )
 
@@ -156,7 +161,10 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   #--------------------------------------------------#
 
   if (!"HIST_POSITIVE" %in% names(data)) {
-    report_warning("No HIST_POSITIVE in the analysis table (step 16 without the 2012-2018 records); persistence skipped.")
+    report_warning(
+      "No HIST_POSITIVE in the analysis table (step 16 without the 2012-2018",
+      "records); persistence skipped."
+    )
     next
   }
   persistence <- list()

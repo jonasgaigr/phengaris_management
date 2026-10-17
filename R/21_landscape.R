@@ -80,12 +80,21 @@ if (!all(file.exists(paths))) {
       "counts only the part of the circle inside Czechia."
     ),
     nrow(landscape), built$kves_version, built$built,
-    paste(sprintf("%s (%s)", names(settings$groups), vapply(settings$groups, function(g) paste(unlist(g), collapse = ", "), character(1))), collapse = "; "),
+    paste(
+      sprintf(
+        "%s (%s)", names(settings$groups),
+        vapply(settings$groups, function(g) paste(unlist(g), collapse = ", "), character(1))
+      ),
+      collapse = "; "
+    ),
     settings$fine_max_radius_m, settings$resolution_m, settings$coarse_resolution_m
   ))
 
   long <- landscape %>%
-    tidyr::pivot_longer(-ID_LOKAL, names_to = c("variable", "radius_m"), names_pattern = "^(.*)_([0-9]+)$", values_to = "share") %>%
+    tidyr::pivot_longer(
+      -ID_LOKAL,
+      names_to = c("variable", "radius_m"), names_pattern = "^(.*)_([0-9]+)$", values_to = "share"
+    ) %>%
     dplyr::mutate(radius_m = as.integer(radius_m))
   report_table(
     long %>%

@@ -158,7 +158,8 @@ if (nrow(estimates)) {
   if (nrow(stacked)) {
     stacked_table <- stacked %>%
       dplyr::transmute(
-        species, sample, threat = class, article17 = article17_code(class),
+        species, sample,
+        threat = class, article17 = article17_code(class),
         odds_ratio = sprintf("%.2f (%.2f-%.2f)", ratio, ratio_low, ratio_high),
         p_value, p_adjusted, adjustment
       )

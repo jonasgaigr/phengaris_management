@@ -5,7 +5,10 @@
 
 test_that("freshly mown visits and the no-cut window are recognised", {
   expect_equal(
-    fresh_mown(c("Čerstvě pokoseno", "pokoseno ještě v den monitoringu", "louka nesečená", NA), "čerstvě po|v den monitoringu"),
+    fresh_mown(
+      c("Čerstvě pokoseno", "pokoseno ještě v den monitoringu", "louka nesečená", NA),
+      "čerstvě po|v den monitoringu"
+    ),
     c(TRUE, TRUE, FALSE, FALSE)
   )
   expect_equal(
@@ -47,7 +50,8 @@ test_that("the wet-meadow share is summarised with the other habitat shares", {
     AREA_real = c(5000, 3000, 2000)
   )
   out <- select_habitat_segment(
-    tibble::tibble(ID_LOKAL = 1), segments, rule = "area_weighted",
+    tibble::tibble(ID_LOKAL = 1), segments,
+    rule = "area_weighted",
     sanguisorba_codes = c("T1.1", "T1.5"), wet_codes = c("T1.5")
   )
   expect_equal(out$WET_SHARE, 0.3)

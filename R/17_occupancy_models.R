@@ -256,7 +256,10 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   ))
   report_table(
     profile %>%
-      dplyr::select(sample, alpha_per_km, area_exponent, mean_dispersal_m, n_obs, logLik, AIC, delta_AIC, conn_odds_ratio, conn_or_low, conn_or_high, converged) %>%
+      dplyr::select(
+        sample, alpha_per_km, area_exponent, mean_dispersal_m, n_obs, logLik, AIC, delta_AIC,
+        conn_odds_ratio, conn_or_low, conn_or_high, converged
+      ) %>%
       dplyr::arrange(sample, delta_AIC),
     paste(
       "Profile likelihood of the connectivity: the management model with the",

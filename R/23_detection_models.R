@@ -131,7 +131,9 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   fits <- list(
     informative = list(sample = "with_imputed", prior_var = settings$prior_var, label = "with imputed, prior on p"),
     vague = list(sample = "with_imputed", prior_var = settings$prior_var_vague, label = "with imputed, vague prior"),
-    plausible = list(sample = "plausible", prior_var = settings$prior_var, label = "with plausible imputed, prior on p"),
+    plausible = list(
+      sample = "plausible", prior_var = settings$prior_var, label = "with plausible imputed, prior on p"
+    ),
     observed = list(sample = "observed", prior_var = settings$prior_var, label = "observed only, prior on p")
   )
   design <- list()
@@ -238,7 +240,10 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       ),
       paste0(prefix, "_mcmc_diagnostics")
     )
-    report_csv(posterior, "Mixed-design occupancy models: posterior of every coefficient", paste0(prefix, "_occupancy_posterior"))
+    report_csv(
+      posterior, "Mixed-design occupancy models: posterior of every coefficient",
+      paste0(prefix, "_occupancy_posterior")
+    )
   }
 }
 

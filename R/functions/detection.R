@@ -231,7 +231,10 @@ fit_mixed_occupancy <- function(arrays, prior_p, prior_var, mcmc,
       data = list(y = arrays$y, occ.covs = arrays$occ.covs, det.covs = arrays$det.covs),
       priors = list(
         beta.normal = list(mean = 0, var = vague_var),
-        alpha.normal = list(mean = c(stats::qlogis(prior_p), rep(0, n_alpha - 1)), var = c(prior_var, rep(vague_var, n_alpha - 1)))
+        alpha.normal = list(
+          mean = c(stats::qlogis(prior_p), rep(0, n_alpha - 1)),
+          var = c(prior_var, rep(vague_var, n_alpha - 1))
+        )
       ),
       n.samples = mcmc$samples, n.burn = mcmc$burn, n.thin = mcmc$thin, n.chains = mcmc$chains,
       verbose = FALSE

@@ -33,7 +33,10 @@ test_that("site_history_table() finds the nearest positive record and the earlie
     ID_LOKAL = c(11, 11, 12), DRUH = SPECIES_NAU, NEGATIV = c(0, 0, 1),
     DATUM_OD = c(20150720, 20170720, 20160720), X = c(x0 + 180, x0 + 180, x0 + 6150), Y = y0 + 50
   )
-  out <- site_history_table(site_design, sites, records, records_history, sites_history, surveyed = c(1, 2), distance_m = 50)
+  out <- site_history_table(
+    site_design, sites, records, records_history, sites_history,
+    surveyed = c(1, 2), distance_m = 50
+  )
   nau <- out[out$DRUH == SPECIES_NAU, ]
   # Site 1: the nearest positive is the 2012-2018 one 130 m away (its own
   # 2022 record is negative); site 2: its own 2022 positive.

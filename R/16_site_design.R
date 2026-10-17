@@ -308,7 +308,10 @@ report_table(
       known_2012_2018 = sum(HIST_POSITIVE == 1),
       .groups = "drop"
     ),
-  "Surveyed sites by the distance to the nearest positive record of each species (2012-2024), and those with the species in 2012-2018",
+  paste(
+    "Surveyed sites by the distance to the nearest positive record of each species",
+    "(2012-2024), and those with the species in 2012-2018"
+  ),
   "16_site_history"
 )
 

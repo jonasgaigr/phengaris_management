@@ -67,7 +67,8 @@ habitat_model_data <- function(data) {
   out$EDGE_10 <- share("EDGE_SHARE")
   out$PLANT_LINEAR <- out$PLANT_QUANT
   out$PLANT_ORDERED <- factor(out$PLANT, levels = levels(out$PLANT), ordered = TRUE)
-  for (col in intersect(as.vector(outer(landscape_variables(), unlist(CONFIG$landscape$radii_m), landscape_column)), names(out))) {
+  landscape <- as.vector(outer(landscape_variables(), unlist(CONFIG$landscape$radii_m), landscape_column))
+  for (col in intersect(landscape, names(out))) {
     out[[col]] <- tenths(out[[col]])
   }
   out

@@ -194,7 +194,9 @@ if (nrow(spatial_plus)) {
       dplyr::transmute(
         model, sample, term,
         odds_ratio = sprintf("%.2f (%.2f-%.2f)", ratio, ratio_low, ratio_high),
-        odds_ratio_spatialplus = sprintf("%.2f (%.2f-%.2f)", ratio_spatialplus, ratio_low_spatialplus, ratio_high_spatialplus),
+        odds_ratio_spatialplus = sprintf(
+          "%.2f (%.2f-%.2f)", ratio_spatialplus, ratio_low_spatialplus, ratio_high_spatialplus
+        ),
         shift_in_se, flag
       ),
     sprintf(

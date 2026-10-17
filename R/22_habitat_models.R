@@ -83,7 +83,10 @@ report_table(
   observed %>%
     dplyr::filter(freshly_mown_in_window) %>%
     dplyr::count(DRUH, timing, name = "records"),
-  "Observed records whose note says the site was freshly mown at a visit inside the no-cut window, by the recorded timing",
+  paste(
+    "Observed records whose note says the site was freshly mown at a visit inside",
+    "the no-cut window, by the recorded timing"
+  ),
   "22_timing_check"
 )
 
@@ -162,17 +165,21 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       ),
       list(
         id = paste0(code, "_local", suffix_of(s)), label = "+ Sanguisorba, wet and X shares of the site",
-        group = "Local habitat", formula = revised_formula(terms = c(MANAGEMENT_TERMS, local_terms)), data = d, sample = s
+        group = "Local habitat", formula = revised_formula(terms = c(MANAGEMENT_TERMS, local_terms)),
+        data = d, sample = s
       ),
       list(
         id = paste0(code, "_local_2021_null", suffix_of(s)), label = "2021-2024 polygon model",
-        group = "Local habitat", formula = revised_formula(terms = c(MANAGEMENT_TERMS, "GRAZE", "LOG_AREA"), era = FALSE),
+        group = "Local habitat",
+        formula = revised_formula(terms = c(MANAGEMENT_TERMS, "GRAZE", "LOG_AREA"), era = FALSE),
         data = d_2021, sample = s
       ),
       list(
         id = paste0(code, "_local_2021", suffix_of(s)), label = "2021-2024 polygon model + shares + edge share",
         group = "Local habitat",
-        formula = revised_formula(terms = c(MANAGEMENT_TERMS, "GRAZE", "LOG_AREA", local_terms, "EDGE_10"), era = FALSE),
+        formula = revised_formula(
+          terms = c(MANAGEMENT_TERMS, "GRAZE", "LOG_AREA", local_terms, "EDGE_10"), era = FALSE
+        ),
         data = d_2021, sample = s
       )
     )
@@ -210,7 +217,9 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     scales <- landscape_scales(scale_models, scale_specs)
     report_table(
       scales$table %>%
-        dplyr::select(variable, radius_m, n_obs, AIC, delta_AIC_vs_management, odds_ratio, or_low, or_high, p_value, converged),
+        dplyr::select(
+          variable, radius_m, n_obs, AIC, delta_AIC_vs_management, odds_ratio, or_low, or_high, p_value, converged
+        ),
       paste(
         "Each landscape variable at each radius added to the management model",
         "(sample with the imputed absences, all on the same records); odds ratio",

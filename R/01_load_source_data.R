@@ -130,7 +130,9 @@ n_lines_history <- sum(vapply(
 ))
 validate_table(
   data_history, "records_2012_2018",
-  columns = c(ID_NALEZ = "numeric", DRUH = "character", ID_LOKAL = "numeric", DATUM_OD = "numeric", NEGATIV = "numeric"),
+  columns = c(
+    ID_NALEZ = "numeric", DRUH = "character", ID_LOKAL = "numeric", DATUM_OD = "numeric", NEGATIV = "numeric"
+  ),
   key = "ID_NALEZ",
   not_na = c("ID_NALEZ", "DRUH", "ID_LOKAL", "DATUM_OD", "X", "Y", "NEGATIV"),
   values = list(DRUH = c(SPECIES_NAU, SPECIES_TEL), NEGATIV = c(0, 1)),

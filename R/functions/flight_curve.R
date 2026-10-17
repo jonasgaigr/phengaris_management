@@ -116,7 +116,9 @@ fit_flight_curve <- function(data, k = CONFIG$design$flight_curve$k,
   if (elevation != "never") models$elevation <- fit(stats::as.formula(interaction))
   comparison <- data.frame(
     variant = names(models),
-    formula = vapply(models, function(m) paste(deparse(stats::formula(m), width.cutoff = 500L), collapse = " "), character(1)),
+    formula = vapply(models, function(m) {
+      paste(deparse(stats::formula(m), width.cutoff = 500L), collapse = " ")
+    }, character(1)),
     n = nrow(data),
     AIC = vapply(models, stats::AIC, numeric(1)),
     deviance_explained = vapply(models, function(m) summary(m)$dev.expl, numeric(1)),

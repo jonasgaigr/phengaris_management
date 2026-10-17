@@ -102,7 +102,8 @@ test_that("add_design_variables places each visit in its season and flags protec
   )
   with_history <- add_design_variables(data, fw, sd, conn, pa, site_history = history, window = fixed, plausible_km = 3)
   expect_equal(with_history$IMPUTED_PLAUSIBLE, c(FALSE, TRUE))
-  expect_equal(add_design_variables(data, fw, sd, conn, pa, site_history = history, window = fixed, plausible_km = 2)$IMPUTED_PLAUSIBLE, c(FALSE, FALSE))
+  stricter <- add_design_variables(data, fw, sd, conn, pa, site_history = history, window = fixed, plausible_km = 2)
+  expect_equal(stricter$IMPUTED_PLAUSIBLE, c(FALSE, FALSE))
   expect_equal(with_history$HIST_POSITIVE, c(1, 0))
 })
 

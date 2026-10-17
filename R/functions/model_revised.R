@@ -69,7 +69,9 @@ fit_tmb <- function(id, label, formula, data, family = stats::binomial(),
     engine = "glmmTMB", family = family$family,
     formula = paste0(
       paste(deparse(formula, width.cutoff = 500L), collapse = " "),
-      if (!identical(ziformula, ~0)) paste0("; zero part ", paste(deparse(ziformula, width.cutoff = 500L), collapse = " "))
+      if (!identical(ziformula, ~0)) {
+        paste0("; zero part ", paste(deparse(ziformula, width.cutoff = 500L), collapse = " "))
+      }
     ),
     formula_object = formula,
     data = data,

@@ -111,7 +111,9 @@ PIPELINE <- list(
     "21", "R/21_landscape.R", "Landscape around the sites", "common",
     inputs = c(
       .records, .site_design,
-      paste0("?", file.path(CONFIG$landscape$dir, c("landcover_25m.tif", "vmb_25m.tif", "landscape_100m.tif", "BUILT.yml")))
+      paste0("?", file.path(
+        CONFIG$landscape$dir, c("landcover_25m.tif", "vmb_25m.tif", "landscape_100m.tif", "BUILT.yml")
+      ))
     ),
     # Written only when the landscape rasters are there.
     outputs = paste0("?", .landscape)
