@@ -51,14 +51,15 @@ The cascade runs two specifications side by side:
     population known from 2012-2024;
   - detection sensitivity: known detection probabilities and a Bayesian
     mixed-design occupancy model (spOccupancy);
-  - habitat proxies for the host ants, the landscape at 0.2-4 km with the
+  - habitat proxies for the host ants, the landscape at 0.2-8 km with the
     radius chosen by AIC, and a check of the recorded mowing timing;
   - matching on the propensity score for the Natura 2000 association, and
     the persistence of the 2012-2018 populations;
   - counts standardised by the flight curve and a hurdle model;
   - threats with their Article 17 codes, a stacked model, Holm and
     Benjamini-Hochberg;
-  - an SPDE spatial field and spatial+.
+  - an SPDE spatial field and spatial+;
+  - the key estimates of every analysis side by side (step 25).
 
 The models of both specifications are *naive occupancy* models. The
 monitoring is essentially one visit per site and year, so detection is not
@@ -129,6 +130,7 @@ PHENGARIS_SPEC=revised Rscript R/07_describe_tables.R   # under a chosen specifi
 | 22 | `22_habitat_models.R` | revised | 06 | mowing-timing check, host plant, local habitat, landscape scales |
 | 23 | `23_detection_models.R` | revised | 06 | known detection, mixed-design occupancy model |
 | 24 | `24_natura2000.R` | revised | 06, 17 | matching for the Natura 2000 association, persistence of the 2012-2018 populations |
+| 25 | `25_synthesis.R` | revised | the result tables of 17, 18, 22-24 | the key odds ratios of every analysis side by side, forest plots |
 | 14 | `14_maps.R` | spec | 01, 06, reference border / grid / relief | maps |
 | 15 | `15_compile_report.R` | final | every step report | `Outputs/REPORT.md` |
 
@@ -194,7 +196,7 @@ What each step does:
     - zero-truncated models of the counts and a hurdle model.
 21. **The landscape around the sites** (P4.7): shares of grassland, arable
     land, forest, water and settlements (KVES 2025) and of natural habitats
-    and *Sanguisorba* meadows (VMB) in circles of 0.2-4 km.
+    and *Sanguisorba* meadows (VMB) in circles of 0.2-8 km.
 22. to 24. *Revised:*
     - habitat and landscape models, with the radius of each landscape
       variable chosen by AIC, and a check of the recorded mowing timing
@@ -202,6 +204,9 @@ What each step does:
     - detection sensitivity (P4.4);
     - the Natura 2000 association after matching, and the persistence of the
       2012-2018 populations (P4.8, P4.9).
+25. **Robustness of the key estimates:** the odds ratios of the management
+    terms, the host plant and the EVL from every analysis of steps 17-24,
+    in one table and one forest plot per species. Nothing is refitted.
 
 ## Outputs
 
@@ -211,7 +216,7 @@ Outputs/
   common/  Tables/ Figures/ Reports/     steps 01, 03, 05, 16, 21
   legacy/  Tables/ Figures/ Reports/     steps 02, 04, 06-14 of the legacy specification
            Exports/                      data exports for Excel (step 13)
-  revised/ Tables/ Figures/ Reports/     steps 02, 04, 06-08, 14, 17-20, 22-24 of the revised specification
+  revised/ Tables/ Figures/ Reports/     steps 02, 04, 06-08, 14, 17-20, 22-25 of the revised specification
 Data/Processed/
   common/  records.csv, sites.gpkg, records_2012_2018.csv, sites_2012_2018.gpkg,
            protected_area_id.csv,
@@ -333,7 +338,7 @@ up to date, run `R/tools/refresh_reference_layers.R` by hand
 (`refresh_reference_layers(layers = ...)` for some of them only). Then
 re-run the cascade and diff the outputs with `R/tools/compare_snapshots.R`.
 
-**Landscape rasters.** The landscape around a site reaches 4 km, beyond the
+**Landscape rasters.** The landscape around a site reaches 8 km, beyond the
 200 m the habitat copies keep. `R/tools/build_landscape_layers.R`
 rasterises the KVES 2025 and VMB kraj archives of the cache for all of
 Czechia (about 30 minutes; needs the cache of the download tool):

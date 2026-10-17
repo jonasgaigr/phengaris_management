@@ -995,6 +995,16 @@ landscape models), 23 (detection sensitivity), 24 (Natura 2000 and
 persistence). Every revised model is now fitted on a third sample, with only
 the plausible imputed absences. Legacy is unchanged.
 
+Follow-ups, each in `CHANGELOG.md` with its diff:
+
+- threat classes that were not on the 2019-2020 threat list are unknown
+  there, not absent (bug fix, `changes/b09`);
+- the matched GLMM without the grid square, and the SPDE convergence
+  criteria (`c14`);
+- landscape radii up to 8 km (`c15`);
+- a new step 25 that collects the key estimates of every analysis into one
+  table and one forest plot per species (`c16`).
+
 **What Phase 4 found.**
 
 - **The management results hold.** For *P. nausithous*, appropriate mowing
@@ -1009,7 +1019,15 @@ the plausible imputed absences. Legacy is unchanged.
   - on the occupancy scale of the mixed-design model, where the effects grow
     (timing 6.6), as they must when detection dilutes them.
 
-  For *P. teleius* no management term is clear in any analysis.
+  Step 25 sets the ten analyses side by side
+  (`25_<species>_robustness_summary`). For *P. nausithous*, every interval
+  of timing, uncut patches and host plant excludes 1, with one exception:
+  uncut patches with the detection fixed at 0.7, 1.66 (0.96-2.88).
+
+  For *P. teleius* no management term is clear in any analysis. Every point
+  estimate of timing and uncut patches lies above 1 (plausible sample), and
+  only dominant host plant has an interval excluding 1 in most analyses (8
+  of 10).
 - **Detection (P4.4).** For *P. nausithous* the 224 site-years visited more
   than once identify a detection probability at the median day of 0.78
   (older form) and 0.69 (newer form), the same under a vague prior. A
@@ -1030,6 +1048,11 @@ the plausible imputed absences. Legacy is unchanged.
   - 1.5-1.8 after matching or covariate adjustment;
   - 3.6 with a spatial field.
 
+  The matched GLMM with the grid square as a random effect gives 4.4. Under
+  the matching weights, that random effect turns the comparison into one
+  within the 19 squares that hold a designated site, a different estimand.
+  Without it the matched GLMM gives 2.5, and 1.1 in the plausible sample.
+
   The EVLs lie where the populations cluster. Populations known in
   2012-2018 persisted about equally inside and outside them.
 - **Flight season (P4.1).** The pooled flight curve of the monitoring visits
@@ -1043,10 +1066,20 @@ the plausible imputed absences. Legacy is unchanged.
   area weighting (b = 0). The mark-recapture scales the review proposed
   (80-270 m) fit 12-22 AIC worse: occupancy follows colonisation and
   regional clustering, not daily movement.
-- **Landscape (P4.7).** Arable land within 4 km is the strongest landscape
-  variable for both species (odds ratio 0.81 and 0.61 per 10 percentage
-  points), and grassland within 1 km for *P. teleius* (1.50). Most chosen
-  radii are the largest tested.
+- **Landscape (P4.7).** The strongest landscape variables, each on its
+  own, are:
+  - for *P. nausithous*, forest within 8 km (odds ratio 1.36 per 10
+    percentage points) and arable land within 8 km (0.77);
+  - for *P. teleius*, arable land within 6 km (0.56) and grassland within
+    1 km (1.50).
+
+  When most radii sat at 4 km, the largest tested, the range was extended
+  to 8 km. Most *P. nausithous* variables then moved to 8 km, and forest
+  still improves there. A scale of effect that wide points to regional
+  gradients (forested uplands against arable lowlands) more than to the
+  landscape a population draws on. In the combined models arable land is
+  absorbed by the other land covers (1.12 and 0.79). The management
+  estimates do not move with any radius.
 - **Habitat proxies (P4.5, P4.6).** The wet-meadow, X and edge shares show
   nothing. The edge share hardly varies on the small, strip-like monitored
   polygons. The 9 visits noted as freshly mown inside the no-cut window
@@ -1054,9 +1087,16 @@ the plausible imputed absences. Legacy is unchanged.
 - **Threats (P4.11).** Fertiliser use is the robust association: the
   species is recorded less often where it is noted, and it is noted less
   often where the species was found. It passes Holm in its family.
+  Abandonment, the native dominants and the effects of livestock farming
+  were not on the 2019-2020 threat list. They are now unknown in those
+  years rather than absent, which removed the separation of the stacked
+  models.
 - **Counts (P4.10) and space (P4.12).** Standardising the counts by the
   flight curve changes no estimate. The spatial field fits better than the
   grid (ΔAIC −13 to −34, range 34-55 km), and spatial+ flags no estimate.
+  Five of the six SPDE fits meet the convergence criteria (`18_spde`). The
+  sixth stops on a flat optimum with a gradient of 0.002 and the same
+  estimates.
 
 **What to report as what.**
 

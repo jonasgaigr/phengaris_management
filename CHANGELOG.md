@@ -1449,7 +1449,7 @@ those at 4 km at 0.77 (water) to 0.94 (arable).
 **Scale profiles** (`22_<species>_landscape_scales`, with imputed; ΔAIC of
 the management model with the one variable added):
 
-| variable | best radius before | ΔAIC there | best radius now | ΔAIC there | odds ratio per SD |
+| variable | best radius before | ΔAIC there | best radius now | ΔAIC there | odds ratio per 10 percentage points |
 |---|---|---|---|---|---|
 | *P. nausithous* arable | 4 km | −21.2 | 8 km | −23.6 | 0.81 → 0.77 |
 | *P. nausithous* forest | 4 km | −12.2 | 8 km | −26.5 | 1.18 → 1.36 |
