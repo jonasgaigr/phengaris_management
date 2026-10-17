@@ -327,6 +327,9 @@ tmb_diagnostics <- function(m, settings = CONFIG$diagnostics, revised = CONFIG$r
   }
   out$converged <- tmb_converged(m)
   co <- summary(m$fit)$coefficients$cond
+  # A converged fit can still leave a fixed effect without a standard error
+  # (e.g. next to a random-effect variance at zero).
+  se_nan <- anyNA(co[, 2])
   co <- co[rownames(co) != "(Intercept)", , drop = FALSE]
   if (nrow(co)) {
     out$max_abs_estimate <- max(abs(co[, 1]))
@@ -359,6 +362,7 @@ tmb_diagnostics <- function(m, settings = CONFIG$diagnostics, revised = CONFIG$r
     isTRUE(out$max_std_error > settings$separation_std_error)
   flags <- c(
     if (!isTRUE(out$converged)) "not converged",
+    if (se_nan) "standard error NaN",
     if (isTRUE(out$min_random_sd < 1e-4)) "random-effect variance at zero",
     if (separated) "possible separation",
     if (isTRUE(out$max_random_variance > settings$max_random_variance)) "random-effect variance inflated",

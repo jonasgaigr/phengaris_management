@@ -1535,3 +1535,26 @@ its 9 fits per term, and 7 of its 11 for the EVL.
   - Dominant host plant excludes 1 in 8 of 10.
   - The EVL is above 1 in all 12 analyses (1.12-3.87) and excludes 1 in 5. It
     is 1.61 (0.88-2.96) adjusted and 1.47 (0.79-2.72) matched.
+
+---
+
+## (b) Flag a fixed effect without a standard error in the diagnostics
+
+- **Specification:** revised only (the diagnostics of the revised models);
+  legacy unchanged.
+- **Full diff:** [`changes/b10_nan_standard_error.md`](changes/b10_nan_standard_error.md)
+
+**Why.** `tmb_diagnostics()` flagged a fit that did not converge, but a
+fit can converge and still leave a fixed effect without a standard error,
+next to a random-effect variance at zero. Such a fit has no confidence
+interval, yet its diagnostics row did not say so.
+
+**What changed.** The diagnostics add the flag "standard error NaN" when any
+fixed effect, the intercept included, has no standard error.
+
+**What changed in the numbers.** One cell among the 352 tables: the *P. teleius*
+model of the effects of livestock farming (with imputed absences,
+`19_teleius_diagnostics`), 5 positive records with the threat, gains the
+flag ("standard error NaN; random-effect variance at zero"). Its estimate
+(0.78) and every other table are unchanged; the full cascade was rerun and
+compared cell by cell.
