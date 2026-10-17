@@ -533,7 +533,11 @@ landscape:
     URBAN: [A]
   # Radii (m) of the circles around each site: the eight radii of
   # Kajzer-Bonk et al. (2016) span 0.1-4 km, the review proposed 0.2-4 km.
-  radii_m: [200, 500, 1000, 2000, 3000, 4000]
+  # Most variables fitted best at 4 km, the edge of that range, so 6 and
+  # 8 km were added to see where the scale of effect lies. A circle of 8 km
+  # around a site near the border lies partly outside Czechia; its shares
+  # count only the part inside.
+  radii_m: [200, 500, 1000, 2000, 3000, 4000, 6000, 8000]
   # Radii up to this are summarised on the 25 m rasters, larger ones on the
   # 100 m rasters.
   fine_max_radius_m: 500

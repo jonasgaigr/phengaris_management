@@ -1431,3 +1431,55 @@ gradient of 0.0018 at AIC 2084.28. Started differently it reaches a
 stationary point at 2084.71 with the same estimates (timing 0.805 against
 0.810 on the logit scale): two nearby optima, between which the year
 variance and the spatial field trade off.
+
+---
+
+## (c) Landscape radii extended to 6 and 8 km
+
+- **Legacy specification:** unchanged. No existing number changes.
+- **Full diff:** [`changes/c15_landscape_radii.md`](changes/c15_landscape_radii.md)
+
+In P4.7, four of the seven landscape variables of *P. nausithous* and five
+of *P. teleius* fitted best at 4 km, the largest radius, so the scale of
+effect could lie further out. `landscape: radii_m` now adds 6 and 8 km. A
+circle of 8 km around a site near the border lies partly outside Czechia;
+its shares count only the part inside. The shares at 8 km correlate with
+those at 4 km at 0.77 (water) to 0.94 (arable).
+
+**Scale profiles** (`22_<species>_landscape_scales`, with imputed; ΔAIC of
+the management model with the one variable added):
+
+| variable | best radius before | ΔAIC there | best radius now | ΔAIC there | odds ratio per SD |
+|---|---|---|---|---|---|
+| *P. nausithous* arable | 4 km | −21.2 | 8 km | −23.6 | 0.81 → 0.77 |
+| *P. nausithous* forest | 4 km | −12.2 | 8 km | −26.5 | 1.18 → 1.36 |
+| *P. nausithous* water | 4 km | −8.6 | 8 km | −10.4 | 0.31 → 0.15 |
+| *P. nausithous* natural | 4 km | −1.0 | 8 km | −7.0 | 1.12 → 1.28 |
+| *P. nausithous* grassland | 3 km | −3.6 | 8 km | −4.2 | 1.18 → 1.26 |
+| *P. teleius* arable | 4 km | −21.7 | 6 km | −25.1 | 0.61 → 0.56 |
+| *P. teleius* forest | 4 km | −3.1 | 8 km | −9.0 | 1.24 → 1.50 |
+
+The other variables keep their radius: urban at 1 km (*P. nausithous*) and
+4 km (*P. teleius*), *Sanguisorba* at 200 m and 3 km, and for *P. teleius*
+grassland at 1 km and natural and water at 4 km. The *P. teleius* profiles
+of arable, urban, natural and water land now have their optimum inside the
+range, at 4-6 km. For *P. nausithous* only urban land does: the arable
+profile flattens past 4 km, and forest still improves at 8 km. A scale of
+effect at 8 km and beyond is wider than the species move. It points to
+regional gradients, forested uplands against arable lowlands, more than to
+the landscape a population draws on.
+
+**Combined models** (`22_<species>_habitat_landscape_estimates`):
+
+- *P. nausithous*, with imputed:
+  - forest 1.17 (0.94-1.45) at 4 km → 1.49 (1.14-1.96) at 8 km;
+  - water 0.38 → 0.26 (0.08-0.81);
+  - arable 0.95 → 1.12 (0.82-1.52), still absorbed by the other land covers;
+  - natural land at 8 km now enters (0.99).
+  - The management terms do not move (timing 2.19 → 2.18, method 2.10 →
+    2.15), and EVL designation goes 1.46 (0.82-2.60) → 1.68 (0.93-3.02).
+- *P. teleius*, with plausible imputed:
+  - arable 0.82 → 0.79 (0.53-1.18) at 6 km;
+  - forest 0.98 → 0.97 at 8 km;
+  - water 6.00 → 6.71;
+  - EVL designation 2.96 → 2.86 (1.12-7.26).
