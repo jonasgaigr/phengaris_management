@@ -31,7 +31,7 @@
 # headline stays the probability of recording the species.
 #
 # Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
-# Writes: Outputs/<spec>/Tables/23_*.csv
+# Writes: Outputs/<spec>/Tables/23_*.csv, Figures/23_*.png
 #         Outputs/<spec>/Reports/23_detection_models.md
 #
 #----------------------------------------------------------#
@@ -204,6 +204,41 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       max_rows = nrow(comparison)
     )
 
+    sensitivity <- dplyr::bind_rows(
+      naive_coefs %>%
+        dplyr::transmute(
+          fit = "GLMM (step 17)", sample, term, odds_ratio = ratio, or_low = ratio_low, or_high = ratio_high
+        ),
+      known %>%
+        dplyr::filter(status == "ok") %>%
+        dplyr::transmute(
+          fit = sprintf("GLM, detection fixed at p = %g", p), sample, term,
+          odds_ratio = ratio, or_low = ratio_low, or_high = ratio_high
+        ),
+      posterior %>%
+        dplyr::filter(part == "occupancy") %>%
+        dplyr::transmute(
+          fit = paste0("occupancy model, ", sub("^[^,]*, ", "", model)),
+          sample = sub(",.*$", "", model), term = model_term(term), odds_ratio, or_low, or_high
+        )
+    )
+    report_figure(
+      plot_detection_sensitivity(sensitivity, unique(sensitivity$fit), species_names[[code]]),
+      sprintf(
+        paste(
+          "Odds ratios (95%% interval) of the key terms as detection is allowed",
+          "for: the GLMM of step 17, GLMs with the detection probability fixed at",
+          "p, and the occupancy part of the mixed-design model (posterior mean",
+          "and credible interval), in the three samples; fits without a finite",
+          "interval, or whose upper limit is %g or more times the lower one, are",
+          "left out, %s"
+        ),
+        CONFIG$synthesis$max_interval_ratio, species_names[[code]]
+      ),
+      paste0(prefix, "_known_detection"),
+      width = 11, height = 6
+    )
+
     report_table(
       detection %>%
         dplyr::mutate(
@@ -220,6 +255,16 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
         settings$prior_p, settings$prior_var, settings$prior_var_vague
       ),
       paste0(prefix, "_detection_probability")
+    )
+    report_figure(
+      plot_detection_probability(detection, settings$prior_p, species_names[[code]]),
+      paste(
+        "Detection probability at the year's median day by field-form era",
+        "(posterior mean, 95% credible interval); the vertical line is the mean",
+        "of the prior,", species_names[[code]]
+      ),
+      paste0(prefix, "_detection_probability"),
+      width = 9, height = 3.5
     )
 
     report_table(

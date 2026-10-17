@@ -93,36 +93,23 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     max_rows = nrow(wide)
   )
 
-  analyses <- unique(robustness$analysis)
   # Separated fits stay in the tables but are not drawn.
-  plot_data <- robustness[is_estimable(robustness), , drop = FALSE] %>%
-    dplyr::mutate(
-      analysis = factor(analysis, levels = rev(analyses)),
-      term_label = factor(term_label, levels = SYNTHESIS_TERMS),
-      sample = factor(sample, levels = unname(REVISED_SAMPLES))
-    )
   report_figure(
-    ggplot2::ggplot(plot_data, ggplot2::aes(x = odds_ratio, y = analysis, colour = sample)) +
-      ggplot2::geom_vline(xintercept = 1, linetype = "dashed", colour = "grey60") +
-      ggplot2::geom_pointrange(
-        ggplot2::aes(xmin = or_low, xmax = or_high),
-        position = ggplot2::position_dodge(width = 0.6), size = 0.25
-      ) +
-      ggplot2::facet_wrap(~term_label, scales = "free_x") +
-      ggplot2::scale_x_log10() +
-      ggplot2::scale_colour_manual(values = c("black", "grey40", "grey70"), name = NULL) +
-      ggplot2::labs(x = "\nodds ratio (95% interval, log scale)", y = NULL) +
-      ggplot2::theme_classic(base_size = 11) +
-      ggplot2::theme(legend.position = "bottom"),
+    plot_robustness(robustness),
     sprintf(
       paste(
-        "Odds ratios of the key terms across the analyses (fits whose upper limit",
-        "is %g or more times the lower one are left out), %s"
+        "Odds ratios (95%% interval) of the key terms across the analyses, grouped",
+        "by what each changes against the management model of step 17: the",
+        "covariates (step 17, step 22), the records (step 17), the spatial",
+        "structure (step 18), the detection (step 23) and, for the EVL, the",
+        "comparison (step 24); in the three samples. Fits without a finite",
+        "interval, or whose upper limit is %g or more times the lower one, are",
+        "left out, %s"
       ),
       CONFIG$synthesis$max_interval_ratio, species_names[[code]]
     ),
     paste0(prefix, "_robustness"),
-    width = 12, height = 9
+    width = 13, height = 7.5
   )
 }
 

@@ -341,6 +341,108 @@ summarise_grid_coverage <- function(data) {
   )
 }
 
+#--------------------------------------------------#
+## The records of the revised models -----
+#--------------------------------------------------#
+
+# These need the survey-design variables of the revised specification
+# (design_variables: true): the flight season, the imputed absences that are
+# plausible (P4.3) and the protection designated for the record's species.
+
+#' The outcomes of a record, as the revised models see it.
+RECORD_OUTCOMES <- c(
+  "positive", "observed negative", "imputed negative, plausible", "imputed negative, not plausible"
+)
+
+#' The outcome of each record: the species found, not found at an observed
+#' visit, or an imputed absence, plausible or not.
+record_outcome <- function(positive, imputed, plausible) {
+  factor(
+    dplyr::case_when(
+      positive == 1 ~ RECORD_OUTCOMES[1],
+      !imputed ~ RECORD_OUTCOMES[2],
+      plausible %in% TRUE ~ RECORD_OUTCOMES[3],
+      TRUE ~ RECORD_OUTCOMES[4]
+    ),
+    levels = RECORD_OUTCOMES
+  )
+}
+
+#' Jeffreys 95% interval of a proportion of x out of n.
+jeffreys_interval <- function(x, n) {
+  data.frame(
+    low = ifelse(x == 0, 0, stats::qbeta(0.025, x + 0.5, n - x + 0.5)),
+    high = ifelse(x == n, 1, stats::qbeta(0.975, x + 0.5, n - x + 0.5))
+  )
+}
+
+#' Records in the flight season by species, year and outcome.
+summarise_records_by_outcome <- function(data) {
+  data %>%
+    dplyr::filter(IN_FLIGHT_WINDOW) %>%
+    dplyr::mutate(outcome = record_outcome(POSITIVE, IMPUTED, IMPUTED_PLAUSIBLE)) %>%
+    dplyr::count(DRUH, YEAR, outcome, name = "records", .drop = FALSE) %>%
+    dplyr::arrange(DRUH, YEAR, outcome)
+}
+
+#' Observed visits by species, position in the season (classes of DOY_DEV,
+#' the days from the year's median positive record), outcome and whether
+#' they fall in the flight season.
+summarise_visit_timing <- function(data, width = 5) {
+  data %>%
+    dplyr::filter(!IMPUTED, !is.na(DOY_DEV)) %>%
+    dplyr::mutate(
+      day_class = width * floor(DOY_DEV / width),
+      outcome = ifelse(POSITIVE == 1, "positive", "negative")
+    ) %>%
+    dplyr::count(DRUH, day_class, outcome, in_flight_season = IN_FLIGHT_WINDOW, name = "records") %>%
+    dplyr::arrange(DRUH, day_class, outcome)
+}
+
+#' The variables of the management model and the labels of their values.
+MANAGEMENT_VARIABLES <- list(
+  TIMING = c(`0` = "harmful", `1` = "appropriate"),
+  METHOD = c(`0` = "whole area mown", `1` = "patches left uncut"),
+  PLANT_QUANT = c(`1` = "single plants", `2` = "abundant", `3` = "dominant"),
+  EVL_species = c(`0` = "outside", `1` = "inside")
+)
+
+#' Variable names of MANAGEMENT_VARIABLES as table and figure headings.
+MANAGEMENT_VARIABLE_LABELS <- c(
+  TIMING = "mowing timing", METHOD = "mowing method", PLANT_QUANT = "host plant",
+  EVL_species = "EVL designated for the species"
+)
+
+#' Share of the in-season records with the species at each value of the
+#' management model's variables, per species and sample (the samples of
+#' revised_model_data()), with a Jeffreys 95% interval.
+summarise_share_positive <- function(data, variables = MANAGEMENT_VARIABLES) {
+  rows <- list()
+  for (species in sort(unique(data$DRUH))) {
+    for (sample in REVISED_SAMPLES) {
+      d <- revised_model_data(data, species, sample)
+      for (v in names(variables)) {
+        values <- variables[[v]]
+        x <- as.character(d[[v]])
+        keep <- x %in% names(values)
+        tab <- data.frame(
+          DRUH = species, sample = sample, variable = v,
+          value = factor(values[x[keep]], levels = unname(values)),
+          positive = d$POSITIVE[keep]
+        ) %>%
+          dplyr::group_by(DRUH, sample, variable, value) %>%
+          dplyr::summarise(records = dplyr::n(), positive = sum(positive), .groups = "drop")
+        rows[[length(rows) + 1]] <- dplyr::bind_cols(
+          tab,
+          share_positive = tab$positive / tab$records, jeffreys_interval(tab$positive, tab$records)
+        )
+      }
+    }
+  }
+  dplyr::bind_rows(rows) %>%
+    dplyr::mutate(value = as.character(value))
+}
+
 #----------------------------------------------------------#
 # End helpers -----
 #----------------------------------------------------------#

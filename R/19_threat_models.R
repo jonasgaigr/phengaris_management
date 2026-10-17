@@ -178,23 +178,22 @@ if (nrow(estimates)) {
     )
   }
 
-  plot <- ggplot2::ggplot(
-    estimates %>%
-      dplyr::mutate(species = sub("Phengaris", "P.", species)),
-    ggplot2::aes(x = ratio, y = term, colour = sample)
-  ) +
-    ggplot2::geom_vline(xintercept = 1, linetype = "dashed", colour = "grey60") +
-    ggplot2::geom_pointrange(
-      ggplot2::aes(xmin = ratio_low, xmax = ratio_high),
-      position = ggplot2::position_dodge(width = 0.5)
-    ) +
-    ggplot2::facet_wrap(~species) +
-    ggplot2::scale_x_log10() +
-    ggplot2::scale_colour_manual(values = c("black", "grey40", "grey70"), name = NULL) +
-    ggplot2::labs(x = "\nodds ratio (95% CI, log scale)", y = NULL) +
-    ggplot2::theme_classic(base_size = 13) +
-    ggplot2::theme(legend.position = "bottom")
-  report_figure(plot, "Odds ratios of occupancy by threat class", "19_threat_estimates", width = 10, height = 7)
+  report_figure(
+    plot_threat_estimates(estimates),
+    sprintf(
+      paste(
+        "Odds ratios (95%% CI) of recording the species at a visit where each",
+        "threat class (with its Article 17 code) is noted, in the three samples;",
+        "filled marks have an adjusted p below 0.05 (Holm for the confirmatory",
+        "threats, Benjamini-Hochberg for the others); fits without a finite",
+        "interval, or whose upper limit is %g or more times the lower one, are",
+        "left out"
+      ),
+      CONFIG$synthesis$max_interval_ratio
+    ),
+    "19_threat_estimates",
+    width = 10, height = 6.5
+  )
 }
 
 report_finish()

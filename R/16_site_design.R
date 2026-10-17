@@ -208,32 +208,20 @@ report_table(
   "16_flight_season"
 )
 
-curve_plot <- flight_curve %>%
-  dplyr::filter(is.na(ELEVATION) | ELEVATION %in% bounds$ELEVATION) %>%
-  dplyr::mutate(
-    species = sub("Phengaris", "P.", DRUH),
-    elevation = if (all(is.na(ELEVATION))) "all elevations" else paste(ELEVATION, "m")
-  )
 report_figure(
-  ggplot2::ggplot(curve_plot, ggplot2::aes(x = DOY_DEV, y = RELATIVE_ACTIVITY, linetype = elevation)) +
-    ggplot2::geom_hline(
-      yintercept = CONFIG$design$flight_window$min_relative_activity, colour = "grey60", linetype = "dashed"
-    ) +
-    ggplot2::geom_line() +
-    ggplot2::geom_line(data = dplyr::filter(curve_plot, IN_DATA_RANGE), linewidth = 1) +
-    ggplot2::facet_wrap(~species) +
-    ggplot2::labs(
-      x = "\ndays from the year's median positive record",
-      y = "relative activity of adults\n", linetype = NULL
-    ) +
-    ggplot2::theme_classic(base_size = 14) +
-    ggplot2::theme(legend.position = "bottom"),
+  plot_flight_curve(
+    dplyr::filter(flight_curve, is.na(ELEVATION) | ELEVATION %in% bounds$ELEVATION),
+    CONFIG$design$flight_window$min_relative_activity
+  ),
   paste(
-    "Flight curves: relative activity of adults across the season (thick: the",
-    "range of the visits; dashed: the cut-off of the flight season)"
+    "Flight curves: the relative activity of adults across the season, solid",
+    "over the days the visits cover and dotted where the curve is extrapolated;",
+    "where the curve has an elevation term, at the lower decile, the median and",
+    "the upper decile of the sites' elevation. The flight season ends where the",
+    "curve falls below the horizontal line"
   ),
   "16_flight_curve",
-  width = 10
+  width = 10, height = 5
 )
 
 #----------------------------------------------------------#

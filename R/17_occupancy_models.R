@@ -130,67 +130,6 @@ report_table(
 # Models of each species -----
 #----------------------------------------------------------#
 
-#' Point-range plot of the marginal predictions of mowing timing x method.
-plot_management_predictions <- function(pred, species_label) {
-  pred <- pred %>%
-    dplyr::mutate(
-      timing = factor(TIMING, levels = c(0, 1), labels = c("harmful timing", "appropriate timing")),
-      method = factor(METHOD, levels = c(0, 1), labels = c("whole area mown", "patches left uncut"))
-    )
-  ggplot2::ggplot(pred, ggplot2::aes(x = timing, y = estimate, colour = method)) +
-    ggplot2::geom_pointrange(
-      ggplot2::aes(ymin = conf_low, ymax = conf_high),
-      position = ggplot2::position_dodge(width = 0.4)
-    ) +
-    ggplot2::facet_wrap(~sample) +
-    ggplot2::scale_colour_manual(values = c("grey55", "black"), name = NULL) +
-    ggplot2::scale_y_continuous(limits = c(0, 1)) +
-    ggplot2::labs(
-      x = NULL,
-      y = paste0("predicted probability of recording ", species_label, "\n")
-    ) +
-    ggplot2::theme_classic(base_size = 14) +
-    ggplot2::theme(legend.position = "bottom")
-}
-
-#' Predicted occupancy across the flight season.
-plot_season <- function(curve, species_label) {
-  ggplot2::ggplot(curve, ggplot2::aes(x = DOY_DEV, y = estimate, linetype = sample)) +
-    ggplot2::geom_ribbon(
-      ggplot2::aes(ymin = conf_low, ymax = conf_high, group = sample),
-      fill = "grey85", colour = NA
-    ) +
-    ggplot2::geom_line() +
-    ggplot2::scale_y_continuous(limits = c(0, 1)) +
-    ggplot2::labs(
-      x = "\ndays from the year's median positive record",
-      y = paste0("predicted probability of recording ", species_label, "\n"),
-      linetype = NULL
-    ) +
-    ggplot2::theme_classic(base_size = 14) +
-    ggplot2::theme(legend.position = "bottom")
-}
-
-#' Profile of the connectivity: delta AIC against alpha, one line per b.
-plot_connectivity_profile <- function(profile, species_label) {
-  ggplot2::ggplot(
-    profile,
-    ggplot2::aes(x = alpha_per_km, y = delta_AIC, linetype = factor(area_exponent), shape = factor(area_exponent))
-  ) +
-    ggplot2::geom_hline(yintercept = 2, colour = "grey60", linetype = "dashed") +
-    ggplot2::geom_line() +
-    ggplot2::geom_point() +
-    ggplot2::facet_wrap(~sample, scales = "free_y") +
-    ggplot2::scale_x_log10(breaks = unlist(CONFIG$connectivity$alpha_grid_per_km)) +
-    ggplot2::labs(
-      x = "\nalpha (per km; mean dispersal distance 1 / alpha)",
-      y = paste0("delta AIC, ", species_label, "\n"),
-      linetype = "b", shape = "b"
-    ) +
-    ggplot2::theme_classic(base_size = 14) +
-    ggplot2::theme(legend.position = "bottom")
-}
-
 all_models <- list()
 connectivity_selected <- list()
 
@@ -271,9 +210,14 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
   )
   report_figure(
     plot_connectivity_profile(profile, species_names[[code]]),
-    paste("Profile of the connectivity parameters (dashed: 2 AIC above the best),", species_names[[code]]),
+    paste(
+      "Profile likelihood of the connectivity: delta AIC of the management model",
+      "with the connectivity at each mean dispersal distance 1 / alpha and area",
+      "exponent b, against the best pair of the sample (ringed; the horizontal",
+      "line is 2 AIC above it),", species_names[[code]]
+    ),
     paste0(prefix, "_connectivity_profile"),
-    width = 10
+    width = 10, height = 4.5
   )
 
   specs <- unlist(lapply(REVISED_SAMPLES, function(s) {
@@ -395,14 +339,6 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     ),
     paste0(prefix, "_predictions_management")
   )
-  if (nrow(pred_mgmt)) {
-    report_figure(
-      plot_management_predictions(pred_mgmt, species_names[[code]]),
-      paste("Predicted occupancy by mowing timing and method,", species_names[[code]]),
-      paste0(prefix, "_predictions_management"),
-      width = 11
-    )
-  }
 
   pred_other <- dplyr::bind_rows(unname(c(
     lapply(management, marginal_predictions, by = "PLANT"),
@@ -414,15 +350,51 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     paste0(prefix, "_predictions_plant_protection")
   )
 
+  # A management model with a key term that is not estimable (separated; the
+  # rule of step 25) is left out of the figure, not of the tables.
+  key_terms <- coefs %>%
+    dplyr::filter(model %in% names(management), term %in% names(SYNTHESIS_TERMS)) %>%
+    dplyr::transmute(model, sample, odds_ratio = ratio, or_low = ratio_low, or_high = ratio_high)
+  left_out <- unique(key_terms$sample[!is_estimable(key_terms)])
+  if (nrow(pred_mgmt)) {
+    report_figure(
+      plot_predictions(
+        pred_mgmt, pred_other, species_names[[code]],
+        leave_out = unique(key_terms$model[key_terms$sample %in% left_out])
+      ),
+      paste0(
+        "Marginal predicted probability of recording the species (95% CI) by ",
+        "mowing timing and method, host-plant abundance and the EVL designated ",
+        "for the species, in the three samples",
+        if (length(left_out)) {
+          paste0(
+            "; left out: ", paste(left_out, collapse = ", "),
+            " (a key term not estimable, see the table)"
+          )
+        },
+        ", ", species_names[[code]]
+      ),
+      paste0(prefix, "_predictions"),
+      width = 11, height = 5
+    )
+  }
+
   curve <- dplyr::bind_rows(lapply(
     models[paste0(code, c("_baseline", "_baseline_pls", "_baseline_obs"))], season_curve,
     curve = flight_curve
   ))
   if (nrow(curve)) {
+    report_csv(
+      curve, "Predicted probability across the flight season (baseline model)", paste0(prefix, "_season")
+    )
     report_figure(
       plot_season(curve, species_names[[code]]),
-      paste("Predicted occupancy across the flight season (baseline model),", species_names[[code]]),
-      paste0(prefix, "_season")
+      paste(
+        "Predicted probability of recording the species across the flight season",
+        "(baseline model, 95% CI), in the three samples,", species_names[[code]]
+      ),
+      paste0(prefix, "_season"),
+      width = 8, height = 5
     )
   }
 

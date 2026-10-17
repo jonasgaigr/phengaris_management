@@ -1108,6 +1108,30 @@ Follow-ups, each in `CHANGELOG.md` with its diff:
 - For *P. teleius*, the plausible sample is the one to read beside the
   observed one.
 
+**The results as presented** (`CHANGELOG.md`, "The figures and the
+descriptive results of the revised analysis"):
+
+- The revised descriptive results (steps 07 and 08) open with the records
+  the models use: in the flight season, by outcome (observed and imputed
+  negatives, plausible or not), by position in the season, and the share of
+  records with the species at each value of the management model's
+  variables in the three samples. The legacy figures (the Natura 2000
+  designation for either species, the combined management classes) are
+  drawn under legacy only.
+- One figure style for the common and the revised steps
+  (`R/functions/figures.R`):
+  - the three samples in a fixed order with fixed marks;
+  - species in italics;
+  - readable labels for the terms, threat classes and land covers;
+  - log axes for odds ratios and distances.
+- New figures for the detection sensitivity (step 23) and the Natura 2000
+  association and persistence (step 24). The predictions of step 17 combine
+  mowing, host plant and EVL in one figure per species.
+- Fits with a separated key term are left out of the forest plots and the
+  predictions, by the rule of step 25, and the captions say so.
+- `REPORT.md` puts the revised specification before the legacy one and
+  lists the figures of the revised analysis after the contents.
+
 **Recommendations for the monitoring,** from the review and from what the
 analyses could not do:
 

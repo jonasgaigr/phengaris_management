@@ -34,6 +34,62 @@ report_start(
 data <- read_data_analysis()
 
 #----------------------------------------------------------#
+# The records of the revised models -----
+#----------------------------------------------------------#
+
+# Under a specification with the survey-design variables, the records as the
+# revised models see them: in the flight season, by outcome (positive,
+# observed negative, imputed negative, plausible or not, P4.3), by position
+# in the season, and the share of positive records at each value of the
+# management model's variables in each of the three samples. Step 08 plots
+# these tables.
+if (isTRUE(spec_settings()$design_variables)) {
+  report_section("The records of the revised models")
+
+  report_table(
+    summarise_records_by_outcome(data) %>%
+      tidyr::pivot_wider(names_from = outcome, values_from = records, values_fill = 0),
+    paste(
+      "Records in the flight season by species, year and outcome. The imputed",
+      "negatives are plausible when the visit falls in the species' flight",
+      "season and a positive record of it lies within the plausibility radius",
+      "(P4.3); the three samples of the models keep all of them, only the",
+      "plausible ones, or none"
+    ),
+    "07_records_by_outcome"
+  )
+
+  visit_timing <- summarise_visit_timing(data)
+  report_table(
+    visit_timing %>%
+      tidyr::pivot_wider(names_from = outcome, values_from = records, values_fill = 0),
+    sprintf(
+      paste(
+        "Observed visits by their position in the season (classes of 5 days",
+        "from the year's median positive record), outcome and whether they fall",
+        "in the flight season of the curve (step 16); %d observed visits fall",
+        "outside it and are not modelled"
+      ),
+      sum(visit_timing$records[!visit_timing$in_flight_season])
+    ),
+    "07_visit_timing",
+    max_rows = 60
+  )
+
+  share_positive <- summarise_share_positive(data)
+  report_table(
+    share_positive,
+    paste(
+      "Share of the records in the flight season with the species at each value",
+      "of the management model's variables, by species and sample, with a",
+      "Jeffreys 95% interval; records with the variable unknown left out"
+    ),
+    "07_share_positive",
+    max_rows = nrow(share_positive)
+  )
+}
+
+#----------------------------------------------------------#
 # General extent of the data -----
 #----------------------------------------------------------#
 

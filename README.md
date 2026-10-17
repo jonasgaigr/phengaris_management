@@ -174,10 +174,19 @@ What each step does:
 6. **Habitat attributes.** Describes each record by the habitat segments its
    site overlaps, using the specification's habitat source and segment rule.
    With the current layers it adds the site's dominant KVES class.
-7. and 8. Descriptive tables and figures.
+7. and 8. **Descriptive tables and figures.** Under *revised* they open
+   with the records as the models use them: in the flight season, by
+   outcome (positive, observed negative, imputed negative, plausible or
+   not), by position in the season, and the share of records with the
+   species at each value of the management model's variables in the three
+   samples. The figures of the original analysis (the Natura 2000
+   designation for either species, the combined management classes) are
+   drawn under *legacy* only.
 9. to 13. *Legacy:* the original models and the ordination.
 14. **Maps.**
-15. **Compile the report.**
+15. **Compile the report.** The common steps first, then the
+    specifications with the revised model set, then the others, with a list
+    of the figures of the revised analysis at the top.
 16. **Persistent sites, flight season and connectivity.**
     - Reconstructs persistent sites across years, at 50 m and at 0 and 200 m,
       and gives each site its elevation.
@@ -236,6 +245,16 @@ Start at `Outputs/REPORT.md`.
 - Every table in a report is also a CSV in `Tables/`, in Windows-1250 for
   Czech Excel. Every figure is a PNG in `Figures/`.
 - File names start with the step number.
+- The figures of the common steps and of the revised specification share
+  one style (`R/functions/figures.R`). The three samples always appear in
+  the same order and with the same marks: black circles with all imputed
+  absences, dark grey triangles with the plausible ones, light grey squares
+  on the observed records only. Odds ratios and distances are on log
+  scales. Each figure plots a table its step also writes.
+- Fits without a finite interval, or whose interval spans four orders of
+  magnitude or more (separated terms, `synthesis: max_interval_ratio`), are
+  left out of the forest plots and the predictions, never out of the
+  tables. The captions say so.
 
 **What the model tables hold**, per step (`<NN>_<species>_…`):
 

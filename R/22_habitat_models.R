@@ -229,18 +229,21 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       max_rows = nrow(scales$table)
     )
     report_figure(
-      ggplot2::ggplot(scales$table, ggplot2::aes(x = radius_m, y = delta_AIC_vs_management)) +
-        ggplot2::geom_hline(yintercept = 0, colour = "grey60") +
-        ggplot2::geom_hline(yintercept = -CONFIG$landscape$min_aic_gain, colour = "grey60", linetype = "dashed") +
-        ggplot2::geom_line() +
-        ggplot2::geom_point() +
-        ggplot2::facet_wrap(~variable) +
-        ggplot2::scale_x_log10(breaks = radii) +
-        ggplot2::labs(x = "\nradius (m)", y = "delta AIC against the management model\n") +
-        ggplot2::theme_classic(base_size = 12),
-      paste("Scale of effect of the landscape variables,", species_names[[code]]),
+      plot_landscape_scales(scales$table, CONFIG$landscape$min_aic_gain, species_names[[code]]),
+      sprintf(
+        paste(
+          "Scale of effect of the landscape variables: delta AIC of the management",
+          "model with the variable at each radius against the model without it",
+          "(sample with the imputed absences). The best radius is circled, with",
+          "its odds ratio per 10 percentage points; filled when it improves the",
+          "model by more than %g AIC (the lower horizontal line) and so enters the",
+          "combined model. Land cover from KVES 2025, natural habitats and",
+          "Sanguisorba meadows from VMB, %s"
+        ),
+        CONFIG$landscape$min_aic_gain, species_names[[code]]
+      ),
       paste0(prefix, "_landscape_scales"),
-      width = 10, height = 7
+      width = 10, height = 5.5
     )
     chosen <- scales$best %>% dplyr::filter(delta_AIC_vs_management < -CONFIG$landscape$min_aic_gain)
     report_table(

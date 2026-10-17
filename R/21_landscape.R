@@ -127,14 +127,14 @@ if (!all(file.exists(paths))) {
   )
 
   report_figure(
-    ggplot2::ggplot(long, ggplot2::aes(x = factor(radius_m), y = share)) +
-      ggplot2::geom_boxplot(outlier.size = 0.3, colour = "grey30") +
-      ggplot2::facet_wrap(~variable, scales = "free_y") +
-      ggplot2::labs(x = "\nradius (m)", y = "share of the circle\n") +
-      ggplot2::theme_classic(base_size = 12),
-    "The landscape around the surveyed sites by radius",
+    plot_landscape_shares(long),
+    paste(
+      "The landscape around the surveyed sites: the share of each land cover",
+      "(KVES 2025) and of the natural habitats and Sanguisorba meadows (VMB) in",
+      "the circle of each radius"
+    ),
     "21_landscape_by_radius",
-    width = 10, height = 7
+    width = 10, height = 5.5
   )
 
   validate_table(

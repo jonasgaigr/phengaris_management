@@ -33,7 +33,7 @@
 #
 # Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
 #         Data/Processed/<spec>/connectivity_selected.csv   (step 17)
-# Writes: Outputs/<spec>/Tables/24_*.csv
+# Writes: Outputs/<spec>/Tables/24_*.csv, Figures/24_*.png
 #         Outputs/<spec>/Reports/24_natura2000.md
 #
 #----------------------------------------------------------#
@@ -137,6 +137,16 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     paste0(prefix, "_designation"),
     max_rows = nrow(estimates)
   )
+  report_figure(
+    plot_designation(estimates, species_names[[code]]),
+    paste(
+      "Odds ratio (95% CI) of recording the species inside an EVL designated for",
+      "it: unmatched, adjusted for the matching covariates, and after full",
+      "matching, in the three samples,", species_names[[code]]
+    ),
+    paste0(prefix, "_designation"),
+    width = 8, height = 3.8
+  )
   balance <- dplyr::bind_rows(balance)
   report_table(
     balance,
@@ -195,14 +205,25 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     ))
     persistence[[s]] <- fits
   }
+  counts <- dplyr::bind_rows(counts)
   report_table(
-    dplyr::bind_rows(counts),
+    counts,
     paste(
       "Visits of 2019-2024 by whether the species was found at the site in",
       "2012-2018 (within the matching distance) and whether the site lies in an",
       "EVL designated for it"
     ),
     paste0(prefix, "_persistence_counts")
+  )
+  report_figure(
+    plot_persistence(counts, species_names[[code]]),
+    paste(
+      "Share of the visits of 2019-2024 that found the species (Jeffreys 95%",
+      "interval), at sites with and without a record of it in 2012-2018, inside",
+      "and outside the EVLs designated for it,", species_names[[code]]
+    ),
+    paste0(prefix, "_persistence"),
+    width = 7, height = 4.5
   )
   persistence_models <- unlist(persistence, recursive = FALSE)
   names(persistence_models) <- vapply(persistence_models, `[[`, character(1), "id")

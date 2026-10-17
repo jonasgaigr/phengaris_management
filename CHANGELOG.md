@@ -1558,3 +1558,76 @@ model of the effects of livestock farming (with imputed absences,
 flag ("standard error NaN; random-effect variance at zero"). Its estimate
 (0.78) and every other table are unchanged; the full cascade was rerun and
 compared cell by cell.
+
+---
+
+## (c) The figures and the descriptive results of the revised analysis
+
+- **Specification:** revised and the common steps; legacy unchanged (its
+  tables, and its figures byte for byte).
+- **Full diff:** [`changes/c17_figures.md`](changes/c17_figures.md)
+
+**Why.** The figures and the descriptive results of the revised
+specification still followed the original analysis:
+
+- Step 08 drew the legacy figure set under both specifications: all records
+  regardless of the flight season, the Natura 2000 designation for either
+  species (review item 24), and the combined management classes the revised
+  models do not use.
+- The three samples changed order and shade from figure to figure (black
+  was "observed only" in step 19 and "with imputed" in step 25).
+- Several figures had overlapping tick labels (alpha, radii) and showed
+  column names (`NativeDominants`, `ARABLE`).
+- The *P. teleius* flight curve drew its extrapolated part as data, and a
+  legend entry "NA m".
+- Steps 23 and 24 had no figure.
+
+**What changed.** No model, estimate or existing table:
+
+- `R/functions/figures.R`: one style and one plot function per figure, each
+  plotting a table its step writes. The samples always appear in the same
+  order with the same marks. Species names are in italics, the labels are
+  readable, and odds ratios and distances are on log scales.
+- Steps 07 and 08, revised (`design_variables: true`): a new first section,
+  "The records of the revised models", with three tables and figures.
+  - The in-season records by year and outcome (positive, observed negative,
+    imputed negative, plausible or not).
+  - The observed visits by position in the season.
+  - The share of records with the species at each value of the management
+    model's variables, per sample.
+
+  Step 08 draws these and the observers instead of the legacy figure set,
+  which is drawn under legacy only.
+- Step 16: the flight curve solid over the visits' days, dotted where it is
+  extrapolated.
+- Step 17: one prediction figure per species, `17_<species>_predictions`,
+  with mowing, host plant and EVL, replacing
+  `17_<species>_predictions_management`. A fit with a key term not
+  estimable is left out of it, by the rule of step 25: *P. teleius*
+  observed only. The connectivity profile is against the mean dispersal
+  distance with the best pair ringed. The season curve is written as a
+  table (`17_<species>_season`).
+- Step 19: the threat classes with readable labels and their Article 17
+  codes; filled marks pass Holm or Benjamini-Hochberg.
+- Steps 21 and 22: readable land-cover labels, radii in km. In step 22 the
+  best radius is circled with its odds ratio, filled when the variable
+  enters the combined model.
+- Step 23 (new): the key odds ratios as detection is allowed for, and the
+  detection probability against its prior.
+- Step 24 (new): the EVL odds ratio unmatched, adjusted and matched, and the
+  persistence of the 2012-2018 populations inside and outside the EVLs.
+- Step 25: one column per term, the analyses grouped by what they change,
+  without the empty rows.
+- Step 15: `REPORT.md` puts the revised specification before the legacy one
+  and lists the figures of the revised analysis after the contents.
+- Fits without a finite interval, or with a separated term
+  (`synthesis: max_interval_ratio`), are left out of the forest plots and
+  the predictions, as in step 25, and the captions say so. The tables keep
+  them.
+
+**What changed in the numbers.** None. Steps 16, 21, 07, 08, 17, 19 and
+22-25 were rerun and compared cell by cell with the previous snapshot:
+352 tables identical, 5 added (`07_records_by_outcome`, `07_visit_timing`,
+`07_share_positive`, `17_<species>_season`). The 35 legacy figures were
+redrawn byte for byte. The figures the revised specification no longer
+draws were deleted from `Outputs/revised/Figures`.
