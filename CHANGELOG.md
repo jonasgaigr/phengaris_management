@@ -1164,3 +1164,56 @@ nausithous*; for *P. teleius* persistence inside the EVLs is higher, but the
 interval reaches 1, and the interaction shows no difference from the sites
 without a known population. Kajzer-Bonk & Nowicki (2022) found the declines
 mainly outside Natura 2000; these data are too few to confirm or refute it.
+
+---
+
+## (c) P4.10: counts standardised by the flight curve, and a hurdle model
+
+- **Decision:** P4.10 of `REVIEW.md`.
+- **Legacy specification:** unchanged. No existing number changes: step 20
+  adds two models per species.
+- **Full diff:** [`changes/c10_counts.md`](changes/c10_counts.md)
+
+**Why.** A single count depends on where in the season the visit fell.
+The butterfly monitoring schemes standardise counts by the flight curve
+(Dennis et al. 2016), and the review proposed to model the zeros of the
+negative visits and the counts of the positive ones together.
+
+**What was done.** `fit_tmb()` takes a zero part (`ziformula`), and the
+coefficient tables list it with the prefix `zi:`. Step 20 adds, per species
+(observed records with the management recorded; `hurdle_specs()`):
+
+- `abundance_offset`: the zero-truncated negative binomial of the count at
+  the positive visits, with the log relative activity of the flight curve
+  (P4.1) as its offset in place of the season terms, i.e. the count the
+  visit would have given at the peak of the season;
+- `hurdle`: every visit, 0 at a negative one; the zero part (the chance of a
+  negative record) has the management terms, the era and the season
+  quadratic; the count part is the truncated count with the offset.
+
+**What the models show** (`20_<species>_hurdle_estimates`):
+
+| | *P. nausithous* | *P. teleius* |
+|---|---|---|
+| count part: host plant abundant | 2.44 (1.92-3.09) | 2.61 (1.22-5.60) |
+| count part: host plant dominant | 3.48 (2.38-5.10) | 3.54 (1.38-9.10) |
+| count part: timing appropriate | 1.35 (0.95-1.91) | 2.14 (0.76-6.00) |
+| zero part: timing appropriate | 0.47 (0.35-0.63) | 0.84 (0.37-1.92) |
+| zero part: host plant abundant | 0.34 (0.27-0.42) | 0.26 (0.15-0.47) |
+| zero part: EVL for the species | 0.53 (0.36-0.79) | 0.19 (0.08-0.48) |
+
+- The count part is the same as the offset model: the two parts of a hurdle
+  separate. With the offset the rate ratios match those of the model with
+  the season quadratic within 0.05 (host plant dominant 3.43 → 3.48 for *P.
+  nausithous*): the counts already analysed were not distorted by the
+  timing of the visits.
+- The zero part restates the occupancy models on the observed records (an
+  odds ratio of a negative record below 1 is an odds ratio of a record
+  above 1): appropriate timing and abundant host plant make a record more
+  likely, and for *P. nausithous* the EVL association appears here (0.53),
+  as in the observed-only occupancy model, without the grid-square random
+  effect, which the zero part does not have.
+- Where the species is found, more host plant means more adults; mowing
+  goes with whether the species is found rather than with how many adults
+  are counted. The DHARMa tests of the hurdle models pass (uniformity p 0.74
+  and 0.91).

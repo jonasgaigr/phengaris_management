@@ -422,6 +422,58 @@ revised_abundance_specs <- function(data, species) {
   )
 }
 
+#' The counts with the flight curve as their offset, and the hurdle model of
+#' every visit (P4.10).
+#'
+#' The literature review proposed to standardise the counts by the flight
+#' curve, as the butterfly monitoring schemes do (Dennis et al. 2016), and to
+#' model the zeros of the negative visits and the counts of the positive
+#' ones together:
+#'
+#'   abundance_offset  the zero-truncated count at the positive visits, with
+#'                     the log relative activity of the flight curve as its
+#'                     offset in place of the season terms: the count the
+#'                     visit would have given at the peak of the season
+#'   hurdle            every observed visit with the management recorded:
+#'                     the count, 0 at a negative visit. The zero part (the
+#'                     chance of recording no adult, i.e. of a negative
+#'                     record) has the management terms, the era and the
+#'                     season quadratic; the count part is the truncated count
+#'                     with the flight-curve offset, as above. Random
+#'                     intercepts in the count part only.
+#'
+#' Both are relative indices: a single visit counts the adults present that
+#' day, not the population (Nowicki et al. 2008).
+#'
+#' @param data     revised_model_data() of the species, observed only
+#' @param species  the species
+hurdle_specs <- function(data, species) {
+  code <- species_code(species)
+  mgmt_vars <- c("TIMING", "METHOD", "PLANT", "EVL_species")
+  d <- data[stats::complete.cases(data[, c(mgmt_vars, "LOG_ACTIVITY")]), , drop = FALSE]
+  d$COUNT <- ifelse(d$POSITIVE == 1, d$POCET, 0)
+  d <- d[!is.na(d$COUNT) & (d$POSITIVE == 0 | d$COUNT >= 1), , drop = FALSE]
+  family <- glmmTMB::truncated_nbinom2()
+  sample <- REVISED_SAMPLES[["observed"]]
+  count_part <- stats::as.formula(paste(
+    "COUNT ~", paste(c(MANAGEMENT_TERMS, "ERA"), collapse = " + "), "+ offset(LOG_ACTIVITY) +",
+    revised_random_effects()
+  ))
+  list(
+    list(
+      id = paste0(code, "_abundance_offset"), label = "Counts at the positive visits, flight-curve offset",
+      group = "Abundance", formula = count_part, data = d[d$POSITIVE == 1, , drop = FALSE],
+      family = family, sample = sample
+    ),
+    list(
+      id = paste0(code, "_hurdle"), label = "Hurdle: zeros of the negative visits and the counts, flight-curve offset",
+      group = "Hurdle", formula = count_part,
+      ziformula = stats::reformulate(c(MANAGEMENT_TERMS, "ERA", season_terms("quadratic"))),
+      data = d, family = family, sample = sample
+    )
+  )
+}
+
 #----------------------------------------------------------#
 # End model sets -----
 #----------------------------------------------------------#

@@ -15,6 +15,11 @@
 # design of the revised models. Only observed records count: an imputed
 # absence has no count.
 #
+# P4.10 adds the counts standardised by the flight curve (its log relative
+# activity as the offset, in place of the season terms), and a hurdle model
+# of every observed visit: the zeros of the negative visits and the
+# truncated counts of the positive ones together.
+#
 # Reads:  Data/Processed/<spec>/data_analysis.csv   (step 06)
 # Writes: Outputs/<spec>/Tables/20_*.csv
 #         Outputs/<spec>/Reports/20_abundance_models.md
@@ -69,6 +74,30 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     paste0(prefix, "_key_estimates"),
     max_rows = 40
   )
+
+  # The counts standardised by the flight curve, and the hurdle model of
+  # every visit (P4.10).
+  hurdle_models <- fit_tmb_set(hurdle_specs(d, species))
+  hurdle_estimates <- key_estimates(tmb_coef_table(hurdle_models)) %>%
+    dplyr::mutate(
+      part = ifelse(grepl("^zi:", term), "zero part: odds ratio of a negative visit", "count part: rate ratio"),
+      term = sub("^zi:", "", term),
+      .after = sample
+    )
+  report_table(
+    hurdle_estimates,
+    paste(
+      "Counts with the log relative activity of the flight curve as their offset",
+      "(the count at the peak of the season): at the positive visits",
+      "(abundance_offset), and the hurdle model of every observed visit, whose",
+      "zero part is the chance of a negative record (an odds ratio below 1 means",
+      "the species was recorded more often) and whose count part is the",
+      "truncated count (95% CI)"
+    ),
+    paste0(prefix, "_hurdle_estimates"),
+    max_rows = nrow(hurdle_estimates)
+  )
+  models <- c(models, hurdle_models)
   pred <- marginal_predictions(models[[paste0(code, "_abundance")]], by = c("TIMING", "METHOD"))
   report_table(
     pred,

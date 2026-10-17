@@ -40,18 +40,20 @@
 #' @param family   a family object, binomial() by default
 #' @param group    grouping label for the report
 #' @param sample   which records: "with imputed" or "observed only"
+#' @param ziformula  the zero part of a hurdle model (with a truncated
+#'                 family), ~0 for none
 #' @return a list: id, label, group, sample, engine, family, formula (text),
 #'         formula_object, data, n_input, fit (NULL if fitting failed),
 #'         error, warnings
 fit_tmb <- function(id, label, formula, data, family = stats::binomial(),
-                    group = NA_character_, sample = NA_character_) {
-  vars <- intersect(all.vars(formula), names(data))
+                    group = NA_character_, sample = NA_character_, ziformula = ~0) {
+  vars <- intersect(c(all.vars(formula), all.vars(ziformula)), names(data))
   data <- data[stats::complete.cases(data[, vars, drop = FALSE]), , drop = FALSE]
 
   warnings_seen <- character(0)
   fit <- withCallingHandlers(
     tryCatch(
-      glmmTMB::glmmTMB(formula = formula, data = data, family = family),
+      glmmTMB::glmmTMB(formula = formula, ziformula = ziformula, data = data, family = family),
       error = function(e) structure(conditionMessage(e), class = "model_error")
     ),
     warning = function(w) {
@@ -65,7 +67,10 @@ fit_tmb <- function(id, label, formula, data, family = stats::binomial(),
   list(
     id = id, label = label, group = group, sample = sample,
     engine = "glmmTMB", family = family$family,
-    formula = paste(deparse(formula, width.cutoff = 500L), collapse = " "),
+    formula = paste0(
+      paste(deparse(formula, width.cutoff = 500L), collapse = " "),
+      if (!identical(ziformula, ~0)) paste0("; zero part ", paste(deparse(ziformula, width.cutoff = 500L), collapse = " "))
+    ),
     formula_object = formula,
     data = data,
     n_input = nrow(data),
@@ -128,13 +133,20 @@ tmb_fit_table <- function(models) {
 #' Fixed effects, with Wald 95 % CIs and on the ratio scale.
 #'
 #' For a binomial model the ratio is the odds ratio, for a count model the
-#' rate ratio.
+#' rate ratio. The zero part of a hurdle model follows, its terms prefixed
+#' "zi:", as odds ratios of a zero.
 tmb_coef_table <- function(models) {
   rows <- lapply(models, function(m) {
     if (is.null(m$fit)) {
       return(NULL)
     }
-    co <- summary(m$fit)$coefficients$cond
+    parts <- summary(m$fit)$coefficients
+    co <- parts$cond
+    if (!is.null(parts$zi) && nrow(parts$zi)) {
+      zi <- parts$zi
+      rownames(zi) <- paste0("zi:", rownames(zi))
+      co <- rbind(co, zi)
+    }
     if (is.null(co) || !nrow(co)) {
       return(NULL)
     }
@@ -474,7 +486,7 @@ season_curve <- function(m, curve = NULL, days = seq(min(m$data$DOY_DEV), max(m$
 #'
 #' @param coefs  tmb_coef_table() (or a table of the same layout)
 #' @param drop   regular expression of the terms to leave out
-key_estimates <- function(coefs, drop = "^\\(Intercept\\)$|^ERA|DOY_STD|LOG_ACTIVITY") {
+key_estimates <- function(coefs, drop = "^(zi:)?\\(Intercept\\)$|^(zi:)?ERA|DOY_STD|LOG_ACTIVITY") {
   coefs %>%
     dplyr::filter(!grepl(drop, term)) %>%
     dplyr::transmute(
