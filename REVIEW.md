@@ -1084,6 +1084,84 @@ and `revised` side by side.
   and a clean skip when the layer is missing. Marked **not validated on real
   data**.
 
+### Phase 4: the literature review, category (c)
+
+A literature review of the twelve gaps a reviewer would raise against the
+revised analysis (methods, parameter values and published precedents; the
+report `gaps_prompt.md`) proposed the changes below. They are implemented in
+the `revised` specification as switches in `config.yml`; `legacy` stays
+unchanged. Values taken from the literature, or chosen here, are marked
+PROPOSED.
+
+- **P4.1 Flight curve (gap 3).** A pooled flight curve per species, as the
+  butterfly monitoring schemes estimate it (Dennis et al. 2013; Schmucki et
+  al. 2016): a negative-binomial GAM of the counts at the targeted visits
+  against DOY_DEV, with year and grid-square random intercepts, and an
+  elevation interaction when it lowers the AIC. The flight season is cut
+  where the curve falls below 5 % of its peak, instead of 45 days from the
+  median, which the review found about twice the documented 6-8-week flight
+  period. 28 and 45 days as sensitivity windows. The log relative activity
+  is offered as the season term instead of the quadratic, and compared with
+  it.
+- **P4.2 Connectivity (gap 4).** alpha and b chosen per species by profile
+  likelihood over alpha in {0.5, 1, 2, 3, 5, 8, 12} per km and b in {0.5,
+  1, 1.5}, on the management model. The Czech mark-recapture estimates
+  (Nowicki & Vrabec 2011: mean dispersal 80-270 m, alpha 4-12; immigration
+  area exponent 0.5-2.5) and the forested landscapes (0.5-1.5 km, alpha
+  0.7-2) bracket the grid. b = 1 instead of 0.5 where alpha is fixed.
+- **P4.3 Plausible imputed absences (gap 2).** A record of the other species
+  shows effort, not absence (Phillips et al. 2009). An imputed absence is
+  kept in a third sample only when the visit falls in the imputed species'
+  flight season (P4.1) and a positive record of it (2012-2024, any source)
+  lies within 3 km (the longest recorded P. teleius move, 2.94 km, Nowicki
+  et al. 2014). The 2012-2018 exports are read again for this and for P4.8.
+- **P4.4 Detection sensitivity (gap 1).** Not a single-visit occupancy
+  model as the headline (Knape & Korner-Nievergelt 2015), but two
+  sensitivity analyses: the management model with the detection fixed at
+  p = 0.9, 0.7, 0.5; and a Bayesian mixed-design occupancy model of the
+  persistent site x year (spOccupancy), in which the site-years visited
+  more than once identify the detection, with a weakly informative prior on
+  p (0.7) and a vague one (von Hirschheydt et al. 2023; Doser et al. 2024).
+- **P4.5 Management coding (gap 5).** An objective timing rule (no cut 1
+  July - 1 September, AOPK) needs cut dates, which the form does not record.
+  Checked instead: the visits noted as freshly mown in July-August against
+  the surveyors' timing. METHOD 1 is "partially mown" (Kajzer-Bonk et al.
+  2016); grazing stays in the 2021-2024 model.
+- **P4.6 Host ants and host plant (gap 6).** Proxies for Myrmica habitat:
+  the share of a polygon site within 25 m of its edge, and the share of wet
+  meadow habitats (VMB). Host-plant abundance tested as linear against
+  unordered.
+- **P4.7 Landscape at several scales (gap 7).** Shares of grassland, arable
+  land, forest, water and settlements (KVES 2025) and of natural habitats
+  and Sanguisorba meadows (VMB) in circles of 0.2-4 km; the radius of each
+  chosen by AIC (Kajzer-Bonk et al. 2016; Jackson & Fahrig 2015).
+- **P4.8 Natura 2000 (gap 8).** Full propensity-score matching of the
+  records inside an EVL designated for their species on covariates
+  designation cannot have changed, and the persistence of the 2012-2018
+  populations inside and outside the EVLs (Kajzer-Bonk & Nowicki 2022;
+  Pellissier et al. 2020). Reported as associations.
+- **P4.9 Temporal dynamics (gap 9).** A dynamic occupancy model needs sites
+  revisited across years: 4.8 % are. The persistence analysis of P4.8 is the
+  version the data support.
+- **P4.10 Counts (gap 10).** A hurdle model on all visits (the zeros of the
+  negative visits and the truncated counts of the positive ones), with the
+  flight curve as the offset of the counts (Dennis et al. 2016).
+- **P4.11 Threats (gap 11).** The threat classes mapped to the Article 17
+  pressure codes; one stacked model of all classes; Holm within the threats
+  with an expected direction and Benjamini-Hochberg within the others.
+- **P4.12 Spatial structure (gap 12).** An SPDE spatial field (sdmTMB) in
+  place of the grid random effect, and spatial+ (Dupont et al. 2022) on the
+  management and protection terms.
+
+Not taken up, with the reason:
+
+- a two-species occupancy model (gap 2): 15 P. teleius site-years were
+  visited more than once, 4 of them with mixed outcomes;
+- a single-visit occupancy model (`detect::svocc`, gap 1): the mixed-design
+  model covers it, and the review advised against it as the headline;
+- NIMBLE (gaps 1 and 9): no compiler on this machine; spOccupancy fits the
+  same model class from CRAN binaries.
+
 ## Questions
 
 **Q1. Imputation (blocks P3.2).** On a targeted visit where only
