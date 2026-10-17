@@ -680,6 +680,18 @@ detection:
   extend_factor: 4
 
 #--------------------------------------------------#
+# Synthesis of the key estimates -----
+#--------------------------------------------------#
+
+# Step 25 gathers the odds ratios of the management, protection and plant
+# terms from the analyses of steps 17, 18 and 22-24 into one table per
+# species (R/functions/synthesis.R). Nothing is refitted.
+synthesis:
+  # The forest plot leaves out a fit whose upper CI limit is this many times
+  # its lower one (a separated or barely estimable term); the tables keep it.
+  max_interval_ratio: 10000
+
+#--------------------------------------------------#
 # Habitat mapping and ecosystem layers -----
 #--------------------------------------------------#
 

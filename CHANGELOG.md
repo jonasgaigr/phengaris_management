@@ -1483,3 +1483,55 @@ the landscape a population draws on.
   - forest 0.98 → 0.97 at 8 km;
   - water 6.00 → 6.71;
   - EVL designation 2.96 → 2.86 (1.12-7.26).
+
+---
+
+## (c) Step 25: the robustness of the key estimates
+
+- **Legacy specification:** unchanged. No existing number changes; step 25
+  only adds tables.
+- **Full diff:** [`changes/c16_synthesis.md`](changes/c16_synthesis.md)
+
+Steps 17-24 estimate the same few associations in many ways. Step 25
+(`R/25_synthesis.R`, `R/functions/synthesis.R`) reads their result tables
+and refits nothing. It puts the odds ratios of the management terms, the
+host plant and the EVL designation side by side, per sample:
+
+- the management model;
+- with connectivity;
+- on the 2021-2024 polygons;
+- on the 28- and 45-day windows;
+- with the habitat and the landscape;
+- with the SPDE field and under spatial+;
+- with the detection fixed at 0.7, and as the occupancy part of the
+  mixed-design model;
+- for the EVL, after covariate adjustment and after matching.
+
+It writes `25_<species>_robustness_summary`, `25_<species>_robustness`, a
+forest plot per species and `25_robustness_all`.
+
+A fit whose upper CI limit is 10 000 or more times its lower one is a
+separated term, not an estimate (`synthesis: max_interval_ratio`). The
+summary counts it in `not_estimable` and leaves it out of the ranges, and
+the figure leaves it out. That affects only *P. teleius* observed only: 3 of
+its 9 fits per term, and 7 of its 11 for the EVL.
+
+**What it shows.**
+
+- *P. nausithous*, all three samples:
+  - Appropriate timing, uncut patches and abundant or dominant host plant
+    are above 1 in all 10 analyses.
+  - Their intervals exclude 1 in all 10, except uncut patches with the
+    detection fixed at 0.7: 1.66 (0.96-2.88).
+  - The timing × patches interaction is below 1 in all 10 (0.27-0.58).
+  - The EVL ranges from 0.97 to 1.99 (with imputed). Its interval excludes 1
+    only with the detection fixed at 0.7, and after matching it is 1.16
+    (0.86-1.56).
+- *P. teleius*, plausible sample:
+  - Every estimate of timing, uncut patches and host plant is above 1; the
+    interaction goes both ways (0.28-4.97). Appropriate timing (1.18-3.25)
+    never has an interval excluding 1. Uncut patches excludes 1
+    once, on the 2021-2024 polygons.
+  - Dominant host plant excludes 1 in 8 of 10.
+  - The EVL is above 1 in all 12 analyses (1.12-3.87) and excludes 1 in 5. It
+    is 1.61 (0.88-2.96) adjusted and 1.47 (0.79-2.72) matched.

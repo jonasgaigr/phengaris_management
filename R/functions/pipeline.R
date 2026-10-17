@@ -62,6 +62,20 @@ pipeline_step <- function(id, file, title, scope = c("common", "spec", "final"),
 .sites_history <- "{processed}/common/sites_2012_2018.gpkg"
 .site_history <- "{processed}/common/site_history.csv"
 .landscape <- "{processed}/common/landscape.csv"
+# The result tables of steps 17-24 the synthesis (step 25) collects.
+.synthesis_tables <- paste0(
+  "{outputs}/{spec}/Tables/",
+  c(
+    outer(
+      c("17_%s_coefficients", "17_%s_window_coefficients", "22_%s_coefficients",
+        "23_%s_known_detection_coefficients", "23_%s_occupancy_posterior", "24_%s_designation"),
+      c("nausithous", "teleius"),
+      sprintf
+    ),
+    "18_grid_vs_spde", "18_spatial_plus"
+  ),
+  ".csv"
+)
 # The frozen and the current site x VMB intersections and the site x KVES
 # one; each is written only when its source is there. The site areas of step
 # 05 are an optional output of their own.
@@ -179,6 +193,10 @@ PIPELINE <- list(
   ),
   pipeline_step("24", "R/24_natura2000.R", "Natura 2000 and persistence", "spec",
     inputs = c(.analysis, "{processed}/{spec}/connectivity_selected.csv"), model_sets = "revised"
+  ),
+  # The synthesis reads the result tables of steps 17-24.
+  pipeline_step("25", "R/25_synthesis.R", "Robustness of the key estimates", "spec",
+    inputs = .synthesis_tables, model_sets = "revised"
   ),
   pipeline_step(
     "14", "R/14_maps.R", "Maps", "spec",
