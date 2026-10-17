@@ -1275,3 +1275,58 @@ class × occupancy terms compare the threats with each other. The stacked
 models are flagged for possible separation (some classes are rare in one
 field-form era), and the *P. nausithous* observed-only one did not converge;
 read them as a check on the per-threat models.
+
+---
+
+## (c) P4.12: an SPDE spatial field and spatial+
+
+- **Decision:** P4.12 of `REVIEW.md`. The mesh cutoff and the spatial+
+  settings are PROPOSED.
+- **Legacy specification:** unchanged. No existing number changes: step 18
+  adds three tables.
+- **Full diff:** [`changes/c12_spatial.md`](changes/c12_spatial.md)
+
+**Why.** Step 18 found no residual spatial autocorrelation with the grid
+random effect (P3.6). A reviewer may still ask whether a continuous spatial
+field fits better than squares of the mapping grid, and whether the
+management estimates are confounded with space: a spatial random effect can
+pull a fixed effect when the covariate varies smoothly in space (Hodges &
+Reich 2010).
+
+**What was done** (step 18, `R/functions/spatial.R`), on the management
+models of every species and sample:
+
+- **SPDE.** The grid random effect replaced by a Gaussian random field over
+  the sites (sdmTMB; a triangulation with vertices at least 2 km apart),
+  the year and observer intercepts kept. Compared by marginal AIC (both
+  Laplace approximations on the same records) and by the estimates
+  (`18_spde`, `18_grid_vs_spde`).
+- **spatial+** (Dupont et al. 2022). Each column of the management and
+  protection terms replaced by its residual from a thin-plate smooth of the
+  coordinates (k = 60), and the model refitted; an estimate moving by more
+  than one standard error is flagged (`18_spatial_plus`).
+
+**SPDE against the grid** (sample with the imputed absences):
+
+| | ΔAIC (SPDE − grid) | range | timing | patches uncut | EVL for the species |
+|---|---|---|---|---|---|
+| *P. nausithous*, grid | | | 2.16 (1.48-3.15) | 2.18 (1.34-3.56) | 1.29 (0.73-2.30) |
+| *P. nausithous*, SPDE | −33.8 | 34 km | 2.25 (1.53-3.29) | 2.34 (1.42-3.85) | 1.48 (0.79-2.76) |
+| *P. teleius*, grid | | | 1.24 (0.54-2.83) | 1.50 (0.43-5.19) | 6.12 (2.13-17.60) |
+| *P. teleius*, SPDE | −13.3 | 48 km | 1.39 (0.61-3.17) | 2.05 (0.60-7.02) | 3.56 (1.21-10.42) |
+
+- The spatial field fits better in every sample (ΔAIC −31 to −34 for *P.
+  nausithous*, −3 to −13 for *P. teleius*), with a range of 34-55 km: a
+  regional structure that the 10 × 10 km squares of the mapping grid cut
+  up. The residuals of the grid models were not autocorrelated either way
+  (Moran's p 0.05-0.94).
+- The management estimates hold. The *P. teleius* EVL association falls
+  from 6.1 to 3.6 once space is continuous. sdmTMB's sanity check flags the
+  *P. nausithous* model with the imputed absences (the others pass).
+
+**spatial+.** No estimate moves by more than one standard error. The
+largest shifts are the *P. teleius* EVL association (6.12 → 3.73, −0.92 SE;
+plausible sample 3.75 → 2.83, −0.57 SE) and the host-plant terms of *P.
+nausithous* (2.93 → 2.74, −0.48 SE). The management estimates are not
+confounded with space; the *P. teleius* EVL association partly is, as the
+matching (P4.8) and the plausible sample (P4.3) also found.

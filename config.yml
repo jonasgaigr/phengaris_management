@@ -612,6 +612,16 @@ revised_models:
     alpha: 0.05
     smooth_k: 60
     fit_smooth: when_autocorrelated
+    # An SPDE spatial field (sdmTMB) in place of the grid random effect, on
+    # the management models (P4.12): the minimum distance (km) between the
+    # vertices of the mesh over the sites.
+    spde_mesh_cutoff_km: 2
+    # spatial+ (Dupont et al. 2022) on the management and protection terms:
+    # the basis dimension of the smooth of the coordinates the covariates are
+    # residualised on, and the shift (in standard errors of the original
+    # estimate) above which an estimate is flagged as confounded with space.
+    spatial_plus_k: 60
+    spatial_plus_flag_se: 1
   # Per-threat models (P3.7): a class is modelled when at least this many
   # records with the threat are positive and at least this many are
   # negative; otherwise it is reported as too rare.
