@@ -67,8 +67,10 @@ pipeline_step <- function(id, file, title, scope = c("common", "spec", "final"),
   "{outputs}/{spec}/Tables/",
   c(
     outer(
-      c("17_%s_coefficients", "17_%s_window_coefficients", "22_%s_coefficients",
-        "23_%s_known_detection_coefficients", "23_%s_occupancy_posterior", "24_%s_designation"),
+      c(
+        "17_%s_coefficients", "17_%s_window_coefficients", "22_%s_coefficients",
+        "23_%s_known_detection_coefficients", "23_%s_occupancy_posterior", "24_%s_designation"
+      ),
       c("nausithous", "teleius"),
       sprintf
     ),

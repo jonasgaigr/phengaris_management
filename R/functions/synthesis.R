@@ -97,8 +97,8 @@ collect_robustness <- function(code, species_file) {
 
   spde <- .read_result_table("18_grid_vs_spde")
   if (!is.null(spde)) {
-    spde <- spde[spde$random_effect == "SPDE spatial field" & startsWith(spde$model, paste0(code, "_")) &
-      spde$term %in% names(SYNTHESIS_TERMS), , drop = FALSE]
+    keep <- spde$random_effect == "SPDE spatial field" & startsWith(spde$model, paste0(code, "_"))
+    spde <- spde[keep & spde$term %in% names(SYNTHESIS_TERMS), , drop = FALSE]
     if (nrow(spde)) {
       out$spde <- data.frame(
         analysis = "SPDE spatial field (step 18)", sample = spde$sample, term = spde$term,
