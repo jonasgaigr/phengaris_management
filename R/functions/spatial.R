@@ -50,8 +50,10 @@ sdmtmb_coef_table <- function(fit, id, sample) {
 #' @param m       a fitted-model record (binomial)
 #' @param cutoff  config.yml `revised_models: autocorrelation:
 #'                spde_mesh_cutoff_km`
-#' @return list(fit, coefficients, AIC, sanity (TRUE when sdmTMB::sanity()
-#'         finds nothing wrong), range_km, sigma), or NULL when it failed
+#' @return list(fit, coefficients, AIC, optimizer_message, max_gradient,
+#'         hessian_pd, converged (positive-definite Hessian and every gradient
+#'         of the fixed effects below 1e-3), range_km, sigma), or NULL when it
+#'         failed
 fit_spde_model <- function(m, cutoff = CONFIG$revised_models$autocorrelation$spde_mesh_cutoff_km) {
   data <- m$data
   data$X_KM <- data$SITE_X / 1000
@@ -77,13 +79,22 @@ fit_spde_model <- function(m, cutoff = CONFIG$revised_models$autocorrelation$spd
   if (is.null(fit)) {
     return(NULL)
   }
-  sanity <- suppressMessages(sdmTMB::sanity(fit, silent = TRUE))
   ran <- sdmTMB::tidy(fit, effects = "ran_pars")
+  # The gradients of the fixed effects, as sdmTMB::sanity() checks them: a
+  # random-effect variance at its boundary (zero) can keep a gradient of its
+  # own at an optimum.
+  max_gradient <- max(abs(fit$gradients[names(fit$model$par) == "b_j"]))
+  hessian_pd <- isTRUE(fit$sd_report$pdHess)
   list(
     fit = fit,
     coefficients = sdmtmb_coef_table(fit, paste0(m$id, "_spde"), m$sample),
     AIC = stats::AIC(fit),
-    sanity = isTRUE(sanity$all_ok),
+    # nlminb can report "false convergence" at a flat optimum whose gradients
+    # are already near zero; the gradients and the Hessian decide.
+    optimizer_message = fit$model$message,
+    max_gradient = max_gradient,
+    hessian_pd = hessian_pd,
+    converged = hessian_pd && max_gradient < 1e-3,
     range_km = ran$estimate[ran$term == "range"][1],
     sigma = ran$estimate[ran$term == "sigma_O"][1]
   )

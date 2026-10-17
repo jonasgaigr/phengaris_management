@@ -81,11 +81,15 @@ matched_sizes <- function(m) {
 
 #' The designation estimate after matching.
 #'
-#' Two outcome models on the matched records, both with the matching
-#' covariates again (doubly robust) and the season and era terms:
+#' Outcome models on the matched records, all with the matching covariates
+#' again (doubly robust) and the season and era terms:
 #'
 #'   GLMM  glmmTMB with the random intercepts of the revised models and the
 #'         matching weights as case weights (model-based CI);
+#'   GLMM without the grid square   the same with the year and observer
+#'         intercepts only. Under the matching weights the grid-square
+#'         intercept turns the comparison into one within the few squares
+#'         with designated sites, which is a different, local estimand;
 #'   GLM   quasi-binomial GLM with the year as a fixed factor and a CI robust
 #'         to clustering within the matching subclasses (sandwich::vcovCL), as
 #'         the MatchIt documentation recommends.
@@ -108,13 +112,18 @@ designation_estimates <- function(m, covariates, terms, treatment = "EVL_species
       stringsAsFactors = FALSE
     )
   }
-  glmm <- tryCatch(
-    suppressWarnings(glmmTMB::glmmTMB(
-      stats::as.formula(paste("POSITIVE ~", paste(fixed, collapse = " + "), "+", revised_random_effects())),
-      data = md, family = stats::binomial(), weights = weights
-    )),
-    error = function(e) NULL
-  )
+  weighted_glmm <- function(random) {
+    tryCatch(
+      suppressWarnings(glmmTMB::glmmTMB(
+        stats::as.formula(paste("POSITIVE ~", paste(fixed, collapse = " + "), "+", random)),
+        data = md, family = stats::binomial(), weights = weights
+      )),
+      error = function(e) NULL
+    )
+  }
+  glmm <- weighted_glmm(revised_random_effects())
+  groups <- setdiff(unlist(CONFIG$revised_models$random_effects), "SITMAP")
+  glmm_no_grid <- weighted_glmm(paste0("(1 | ", groups, ")", collapse = " + "))
   glm <- tryCatch(
     stats::glm(
       stats::as.formula(paste("POSITIVE ~", paste(c(fixed, "factor(YEAR)"), collapse = " + "))),
@@ -126,6 +135,10 @@ designation_estimates <- function(m, covariates, terms, treatment = "EVL_species
     if (!is.null(glmm)) {
       co <- summary(glmm)$coefficients$cond
       row("GLMM, matching weights", co[treatment, 1], co[treatment, 2], nrow(md))
+    },
+    if (!is.null(glmm_no_grid)) {
+      co <- summary(glmm_no_grid)$coefficients$cond
+      row("GLMM, matching weights, without the grid square", co[treatment, 1], co[treatment, 2], nrow(md))
     },
     if (!is.null(glm)) {
       v <- sandwich::vcovCL(glm, cluster = md$subclass)

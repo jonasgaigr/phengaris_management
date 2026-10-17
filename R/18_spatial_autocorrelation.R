@@ -99,7 +99,8 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
           spde_fits[[m$id]] <- data.frame(
             model = m$id, sample = m$sample, n_obs = m$n_input,
             AIC_grid = if (!is.null(m$fit)) stats::AIC(m$fit) else NA_real_,
-            AIC_spde = spde$AIC, sanity_ok = spde$sanity,
+            AIC_spde = spde$AIC, converged = spde$converged, max_gradient = spde$max_gradient,
+            hessian_pd = spde$hessian_pd, optimizer_message = spde$optimizer_message,
             range_km = spde$range_km, sigma_field = spde$sigma,
             stringsAsFactors = FALSE
           )
@@ -169,8 +170,9 @@ if (nrow(spde_fits)) {
         "The management model with a spatial random field (SPDE, sdmTMB; mesh",
         "cutoff %g km) in place of the grid random effect: marginal AIC of both",
         "(both Laplace approximations on the same records), the range at which",
-        "the field's correlation falls to about 0.13 and its SD; sanity_ok when",
-        "sdmTMB::sanity() finds no problem"
+        "the field's correlation falls to about 0.13 and its SD. converged: the",
+        "Hessian is positive definite and every gradient of the fixed effects below 1e-3;",
+        "a random-effect variance at zero can keep a gradient of its own"
       ),
       settings$spde_mesh_cutoff_km
     ),

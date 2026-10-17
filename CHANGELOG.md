@@ -1392,3 +1392,42 @@ of review item 6, here in the harmonised vocabulary. The comment in
   livestock farming 0.83 → 0.81. The *P. teleius* livestock-farming model (5
   positive records with the threat) now returns no standard error (0.78,
   NaN), with its random-effect variance at zero.
+
+---
+
+## (c) Follow-ups of P4.8 and P4.12: the matched GLMM without the grid square; SPDE convergence
+
+- **Legacy specification:** unchanged. No existing number changes.
+- **Full diff:** [`changes/c14_spde_matching.md`](changes/c14_spde_matching.md)
+
+**The matched GLMM of *P. teleius*** (P4.8). After matching, the weighted
+GLMM gave 4.42 against 1.47 for the weighted GLM. Refitting it piece by piece
+shows why:
+
+| outcome model on the matched records | *P. teleius*, with imputed |
+|---|---|
+| weighted, grid square + year + observer | 4.42 (1.90-10.27) |
+| weighted, year + observer | 2.47 (1.24-4.92) |
+| weighted, no random intercepts (year as factor) | 1.47 (0.94-2.30) |
+| unweighted, grid square + year + observer | 1.82 (1.00-3.32) |
+
+The grid-square intercept, under the matching weights, turns the comparison
+into one within the 19 squares that hold a designated site: inside the EVL
+against outside it in the same 10 km square. That is a different, local
+estimand, not the one the matching targets. Step 24 now also reports the
+weighted GLMM without the grid square (`24_<species>_designation`): 2.47
+(with imputed), 1.09 (0.54-2.22, plausible sample), 1.97 (observed only)
+for *P. teleius*; for *P. nausithous* 0.69-0.81.
+
+**SPDE convergence** (P4.12). sdmTMB's `sanity()` had flagged the
+*P. nausithous* model with the imputed absences, and in other runs other
+models, through nlminb's convergence message, which can read "false
+convergence" at a flat optimum. `18_spde` now reports the criteria
+themselves, in place of `sanity_ok`: the largest gradient of the fixed
+effects, whether the Hessian is positive definite, and nlminb's message.
+Five of the six fits have gradients below 1e-3 and a positive-definite
+Hessian. The *P. nausithous* model with the imputed absences stops with a
+gradient of 0.0018 at AIC 2084.28. Started differently it reaches a
+stationary point at 2084.71 with the same estimates (timing 0.805 against
+0.810 on the logit scale): two nearby optima, between which the year
+variance and the spatial field trade off.
