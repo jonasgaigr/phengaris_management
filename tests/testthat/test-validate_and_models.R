@@ -11,6 +11,8 @@ good <- data.frame(
 )
 
 test_that("a valid table passes", {
+  # The coordinates are checked against the border layer in the project.
+  withr::local_dir(project_root)
   expect_silent(validate_table(
     good, "good",
     columns = c(ID_RECORD = "character", X = "numeric"),
@@ -20,6 +22,7 @@ test_that("a valid table passes", {
 })
 
 test_that("every problem is caught and reported together", {
+  withr::local_dir(project_root)
   bad <- good
   bad$ID_RECORD[2] <- "1_nau"
   bad$POSITIVE[3] <- NA
@@ -36,6 +39,15 @@ test_that("every problem is caught and reported together", {
   expect_match(err, "unexpected NA")
   expect_match(err, "outside the S-JTSK bounding box")
   expect_match(err, "expected 4")
+})
+
+test_that("a point inside the bounding box but outside the border is caught", {
+  withr::local_dir(project_root)
+  abroad <- good
+  abroad[3, c("X", "Y")] <- c(-880000, -950000) # Saxony, north-west of Cheb
+  err <- tryCatch(validate_table(abroad, "abroad", xy = c("X", "Y")), error = conditionMessage)
+  expect_match(err, "1 rows have coordinates outside the border of Czechia")
+  expect_no_match(err, "bounding box")
 })
 
 test_that("unexpected values and wrong types are caught", {
