@@ -134,7 +134,7 @@ if (!all(file.exists(paths))) {
       "the circle of each radius"
     ),
     "21_landscape_by_radius",
-    width = 10, height = 5.5
+    height = 10
   )
 
   validate_table(

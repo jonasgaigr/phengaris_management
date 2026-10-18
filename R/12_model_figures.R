@@ -52,16 +52,22 @@ plot_area_by_plant <- function(species, species_label) {
       fill = as.factor(PLANT_QUANT)
     )
   ) +
-    ggplot2::geom_boxplot() +
+    ggplot2::geom_boxplot(
+      colour = phengaris_col("spot_black"), linewidth = 0.3, outlier.size = 0.4, width = 0.7
+    ) +
     scale_y_count() +
     ggplot2::scale_x_discrete(labels = c("vacant sites", "occupied sites")) +
-    ggplot2::scale_fill_discrete(
+    # Host plant abundance is ordered: lighter to darker blue.
+    ggplot2::scale_fill_manual(
+      values = phengaris_fills(3, begin = 0.2),
       labels = c("single plants", "abundant", "dominant"),
-      name   = NULL
+      name   = "Host plant"
     ) +
-    ggplot2::xlab(paste0("\noccupancy of ", species_label, " sites")) +
-    ggplot2::ylab("log10(site area)\n") +
-    ggplot2::theme_classic(base_size = 16)
+    ggplot2::labs(
+      x = species_title("Occupancy of the sites,", species_label),
+      y = "Site area (m², log10)"
+    ) +
+    theme_phengaris(grid = "y")
 }
 
 if (any(!is.na(data$AREA_SITE))) {
@@ -69,14 +75,14 @@ if (any(!is.na(data$AREA_SITE))) {
     plot_area_by_plant(SPECIES_NAU, "P. nausithous"),
     "Site area by occupancy and host plant abundance, P. nausithous",
     "12_area_by_plant_nausithous",
-    width = 9
+    size = "single", height = 8
   )
 
   report_figure(
     plot_area_by_plant(SPECIES_TEL, "P. teleius"),
     "Site area by occupancy and host plant abundance, P. teleius",
     "12_area_by_plant_teleius",
-    width = 9
+    size = "single", height = 8
   )
 } else {
   report_warning(
@@ -94,17 +100,22 @@ report_figure(
   ggplot2::ggplot(
     data = data,
     ggplot2::aes(
-      x = as.factor(DRUH),
-      y = log(POCET)
+      x    = as.factor(DRUH),
+      y    = log(POCET),
+      fill = as.factor(DRUH)
     )
   ) +
-    ggplot2::geom_boxplot() +
+    ggplot2::geom_boxplot(
+      colour = phengaris_col("spot_black"), linewidth = 0.3, outlier.size = 0.4, width = 0.6
+    ) +
     scale_y_count() +
-    ggplot2::xlab("") +
-    ggplot2::ylab("log(counted specimens)\n") +
-    ggplot2::theme_classic(base_size = 18),
+    ggplot2::scale_x_discrete(labels = function(x) italic_labels(species_short(x))) +
+    scale_fill_species(guide = "none") +
+    ggplot2::labs(x = NULL, y = "Counted specimens (natural log)") +
+    theme_phengaris(grid = "y"),
   "Counted specimens by species",
-  "12_specimen_counts_by_species"
+  "12_specimen_counts_by_species",
+  size = "single"
 )
 
 report_figure(
@@ -113,13 +124,13 @@ report_figure(
       dplyr::filter(is.na(POCET) == FALSE),
     ggplot2::aes(x = POCET)
   ) +
-    ggplot2::geom_histogram(bins = 30, fill = "#595959") +
+    ggplot2::geom_histogram(bins = 30, fill = phengaris_col("deep_blue"), colour = "white", linewidth = 0.2) +
     scale_y_count() +
-    ggplot2::xlab("\ncounted specimens") +
-    ggplot2::ylab("number of records\n") +
-    ggplot2::theme_classic(base_size = 14),
+    ggplot2::labs(x = "Counted specimens", y = "Number of records") +
+    theme_phengaris(grid = "y"),
   "Distribution of counted specimens",
-  "12_specimen_count_distribution"
+  "12_specimen_count_distribution",
+  size = "single"
 )
 
 report_note(paste(

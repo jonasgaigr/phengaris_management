@@ -355,62 +355,71 @@ if (habitat_join_available && habitat_rule == "legacy") {
   ## Figures -----
   #--------------------------------------------------#
 
-  #' Bar chart of the most frequent mapped habitats.
+  #' Horizontal bar chart of the most frequent mapped habitats, the most
+  #' frequent on top.
   plot_mapped_habitats <- function(x, species_label) {
     ggplot2::ggplot(
       data = x %>%
-        dplyr::slice(1:10) %>%
-        dplyr::mutate(order = dplyr::row_number()),
+        dplyr::slice(1:10),
       ggplot2::aes(
-        x = forcats::fct_reorder(BIOTOP, order),
-        y = COUNT
+        x = COUNT,
+        y = forcats::fct_reorder(BIOTOP, COUNT)
       )
     ) +
-      ggplot2::geom_bar(stat = "identity", fill = "#595959") +
-      scale_y_count() +
-      ggplot2::xlab(paste0("\ncatalogued habitats preferred by ", species_label)) +
-      ggplot2::ylab("number of sites\n") +
-      ggplot2::theme_classic(base_size = 14)
+      ggplot2::geom_bar(stat = "identity", fill = phengaris_col("deep_blue"), width = 0.75) +
+      scale_x_count() +
+      ggplot2::labs(
+        x = species_title("Number of sites,", species_label),
+        y = "Catalogued habitat"
+      ) +
+      theme_phengaris(grid = "x")
   }
 
   report_figure(
     plot_mapped_habitats(habitat_nau, "P. nausithous"),
     "Catalogued habitats at occupied P. nausithous sites",
-    "06_mapped_habitats_nausithous"
+    "06_mapped_habitats_nausithous",
+    size = "single"
   )
   report_figure(
     plot_mapped_habitats(habitat_tel, "P. teleius"),
     "Catalogued habitats at occupied P. teleius sites",
-    "06_mapped_habitats_teleius"
+    "06_mapped_habitats_teleius",
+    size = "single"
   )
 
-  #' Bar chart of the total area of the most extensive mapped habitats.
+  #' Horizontal bar chart of the total area of the most extensive mapped
+  #' habitats, the largest on top.
   plot_mapped_habitat_area <- function(x, species_label) {
     ggplot2::ggplot(
       data = x %>%
         dplyr::arrange(dplyr::desc(AREA)) %>%
         dplyr::slice(1:10),
       ggplot2::aes(
-        x = forcats::fct_reorder(BIOTOP, AREA, .desc = TRUE),
-        y = log(AREA)
+        x = log(AREA),
+        y = forcats::fct_reorder(BIOTOP, AREA)
       )
     ) +
-      ggplot2::geom_bar(stat = "identity", fill = "#595959") +
-      scale_y_count() +
-      ggplot2::xlab(paste0("\ncatalogued habitats preferred by ", species_label)) +
-      ggplot2::ylab("log habitat area sum (ha)\n") +
-      ggplot2::theme_classic(base_size = 14)
+      ggplot2::geom_bar(stat = "identity", fill = phengaris_col("deep_blue"), width = 0.75) +
+      scale_x_count() +
+      ggplot2::labs(
+        x = species_title("Summed habitat area (ha, natural log),", species_label),
+        y = "Catalogued habitat"
+      ) +
+      theme_phengaris(grid = "x")
   }
 
   report_figure(
     plot_mapped_habitat_area(habitat_nau, "P. nausithous"),
     "Habitat area at occupied P. nausithous sites",
-    "06_mapped_habitat_area_nausithous"
+    "06_mapped_habitat_area_nausithous",
+    size = "single"
   )
   report_figure(
     plot_mapped_habitat_area(habitat_tel, "P. teleius"),
     "Habitat area at occupied P. teleius sites",
-    "06_mapped_habitat_area_teleius"
+    "06_mapped_habitat_area_teleius",
+    size = "single"
   )
 
   #--------------------------------------------------#

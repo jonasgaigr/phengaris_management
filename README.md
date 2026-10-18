@@ -245,12 +245,20 @@ Start at `Outputs/REPORT.md`.
 - Every table in a report is also a CSV in `Tables/`, in Windows-1250 for
   Czech Excel. Every figure is a PNG in `Figures/`.
 - File names start with the step number.
-- The figures of the common steps and of the revised specification share
-  one style (`R/functions/figures.R`). The three samples always appear in
-  the same order and with the same marks: black circles with all imputed
-  absences, dark grey triangles with the plausible ones, light grey squares
-  on the observed records only. Odds ratios and distances are on log
-  scales. Each figure plots a table its step also writes.
+- Every figure, of either specification, shares one palette, theme and
+  print size (`R/functions/plot_style.R`); the plot functions of the common
+  steps and the revised specification are in `R/functions/figures.R`. The
+  palette is sampled from photographs of *P. teleius*
+  ([`changes/figures_style.md`](changes/figures_style.md)): *P. teleius*
+  in its lilac blue, *P. nausithous* in a cinnamon brown, records with the
+  species in deep blue and records without it in the buff of the underside.
+  Figures are written at journal column widths (8.5 or 17.5 cm) with
+  8-9 pt type.
+- The three samples always appear in the same order and with the same
+  marks: near-black circles with all imputed absences, deep-blue triangles
+  with the plausible ones, lilac-blue squares on the observed records only.
+  Odds ratios and distances are on log scales. Each figure plots a table
+  its step also writes.
 - Fits without a finite interval, or whose interval spans four orders of
   magnitude or more (separated terms, `synthesis: max_interval_ratio`), are
   left out of the forest plots and the predictions, never out of the

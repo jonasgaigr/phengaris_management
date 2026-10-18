@@ -192,7 +192,7 @@ if (nrow(estimates)) {
       CONFIG$synthesis$max_interval_ratio
     ),
     "19_threat_estimates",
-    width = 10, height = 6.5
+    height = 12
   )
 }
 

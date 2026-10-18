@@ -217,7 +217,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       "line is 2 AIC above it),", species_names[[code]]
     ),
     paste0(prefix, "_connectivity_profile"),
-    width = 10, height = 4.5
+    height = 7.5
   )
 
   specs <- unlist(lapply(REVISED_SAMPLES, function(s) {
@@ -375,7 +375,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
         ", ", species_names[[code]]
       ),
       paste0(prefix, "_predictions"),
-      width = 11, height = 5
+      height = 8.5
     )
   }
 
@@ -394,7 +394,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
         "(baseline model, 95% CI), in the three samples,", species_names[[code]]
       ),
       paste0(prefix, "_season"),
-      width = 8, height = 5
+      size = "single", height = 8
     )
   }
 

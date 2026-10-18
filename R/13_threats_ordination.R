@@ -123,6 +123,89 @@ if (length(dropped_columns)) {
 }
 
 #----------------------------------------------------------#
+# Plot style -----
+#----------------------------------------------------------#
+
+# Short labels of the ordination variables, for the arrows.
+ORDINATION_LABELS <- c(
+  PLANT_QUANT = "host plant", TTP = "managed grassland", ZARUST = "neglected grassland",
+  PRIKOP = "ditch", HET_INN = "habitat types", EVL = "Natura 2000", MZCHU = "small protected area",
+  LandUseChange = "land-use change", Abandonment = "abandonment", HarmfulMow = "harmful mowing",
+  HarmfulGrazing = "intensive grazing", GrazingByeffects = "livestock effects",
+  FertilizerUse = "fertiliser", Afforestation = "afforestation", Invasives = "invasive species",
+  NativeDominants = "native dominants", AbioticNaturalProcesses = "abiotic processes",
+  Encroachment = "encroachment", BiomassAccumulation = "biomass", Eutrophization = "eutrophication",
+  None = "no threat", DRUHteleius = "P. teleius", POSITIVE1 = "occupied"
+)
+
+#' The short label of each variable; the name itself when it has none.
+ordination_label <- function(x) unname(ifelse(x %in% names(ORDINATION_LABELS), ORDINATION_LABELS[x], x))
+
+# The four groups of species x occupancy, as interaction(DRUH, POSITIVE)
+# names them: the species colour, dark and filled where the species was
+# found, lighter and open where it was not; circles for P. teleius,
+# triangles for P. nausithous.
+TAP_GROUPS <- c("teleius.1", "teleius.0", "nausithous.1", "nausithous.0")
+tap_cols <- stats::setNames(
+  phengaris_col(c("deep_blue", "teleius_blue", "nausithous_brown", "nausithous_light")), TAP_GROUPS
+)
+tap_shapes <- stats::setNames(c(16, 1, 17, 2), TAP_GROUPS)
+tap_labels <- stats::setNames(
+  c(
+    "italic('P. teleius')*', positive'", "italic('P. teleius')*', negative'",
+    "italic('P. nausithous')*', positive'", "italic('P. nausithous')*', negative'"
+  ),
+  TAP_GROUPS
+)
+
+#' The colour and shape scales of the four groups; one legend.
+scale_tap <- function() {
+  list(
+    ggplot2::scale_colour_manual(
+      values = tap_cols, breaks = TAP_GROUPS, labels = parse(text = tap_labels), name = NULL
+    ),
+    ggplot2::scale_shape_manual(
+      values = tap_shapes, breaks = TAP_GROUPS, labels = parse(text = tap_labels), name = NULL
+    ),
+    # The hulls take the group colour, the ellipses (by DRUH) the species one.
+    ggplot2::scale_fill_manual(
+      values = c(tap_cols, nausithous = tap_cols[["nausithous.1"]], teleius = tap_cols[["teleius.0"]]),
+      guide = "none"
+    ),
+    ggplot2::guides(colour = ggplot2::guide_legend(nrow = 2), shape = ggplot2::guide_legend(nrow = 2))
+  )
+}
+
+#' Arrows from the origin, in the spot black.
+ordination_arrows <- function(data, x, y, linewidth = 0.35) {
+  ggplot2::geom_segment(
+    data = data, inherit.aes = FALSE,
+    ggplot2::aes(x = 0, y = 0, xend = .data[[x]], yend = .data[[y]]),
+    arrow = ggplot2::arrow(length = ggplot2::unit(0.15, "cm")),
+    colour = phengaris_col("spot_black"), linewidth = linewidth, lineend = "round"
+  )
+}
+
+#' Repelled labels of the arrows.
+ordination_labels <- function(data, x, y, label, fontface = "plain") {
+  ggrepel::geom_text_repel(
+    data = data, inherit.aes = FALSE,
+    ggplot2::aes(x = .data[[x]], y = .data[[y]], label = ordination_label(.data[[label]])),
+    size = FIGURE_TEXT_MM, colour = phengaris_col("spot_black"), fontface = fontface,
+    segment.colour = REFERENCE_GREY, segment.size = 0.2, min.segment.length = 0.3,
+    box.padding = 0.25, max.overlaps = Inf, seed = CONFIG$seed
+  )
+}
+
+#' Dashed axes through the origin.
+ordination_origin <- function() {
+  list(
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = GRID_GREY, linewidth = 0.3),
+    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", colour = GRID_GREY, linewidth = 0.3)
+  )
+}
+
+#----------------------------------------------------------#
 # A. Unconstrained PCA -----
 #----------------------------------------------------------#
 
@@ -172,37 +255,31 @@ loadings_df <- loadings_df %>%
 
 pca_gg <- ggplot2::ggplot(
   scores_df,
-  ggplot2::aes(x = PC1, y = PC2, color = DRUH, shape = POSITIVE)
+  ggplot2::aes(
+    x = PC1, y = PC2,
+    colour = interaction(DRUH, POSITIVE), shape = interaction(DRUH, POSITIVE)
+  )
 ) +
-  ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "grey70") +
-  ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "grey70") +
-  ggplot2::geom_point(size = 3) +
+  ordination_origin() +
   ggplot2::stat_ellipse(
-    ggplot2::aes(fill = DRUH),
+    ggplot2::aes(fill = DRUH, group = DRUH),
     geom = "polygon", alpha = 0.12, level = 0.95, show.legend = FALSE
   ) +
-  ggplot2::geom_segment(
-    data = loadings_df, inherit.aes = FALSE,
-    ggplot2::aes(x = 0, y = 0, xend = PC1, yend = PC2),
-    arrow = ggplot2::arrow(length = ggplot2::unit(0.25, "cm")), lineend = "round"
-  ) +
-  ggrepel::geom_text_repel(
-    data = loadings_df, inherit.aes = FALSE,
-    ggplot2::aes(x = PC1, y = PC2, label = Variable),
-    size = 3.2, max.overlaps = 20
-  ) +
+  ordination_arrows(loadings_df, "PC1", "PC2") +
+  ordination_labels(loadings_df, "PC1", "PC2", "Variable") +
+  ggplot2::geom_point(size = 2.4, stroke = 0.7) +
+  scale_tap() +
   ggplot2::labs(
-    title = "PCA biplot - threats & pressures",
     x = paste0("PC1 (", round(pca_var[1], 1), "%)"),
     y = paste0("PC2 (", round(pca_var[2], 1), "%)")
   ) +
-  ggplot2::theme_minimal(base_size = 13) +
-  ggplot2::theme(legend.position = "right")
+  theme_phengaris()
 
 report_figure(
   pca_gg,
   "PCA biplot of threats and pressures",
-  "13_pca_threats_biplot"
+  "13_pca_threats_biplot",
+  height = 12
 )
 
 #----------------------------------------------------------#
@@ -309,51 +386,40 @@ arrow_factor_bp <- min(
 bp_scores_rda <- bp_scores_rda %>%
   dplyr::mutate(RDA1 = RDA1 * arrow_factor_bp, RDA2 = RDA2 * arrow_factor_bp)
 
+# The threat variables in thin arrows, the two constraints in thicker ones
+# with bold labels.
 rda_gg <- ggplot2::ggplot(
   site_scores_rda,
-  ggplot2::aes(x = RDA1, y = RDA2, color = DRUH, shape = POSITIVE)
+  ggplot2::aes(
+    x = RDA1, y = RDA2,
+    colour = interaction(DRUH, POSITIVE), shape = interaction(DRUH, POSITIVE)
+  )
 ) +
-  ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "grey80") +
-  ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "grey80") +
-  ggplot2::geom_point(size = 3) +
+  ordination_origin() +
   ggplot2::stat_ellipse(
-    ggplot2::aes(fill = DRUH),
+    ggplot2::aes(fill = DRUH, group = DRUH),
     geom = "polygon", alpha = 0.12, level = 0.95, show.legend = FALSE
   ) +
-  ggplot2::geom_segment(
-    data = species_scores_rda, inherit.aes = FALSE,
-    ggplot2::aes(x = 0, y = 0, xend = RDA1, yend = RDA2),
-    arrow = ggplot2::arrow(length = ggplot2::unit(0.22, "cm")),
-    color = "grey45", lineend = "round"
+  ordination_arrows(species_scores_rda, "RDA1", "RDA2", linewidth = 0.3) +
+  ordination_labels(species_scores_rda, "RDA1", "RDA2", "Variable") +
+  ordination_arrows(bp_scores_rda, "RDA1", "RDA2", linewidth = 0.7) +
+  ordination_labels(
+    bp_scores_rda, "RDA1", "RDA2", "ConstrVar",
+    fontface = ifelse(startsWith(bp_scores_rda$ConstrVar, "DRUH"), "bold.italic", "bold")
   ) +
-  ggrepel::geom_text_repel(
-    data = species_scores_rda, inherit.aes = FALSE,
-    ggplot2::aes(x = RDA1, y = RDA2, label = Variable),
-    size = 3.0, color = "grey20", max.overlaps = 20
-  ) +
-  ggplot2::geom_segment(
-    data = bp_scores_rda, inherit.aes = FALSE,
-    ggplot2::aes(x = 0, y = 0, xend = RDA1, yend = RDA2),
-    arrow = ggplot2::arrow(length = ggplot2::unit(0.22, "cm")),
-    color = "black", lineend = "round"
-  ) +
-  ggrepel::geom_text_repel(
-    data = bp_scores_rda, inherit.aes = FALSE,
-    ggplot2::aes(x = RDA1, y = RDA2, label = ConstrVar),
-    size = 3.0, color = "black", fontface = "bold", max.overlaps = 20
-  ) +
+  ggplot2::geom_point(size = 2.4, stroke = 0.7) +
+  scale_tap() +
   ggplot2::labs(
-    title = "RDA triplot - constrained by DRUH + POSITIVE",
-    subtitle = paste0("ANOVA (overall): p = ", signif(rda_overall$`Pr(>F)`[1], 3)),
+    subtitle = paste0("Permutation test (overall): p = ", signif(rda_overall$`Pr(>F)`[1], 3)),
     x = "RDA1", y = "RDA2"
   ) +
-  ggplot2::theme_minimal(base_size = 13) +
-  ggplot2::theme(legend.position = "right")
+  theme_phengaris()
 
 report_figure(
   rda_gg,
   "RDA triplot constrained by species and occupancy",
-  "13_rda_threats_triplot"
+  "13_rda_threats_triplot",
+  height = 12
 )
 
 #----------------------------------------------------------#
@@ -362,13 +428,7 @@ report_figure(
 
 report_section("C. Convex hull plots")
 
-# Colour per species x occupancy group.
-tap_cols <- c(
-  "nausithousTRUE"  = "#E69F00",
-  "nausithousFALSE" = "#56B4E9",
-  "teleiusTRUE"     = "#009E73",
-  "teleiusFALSE"    = "#D55E00"
-)
+# The groups take tap_cols and tap_shapes (Plot style, above).
 
 #--------------------------------------------------#
 ## PCA with fitted variable vectors -----
@@ -379,12 +439,38 @@ pca_tap <- vegan::rda(resp, scale = TRUE)
 set.seed(CONFIG$seed)
 ef_pca_tap <- vegan::envfit(pca_tap, resp, permutations = 999)
 
-# screeplot() is a stats generic; vegan only registers the method for rda
-# objects, so it has to be reached through stats, not through vegan::.
-report_base_figure(
-  stats::screeplot(pca_tap, bstick = TRUE, main = "PCA (Threats & Pressures)"),
+# The screeplot of vegan's screeplot(pca_tap, bstick = TRUE), drawn in
+# ggplot: the eigenvalues of the first (up to) ten axes as bars and the
+# broken-stick expectation as a line.
+scree_axes <- seq_len(min(10, length(pca_tap$CA$eig)))
+scree <- data.frame(
+  axis = factor(names(pca_tap$CA$eig)[scree_axes], levels = names(pca_tap$CA$eig)[scree_axes]),
+  eigenvalue = unname(pca_tap$CA$eig[scree_axes]),
+  broken_stick = unname(vegan::bstick(pca_tap)[scree_axes])
+)
+
+report_figure(
+  ggplot2::ggplot(scree, ggplot2::aes(x = axis)) +
+    ggplot2::geom_col(
+      ggplot2::aes(y = eigenvalue, fill = "eigenvalue"),
+      width = 0.7
+    ) +
+    ggplot2::geom_line(
+      ggplot2::aes(y = broken_stick, group = 1, colour = "broken-stick expectation"),
+      linetype = "dashed", linewidth = 0.45
+    ) +
+    ggplot2::geom_point(
+      ggplot2::aes(y = broken_stick, colour = "broken-stick expectation"),
+      size = 1.6
+    ) +
+    ggplot2::scale_fill_manual(values = phengaris_col("deep_blue"), name = NULL) +
+    ggplot2::scale_colour_manual(values = phengaris_col("spot_black"), name = NULL) +
+    scale_y_count() +
+    ggplot2::labs(x = "Principal component", y = "Inertia (eigenvalue)") +
+    theme_phengaris(grid = "y", legend = c(0.98, 0.98)),
   "PCA screeplot with the broken-stick expectation",
-  "13_pca_screeplot"
+  "13_pca_screeplot",
+  size = "single", height = 6.5
 )
 
 pca_scores <- as.data.frame(
@@ -401,42 +487,33 @@ pca_arrows <- as.data.frame(
   vegan::scores(ef_pca_tap, display = "vectors", scaling = 2)
 )
 
+pca_arrows$Variable <- rownames(pca_arrows)
+
 pca_plot <- ggplot2::ggplot(
   pca_scores,
-  ggplot2::aes(x = PC1, y = PC2, color = interaction(DRUH, POSITIVE))
+  ggplot2::aes(
+    x = PC1, y = PC2,
+    colour = interaction(DRUH, POSITIVE), shape = interaction(DRUH, POSITIVE)
+  )
 ) +
-  ggplot2::geom_point(size = 3) +
+  ordination_origin() +
   ggpubr::stat_chull(
-    ggplot2::aes(group = interaction(DRUH, POSITIVE)),
-    alpha = 0.2, geom = "polygon"
+    ggplot2::aes(group = interaction(DRUH, POSITIVE), fill = interaction(DRUH, POSITIVE)),
+    alpha = 0.2, geom = "polygon", show.legend = FALSE
   ) +
-  ggplot2::geom_segment(
-    data = pca_arrows,
-    ggplot2::aes(x = 0, y = 0, xend = PC1, yend = PC2),
-    arrow = ggplot2::arrow(length = ggplot2::unit(0.2, "cm")),
-    inherit.aes = FALSE,
-    color = "red"
-  ) +
-  ggrepel::geom_text_repel(
-    data = pca_arrows,
-    ggplot2::aes(x = PC1, y = PC2, label = rownames(pca_arrows)),
-    color = "red", size = 4
-  ) +
-  ggplot2::scale_color_manual(values = tap_cols, name = "Group") +
-  ggplot2::theme_minimal() +
-  ggplot2::ggtitle("PCA (Threats & Pressures)\nby species x response") +
-  ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+  ordination_arrows(pca_arrows, "PC1", "PC2") +
+  ordination_labels(pca_arrows, "PC1", "PC2", "Variable") +
+  ggplot2::geom_point(size = 2.4, stroke = 0.7) +
+  scale_tap() +
+  theme_phengaris()
 
 report_figure(
   pca_plot,
   "PCA convex hulls by species and occupancy",
   "13_pca_tap",
-  width = 6, height = 5
+  height = 12
 )
-ggplot2::ggsave(
-  file.path(output_dir("Figures"), "13_pca_tap.pdf"),
-  plot = pca_plot, width = 5, height = 5, device = grDevices::cairo_pdf
-)
+write_figure_pdf(pca_plot, "13_pca_tap", height = 12)
 
 #--------------------------------------------------#
 ## RDA convex hulls -----
@@ -481,36 +558,37 @@ rda_centroids <- stats::aggregate(
   FUN = mean
 )
 
+# The groups are labelled at their centroids, so the plot needs no legend.
 rda_plot <- ggplot2::ggplot(
   rda_scores,
-  ggplot2::aes(x = RDA1, y = RDA2, color = interaction(DRUH, POSITIVE))
+  ggplot2::aes(
+    x = RDA1, y = RDA2,
+    colour = interaction(DRUH, POSITIVE), shape = interaction(DRUH, POSITIVE)
+  )
 ) +
-  ggplot2::geom_point(size = 3) +
+  ordination_origin() +
   ggpubr::stat_chull(
-    ggplot2::aes(group = interaction(DRUH, POSITIVE)),
-    alpha = 0.2, geom = "polygon"
+    ggplot2::aes(group = interaction(DRUH, POSITIVE), fill = interaction(DRUH, POSITIVE)),
+    alpha = 0.2, geom = "polygon", show.legend = FALSE
   ) +
+  ggplot2::geom_point(size = 2.4, stroke = 0.7) +
   ggrepel::geom_text_repel(
-    data = rda_centroids,
-    ggplot2::aes(x = RDA1, y = RDA2, label = group),
-    size = 5, fontface = "bold", color = "black"
+    data = rda_centroids, inherit.aes = FALSE,
+    ggplot2::aes(x = RDA1, y = RDA2, label = tap_labels[as.character(group)]),
+    parse = TRUE, size = FIGURE_TEXT_MM, colour = phengaris_col("spot_black"),
+    box.padding = 0.5, seed = CONFIG$seed
   ) +
-  ggplot2::scale_color_manual(values = tap_cols, name = "Group") +
-  ggplot2::theme_minimal() +
-  ggplot2::ggtitle("RDA (Threats & Pressures)\n~ species + response") +
-  ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
-  ggplot2::labs(x = "RDA1", y = "RDA2")
+  scale_tap() +
+  ggplot2::labs(x = "RDA1", y = "RDA2") +
+  theme_phengaris(legend = "none")
 
 report_figure(
   rda_plot,
   "RDA convex hulls by species and occupancy",
   "13_rda_tap",
-  width = 6, height = 5
+  size = "single", height = 8
 )
-ggplot2::ggsave(
-  file.path(output_dir("Figures"), "13_rda_tap.pdf"),
-  plot = rda_plot, width = 5, height = 5, device = grDevices::cairo_pdf
-)
+write_figure_pdf(rda_plot, "13_rda_tap", size = "single", height = 8)
 
 #----------------------------------------------------------#
 # Caveat -----

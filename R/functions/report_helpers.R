@@ -194,9 +194,11 @@ report_csv <- function(x, caption, stem) {
 #' @param plot     ggplot object
 #' @param caption  figure caption
 #' @param stem     file name without extension
-report_figure <- function(plot, caption, stem, width = 8, height = 6, dpi = 300) {
+#' @param size     "double" (17.5 cm) or "single" (8.5 cm) column
+#' @param height   height in cm; the preset of the size when NULL
+report_figure <- function(plot, caption, stem, size = "double", height = NULL, dpi = FIGURE_DPI) {
   .report_require_open()
-  write_figure_png(plot, stem, width = width, height = height, dpi = dpi)
+  write_figure_png(plot, stem, size = size, height = height, dpi = dpi)
   .report_env$lines <- c(
     .report_env$lines,
     sprintf("**Figure - %s**", caption),
@@ -205,27 +207,6 @@ report_figure <- function(plot, caption, stem, width = 8, height = 6, dpi = 300)
     ""
   )
   invisible(NULL)
-}
-
-#' Draw a base-graphics figure to PNG and embed it in the report.
-#'
-#' @param expr     plotting code, evaluated for its side effect
-#' @param caption  figure caption
-#' @param stem     file name without extension
-report_base_figure <- function(expr, caption, stem, width = 8, height = 6, dpi = 300) {
-  .report_require_open()
-  path <- file.path(output_dir("Figures"), paste0(stem, ".png"))
-  grDevices::png(path, width = width * dpi, height = height * dpi, res = dpi)
-  on.exit(grDevices::dev.off(), add = TRUE)
-  force(expr)
-  .report_env$lines <- c(
-    .report_env$lines,
-    sprintf("**Figure - %s**", caption),
-    "",
-    sprintf("![%s](../Figures/%s.png)", caption, stem),
-    ""
-  )
-  invisible(path)
 }
 
 #' Close the report and write it to Outputs/<scope>/Reports.

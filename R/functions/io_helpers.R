@@ -49,27 +49,47 @@ write_table_csv <- function(x, stem) {
 ## Figures -----
 #--------------------------------------------------#
 
-#' Write a figure to Outputs/<scope>/Figures as PNG.
+#' Write a figure to Outputs/<scope>/Figures, at its print size.
 #'
-#' @param plot  a ggplot object
-#' @param stem  file name without extension
-#' @param width,height,dpi  passed to ggplot2::ggsave
-#' @return the path written, invisibly
+#' The width is a journal column (FIGURE_WIDTHS in plot_style.R), so the
+#' type of theme_phengaris() prints at 8-9 pt.
+#'
 #' bg is set explicitly because theme_void(), used by the maps, leaves the plot
 #' background transparent. A transparent PNG renders on whatever the viewer
 #' happens to use, black in some readers, which is not what a manuscript figure
 #' should do.
-write_figure_png <- function(plot, stem, width = 8, height = 6, dpi = 300) {
-  path <- file.path(output_dir("Figures"), paste0(stem, ".png"))
+#'
+#' @param plot    a ggplot object
+#' @param stem    file name without extension
+#' @param size    "double" (17.5 cm) or "single" (8.5 cm) column
+#' @param height  height in cm; the preset of the size when NULL
+#' @param ext     "png" or "pdf"
+#' @return the path written, invisibly
+write_figure <- function(plot, stem, size = "double", height = NULL, dpi = FIGURE_DPI, ext = "png") {
+  path <- file.path(output_dir("Figures"), paste0(stem, ".", ext))
+  dims <- figure_size(size, height)
   ggplot2::ggsave(
     filename = path,
     plot     = plot,
-    width    = width,
-    height   = height,
+    width    = dims$width,
+    height   = dims$height,
+    units    = "cm",
     dpi      = dpi,
-    bg       = "white"
+    bg       = "white",
+    device   = if (ext == "pdf") grDevices::cairo_pdf
   )
   invisible(path)
+}
+
+#' Write a figure to Outputs/<scope>/Figures as PNG; see write_figure().
+write_figure_png <- function(plot, stem, size = "double", height = NULL, dpi = FIGURE_DPI) {
+  write_figure(plot, stem, size = size, height = height, dpi = dpi, ext = "png")
+}
+
+#' Write a figure to Outputs/<scope>/Figures as PDF, at the size of its PNG;
+#' see write_figure().
+write_figure_pdf <- function(plot, stem, size = "double", height = NULL) {
+  write_figure(plot, stem, size = size, height = height, ext = "pdf")
 }
 
 #--------------------------------------------------#

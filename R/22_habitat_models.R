@@ -243,7 +243,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
         CONFIG$landscape$min_aic_gain, species_names[[code]]
       ),
       paste0(prefix, "_landscape_scales"),
-      width = 10, height = 5.5
+      height = 10
     )
     chosen <- scales$best %>% dplyr::filter(delta_AIC_vs_management < -CONFIG$landscape$min_aic_gain)
     report_table(

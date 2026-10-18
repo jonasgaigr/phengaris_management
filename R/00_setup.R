@@ -89,6 +89,7 @@ CONFIG <- load_config("config.yml")
 
 source("R/functions/pipeline.R", encoding = "UTF-8")
 source("R/functions/io_helpers.R", encoding = "UTF-8")
+source("R/functions/plot_style.R", encoding = "UTF-8")
 source("R/functions/read_sources.R", encoding = "UTF-8")
 source("R/functions/validate.R", encoding = "UTF-8")
 source("R/functions/imputation.R", encoding = "UTF-8")
@@ -147,31 +148,8 @@ target_mon_zdroj <- CONFIG$sources$targeted
 ## Shared plotting style -----
 #--------------------------------------------------#
 
-# Site occupancy is shown with the same two greys throughout, so that the
-# figures read as one set in the manuscript.
-OCCUPANCY_VALUES <- c("grey", "#595959")
-OCCUPANCY_LABELS <- c("negative", "positive")
-
-scale_fill_occupancy <- function(name = "site occupancy") {
-  ggplot2::scale_fill_manual(
-    labels = OCCUPANCY_LABELS,
-    name   = name,
-    values = OCCUPANCY_VALUES
-  )
-}
-
-scale_colour_occupancy <- function(name = "site occupancy") {
-  ggplot2::scale_color_manual(
-    labels = OCCUPANCY_LABELS,
-    name   = name,
-    values = OCCUPANCY_VALUES
-  )
-}
-
-# Bar charts start at zero and get a little headroom above the tallest bar.
-scale_y_count <- function() {
-  ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.1)))
-}
+# The palette, the themes, the occupancy scales and the figure sizes are in
+# R/functions/plot_style.R.
 
 #----------------------------------------------------------#
 # End setup -----

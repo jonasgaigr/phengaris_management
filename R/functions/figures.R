@@ -23,41 +23,14 @@
 # Each plot function takes the table its step also writes as CSV, so every
 # figure can be checked against a table and redrawn without refitting.
 #
-# The legacy figures (steps 08, 09-13 of the legacy specification) keep
-# their original look.
+# The palette, theme_phengaris() and the print sizes, shared with the legacy
+# figures, are in R/functions/plot_style.R.
 #
 #----------------------------------------------------------#
 
 #--------------------------------------------------#
 ## Style -----
 #--------------------------------------------------#
-
-#' The theme of every revised figure: classic axes, untitled strips with
-#' left-aligned bold labels, the legend below.
-theme_results <- function(base_size = 11) {
-  ggplot2::theme_classic(base_size = base_size) +
-    ggplot2::theme(
-      axis.line = ggplot2::element_line(colour = "grey30", linewidth = 0.3),
-      axis.ticks = ggplot2::element_line(colour = "grey30", linewidth = 0.3),
-      axis.text = ggplot2::element_text(colour = "grey20"),
-      strip.background = ggplot2::element_blank(),
-      strip.text = ggplot2::element_text(face = "bold", hjust = 0, size = ggplot2::rel(1)),
-      panel.spacing = ggplot2::unit(1.2, "lines"),
-      legend.position = "bottom",
-      legend.title = ggplot2::element_text(size = ggplot2::rel(0.9)),
-      plot.title.position = "plot"
-    )
-}
-
-#' Hairline vertical gridlines, for forest plots read against the x axis.
-theme_gridlines_x <- function() {
-  ggplot2::theme(panel.grid.major.x = ggplot2::element_line(colour = "grey90", linewidth = 0.3))
-}
-
-#' Species strips in italics.
-theme_species_strips <- function() {
-  ggplot2::theme(strip.text = ggplot2::element_text(face = "bold.italic", hjust = 0))
-}
 
 #' "Phengaris nausithous" -> "P. nausithous".
 species_short <- function(species) sub("^Phengaris ", "P. ", species)
@@ -77,22 +50,34 @@ format_tick <- function(x) {
 
 #' Breaks of a log axis: 1-2-5 per decade over a short range, 1-3 over a
 #' medium one, powers of ten over a long one.
-log_breaks <- function(limits) {
+#'
+#' @param max_n  at most this many breaks, for narrow panels: every other
+#'               break is dropped, keeping the one nearest 1, until they fit
+log_breaks <- function(limits, max_n = Inf) {
   limits <- range(limits[is.finite(limits) & limits > 0])
   span <- diff(log10(limits))
   base <- if (span > 2.5) 1 else if (span > 1.2) c(1, 3) else c(1, 2, 5)
   breaks <- sort(as.vector(outer(base, 10^(-4:4))))
-  breaks[breaks >= limits[1] * 0.999 & breaks <= limits[2] * 1.001]
+  breaks <- breaks[breaks >= limits[1] * 0.999 & breaks <= limits[2] * 1.001]
+  while (length(breaks) > max_n) {
+    anchor <- which.min(abs(log10(breaks)))
+    breaks <- breaks[(seq_along(breaks) - anchor) %% 2 == 0]
+  }
+  breaks
 }
 
 #' A log x axis for odds ratios.
-scale_x_ratio <- function(name = "odds ratio (95% interval, log scale)", ...) {
-  ggplot2::scale_x_log10(name = name, breaks = log_breaks, labels = format_tick, ...)
+#'
+#' @param max_breaks  passed to log_breaks() as max_n
+scale_x_ratio <- function(name = "Odds ratio (95% interval, log scale)", max_breaks = Inf, ...) {
+  ggplot2::scale_x_log10(
+    name = name, breaks = function(limits) log_breaks(limits, max_n = max_breaks), labels = format_tick, ...
+  )
 }
 
 #' The reference line at an odds ratio of 1.
 ratio_reference <- function() {
-  ggplot2::geom_vline(xintercept = 1, colour = "grey45", linewidth = 0.35)
+  ggplot2::geom_vline(xintercept = 1, colour = REFERENCE_GREY, linewidth = 0.35)
 }
 
 #--------------------------------------------------#
@@ -102,8 +87,9 @@ ratio_reference <- function() {
 #' The samples in their fixed order, as a factor.
 sample_factor <- function(sample) factor(sample, levels = unname(REVISED_SAMPLES))
 
-#' Grey of each sample: darker for more imputed absences.
-sample_colours <- function() stats::setNames(c("black", "grey40", "grey65"), unname(REVISED_SAMPLES))
+#' Colour of each sample, darker for more imputed absences: the spot black
+#' for the primary sample, then the deep and the teleius blue.
+sample_colours <- function() stats::setNames(phengaris_lines(3), unname(REVISED_SAMPLES))
 
 #' Shape of each sample: circle, triangle, square (all fillable).
 sample_shapes <- function() stats::setNames(c(21, 24, 22), unname(REVISED_SAMPLES))
@@ -197,10 +183,14 @@ model_term <- function(term) {
 ## Step 08: the records of the revised models -----
 #--------------------------------------------------#
 
-#' Fill of each record outcome (RECORD_OUTCOMES): dark for the species
-#' found, lighter for the negatives, lightest for the imputed ones.
+#' Fill of each record outcome (RECORD_OUTCOMES): the deep blue for the
+#' species found, the buff for the observed negatives, lighter buff and the
+#' fringe white for the imputed ones.
 outcome_fills <- function() {
-  stats::setNames(c("grey15", "grey55", "grey78", "grey92"), RECORD_OUTCOMES)
+  stats::setNames(
+    phengaris_col(c("deep_blue", "underside_buff", "buff_light", "fringe_white")),
+    RECORD_OUTCOMES
+  )
 }
 
 #' In-season records per year by outcome, stacked.
@@ -212,14 +202,16 @@ plot_records_by_outcome <- function(tab) {
     species = species_short(DRUH),
     outcome = factor(outcome, levels = rev(RECORD_OUTCOMES))
   )
+  # The buff outline keeps the near-white segments of the imputed absences
+  # visible against the background.
   ggplot2::ggplot(tab, ggplot2::aes(x = factor(YEAR), y = records, fill = outcome)) +
-    ggplot2::geom_col(colour = "white", linewidth = 0.3, width = 0.75) +
+    ggplot2::geom_col(colour = phengaris_col("underside_buff"), linewidth = 0.2, width = 0.75) +
     ggplot2::facet_wrap(~species) +
     ggplot2::scale_fill_manual(values = outcome_fills(), breaks = RECORD_OUTCOMES, name = NULL) +
     scale_y_count() +
-    ggplot2::labs(x = NULL, y = "records in the flight season") +
+    ggplot2::labs(x = NULL, y = "Records in the flight season") +
     ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2)) +
-    theme_results() +
+    theme_phengaris(grid = "y") +
     theme_species_strips()
 }
 
@@ -238,16 +230,16 @@ plot_visit_timing <- function(tab, width = 5, xlim = c(-45, 45)) {
     )
   ggplot2::ggplot(tab, ggplot2::aes(x = day_class + width / 2, y = records, fill = outcome)) +
     ggplot2::geom_col(width = width, colour = "white", linewidth = 0.25) +
-    ggplot2::geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.35) +
+    ggplot2::geom_vline(xintercept = 0, colour = REFERENCE_GREY, linewidth = 0.35) +
     ggplot2::facet_wrap(~species, ncol = 1, scales = "free_y") +
     ggplot2::scale_fill_manual(
-      values = c(positive = "grey15", negative = "grey70"), breaks = c("positive", "negative"),
-      name = "visit"
+      values = stats::setNames(OCCUPANCY_VALUES, c("negative", "positive")), breaks = c("positive", "negative"),
+      name = "Visit"
     ) +
     ggplot2::coord_cartesian(xlim = xlim) +
     scale_y_count() +
-    ggplot2::labs(x = "days from the year's median positive record", y = "observed visits") +
-    theme_results() +
+    ggplot2::labs(x = "Days from the year's median positive record", y = "Observed visits") +
+    theme_phengaris(grid = "y") +
     theme_species_strips()
 }
 
@@ -281,12 +273,9 @@ plot_share_positive <- function(tab) {
     scale_sample() +
     ggplot2::scale_x_discrete(labels = scales::label_wrap(11)) +
     ggplot2::scale_y_continuous(limits = c(0, NA), expand = ggplot2::expansion(mult = c(0, 0.05))) +
-    ggplot2::labs(x = NULL, y = "share of the records with the species (95% interval)") +
-    theme_results() +
-    ggplot2::theme(
-      strip.text.y = ggplot2::element_text(face = "bold.italic", angle = 0, hjust = 0),
-      panel.grid.major.y = ggplot2::element_line(colour = "grey92", linewidth = 0.3)
-    )
+    ggplot2::labs(x = NULL, y = "Share of the records with the species (95% interval)") +
+    theme_phengaris(grid = "y") +
+    ggplot2::theme(strip.text.y = ggplot2::element_text(face = "bold.italic", angle = 0, hjust = 0))
 }
 
 #' Records per observer: how many observers recorded how many records.
@@ -294,20 +283,21 @@ plot_share_positive <- function(tab) {
 #' @param observers  summarise_observers()
 plot_observers <- function(observers) {
   ggplot2::ggplot(observers, ggplot2::aes(x = obs_num)) +
-    ggplot2::geom_histogram(bins = 20, fill = "grey45", colour = "white", linewidth = 0.3) +
+    ggplot2::geom_histogram(bins = 20, fill = phengaris_col("deep_blue"), colour = "white", linewidth = 0.3) +
     ggplot2::geom_vline(
-      xintercept = stats::median(observers$obs_num), colour = "black", linewidth = 0.4
+      xintercept = stats::median(observers$obs_num), colour = phengaris_col("spot_black"),
+      linewidth = 0.4, linetype = "dashed"
     ) +
     ggplot2::annotate(
       "text",
       x = stats::median(observers$obs_num), y = Inf,
       label = sprintf("median %g", stats::median(observers$obs_num)),
-      hjust = -0.1, vjust = 1.5, size = 3.2, colour = "grey20"
+      hjust = -0.1, vjust = 1.5, size = FIGURE_TEXT_MM, colour = phengaris_col("spot_black")
     ) +
     ggplot2::scale_x_log10(labels = format_tick) +
     scale_y_count() +
-    ggplot2::labs(x = "records per observer (log scale)", y = "observers") +
-    theme_results()
+    ggplot2::labs(x = "Records per observer (log scale)", y = "Observers") +
+    theme_phengaris(grid = "y")
 }
 
 #--------------------------------------------------#
@@ -324,7 +314,9 @@ plot_flight_curve <- function(curve, cutoff) {
   elevations <- sort(unique(curve$ELEVATION[!is.na(curve$ELEVATION)]))
   elevation_levels <- if (length(elevations)) paste(elevations, "m") else character()
   levels <- c(elevation_levels, "no elevation term")
-  greys <- c(if (length(elevations)) grDevices::gray.colors(length(elevations), start = 0, end = 0.6), "black")
+  # Dark to light up the elevations; the curve without an elevation term in
+  # the spot black.
+  cols <- c(if (length(elevations)) phengaris_lines(length(elevations)), phengaris_col("spot_black"))
   curve <- curve %>%
     dplyr::mutate(
       species = species_short(DRUH),
@@ -339,22 +331,22 @@ plot_flight_curve <- function(curve, cutoff) {
     curve,
     ggplot2::aes(x = DOY_DEV, y = RELATIVE_ACTIVITY, colour = elevation, group = interaction(elevation, segment))
   ) +
-    ggplot2::geom_hline(yintercept = cutoff, colour = "grey55", linewidth = 0.35) +
+    ggplot2::geom_hline(yintercept = cutoff, colour = REFERENCE_GREY, linewidth = 0.35) +
     ggplot2::annotate(
       "text",
       x = 0, y = cutoff, label = sprintf("end of the flight season: %g %% of the peak", 100 * cutoff),
-      vjust = -0.6, size = 3, colour = "grey35"
+      vjust = -0.6, size = FIGURE_TEXT_MM, colour = REFERENCE_GREY
     ) +
     ggplot2::geom_line(data = dplyr::filter(curve, !IN_DATA_RANGE), linetype = "dotted", linewidth = 0.5) +
-    ggplot2::geom_line(data = dplyr::filter(curve, IN_DATA_RANGE), linewidth = 0.9) +
+    ggplot2::geom_line(data = dplyr::filter(curve, IN_DATA_RANGE), linewidth = 0.8) +
     ggplot2::facet_wrap(~species) +
     ggplot2::scale_colour_manual(
-      values = stats::setNames(greys, levels), breaks = elevation_levels,
-      name = "elevation of the site"
+      values = stats::setNames(cols, levels), breaks = elevation_levels,
+      name = "Elevation of the site"
     ) +
     ggplot2::scale_y_continuous(limits = c(0, 1.02), expand = ggplot2::expansion(mult = c(0, 0.02))) +
-    ggplot2::labs(x = "days from the year's median positive record", y = "relative activity of adults") +
-    theme_results() +
+    ggplot2::labs(x = "Days from the year's median positive record", y = "Relative activity of adults") +
+    theme_phengaris() +
     theme_species_strips()
 }
 
@@ -416,10 +408,10 @@ plot_predictions <- function(pred_mgmt, pred_other, species_label, leave_out = c
       scales = "free_x", space = "free_x", labeller = ggplot2::labeller(panel = ggplot2::label_wrap_gen(22))
     ) +
     scale_sample() +
+    ggplot2::scale_x_discrete(labels = function(x) gsub(" ", "\n", x)) +
     ggplot2::scale_y_continuous(limits = c(0, NA), expand = ggplot2::expansion(mult = c(0, 0.04))) +
-    ggplot2::labs(x = NULL, y = species_title("predicted probability of recording", species_label)) +
-    theme_results() +
-    ggplot2::theme(panel.grid.major.y = ggplot2::element_line(colour = "grey92", linewidth = 0.3))
+    ggplot2::labs(x = NULL, y = species_title("Predicted probability of recording", species_label)) +
+    theme_phengaris(grid = "y")
 }
 
 #' Predicted probability of recording the species across the flight
@@ -439,11 +431,12 @@ plot_season <- function(curve, species_label) {
     ggplot2::scale_linetype_manual(values = sample_linetypes(), name = NULL) +
     ggplot2::scale_y_continuous(limits = c(0, 1), expand = ggplot2::expansion(mult = c(0, 0.02))) +
     ggplot2::labs(
-      x = "days from the year's median positive record",
-      y = species_title("predicted probability of recording", species_label)
+      x = "Days from the year's median positive record",
+      y = bquote(atop("Predicted probability", "of recording" ~ italic(.(species_label))))
     ) +
-    theme_results() +
-    ggplot2::theme(legend.key.width = ggplot2::unit(2.2, "lines"))
+    theme_phengaris(grid = "y") +
+    # A single-column figure: the samples one below the other.
+    ggplot2::theme(legend.key.width = ggplot2::unit(2.2, "lines"), legend.direction = "vertical")
 }
 
 #' Profile likelihood of the connectivity: delta AIC against the mean
@@ -453,7 +446,7 @@ plot_season <- function(curve, species_label) {
 #' @param profile  17_<species>_connectivity_profile
 plot_connectivity_profile <- function(profile, species_label) {
   exponents <- sort(unique(profile$area_exponent))
-  greys <- stats::setNames(grDevices::gray.colors(length(exponents), start = 0, end = 0.7), exponents)
+  cols <- stats::setNames(phengaris_lines(length(exponents)), exponents)
   shapes <- stats::setNames(c(16, 17, 15, 18, 4, 3)[seq_along(exponents)], exponents)
   profile <- profile %>%
     dplyr::mutate(
@@ -467,19 +460,19 @@ plot_connectivity_profile <- function(profile, species_label) {
     dplyr::ungroup()
 
   ggplot2::ggplot(profile, ggplot2::aes(x = distance_km, y = delta_AIC, colour = b, shape = b)) +
-    ggplot2::geom_hline(yintercept = 2, colour = "grey70", linewidth = 0.35) +
+    ggplot2::geom_hline(yintercept = 2, colour = REFERENCE_GREY, linewidth = 0.35, linetype = "dashed") +
     ggplot2::geom_line(linewidth = 0.45) +
-    ggplot2::geom_point(size = 1.8) +
-    ggplot2::geom_point(data = best, shape = 1, size = 4.5, colour = "black", stroke = 0.6) +
+    ggplot2::geom_point(size = 1.5) +
+    ggplot2::geom_point(data = best, shape = 1, size = 3.8, colour = phengaris_col("spot_black"), stroke = 0.6) +
     ggplot2::facet_wrap(~sample, scales = "free_y") +
     ggplot2::scale_x_log10(breaks = c(0.1, 0.2, 0.5, 1, 2, 4), labels = format_tick) +
-    ggplot2::scale_colour_manual(values = greys, name = "area exponent b") +
-    ggplot2::scale_shape_manual(values = shapes, name = "area exponent b") +
+    ggplot2::scale_colour_manual(values = cols, name = "Area exponent b") +
+    ggplot2::scale_shape_manual(values = shapes, name = "Area exponent b") +
     ggplot2::labs(
-      x = "mean dispersal distance 1 / alpha (km, log scale)",
-      y = species_title("delta AIC from the best pair,", species_label)
+      x = "Mean dispersal distance 1 / alpha (km, log scale)",
+      y = species_title("Delta AIC from the best pair,", species_label)
     ) +
-    theme_results()
+    theme_phengaris()
 }
 
 #--------------------------------------------------#
@@ -520,8 +513,7 @@ plot_threat_estimates <- function(estimates, alpha = 0.05) {
     ggplot2::scale_fill_manual(values = c(sample_colours(), none = "white"), guide = "none") +
     scale_x_ratio() +
     ggplot2::labs(y = NULL) +
-    theme_results() +
-    theme_gridlines_x() +
+    theme_phengaris(grid = "x") +
     theme_species_strips() +
     ggplot2::guides(
       colour = ggplot2::guide_legend(override.aes = list(fill = unname(sample_colours())))
@@ -535,7 +527,7 @@ plot_threat_estimates <- function(estimates, alpha = 0.05) {
 #' The radius axis of the landscape figures, in km on a log scale.
 scale_x_radius <- function(radii_m) {
   ggplot2::scale_x_log10(
-    name = "radius (km, log scale)", breaks = radii_m / 1000, labels = format_tick
+    name = "Radius (km, log scale)", breaks = radii_m / 1000, labels = format_tick
   )
 }
 
@@ -551,12 +543,14 @@ plot_landscape_shares <- function(long) {
   )
   ggplot2::ggplot(long, ggplot2::aes(x = radius, y = share)) +
     ggplot2::geom_boxplot(
-      outlier.size = 0.25, outlier.colour = "grey70", colour = "grey25", fill = "grey95",
-      linewidth = 0.35, width = 0.65
+      outlier.size = 0.25, outlier.colour = phengaris_col("teleius_blue"), colour = phengaris_col("deep_blue"),
+      fill = phengaris_col("teleius_pale"), linewidth = 0.35, width = 0.65
     ) +
     ggplot2::facet_wrap(~variable, scales = "free_y", ncol = 4) +
-    ggplot2::labs(x = "radius (km)", y = "share of the circle") +
-    theme_results()
+    # The short radii are close together: labels that would overlap are left out.
+    ggplot2::scale_x_discrete(guide = ggplot2::guide_axis(check.overlap = TRUE)) +
+    ggplot2::labs(x = "Radius (km)", y = "Share of the circle") +
+    theme_phengaris(grid = "y")
 }
 
 #' Scale of effect of each landscape variable: delta AIC of the management
@@ -577,28 +571,30 @@ plot_landscape_scales <- function(scales, min_gain, species_label) {
     )
 
   ggplot2::ggplot(scales, ggplot2::aes(x = radius_km, y = delta_AIC_vs_management)) +
-    ggplot2::geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.35) +
-    ggplot2::geom_hline(yintercept = -min_gain, colour = "grey80", linewidth = 0.35) +
-    ggplot2::geom_line(colour = "grey30", linewidth = 0.45) +
-    ggplot2::geom_point(colour = "grey30", size = 1.3) +
+    ggplot2::geom_hline(yintercept = 0, colour = REFERENCE_GREY, linewidth = 0.35) +
+    ggplot2::geom_hline(yintercept = -min_gain, colour = REFERENCE_GREY, linewidth = 0.35, linetype = "dashed") +
+    ggplot2::geom_line(colour = phengaris_col("deep_blue"), linewidth = 0.45) +
+    ggplot2::geom_point(colour = phengaris_col("deep_blue"), size = 1.1) +
     ggplot2::geom_point(
-      data = best, ggplot2::aes(fill = enters), shape = 21, size = 3, colour = "black", stroke = 0.6
+      data = best, ggplot2::aes(fill = enters), shape = 21, size = 2.6,
+      colour = phengaris_col("spot_black"), stroke = 0.6
     ) +
     ggplot2::geom_text(
-      data = best, ggplot2::aes(label = label), vjust = 1.9, hjust = 0.7, size = 3, colour = "grey15"
+      data = best, ggplot2::aes(label = label), vjust = 1.9, hjust = 0.7, size = FIGURE_TEXT_MM,
+      colour = phengaris_col("spot_black")
     ) +
     ggplot2::facet_wrap(~variable, ncol = 4) +
     scale_x_radius(sort(unique(scales$radius_m))) +
     ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0.15, 0.05))) +
     ggplot2::scale_fill_manual(
-      values = c(`TRUE` = "black", `FALSE` = "white"),
+      values = c(`TRUE` = phengaris_col("deep_blue"), `FALSE` = "white"),
       breaks = c(TRUE, FALSE),
       labels = c(`TRUE` = "enters the combined model", `FALSE` = "stays out of it"),
-      name = "best radius"
+      name = "Best radius"
     ) +
     ggplot2::coord_cartesian(clip = "off") +
-    ggplot2::labs(y = species_title("delta AIC against the management model,", species_label)) +
-    theme_results()
+    ggplot2::labs(y = species_title("Delta AIC against the management model,", species_label)) +
+    theme_phengaris()
 }
 
 #--------------------------------------------------#
@@ -622,12 +618,11 @@ plot_detection_sensitivity <- function(rows, fits, species_label) {
   ggplot2::ggplot(rows, ggplot2::aes(x = odds_ratio, y = fit, group = sample)) +
     ratio_reference() +
     sample_pointrange() +
-    ggplot2::facet_wrap(~term, scales = "free_x", ncol = 3) +
+    ggplot2::facet_wrap(~term, scales = "free_x", ncol = 3, labeller = ggplot2::label_wrap_gen(24)) +
     scale_sample() +
     scale_x_ratio() +
     ggplot2::labs(y = NULL, title = species_title("", species_label)) +
-    theme_results() +
-    theme_gridlines_x()
+    theme_phengaris(grid = "x")
 }
 
 #' Detection probability at the year's median day, per field-form era and
@@ -645,14 +640,13 @@ plot_detection_probability <- function(detection, prior_p, species_label) {
       low = q2.5, high = q97.5
     )
   ggplot2::ggplot(detection, ggplot2::aes(x = mean, y = model, group = sample)) +
-    ggplot2::geom_vline(xintercept = prior_p, colour = "grey55", linewidth = 0.35) +
+    ggplot2::geom_vline(xintercept = prior_p, colour = REFERENCE_GREY, linewidth = 0.35, linetype = "dashed") +
     sample_pointrange() +
     ggplot2::facet_wrap(~form) +
     scale_sample() +
-    ggplot2::scale_x_continuous(limits = c(0, 1), name = "detection probability at the median day") +
+    ggplot2::scale_x_continuous(limits = c(0, 1), name = "Detection probability at the median day") +
     ggplot2::labs(y = NULL, title = species_title("", species_label)) +
-    theme_results() +
-    theme_gridlines_x()
+    theme_phengaris(grid = "x")
 }
 
 #--------------------------------------------------#
@@ -676,8 +670,7 @@ plot_designation <- function(designation, species_label) {
     scale_sample() +
     scale_x_ratio() +
     ggplot2::labs(y = NULL, title = species_title("", species_label)) +
-    theme_results() +
-    theme_gridlines_x()
+    theme_phengaris(grid = "x")
 }
 
 #' Share of the visits that found the species, at sites with and without a
@@ -700,10 +693,13 @@ plot_persistence <- function(counts, species_label) {
     sample_pointrange() +
     ggplot2::facet_wrap(~known, ncol = 1) +
     scale_sample() +
-    ggplot2::scale_x_continuous(limits = c(0, 1), name = "share of visits that found the species (95% interval)") +
+    ggplot2::scale_x_continuous(
+      limits = c(0, 1), name = "Share of visits that found the species\n(95% interval)"
+    ) +
     ggplot2::labs(y = NULL, title = species_title("", species_label)) +
-    theme_results() +
-    theme_gridlines_x()
+    theme_phengaris(grid = "x") +
+    # A single-column figure: the samples one below the other.
+    ggplot2::theme(legend.direction = "vertical")
 }
 
 #--------------------------------------------------#
@@ -752,18 +748,18 @@ plot_robustness <- function(robustness) {
     ggplot2::facet_grid(
       group ~ term,
       scales = "free", space = "free_y", switch = "y",
-      labeller = ggplot2::labeller(term = ggplot2::label_wrap_gen(20))
+      labeller = ggplot2::labeller(term = ggplot2::label_wrap_gen(14))
     ) +
     scale_sample() +
-    scale_x_ratio() +
+    scale_x_ratio(max_breaks = 3) +
+    ggplot2::scale_y_discrete(labels = scales::label_wrap(22)) +
     ggplot2::labs(y = NULL) +
-    theme_results(base_size = 10) +
-    theme_gridlines_x() +
+    theme_phengaris(grid = "x") +
     ggplot2::theme(
       strip.placement = "outside",
-      strip.text.y.left = ggplot2::element_text(angle = 0, hjust = 1, face = "italic", colour = "grey35"),
-      strip.text.x = ggplot2::element_text(face = "bold", hjust = 0, size = ggplot2::rel(0.95)),
-      panel.spacing.x = ggplot2::unit(0.9, "lines"),
+      strip.text.y.left = ggplot2::element_text(angle = 0, hjust = 1, face = "italic", colour = REFERENCE_GREY),
+      strip.text.x = ggplot2::element_text(face = "bold", hjust = 0, size = ggplot2::rel(0.9)),
+      panel.spacing.x = ggplot2::unit(0.6, "lines"),
       panel.spacing.y = ggplot2::unit(0.4, "lines")
     )
 }

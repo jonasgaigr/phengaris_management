@@ -221,7 +221,7 @@ report_figure(
     "curve falls below the horizontal line"
   ),
   "16_flight_curve",
-  width = 10, height = 5
+  height = 8.5
 )
 
 #----------------------------------------------------------#

@@ -42,8 +42,8 @@ report_start(
   } else {
     paste(
       "Figures describing the monitoring effort and the distribution of the",
-      "analysis variables. Site occupancy is shown with the same two greys",
-      "throughout: light grey for records without the species, dark grey for",
+      "analysis variables. Site occupancy is shown with the same two colours",
+      "throughout: buff for records without the species, deep blue for",
       "records with it."
     )
   }
@@ -62,7 +62,7 @@ if (revised_figures) {
     plot_records_by_outcome(summarise_records_by_outcome(data)),
     "Records in the flight season by year and outcome",
     "08_records_by_outcome",
-    width = 10, height = 5
+    height = 8.5
   )
 
   report_figure(
@@ -72,7 +72,7 @@ if (revised_figures) {
       "vertical line is the year's median positive record)"
     ),
     "08_visit_timing",
-    width = 8, height = 6
+    size = "single", height = 9
   )
 
   report_figure(
@@ -82,7 +82,7 @@ if (revised_figures) {
       "of the management model's variables, by sample (Jeffreys 95% interval)"
     ),
     "08_share_positive",
-    width = 11, height = 6.5
+    height = 11
   )
 
   report_section("Observers")
@@ -91,7 +91,7 @@ if (revised_figures) {
     plot_observers(summarise_observers(data)),
     "Records per observer",
     "08_observer_distribution",
-    width = 7, height = 4.5
+    size = "single", height = 6
   )
 } else {
   # The figures of the original analysis, for the other specifications.
@@ -100,14 +100,14 @@ if (revised_figures) {
   # Shared plot builders -----
   #----------------------------------------------------------#
 
-  #' Grouped bar chart of counts split by site occupancy.
+  #' Grouped bar chart of counts split by site occupancy. The categories keep
+  #' their own order (they are ordinal or a fixed classification).
   #'
   #' @param x         summary table with COUNT and POSITIVE
   #' @param x_var     name of the column on the x axis
-  #' @param x_labels  axis tick labels
+  #' @param x_labels  axis tick labels (a function for the species names)
   #' @param x_title,y_title  axis titles
-  plot_counts_by_occupancy <- function(x, x_var, x_labels, x_title, y_title,
-                                       base_size = 14) {
+  plot_counts_by_occupancy <- function(x, x_var, x_labels, x_title, y_title) {
     ggplot2::ggplot(
       data = x,
       ggplot2::aes(
@@ -116,30 +116,36 @@ if (revised_figures) {
         fill = as.factor(POSITIVE)
       )
     ) +
-      ggplot2::geom_bar(stat = "identity", position = "dodge") +
+      ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge(width = 0.8), width = 0.75) +
       scale_y_count() +
-      scale_fill_occupancy() +
+      scale_fill_occupancy(name = "Site occupancy") +
       ggplot2::scale_x_discrete(labels = x_labels) +
       ggplot2::xlab(x_title) +
       ggplot2::ylab(y_title) +
-      ggplot2::theme_classic(base_size = base_size)
+      theme_phengaris(grid = "y")
   }
 
-  #' Bar chart of counts from a long summary table.
-  plot_counts_ranked <- function(x, x_title, y_title, base_size = 16) {
+  #' Horizontal bar chart of counts from a long summary table, the largest on
+  #' top. The category title is short; the count title names the species.
+  plot_counts_ranked <- function(x, category_title, count_title) {
     ggplot2::ggplot(
       data = x,
       ggplot2::aes(
-        x = forcats::fct_reorder(name, COUNT, .desc = TRUE),
-        y = COUNT
+        x = COUNT,
+        y = forcats::fct_reorder(name, COUNT)
       )
     ) +
-      ggplot2::geom_bar(stat = "identity", fill = "#595959") +
-      scale_y_count() +
-      ggplot2::xlab(x_title) +
-      ggplot2::ylab(y_title) +
-      ggplot2::theme_classic(base_size = base_size)
+      ggplot2::geom_bar(stat = "identity", fill = phengaris_col("deep_blue"), width = 0.75) +
+      scale_x_count() +
+      ggplot2::labs(x = count_title, y = category_title) +
+      theme_phengaris(grid = "x")
   }
+
+  #' "Host plant abundance," + italic species name, for an axis title.
+  species_axis <- function(text, species) species_title(text, species_short(species))
+
+  #' The species name alone, in italics, for an axis title.
+  species_only <- function(species) bquote(italic(.(species)))
 
   #----------------------------------------------------------#
   # General and temporal -----
@@ -151,13 +157,13 @@ if (revised_figures) {
     plot_counts_by_occupancy(
       summarise_occupancy(data),
       "DRUH",
-      c("P. nausithous", "P. teleius"),
-      "\nSpecies",
-      "number of sites\n"
-    ) +
-      ggplot2::theme(legend.position = "top"),
+      function(x) italic_labels(species_short(x)),
+      "Species",
+      "Number of sites"
+    ),
     "Site occupancy by species",
-    "08_site_occupancy_by_species"
+    "08_site_occupancy_by_species",
+    size = "single"
   )
 
   year_stats <- summarise_year_stats(data)
@@ -168,16 +174,19 @@ if (revised_figures) {
       ggplot2::aes(
         y     = as.numeric(COUNT),
         x     = as.factor(YEAR),
-        color = as.factor(POSITIVE)
+        color = as.factor(POSITIVE),
+        shape = as.factor(POSITIVE)
       )
     ) +
-      ggplot2::geom_point(size = 3, alpha = 0.7) +
-      ggplot2::labs(x = "\nYear", y = "Observation Count\n", color = "Site Occupancy") +
-      scale_colour_occupancy(name = "Site Occupancy") +
-      ggplot2::theme_classic(base_size = 14) +
+      ggplot2::geom_point(size = 1.8, stroke = 0.6) +
+      ggplot2::labs(x = "Year", y = "Records") +
+      scale_colour_occupancy(name = "Site occupancy") +
+      ggplot2::scale_shape_manual(values = c(1, 16), labels = OCCUPANCY_LABELS, name = "Site occupancy") +
+      theme_phengaris(grid = "y") +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)),
     "Records per year and site occupancy",
-    "08_records_by_year"
+    "08_records_by_year",
+    size = "single"
   )
 
   #----------------------------------------------------------#
@@ -195,32 +204,32 @@ if (revised_figures) {
       ggplot2::aes(x = obs_num)
     ) +
       ggplot2::geom_histogram(
-        alpha  = 0.6,
-        breaks = seq(0, max(observer_stats$obs_num, na.rm = TRUE), by = 25),
-        fill   = "steelblue"
+        breaks    = seq(0, max(observer_stats$obs_num, na.rm = TRUE), by = 25),
+        fill      = phengaris_col("deep_blue"),
+        colour    = "white",
+        linewidth = 0.2
       ) +
-      ggplot2::theme_minimal(base_size = 14) +
       scale_y_count() +
       ggplot2::geom_vline(
         xintercept = observer_mean,
-        linetype   = "dotted",
-        colour     = "steelblue",
-        linewidth  = 1
+        linetype   = "dashed",
+        colour     = phengaris_col("spot_black"),
+        linewidth  = 0.4
       ) +
       ggplot2::annotate(
         "text",
-        x     = observer_mean + 220,
-        y     = 20,
-        label = paste0("Mean observations: ", round(observer_mean, 1)),
-        size  = 5
+        x     = observer_mean,
+        y     = Inf,
+        label = paste0("mean ", round(observer_mean, 1), " records"),
+        hjust = -0.08,
+        vjust = 1.5,
+        size  = FIGURE_TEXT_MM
       ) +
-      ggplot2::labs(
-        x     = "\nNumber of Observations",
-        y     = "Number of Observers\n",
-        title = "Distribution of Observation Counts per Observer"
-      ),
+      ggplot2::labs(x = "Records per observer", y = "Observers") +
+      theme_phengaris(grid = "y"),
     "Distribution of record counts per observer",
-    "08_observer_distribution"
+    "08_observer_distribution",
+    size = "single"
   )
 
   #----------------------------------------------------------#
@@ -234,12 +243,16 @@ if (revised_figures) {
       summarise_species_cooccurrence(data) %>%
         dplyr::filter(SPEC_NUM == 0),
       "DRUH",
-      c("P. nausithous\n(without P. teleius)", "P. teleius\n(without P. nausithous)"),
-      "\nSpecies Occurrence Context",
-      "number of sites\n"
+      c(
+        expression(atop(italic("P. nausithous"), "(without" ~ italic("P. teleius") * ")")),
+        expression(atop(italic("P. teleius"), "(without" ~ italic("P. nausithous") * ")"))
+      ),
+      "Species occurrence context",
+      "Number of sites"
     ),
     "Records of each species without the other species present",
-    "08_species_occurrence_context"
+    "08_species_occurrence_context",
+    size = "single"
   )
 
   #----------------------------------------------------------#
@@ -255,11 +268,12 @@ if (revised_figures) {
       data_plant_sum %>% dplyr::filter(DRUH == SPECIES_NAU),
       "PLANT_QUANT",
       c("single plants", "abundant", "dominant"),
-      "\nHost Plant Quantity (P. nausithous)",
-      "number of findings\n"
+      species_axis("Host plant quantity,", SPECIES_NAU),
+      "Number of findings"
     ),
     "Host plant abundance, P. nausithous",
-    "08_host_plant_nausithous"
+    "08_host_plant_nausithous",
+    size = "single"
   )
 
   report_figure(
@@ -267,11 +281,12 @@ if (revised_figures) {
       data_plant_sum %>% dplyr::filter(DRUH == SPECIES_TEL),
       "PLANT_QUANT",
       c("single plants", "abundant", "dominant"),
-      "\nHost Plant Quantity (P. teleius)",
-      "number of sites\n"
+      species_axis("Host plant quantity,", SPECIES_TEL),
+      "Number of sites"
     ),
     "Host plant abundance, P. teleius",
-    "08_host_plant_teleius"
+    "08_host_plant_teleius",
+    size = "single"
   )
 
   #----------------------------------------------------------#
@@ -283,23 +298,23 @@ if (revised_figures) {
   report_figure(
     plot_counts_ranked(
       summarise_recorded_habitats(data, SPECIES_NAU),
-      "\nrecorded habitats preferred by P. nausithous",
-      "number of sites\n",
-      base_size = 14
+      "Recorded habitat",
+      species_axis("Number of sites,", SPECIES_NAU)
     ),
     "Recorded habitats at occupied P. nausithous sites",
-    "08_recorded_habitats_nausithous"
+    "08_recorded_habitats_nausithous",
+    size = "single"
   )
 
   report_figure(
     plot_counts_ranked(
       summarise_recorded_habitats(data, SPECIES_TEL),
-      "\nrecorded habitats preferred by P. teleius",
-      "number of sites\n",
-      base_size = 14
+      "Recorded habitat",
+      species_axis("Number of sites,", SPECIES_TEL)
     ),
     "Recorded habitats at occupied P. teleius sites",
-    "08_recorded_habitats_teleius"
+    "08_recorded_habitats_teleius",
+    size = "single"
   )
 
   #----------------------------------------------------------#
@@ -323,13 +338,12 @@ if (revised_figures) {
         dplyr::filter(DRUH == SPECIES_NAU, !is.na(MANAGEMENT)),
       "MANAGEMENT",
       management_labels,
-      "\nRecorded management at sites with P. nausithous",
-      "number of findings\n"
-    ) +
-      ggplot2::theme(axis.text.x = ggplot2::element_text(size = 12)),
+      species_axis("Recorded management at sites with", SPECIES_NAU),
+      "Number of findings"
+    ),
     "Management appropriateness, P. nausithous",
     "08_management_appropriateness_nausithous",
-    width = 9
+    height = 7
   )
 
   report_figure(
@@ -338,33 +352,34 @@ if (revised_figures) {
         dplyr::filter(DRUH == SPECIES_TEL, !is.na(MANAGEMENT)),
       "MANAGEMENT",
       management_labels,
-      "\nRecorded management at sites with P. teleius",
-      "number of findings\n"
-    ) +
-      ggplot2::theme(axis.text.x = ggplot2::element_text(size = 12)),
+      species_axis("Recorded management at sites with", SPECIES_TEL),
+      "Number of findings"
+    ),
     "Management appropriateness, P. teleius",
     "08_management_appropriateness_teleius",
-    width = 9
+    height = 7
   )
 
   report_figure(
     plot_counts_ranked(
       summarise_management_types(data, SPECIES_NAU),
-      "\nManagement recorded at sites with P. nausithous",
-      "number of sites\n"
+      "Recorded management",
+      species_axis("Number of sites,", SPECIES_NAU)
     ),
     "Management types, P. nausithous",
-    "08_management_types_nausithous"
+    "08_management_types_nausithous",
+    size = "single", height = 5
   )
 
   report_figure(
     plot_counts_ranked(
       summarise_management_types(data, SPECIES_TEL),
-      "\nManagement recorded at sites with P. teleius",
-      "number of sites\n"
+      "Recorded management",
+      species_axis("Number of sites,", SPECIES_TEL)
     ),
     "Management types, P. teleius",
-    "08_management_types_teleius"
+    "08_management_types_teleius",
+    size = "single", height = 5
   )
 
   #----------------------------------------------------------#
@@ -383,12 +398,12 @@ if (revised_figures) {
       data_evl_sum %>% dplyr::filter(DRUH == SPECIES_NAU),
       "EVL",
       c("outside Natura 2000", "Natura 2000 sites"),
-      "\nPhengaris nausithous",
-      "number of sites\n",
-      base_size = 18
+      species_only(SPECIES_NAU),
+      "Number of sites"
     ),
     "Natura 2000 membership, P. nausithous",
-    "08_protection_evl_nausithous"
+    "08_protection_evl_nausithous",
+    size = "single"
   )
 
   report_figure(
@@ -396,12 +411,12 @@ if (revised_figures) {
       data_evl_sum %>% dplyr::filter(DRUH == SPECIES_TEL),
       "EVL",
       c("outside Natura 2000", "within Natura 2000"),
-      "\nPhengaris teleius",
-      "number of findings\n",
-      base_size = 18
+      species_only(SPECIES_TEL),
+      "Number of findings"
     ),
     "Natura 2000 membership, P. teleius",
-    "08_protection_evl_teleius"
+    "08_protection_evl_teleius",
+    size = "single"
   )
 
   report_figure(
@@ -412,11 +427,12 @@ if (revised_figures) {
         "outside Natura 2000\ndesignated for Phengaris",
         "within Natura 2000\ndesignated for Phengaris"
       ),
-      "\nPhengaris nausithous",
-      "number of findings\n"
+      species_only(SPECIES_NAU),
+      "Number of findings"
     ),
     "Natura 2000 designation, P. nausithous",
-    "08_protection_evl_target_nausithous"
+    "08_protection_evl_target_nausithous",
+    size = "single"
   )
 
   report_figure(
@@ -427,11 +443,12 @@ if (revised_figures) {
         "outside Natura 2000\ndesignated for Phengaris",
         "within Natura 2000\ndesignated for Phengaris"
       ),
-      "\nPhengaris teleius",
-      "number of findings\n"
+      species_only(SPECIES_TEL),
+      "Number of findings"
     ),
     "Natura 2000 designation, P. teleius",
-    "08_protection_evl_target_teleius"
+    "08_protection_evl_target_teleius",
+    size = "single"
   )
 
   report_figure(
@@ -443,11 +460,12 @@ if (revised_figures) {
         "Natura 2000 NOT designated\nfor Phengaris",
         "Natura 2000 designated\nfor Phengaris"
       ),
-      "\nPhengaris nausithous",
-      "number of findings\n"
+      species_only(SPECIES_NAU),
+      "Number of findings"
     ),
     "Combined Natura 2000 status, P. nausithous",
-    "08_protection_evl_combined_nausithous"
+    "08_protection_evl_combined_nausithous",
+    height = 7
   )
 
   report_figure(
@@ -459,11 +477,12 @@ if (revised_figures) {
         "Natura 2000 NOT designated\nfor Phengaris",
         "Natura 2000 designated\nfor Phengaris"
       ),
-      "\nPhengaris teleius",
-      "number of sites\n"
+      species_only(SPECIES_TEL),
+      "Number of sites"
     ),
     "Combined Natura 2000 status, P. teleius",
-    "08_protection_evl_combined_teleius"
+    "08_protection_evl_combined_teleius",
+    height = 7
   )
 
   mzchu_labels <- c(
@@ -476,12 +495,12 @@ if (revised_figures) {
       data_mzchu_sum %>% dplyr::filter(DRUH == SPECIES_NAU),
       "MZCHU",
       mzchu_labels,
-      "\nPhengaris nausithous",
-      "number of findings\n",
-      base_size = 16
+      species_only(SPECIES_NAU),
+      "Number of findings"
     ),
     "Small-scale protected areas, P. nausithous",
-    "08_protection_mzchu_nausithous"
+    "08_protection_mzchu_nausithous",
+    size = "single"
   )
 
   report_figure(
@@ -489,12 +508,12 @@ if (revised_figures) {
       data_mzchu_sum %>% dplyr::filter(DRUH == SPECIES_TEL),
       "MZCHU",
       mzchu_labels,
-      "\nPhengaris teleius",
-      "number of findings\n",
-      base_size = 16
+      species_only(SPECIES_TEL),
+      "Number of findings"
     ),
     "Small-scale protected areas, P. teleius",
-    "08_protection_mzchu_teleius"
+    "08_protection_mzchu_teleius",
+    size = "single"
   )
 }
 

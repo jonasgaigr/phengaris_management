@@ -109,7 +109,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       CONFIG$synthesis$max_interval_ratio, species_names[[code]]
     ),
     paste0(prefix, "_robustness"),
-    width = 13, height = 7.5
+    height = 17
   )
 }
 

@@ -145,7 +145,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       "matching, in the three samples,", species_names[[code]]
     ),
     paste0(prefix, "_designation"),
-    width = 8, height = 3.8
+    height = 6
   )
   balance <- dplyr::bind_rows(balance)
   report_table(
@@ -223,7 +223,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
       "and outside the EVLs designated for it,", species_names[[code]]
     ),
     paste0(prefix, "_persistence"),
-    width = 7, height = 4.5
+    size = "single", height = 8
   )
   persistence_models <- unlist(persistence, recursive = FALSE)
   names(persistence_models) <- vapply(persistence_models, `[[`, character(1), "id")

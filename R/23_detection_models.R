@@ -236,7 +236,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
         CONFIG$synthesis$max_interval_ratio, species_names[[code]]
       ),
       paste0(prefix, "_known_detection"),
-      width = 11, height = 6
+      height = 10
     )
 
     report_table(
@@ -264,7 +264,7 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
         "of the prior,", species_names[[code]]
       ),
       paste0(prefix, "_detection_probability"),
-      width = 9, height = 3.5
+      height = 6
     )
 
     report_table(
