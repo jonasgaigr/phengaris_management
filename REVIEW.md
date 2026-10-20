@@ -1003,7 +1003,10 @@ Follow-ups, each in `CHANGELOG.md` with its diff:
   criteria (`c14`);
 - landscape radii up to 8 km (`c15`);
 - a new step 25 that collects the key estimates of every analysis into one
-  table and one forest plot per species (`c16`).
+  table and one forest plot per species (`c16`);
+- a new step 26, at the top of `REPORT.md`, that lists the variables
+  significantly associated with each species, and states in numbers what
+  the analyses of Phase 4 add (`c18`).
 
 **What Phase 4 found.**
 
@@ -1131,6 +1134,13 @@ descriptive results of the revised analysis"):
   predictions, by the rule of step 25, and the captions say so.
 - `REPORT.md` puts the revised specification before the legacy one and
   lists the figures of the revised analysis after the contents.
+- `REPORT.md` opens with the main findings (step 26):
+  - the variables significant in each species' sample (with imputed for
+    *P. nausithous*, with plausible imputed for *P. teleius*,
+    `synthesis: primary_sample`);
+  - in how many samples and analyses each holds;
+  - a forest plot of every variable;
+  - the findings above in numbers, with the figures of their steps.
 
 **Recommendations for the monitoring,** from the review and from what the
 analyses could not do:

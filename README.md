@@ -60,6 +60,9 @@ The cascade runs two specifications side by side:
     Benjamini-Hochberg;
   - an SPDE spatial field and spatial+;
   - the key estimates of every analysis side by side (step 25).
+- The main findings (step 26) open `Outputs/REPORT.md`: the variables
+  significantly associated with each species, how far each holds across
+  the samples and the analyses, and what Phase 4 adds, with the figures.
 
 The models of both specifications are *naive occupancy* models. The
 monitoring is essentially one visit per site and year, so detection is not
@@ -131,8 +134,9 @@ PHENGARIS_SPEC=revised Rscript R/07_describe_tables.R   # under a chosen specifi
 | 23 | `23_detection_models.R` | revised | 06 | known detection, mixed-design occupancy model |
 | 24 | `24_natura2000.R` | revised | 06, 17 | matching for the Natura 2000 association, persistence of the 2012-2018 populations |
 | 25 | `25_synthesis.R` | revised | the result tables of 17, 18, 22-24 | the key odds ratios of every analysis side by side, forest plots |
+| 26 | `26_main_findings.R` | revised | the result tables and figures of 04, 17-25 | the variables associated with each species, the main findings |
 | 14 | `14_maps.R` | spec | 01, 06, reference border / grid / relief | maps |
-| 15 | `15_compile_report.R` | final | every step report | `Outputs/REPORT.md` |
+| 15 | `15_compile_report.R` | final | every step report | `Outputs/REPORT.md`, the main findings first |
 
 **Scope.**
 
@@ -184,9 +188,10 @@ What each step does:
    drawn under *legacy* only.
 9. to 13. *Legacy:* the original models and the ordination.
 14. **Maps.**
-15. **Compile the report.** The common steps first, then the
-    specifications with the revised model set, then the others, with a list
-    of the figures of the revised analysis at the top.
+15. **Compile the report.** The main findings (step 26) first, then the
+    common steps, then the specifications with the revised model set, then
+    the others, with a list of the figures of the revised analysis at the
+    top.
 16. **Persistent sites, flight season and connectivity.**
     - Reconstructs persistent sites across years, at 50 m and at 0 and 200 m,
       and gives each site its elevation.
@@ -216,6 +221,20 @@ What each step does:
 25. **Robustness of the key estimates:** the odds ratios of the management
     terms, the host plant and the EVL from every analysis of steps 17-24,
     in one table and one forest plot per species. Nothing is refitted.
+26. **Main findings:** every variable of the models, each read from the
+    model it is the subject of, in the three samples. Each species is read
+    from one sample (`synthesis: primary_sample`): with all imputed absences
+    for *P. nausithous*, with the plausible ones for *P. teleius*. For each
+    variable significant there (p < 0.05; the threat classes after Holm or
+    Benjamini-Hochberg), the step gives:
+    - in how many samples it is significant (a fit flagged for possible
+      separation is not counted);
+    - in how many analyses its interval excludes 1.
+
+    The step then states, in numbers, what the detection, imputation,
+    Natura 2000, connectivity, spatial, threat, count and mowing analyses
+    add, with their figures. Step 15 puts it at the top of the report.
+    Nothing is refitted.
 
 ## Outputs
 
@@ -225,7 +244,7 @@ Outputs/
   common/  Tables/ Figures/ Reports/     steps 01, 03, 05, 16, 21
   legacy/  Tables/ Figures/ Reports/     steps 02, 04, 06-14 of the legacy specification
            Exports/                      data exports for Excel (step 13)
-  revised/ Tables/ Figures/ Reports/     steps 02, 04, 06-08, 14, 17-20, 22-25 of the revised specification
+  revised/ Tables/ Figures/ Reports/     steps 02, 04, 06-08, 14, 17-20, 22-26 of the revised specification
 Data/Processed/
   common/  records.csv, sites.gpkg, records_2012_2018.csv, sites_2012_2018.gpkg,
            protected_area_id.csv,
@@ -238,7 +257,7 @@ Data/Processed/
            connectivity_selected.csv
 ```
 
-Start at `Outputs/REPORT.md`.
+Start at `Outputs/REPORT.md`: it opens with the main findings (step 26).
 
 **Table and figure files.**
 
@@ -288,6 +307,7 @@ The revised steps (`17_<species>_…` and so on) add:
 | `_connectivity_profile` | the management model at every alpha x b of the connectivity (step 17) |
 | `_window_sensitivity` | the management model on fixed windows of 28 and 45 days (step 17) |
 | `_known_detection`, `_occupancy_*`, `_detection_probability` | the detection sensitivity (step 23) |
+| `_significant_variables`, `_variables`, `_landscape` | the variables significant in the species' sample, every variable, and the landscape variables alone and combined (step 26) |
 
 Every revised model is fitted on three samples: with the imputed absences
 (ids without a suffix), with only the plausible ones (`_pls`) and on the
@@ -311,6 +331,8 @@ regenerates them.
 - the site-matching distance;
 - the flight season, the observer aliases and the connectivity parameters;
 - the random effects and thresholds of the revised models;
+- the sample each species' results are read from, and the significance
+  level of the main findings;
 - seeds and diagnostic thresholds;
 - file paths;
 - the specifications.

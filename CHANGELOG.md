@@ -1631,3 +1631,88 @@ specification still followed the original analysis:
 `07_share_positive`, `17_<species>_season`). The 35 legacy figures were
 redrawn byte for byte. The figures the revised specification no longer
 draws were deleted from `Outputs/revised/Figures`.
+
+---
+
+## (c) Step 26: the main findings and the variables associated with each species
+
+- **Specification:** revised only; legacy unchanged. No existing number
+  changes; step 26 only adds tables.
+- **Full diff:** [`changes/c18_main_findings.md`](changes/c18_main_findings.md)
+
+**Why.** `REPORT.md` collected the step reports but said nowhere which
+variables are associated with each species, or what the analyses of Phase 4
+add up to. Those were in `REVIEW.md`, by hand.
+
+**What changed.**
+
+- Step 26 (`R/26_main_findings.R`, `R/functions/findings.R`) reads the
+  result tables of steps 04 and 17-25 and refits nothing. Each variable is
+  read from the model it is the subject of, in the three samples:
+  - management, host plant, EVL and survey design from the management
+    model;
+  - connectivity from the model with connectivity;
+  - grazing and site area from the 2021-2024 polygon model;
+  - the habitat of the site and the landscape from the combined model of
+    step 22;
+  - a record of 2012-2018 from the persistence model;
+  - the other species from the co-occurrence model;
+  - the threat classes from their per-threat models.
+- Each species is read from one sample, now set in `config.yml`
+  (`synthesis: primary_sample`): with imputed for *P. nausithous*, with the
+  plausible imputed for *P. teleius*. Step 25 hard-coded the same choice and
+  now reads it from there (its output is unchanged).
+- A variable is significant at `synthesis: alpha` (0.05): the Wald p, or the
+  Holm or Benjamini-Hochberg p of a threat class. A fit the diagnostics of
+  its step flag for possible separation is not estimable. Only
+  *P. teleius* observed-only fits are flagged: its management, 2021-2024
+  polygon, habitat and landscape fits, not its connectivity, persistence or
+  co-occurrence fits.
+- For each significant variable the table gives:
+  - in how many samples it is significant;
+  - in how many analyses its interval excludes 1: those of step 25 for the
+    management, host-plant and EVL terms, and every model of steps 17 and
+    22 that includes it for the others.
+- One forest plot of every variable per species (`26_<species>_variables`),
+  significant marks filled.
+- The landscape variables alone and in the combined model
+  (`26_<species>_landscape`).
+- The detection, the imputed absences, the Natura 2000 association and
+  persistence, the connectivity, the spatial structure, the threats, the
+  counts and the mowing timing, in numbers, with the figures of steps
+  17-25.
+- Step 15 puts step 26 at the top of `REPORT.md` and lists each figure once,
+  at the step that draws it.
+
+**What it shows.**
+
+- *P. nausithous* (with imputed), recorded more often with:
+  - abundant and dominant host plant (2.93, 2.98);
+  - appropriate mowing timing (2.16) and patches left uncut (2.18), together
+    2.13 (interaction 0.45);
+  - connectivity (2.01 per tenfold);
+  - a record at the site in 2012-2018 (3.04);
+  - *P. teleius* at the same visit (4.27);
+  - forest within 8 km (1.49 per 10 percentage points), settlements within
+    1 km (1.43), and the *Sanguisorba* meadows of the site (1.04).
+
+  Recorded less often with larger sites (0.41 per tenfold), water within
+  8 km (0.26) and fertiliser use (0.35, Holm 0.030). Not significant, among
+  others: the EVL, grazing, and the wet-meadow, X and edge shares.
+- *P. teleius* (with plausible imputed), recorded more often with:
+  - connectivity (2.84);
+  - a record at the site in 2012-2018 (2.08);
+  - *P. nausithous* at the same visit (3.32);
+  - dominant host plant (3.06; interval excluding 1 in 8 of 10 analyses);
+  - the EVL designated for it (3.75; 5 of 12 analyses, 1.47 after
+    matching);
+  - water and wetlands within 4 km (6.71).
+
+  Neither mowing term, nor any threat class after the adjustment.
+
+**What changed in the numbers.** None. Steps 25, 26 and 15 were rerun and
+compared cell by cell with the previous snapshot: 357 tables identical, 7
+added (`26_<species>_significant_variables`, `26_<species>_variables`,
+`26_<species>_landscape`, `26_variables_by_sample`). Apart from the new
+section, `REPORT.md` differs only in the map captions of step 14, which
+were redrawn after the report was last compiled.

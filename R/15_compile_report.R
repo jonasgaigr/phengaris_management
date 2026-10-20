@@ -9,12 +9,14 @@
 #----------------------------------------------------------#
 #
 # Collects the per-step Markdown reports into one document with a table of
-# contents: first the steps shared by every specification, then the steps of
-# the specifications with the revised model set (the analysis the results
-# rest on), then those of the others, each group in the order config.yml
-# lists them. A list of the figures of the common steps and of the revised
-# specifications follows the contents. Every figure and every result table in
-# the project is reachable from Outputs/REPORT.md.
+# contents: first the main findings (step 26 of the specifications with the
+# revised model set), then the steps shared by every specification, then the
+# other steps of the specifications with the revised model set (the analysis
+# the results rest on), then those of the others, each group in the order
+# config.yml lists them. A list of the figures of the main findings, the
+# common steps and the revised specifications follows the contents, each
+# figure once. Every figure and every result table in the project is
+# reachable from Outputs/REPORT.md.
 #
 # Reads:  Outputs/common/Reports/*.md, Outputs/<spec>/Reports/*.md
 # Writes: Outputs/REPORT.md
@@ -72,19 +74,27 @@ is_revised <- vapply(pipeline_specs(), function(s) identical(spec_settings(s)$mo
 specs <- c(pipeline_specs()[is_revised], pipeline_specs()[!is_revised])
 scopes <- c("common", specs)
 scope_titles <- c(
+  findings = "Main findings",
   common = "Steps shared by every specification",
   stats::setNames(paste0("Specification: ", specs), specs)
 )
 
+# The main findings (step 26) open the report, ahead of the scopes.
+findings_report <- "^26_.*\\.md$"
+findings <- list()
 sections <- list()
 for (scope in scopes) {
   files <- sort(list.files(
     file.path(CONFIG$paths$outputs, scope, "Reports"),
     pattern = "\\.md$", full.names = TRUE
   ))
+  is_findings <- grepl(findings_report, basename(files))
+  findings <- c(findings, lapply(files[is_findings], compile_section, scope = scope))
+  files <- files[!is_findings]
   if (!length(files)) next
   sections[[scope]] <- lapply(files, compile_section, scope = scope)
 }
+if (length(findings)) sections <- c(list(findings = findings), sections)
 
 if (!length(sections)) {
   stop("No step reports found under ", CONFIG$paths$outputs, call. = FALSE)
@@ -102,22 +112,25 @@ toc <- unlist(lapply(names(sections), function(scope) {
   )
 }), use.names = FALSE)
 
-# The figures of the common steps and of the revised specifications, each
-# linked to its PNG and to the section it sits in.
-figure_scopes <- intersect(names(sections), c("common", specs[is_revised[specs]]))
-figure_list <- unlist(lapply(figure_scopes, function(scope) {
-  unlist(lapply(sections[[scope]], function(s) {
-    if (!nrow(s$figures)) {
-      return(NULL)
-    }
-    sprintf("- [%s](%s) ([%s](#%s))", s$figures$caption, s$figures$path, s$title, heading_anchor(s$title))
-  }), use.names = FALSE)
-}), use.names = FALSE)
+# The figures of the main findings, the common steps and the revised
+# specifications, each linked to its PNG and to the section it sits in. The
+# main findings show some figures of later steps again; those are listed
+# once, at the step that draws them.
+figure_scopes <- intersect(names(sections), c("findings", "common", specs[is_revised[specs]]))
+figures <- dplyr::bind_rows(lapply(figure_scopes, function(scope) {
+  dplyr::bind_rows(lapply(sections[[scope]], function(s) {
+    dplyr::mutate(s$figures, section = rep(s$title, nrow(s$figures)))
+  }))
+}))
+figures <- figures[!duplicated(figures$path, fromLast = TRUE), , drop = FALSE]
+figure_list <- sprintf(
+  "- [%s](%s) ([%s](#%s))", figures$caption, figures$path, figures$section, heading_anchor(figures$section)
+)
 
 body <- unlist(lapply(names(sections), function(scope) {
   c(
     paste("#", scope_titles[[scope]]), "",
-    if (scope != "common") {
+    if (scope %in% specs) {
       c(spec_settings(scope)$description, "")
     },
     unlist(lapply(sections[[scope]], `[[`, "lines"), use.names = FALSE)
@@ -142,9 +155,11 @@ header <- c(
   ),
   "",
   paste(
-    "The specifications with the revised model set come first: they are the",
-    "analysis the results rest on. The others keep the original analysis for",
-    "comparison (README.md, REVIEW.md)."
+    "The report opens with the main findings: the variables associated with",
+    "each species and what the analyses of the revision add to them, with",
+    "their figures. The specifications with the revised model set come before",
+    "the others: they are the analysis the results rest on. The others keep the",
+    "original analysis for comparison (README.md, REVIEW.md)."
   ),
   "",
   "## Contents",

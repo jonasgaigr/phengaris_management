@@ -78,6 +78,52 @@ pipeline_step <- function(id, file, title, scope = c("common", "spec", "final"),
   ),
   ".csv"
 )
+# The result tables and figures of steps 04 and 17-25 the main findings
+# (step 26) summarise. The landscape tables and figures of step 22 are
+# written only when the landscape rasters are there.
+.findings_inputs <- c(
+  paste0(
+    "{outputs}/{spec}/Tables/",
+    c(
+      outer(
+        c(
+          "17_%s_coefficients", "17_%s_diagnostics", "20_%s_key_estimates", "22_%s_coefficients",
+          "22_%s_diagnostics", "23_%s_detection_probability", "24_%s_designation",
+          "24_%s_persistence_coefficients", "24_%s_persistence_diagnostics", "24_%s_persistence_estimates",
+          "25_%s_robustness_summary"
+        ),
+        c("nausithous", "teleius"),
+        sprintf
+      ),
+      "04_imputed_plausible", "17_records", "17_cooccurrence_coefficients", "17_cooccurrence_diagnostics",
+      "17_connectivity_selected",
+      "18_moran", "18_spde", "18_spatial_plus", "19_threat_estimates", "19_threat_stacked", "22_timing_check"
+    ),
+    ".csv"
+  ),
+  paste0(
+    "{outputs}/{spec}/Figures/",
+    c(
+      outer(
+        c(
+          "17_%s_predictions", "23_%s_known_detection", "24_%s_designation", "24_%s_persistence",
+          "25_%s_robustness"
+        ),
+        c("nausithous", "teleius"),
+        sprintf
+      ),
+      "19_threat_estimates"
+    ),
+    ".png"
+  ),
+  paste0(
+    "?{outputs}/{spec}/",
+    c(
+      sprintf("Tables/22_%s_landscape_best.csv", c("nausithous", "teleius")),
+      sprintf("Figures/22_%s_landscape_scales.png", c("nausithous", "teleius"))
+    )
+  )
+)
 # The frozen and the current site x VMB intersections and the site x KVES
 # one; each is written only when its source is there. The site areas of step
 # 05 are an optional output of their own.
@@ -199,6 +245,11 @@ PIPELINE <- list(
   # The synthesis reads the result tables of steps 17-24.
   pipeline_step("25", "R/25_synthesis.R", "Robustness of the key estimates", "spec",
     inputs = .synthesis_tables, model_sets = "revised"
+  ),
+  # The main findings read the result tables and figures of steps 04 and
+  # 17-25; step 15 puts them at the top of the report.
+  pipeline_step("26", "R/26_main_findings.R", "Main findings", "spec",
+    inputs = .findings_inputs, model_sets = "revised"
   ),
   pipeline_step(
     "14", "R/14_maps.R", "Maps", "spec",

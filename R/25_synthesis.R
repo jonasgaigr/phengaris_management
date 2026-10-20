@@ -73,9 +73,10 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     max_rows = nrow(summary_table)
   )
 
+  primary <- primary_sample(species)
   wide <- robustness %>%
     dplyr::mutate(estimable = is_estimable(robustness)) %>%
-    dplyr::filter(sample == REVISED_SAMPLES[[if (code == "tel") "plausible" else "with_imputed"]]) %>%
+    dplyr::filter(sample == primary) %>%
     dplyr::mutate(value = dplyr::case_when(
       is.na(odds_ratio) ~ NA_character_,
       !estimable ~ "not estimable",
@@ -87,7 +88,11 @@ for (species in c(SPECIES_NAU, SPECIES_TEL)) {
     wide,
     sprintf(
       "Odds ratios (95%% interval) by analysis, sample %s",
-      if (code == "tel") "with plausible imputed (the one to read for P. teleius)" else "with imputed"
+      if (primary == REVISED_SAMPLES[["with_imputed"]]) {
+        primary
+      } else {
+        sprintf("%s (the one to read for %s)", primary, species_names[[code]])
+      }
     ),
     paste0(prefix, "_robustness"),
     max_rows = nrow(wide)

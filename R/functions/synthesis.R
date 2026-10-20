@@ -29,6 +29,23 @@ SYNTHESIS_TERMS <- c(
   EVL_species = "EVL designated for the species"
 )
 
+#' The key of a species in config.yml `species`, which also names its result
+#' tables: SPECIES_TEL -> "teleius".
+species_key <- function(species) {
+  key <- names(CONFIG$species)[vapply(CONFIG$species, function(s) identical(s$name, species), logical(1))]
+  if (length(key) != 1) stop("Unknown species: ", species, call. = FALSE)
+  key
+}
+
+#' The sample a species' results are read from (config.yml `synthesis:
+#' primary_sample`).
+#'
+#' @param species  the species name, e.g. SPECIES_TEL
+#' @return its label in REVISED_SAMPLES, e.g. "with plausible imputed"
+primary_sample <- function(species) {
+  REVISED_SAMPLES[[CONFIG$synthesis$primary_sample[[species_key(species)]]]]
+}
+
 #' Numbers from a formatted odds ratio, "2.16 (1.48-3.15)".
 #'
 #' @param x  formatted strings

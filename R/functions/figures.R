@@ -763,3 +763,63 @@ plot_robustness <- function(robustness) {
       panel.spacing.y = ggplot2::unit(0.4, "lines")
     )
 }
+
+#--------------------------------------------------#
+## Step 26: the main findings -----
+#--------------------------------------------------#
+
+#' The variables of one species shown in its figure: every variable of the
+#' models, and the threat classes significant in some sample; only the
+#' estimable fits.
+#'
+#' @param findings  collect_findings() of one species
+findings_shown <- function(findings) {
+  findings %>%
+    dplyr::group_by(term) %>%
+    dplyr::filter(group != "threats noted at the visit" | any(significant)) %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(estimable)
+}
+
+#' Odds ratios of every variable of one species, by group, in the three
+#' samples; filled marks are significant.
+#'
+#' @param findings  collect_findings() of one species
+plot_findings <- function(findings, species_label) {
+  rows <- findings_shown(findings) %>%
+    dplyr::mutate(
+      group = factor(group, levels = FINDINGS_GROUPS),
+      variable = factor(label, levels = rev(unique(label))),
+      sample = sample_factor(sample),
+      low = or_low, high = or_high
+    )
+  ggplot2::ggplot(rows, ggplot2::aes(x = odds_ratio, y = variable, group = sample)) +
+    ratio_reference() +
+    ggplot2::geom_linerange(
+      ggplot2::aes(xmin = low, xmax = high, colour = sample),
+      position = ggplot2::position_dodge(width = 0.7), linewidth = 0.45
+    ) +
+    ggplot2::geom_point(
+      ggplot2::aes(colour = sample, shape = sample, fill = ifelse(significant, as.character(sample), "none")),
+      position = ggplot2::position_dodge(width = 0.7), size = 1.7, stroke = 0.6
+    ) +
+    ggplot2::facet_grid(
+      group ~ .,
+      scales = "free_y", space = "free_y", switch = "y",
+      labeller = ggplot2::labeller(group = ggplot2::label_wrap_gen(14))
+    ) +
+    ggplot2::scale_colour_manual(values = sample_colours(), name = NULL) +
+    ggplot2::scale_shape_manual(values = sample_shapes(), name = NULL) +
+    ggplot2::scale_fill_manual(values = c(sample_colours(), none = "white"), guide = "none") +
+    scale_x_ratio() +
+    ggplot2::labs(y = NULL, title = species_title("", species_label)) +
+    theme_phengaris(grid = "x") +
+    ggplot2::theme(
+      strip.placement = "outside",
+      strip.text.y.left = ggplot2::element_text(angle = 0, hjust = 1, face = "italic", colour = REFERENCE_GREY),
+      panel.spacing.y = ggplot2::unit(0.4, "lines")
+    ) +
+    ggplot2::guides(
+      colour = ggplot2::guide_legend(override.aes = list(fill = unname(sample_colours())))
+    )
+}

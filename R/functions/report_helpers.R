@@ -209,6 +209,35 @@ report_figure <- function(plot, caption, stem, size = "double", height = NULL, d
   invisible(NULL)
 }
 
+#' Embed a figure another step of the same scope has written, without
+#' redrawing it.
+#'
+#' For a summary that shows the figures of the steps it summarises. The
+#' step declares the figure as an input, so a missing one stops it.
+#'
+#' @param caption   figure caption
+#' @param stem      file name without extension
+#' @param optional  leave the figure out when it is not there (an optional
+#'                  input), rather than stop
+report_existing_figure <- function(caption, stem, optional = FALSE) {
+  .report_require_open()
+  path <- file.path(output_dir("Figures"), paste0(stem, ".png"))
+  if (!file.exists(path)) {
+    if (optional) {
+      return(invisible(NULL))
+    }
+    stop("Figure not found: ", path, call. = FALSE)
+  }
+  .report_env$lines <- c(
+    .report_env$lines,
+    sprintf("**Figure - %s**", caption),
+    "",
+    sprintf("![%s](../Figures/%s.png)", caption, stem),
+    ""
+  )
+  invisible(path)
+}
+
 #' Close the report and write it to Outputs/<scope>/Reports.
 report_finish <- function() {
   .report_require_open()
