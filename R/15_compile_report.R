@@ -30,13 +30,6 @@ step_begin("15")
 ## Helpers -----
 #--------------------------------------------------#
 
-#' Anchor a GitHub-flavoured Markdown heading links to.
-heading_anchor <- function(title) {
-  slug <- tolower(title)
-  slug <- gsub("[^a-z0-9 -]", "", slug)
-  gsub(" ", "-", trimws(slug))
-}
-
 #' Read one step report and fit it into the compiled document.
 #'
 #' The step's title becomes a level-2 heading tagged with its scope, every

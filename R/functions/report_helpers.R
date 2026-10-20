@@ -49,6 +49,15 @@
   gsub("[\r\n]+", " ", out)
 }
 
+#' Anchor a GitHub-flavoured Markdown heading links to: the contents of
+#' REPORT.md (step 15) and the headings of its PDF
+#' (R/tools/render_report_pdf.R).
+heading_anchor <- function(title) {
+  slug <- tolower(title)
+  slug <- gsub("[^a-z0-9 -]", "", slug)
+  gsub(" ", "-", trimws(slug))
+}
+
 #' Render a data frame as a Markdown pipe table.
 #'
 #' @param x         data frame

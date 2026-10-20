@@ -241,6 +241,7 @@ What each step does:
 ```
 Outputs/
   REPORT.md                 all step reports collected, with a table of contents
+  REPORT.pdf, REPORT.html   the same, rendered by R/tools/render_report_pdf.R
   common/  Tables/ Figures/ Reports/     steps 01, 03, 05, 16, 21
   legacy/  Tables/ Figures/ Reports/     steps 02, 04, 06-14 of the legacy specification
            Exports/                      data exports for Excel (step 13)
@@ -258,6 +259,9 @@ Data/Processed/
 ```
 
 Start at `Outputs/REPORT.md`: it opens with the main findings (step 26).
+For a PDF of it (A4, page numbers, bookmarks, figures at print size), run
+`Rscript R/tools/render_report_pdf.R` after step 15. It needs Chrome, Edge
+or Chromium (or `CHROME_PATH`), which the cascade itself does not.
 
 **Table and figure files.**
 
@@ -477,4 +481,5 @@ data and result tables and lists every cell a change alters:
 **Other tools.** `R/tools/download_habitat_layers.R` downloads the VMB and
 KVES layers (see *Data*); `R/tools/build_landscape_layers.R` builds the
 landscape rasters from them; `R/tools/refresh_reference_layers.R` fetches
-the reference layers.
+the reference layers; `R/tools/render_report_pdf.R` renders
+`Outputs/REPORT.md` as `Outputs/REPORT.pdf`.
