@@ -12,8 +12,8 @@
 #
 #   * the monitored sites on a shaded relief background, coloured by whether
 #     the species was found;
-#   * the mapping grid, showing which fields were surveyed and which hold each
-#     species.
+#   * the quadrants of the mapping grid, showing which were surveyed and
+#     which hold each species.
 #
 # Reads:  Data/Processed/<spec>/data_analysis.csv          (step 06)
 #         Data/Processed/common/records.csv, sites.gpkg    (step 01)
@@ -159,45 +159,57 @@ report_figure(
 ## Species distribution across the mapping grid -----
 #--------------------------------------------------#
 
-# SITMAP in the occurrence data is the four-digit basic mapping field, while
-# POLE in the grid layer identifies a quadrant of it ("5845d"). Matching the
-# two directly returns nothing, so the basic field is taken from the first
-# four characters of POLE and each surveyed field is drawn as its four
-# quadrants.
-sitmap_fields <- sitmap %>%
-  dplyr::mutate(
-    POLE_BASE = substr(as.character(POLE), 1, 4)
-  )
+# The grid layer holds the quadrants of the mapping grid (POLE, "5845d"), a
+# quarter of a basic field each, while SITMAP in the occurrence data is the
+# four-digit basic field, the grid of the models. The exports carry no
+# quadrant code, so each record is placed in the quadrant that holds its
+# coordinates. Matching POLE on its first four characters, as the map used
+# to, gave all four quadrants of a field the class of the whole field: a
+# quadrant without a record was drawn as surveyed, and a species found in
+# one quadrant was drawn in all four.
+record_xy <- sf::st_as_sf(
+  data.frame(X = data$X, Y = data$Y),
+  coords = c("X", "Y"), crs = CRS_SJTSK
+)
+# A point on the line between two quadrants takes the first of them.
+data$POLE <- vapply(
+  sf::st_intersects(record_xy, sitmap),
+  function(i) if (length(i)) as.character(sitmap$POLE[[i[[1]]]]) else NA_character_,
+  character(1)
+)
 
-field_codes <- function(x) unique(as.character(x))
-
-phenau_dist <- data %>%
-  dplyr::filter(DRUH == SPECIES_NAU & POSITIVE == 1) %>%
-  dplyr::pull(SITMAP) %>%
-  field_codes()
-
-phetel_dist <- data %>%
-  dplyr::filter(DRUH == SPECIES_TEL & POSITIVE == 1) %>%
-  dplyr::pull(SITMAP) %>%
-  field_codes()
-
-sample_dist <- data %>%
-  dplyr::pull(SITMAP) %>%
-  field_codes()
-
-# An unmatched join would produce a blank map rather than an error, so it is
-# checked explicitly.
-n_matched <- sum(sitmap_fields$POLE_BASE %in% sample_dist)
-if (n_matched == 0) {
+# A record outside every quadrant would drop out of the map unnoticed, so it
+# is checked explicitly.
+n_unplaced <- sum(is.na(data$POLE))
+if (n_unplaced > 0) {
   warning(
-    "No mapping-grid quadrant matched a surveyed SITMAP code. ",
-    "The grid map would be empty; check the POLE and SITMAP formats.",
+    n_unplaced, " records lie in no quadrant of the mapping grid and are ",
+    "left out of the grid map; check their coordinates.",
     call. = FALSE
   )
 }
+# The few records whose coordinates lie in a basic field other than their
+# SITMAP, for the report.
+n_other_field <- sum(substr(data$POLE, 1, 4) != as.character(data$SITMAP), na.rm = TRUE)
 
-# Each surveyed quadrant is filled by what was found in its field: the
-# species colour where one species was, the spot black where both were. The
+grid_codes <- function(x) unique(as.character(stats::na.omit(x)))
+
+#' The cells of one level of the grid ("SITMAP" or "POLE") that were
+#' surveyed and that hold each species.
+grid_cells <- function(level) {
+  found <- function(species) data[[level]][data$DRUH == species & data$POSITIVE == 1]
+  list(
+    surveyed = grid_codes(data[[level]]),
+    nausithous = grid_codes(found(SPECIES_NAU)),
+    teleius = grid_codes(found(SPECIES_TEL))
+  )
+}
+fields <- grid_cells("SITMAP")
+quadrants <- grid_cells("POLE")
+n_quadrants_other_field <- sum(!substr(quadrants$surveyed, 1, 4) %in% fields$surveyed)
+
+# Each surveyed quadrant is filled by what was found in it: the species
+# colour where one species was, the spot black where both were. The
 # map used to overlay two half-transparent layers, which left the fields with
 # both species in a mixed colour the caption did not name.
 distribution_classes <- c(
@@ -207,35 +219,27 @@ distribution_fills <- stats::setNames(
   c("grey85", phengaris_col(c("nausithous_brown", "teleius_blue", "spot_black"))),
   distribution_classes
 )
-surveyed_fields <- sitmap_fields %>%
-  dplyr::filter(POLE_BASE %in% sample_dist) %>%
+surveyed_quadrants <- sitmap %>%
+  dplyr::filter(POLE %in% quadrants$surveyed) %>%
   dplyr::mutate(
     found = factor(
       dplyr::case_when(
-        POLE_BASE %in% phenau_dist & POLE_BASE %in% phetel_dist ~ "both species",
-        POLE_BASE %in% phenau_dist ~ "P. nausithous",
-        POLE_BASE %in% phetel_dist ~ "P. teleius",
+        POLE %in% quadrants$nausithous & POLE %in% quadrants$teleius ~ "both species",
+        POLE %in% quadrants$nausithous ~ "P. nausithous",
+        POLE %in% quadrants$teleius ~ "P. teleius",
         TRUE ~ "surveyed only"
       ),
       levels = distribution_classes
     )
   )
 
-# A basic field on the border has quadrants that lie partly or wholly abroad,
-# where no record is. Each quadrant is clipped to the border, so the map
-# shows no field outside Czechia; a quadrant wholly abroad drops out.
-n_quadrants <- nrow(surveyed_fields)
-sf::st_agr(surveyed_fields) <- "constant"
-surveyed_fields <- sf::st_intersection(surveyed_fields, sf::st_union(czechia_border))
-# A quadrant that only touches the border leaves a line or a point.
-surveyed_fields <- surveyed_fields[as.numeric(sf::st_area(surveyed_fields)) > 0, ]
-n_quadrants_abroad <- n_quadrants - nrow(surveyed_fields)
+# A quadrant on the border lies partly abroad. Each quadrant is clipped to
+# the border, so the map shows no grid outside Czechia.
+sf::st_agr(surveyed_quadrants) <- "constant"
+surveyed_quadrants <- sf::st_intersection(surveyed_quadrants, sf::st_union(czechia_border))
 
-# The number of mapping fields in each class, for the legend.
-fields_per_class <- tapply(
-  surveyed_fields$POLE_BASE, surveyed_fields$found, function(x) length(unique(x))
-)
-fields_per_class[is.na(fields_per_class)] <- 0
+# The number of quadrants in each class, for the legend.
+quadrants_per_class <- as.integer(table(surveyed_quadrants$found))
 
 data_dist_map <- ggplot2::ggplot() +
   ggplot2::geom_sf(
@@ -245,7 +249,7 @@ data_dist_map <- ggplot2::ggplot() +
   ) +
   map_relief(hypso_df) +
   ggplot2::geom_sf(
-    data = surveyed_fields,
+    data = surveyed_quadrants,
     ggplot2::aes(fill = found),
     colour = "white",
     linewidth = 0.12
@@ -263,9 +267,9 @@ data_dist_map <- ggplot2::ggplot() +
         "'surveyed only (%s)'", "italic('P. nausithous')~'only (%s)'", "italic('P. teleius')~'only (%s)'",
         "'both species (%s)'"
       ),
-      fields_per_class
+      quadrants_per_class
     )),
-    name = "Mapping fields",
+    name = "Mapping-grid quadrants",
     drop = FALSE
   ) +
   map_frame() +
@@ -274,8 +278,8 @@ data_dist_map <- ggplot2::ggplot() +
 report_figure(
   data_dist_map,
   paste(
-    "Mapping fields surveyed (grey), with P. nausithous only (brown), P. teleius",
-    "only (blue) and both species (black)"
+    "Quadrants of the mapping grid surveyed (grey), with P. nausithous only (brown),",
+    "P. teleius only (blue) and both species (black)"
   ),
   "14_species_distribution",
   height = 11.2
@@ -283,29 +287,24 @@ report_figure(
 
 report_table(
   data.frame(
-    subset = c(
-      "mapping fields surveyed",
-      "mapping fields with P. nausithous",
-      "mapping fields with P. teleius"
-    ),
-    fields = c(
-      length(sample_dist),
-      length(phenau_dist),
-      length(phetel_dist)
-    ),
+    subset = c("surveyed", "with P. nausithous", "with P. teleius"),
+    basic_fields = unname(lengths(fields)),
+    quadrants = unname(lengths(quadrants)),
     stringsAsFactors = FALSE
   ),
-  "Mapping grid coverage",
+  "Mapping grid coverage: basic fields (SITMAP, the grid of the models) and their quadrants (the map)",
   "14_grid_coverage"
 )
 
 report_warning(
-  "The grid map matches the four-digit SITMAP code in the occurrence data",
-  "against the first four characters of POLE in the grid layer, which",
-  "identifies a quadrant of a basic field. This resolves all",
-  length(sample_dist), "surveyed fields to", n_matched, "quadrants. The",
-  "quadrants are clipped to the border of Czechia, which drops",
-  n_quadrants_abroad, "quadrants that lie wholly abroad and hold no record."
+  "The grid map is drawn at the quadrants of the mapping grid (POLE in the",
+  "grid layer). The occurrence exports carry only the four-digit basic field",
+  "(SITMAP), the grid of the models, so each record is placed in the quadrant",
+  "that holds its coordinates and each quadrant is coloured by its own",
+  "records. Records in no quadrant:", paste0(n_unplaced, "."),
+  "Records whose coordinates lie in a basic field other than their SITMAP:",
+  paste0(n_other_field, ","), "which leaves", n_quadrants_other_field,
+  "surveyed quadrants in a field that no SITMAP code names."
 )
 
 report_finish()
