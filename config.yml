@@ -110,7 +110,8 @@ specifications:
         The revised analysis approved in the Phase 3 review (REVIEW.md,
         P3.1-P3.9): one record per species x site x visit; absences imputed
         visit by visit and only inside the imputed species' reporting range;
-        explicit negatives outside the range kept; observer, day of year and
+        explicit negatives outside the range kept; only records with a
+        host-plant entry in their structured notes; observer, day of year and
         protocol era as detection covariates; multivariable glmmTMB models
         with diagnostics, fitted with and without the imputed absences;
         connectivity, spatial autocorrelation, per-threat models and an
@@ -120,9 +121,14 @@ specifications:
       # A site without Sanguisorba cannot hold the species (276 P. nausithous
       # records with the host plant recorded absent hold 4 positives, 66
       # P. teleius records none), so these structural zeros are dropped.
-      # Records without host-plant information are true records and are kept;
-      # only the models using the host plant leave them out.
-      host_plant_filter: absent
+      # Records without a host-plant entry are dropped too: the analysis uses
+      # only the records whose structured notes (STRUKT_POZN) were filled in,
+      # and the host plant is the entry a filled-in form has. Of the 649 such
+      # records, 511 have no structured notes at all, 397 of them the whole
+      # source "Kolektiv autorů (2021) Monitoring totenových modrásků".
+      # Decided 2026-11-12; until then only the records with the host plant
+      # recorded absent were dropped ("absent").
+      host_plant_filter: absent_or_unknown
       threat_vocabulary: harmonised
       design_variables: true
       habitat_segment_rule: area_weighted
