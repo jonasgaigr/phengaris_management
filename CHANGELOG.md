@@ -1716,3 +1716,41 @@ added (`26_<species>_significant_variables`, `26_<species>_variables`,
 `26_<species>_landscape`, `26_variables_by_sample`). Apart from the new
 section, `REPORT.md` differs only in the map captions of step 14, which
 were redrawn after the report was last compiled.
+
+---
+
+## (b) Draw the grid map at the quadrants each record lies in
+
+- **Commit:** `693b185` ("fix grid scale in maps"; it carries no label, and
+  is documented here)
+- **Specification:** both.
+- **Full diff:** [`changes/b11_grid_quadrants.md`](changes/b11_grid_quadrants.md)
+
+**Why.** The grid layer holds the quadrants of the mapping grid (`POLE`,
+"5845d"), a quarter of a basic field each, while `SITMAP` in the exports is
+the four-digit basic field. Step 14 matched the two on the first four
+characters of `POLE`, so all four quadrants of a field took the class of the
+whole field: a quadrant without a record was drawn as surveyed, and a species
+found in one quadrant was drawn in all four.
+
+**What changed.** Each record is placed in the quadrant that holds its
+coordinates, and each quadrant is coloured by its own records. The models are
+not touched: they use `SITMAP`, the basic field, as before.
+
+**What changed in the numbers.** Only `14_grid_coverage`, which gains the
+count of quadrants beside the count of basic fields (the column `fields` is
+now `basic_fields`, and the row labels are shorter). The counts of basic
+fields are the same.
+
+| | basic fields, before and after | quadrants (new) |
+|---|---|---|
+| legacy: surveyed | 364 | 902 |
+| legacy: with *P. nausithous* | 283 | 615 |
+| legacy: with *P. teleius* | 71 | 106 |
+| revised: surveyed | 380 | 951 |
+| revised: with *P. nausithous* | 293 | 644 |
+| revised: with *P. teleius* | 74 | 111 |
+
+Every record lies in a quadrant. One record has its coordinates in a basic
+field other than its `SITMAP`; no surveyed quadrant lies in a field that no
+`SITMAP` code names. The other 362 processed files and tables are identical.
