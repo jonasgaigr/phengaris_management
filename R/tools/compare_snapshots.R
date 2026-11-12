@@ -94,7 +94,17 @@ snapshot_outputs <- function(label,
     "data_with_imputed.csv" = c("ID_NALEZ", "DRUH", "IMPUTED"),
     "data_clean.csv"        = c("ID_NALEZ", "DRUH", "IMPUTED"),
     "data_analysis.csv"     = c("ID_NALEZ", "DRUH", "IMPUTED"),
-    "records.csv"           = c("ID_NALEZ")
+    "records.csv"           = c("ID_NALEZ"),
+    "records_2012_2018.csv" = c("ID_NALEZ"),
+    # The tables of the sites have numeric columns only, or a species beside
+    # them: without a key their rows would be matched by position, and one
+    # site less would show as a change in every row after it.
+    "site_design.csv"       = c("ID_LOKAL"),
+    "site_history.csv"      = c("ID_LOKAL", "DRUH"),
+    "connectivity.csv"      = c("ID_LOKAL", "YEAR", "DRUH"),
+    "landscape.csv"         = c("ID_LOKAL"),
+    "flight_window.csv"     = c("DRUH", "YEAR"),
+    "flight_curve.csv"      = c("DRUH", "ELEVATION", "DOY_DEV")
   )
   file <- sub("^.*__", "", file)
   if (!is.null(known[[file]])) {
