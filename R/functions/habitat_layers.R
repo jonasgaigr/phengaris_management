@@ -385,7 +385,30 @@ read_kves_layer <- function(path) {
   if (is.na(sf::st_crs(x)) || sf::st_crs(x) != sf::st_crs(CONFIG$habitat$crs_epsg)) {
     stop("The KVES layer ", path, " is not in EPSG:", CONFIG$habitat$crs_epsg, call. = FALSE)
   }
+  x$KOD <- kves_code_of(x$KATEGORIE, x$KOD)
   x
+}
+
+#' The KVES code of a category of an earlier KVES version.
+#'
+#' The versions before 2025 publish only the category name; the local copies
+#' give each the 2025 code of the category of the same name. The categories
+#' 2025 renamed or split have none, and take it from the crosswalk of
+#' config.yml (`habitat: kves_category_codes`). A category 2025 splits takes
+#' the code its parts share ("D11", the non-natural forests): the codes are
+#' hierarchical and are read by their prefixes (`landscape: groups`).
+#'
+#' @param kategorie  the category names (KATEGORIE)
+#' @param kod        the codes the layer has; only NA are filled
+#' @param crosswalk  config.yml `habitat: kves_category_codes`
+#' @return the codes, as character
+kves_code_of <- function(kategorie, kod = NA_character_, crosswalk = CONFIG$habitat$kves_category_codes) {
+  kod <- rep_len(as.character(kod), length(kategorie))
+  if (!length(crosswalk)) {
+    return(kod)
+  }
+  derived <- unname(unlist(crosswalk)[trimws(as.character(kategorie))])
+  dplyr::coalesce(kod, derived)
 }
 
 #' Read the site x KVES overlaps written by step 05.

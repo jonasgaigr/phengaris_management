@@ -206,6 +206,27 @@ test_that("the KVES layer is checked for its columns and CRS", {
   expect_error(read_kves_layer(wrong_crs), "EPSG")
 })
 
+test_that("a category of an earlier KVES version takes its 2025 code from the crosswalk", {
+  crosswalk <- list("Hospodářské louky" = "B311", "Bučiny" = "D124", "Hospodářské lesy smíšené" = "D11")
+  # Only a missing code is filled; a category without an entry stays NA.
+  expect_equal(
+    kves_code_of(c("Hospodářské louky", "Bučiny ", "Orná půda", "Neznámá"), c(NA, NA, "B111", NA), crosswalk),
+    c("B311", "D124", "B111", NA)
+  )
+  # A category 2025 splits takes the code its parts share, which the
+  # land-cover groups read by prefix.
+  split_code <- kves_code_of("Hospodářské lesy smíšené", crosswalk = crosswalk)
+  expect_equal(split_code, "D11")
+  expect_true(startsWith(split_code, CONFIG$landscape$groups$FOREST))
+  expect_equal(kves_code_of(c("Bučiny", "Orná půda"), c(NA, "B111"), crosswalk = NULL), c(NA, "B111"))
+})
+
+test_that("the crosswalk of config.yml gives every renamed or split category a code", {
+  crosswalk <- CONFIG$habitat$kves_category_codes
+  expect_length(crosswalk, 16)
+  expect_true(all(grepl("^[A-G][0-9]{2,3}$", unlist(crosswalk))))
+})
+
 #----------------------------------------------------------#
 # Shares of natural, X and Sanguisorba habitats -----
 #----------------------------------------------------------#

@@ -780,12 +780,38 @@ habitat:
   # KVES, one local copy per version: one feature per ecosystem polygon
   # (KVES_ID, KATEGORIE, KOD), as a GeoPackage in S-JTSK. The versions before
   # 2025 publish only the category name; their KOD is the 2025 code of the
-  # category of the same name, NA where 2025 has no such category.
+  # category of the same name, and where 2025 has no such category, the code
+  # of `kves_category_codes` below, filled in when the layer is read.
   kves_layers:
     "2021": Data/Input/habitats/kves_2021.gpkg
     "2022": Data/Input/habitats/kves_2022.gpkg
     "2023": Data/Input/habitats/kves_2023.gpkg
     "2025": Data/Input/habitats/kves_2025.gpkg
+  # The 2025 code of the 16 categories of the earlier versions that 2025
+  # renamed or split (R/functions/habitat_layers.R, kves_code_of()). Thirteen
+  # have one 2025 category: the urban classes, the managed meadows of 2021
+  # (2025: "Degradovaný travní porost"), the shrubs, and the natural forest
+  # types, which 2025 calls "... přírodní". The three managed-forest classes
+  # were split by tree species in 2025 (D111-D117) and take the code those
+  # share, D11: the codes are hierarchical and are read by their prefixes.
+  # Decided 2026-11-12.
+  kves_category_codes:
+    "Souvislá městská zástavba": A111                              # Souvislá zástavba
+    "Nesouvislá městská zástavba": A211                            # Nesouvislá zástavba
+    "Městské zelené plochy, okrasná zahrada, park, hřbitov": A611  # Městská zeleň
+    "Hospodářské louky": B311                                      # Degradovaný travní porost; KVES 2021 only
+    "Přírodní křoviny": D212                                       # Křoviny přírodní
+    "Nepůvodní křoviny": D222                                      # Křoviny nepůvodní
+    "Lužní a mokřadní lesy": D121                                  # Lužní a mokřadní lesy přírodní
+    "Doubravy a dubohabřiny": D122                                 # Doubravy a dubohabřiny přírodní
+    "Suťové lesy": D123                                            # Suťové lesy přírodní
+    "Bučiny": D124                                                 # Bučiny přírodní
+    "Suché bory": D125                                             # Suché bory přírodní
+    "Smrčiny": D126                                                # Smrčiny přírodní
+    "Rašelinné lesy": D127                                         # Rašelinné lesy přírodní
+    "Hospodářské lesy jehličnaté": D11                             # non-natural forest, split in 2025
+    "Hospodářské lesy listnaté": D11
+    "Hospodářské lesy smíšené": D11
   # The KVES version each record takes its KVES information from, by the
   # record's year: the closest version; on a tie (2024) the later one, which
   # includes the habitat mapping of that year. PROPOSED.
