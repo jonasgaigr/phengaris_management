@@ -1,8 +1,8 @@
-built: '2026-10-17'
+built: '2026-11-12'
 licence: CC BY 4.0, (c) AOPK ČR
 crs: EPSG:5514
-resolution_m: 25.0
-coarse_resolution_m: 100.0
+resolution_m: 25
+coarse_resolution_m: 100
 kves_version: '2025'
 groups:
   GRASSLAND:
@@ -69,6 +69,7 @@ sanguisorba_meadow_codes:
 - T1.4
 - T1.5
 - T1.7
+- T1.9
 - T1.10
 files:
   landcover:
@@ -76,10 +77,10 @@ files:
     size_mb: 18.31
   vmb:
     file: vmb_25m.tif
-    size_mb: 13.4
+    size_mb: 13.44
   coarse:
     file: landscape_100m.tif
-    size_mb: 16.73
+    size_mb: 16.74
 archives:
   kves:
     CZ010:

@@ -896,9 +896,12 @@ habitat:
   # site_areas()). A site outside KVES, and every site of the frozen
   # intersection, keeps its own geometry. Decided 2026-10-15.
   # Habitat codes of the meadows with Sanguisorba officinalis, summarised by
-  # the area-weighted rule (SANGUISORBA_AREA, SANGUISORBA_SHARE). Decided
-  # 2026-10-15.
-  sanguisorba_meadow_codes: [T1.1, T1.4, T1.5, T1.7, T1.10]
+  # the area-weighted rule (SANGUISORBA_AREA, SANGUISORBA_SHARE) and by the
+  # landscape rasters (SANGUISORBA_<radius>). Decided 2026-10-15; T1.9, the
+  # intermittently wet Molinia meadows (střídavě vlhké bezkolencové louky),
+  # added 2026-11-12. The landscape rasters hold these codes, so
+  # build_landscape_layers() has to be run again after a change here.
+  sanguisorba_meadow_codes: [T1.1, T1.4, T1.5, T1.7, T1.9, T1.10]
   # Habitat codes of the wet meadows, summarised by the area-weighted rule
   # (WET_SHARE): a proxy for the habitat of the Myrmica host ants, which
   # limit both species (Anton et al. 2008) and prefer moist meadows (P4.6).
