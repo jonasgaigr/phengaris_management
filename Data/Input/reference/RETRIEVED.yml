@@ -28,6 +28,13 @@ n2k_site_subjects:
   retrieved: '2026-10-08'
   file: n2k_site_subjects.csv
   size_mb: 0.37
+habitat_catalogue:
+  source: rnaturecz::list_habitats(), rnaturecz 0.0.0.9000, https://portal.nature.cz/seznam-biotopu
+  rows: 206
+  with_natura_code: 119
+  retrieved: '2026-11-12'
+  file: habitat_catalogue.csv
+  size_mb: 0.03
 relief_shaded:
   source: RCzechia::vyskopis(format = 'rayshaded', cropped = FALSE), RCzechia 1.12.10;
     projected to EPSG:5514, aggregated by 3, clipped to the border

@@ -29,8 +29,8 @@
 #
 # The analysis calls everything namespace-qualified (`dplyr::filter()`), so
 # this list is what the cascade needs *installed*. The packages that only the
-# opt-in tools in R/tools use (RCzechia, rn2kcz, httr, zip) are not checked
-# here. Keep the list in step with the code.
+# opt-in tools in R/tools use (RCzechia, rn2kcz, rnaturecz, httr, zip) are
+# not checked here. Keep the list in step with the code.
 pkgs <- c(
   "magrittr", "dplyr", "tidyr", "readr", "tibble", "stringr", "stringi",
   "forcats", "ggplot2", "ggrepel", "ggpubr", "sf", "terra", "units", "vegan",

@@ -771,8 +771,11 @@ habitat:
   # segment, in per cent; BIOTOP_SEZ the mosaic composition; FSB the habitat
   # quality evaluation; HABITAT the Natura 2000 habitat code; REPRE and ZACH
   # the habitat's representativeness and conservation. HABITAT is not
-  # published on data.nature.cz and is empty in the downloaded layer; a
-  # crosswalk from BIOTOP will fill it. TODO(Jonáš): the crosswalk.
+  # published on data.nature.cz and is empty in the downloaded layer. It is
+  # derived from BIOTOP when the layer is read, by the habitat catalogue of
+  # portal.nature.cz (Data/Input/reference/habitat_catalogue.csv, fetched
+  # with rnaturecz::list_habitats() by R/tools/refresh_reference_layers.R;
+  # natura_habitat_of()). Decided 2026-11-12.
   required_columns: [SEGMENT_ID, BIOTOP, BIOTOP_SEZ, FSB, FSB_EVAL, HABITAT, STEJ_PR, REPRE, ZACH]
   # KVES, one local copy per version: one feature per ecosystem polygon
   # (KVES_ID, KATEGORIE, KOD), as a GeoPackage in S-JTSK. The versions before

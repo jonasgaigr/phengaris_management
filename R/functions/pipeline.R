@@ -156,7 +156,9 @@ PIPELINE <- list(
     inputs = c(
       .records, .sites,
       paste0("?", c(
-        CONFIG$paths$habitat_legacy_intersection, CONFIG$habitat$layer, unlist(CONFIG$habitat$kves_layers)
+        CONFIG$paths$habitat_legacy_intersection, CONFIG$habitat$layer, unlist(CONFIG$habitat$kves_layers),
+        # The Natura 2000 habitat type of each habitat code.
+        file.path(CONFIG$paths$reference, "habitat_catalogue.csv")
       ))
     ),
     outputs = c(.habitat_overlaps, "?{processed}/common/site_areas.gpkg")

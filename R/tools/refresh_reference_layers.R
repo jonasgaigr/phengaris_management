@@ -46,7 +46,27 @@ write_zipped_gpkg <- function(x, dest, name) {
 }
 
 #' The reference layers this tool can fetch.
-REFERENCE_LAYERS <- c("evl", "mzchu", "sitmap", "czechia_border", "n2k_site_subjects", "relief_shaded", "elevation")
+REFERENCE_LAYERS <- c(
+  "evl", "mzchu", "sitmap", "czechia_border", "n2k_site_subjects", "habitat_catalogue", "relief_shaded",
+  "elevation"
+)
+
+#' The libraries rnaturecz is looked for in.
+#'
+#' rnaturecz is not in renv.lock while its repository is private (a lockfile
+#' naming it could not be restored without access to it). Installed in the
+#' user library, where `remotes::install_github("BiodivMonCZ/rnaturecz")`
+#' puts it, it is found there; RNATURECZ_LIB names another library.
+rnaturecz_libraries <- function() {
+  version <- paste(R.version$major, sub("\\..*", "", R.version$minor), sep = ".")
+  user <- if (.Platform$OS.type == "windows") {
+    file.path(Sys.getenv("LOCALAPPDATA"), "R", "win-library", version)
+  } else {
+    file.path("~", "R", paste0(R.version$platform, "-library"), version)
+  }
+  libs <- c(.libPaths(), Sys.getenv("RNATURECZ_LIB"), path.expand(user))
+  unique(libs[nzchar(libs) & dir.exists(libs)])
+}
 
 #' Fetch the remote reference layers and store them in Data/Input/reference.
 #'
@@ -109,6 +129,43 @@ refresh_reference_layers <- function(dest = CONFIG$paths$reference, layers = REF
     log$n2k_site_subjects <- list(
       source = paste0("rn2kcz::load_n2k_sites(), rn2kcz ", utils::packageVersion("rn2kcz"), ", ", n2k_url),
       rows = nrow(subjects)
+    )
+  }
+
+  #--------------------------------------------------#
+  ## Habitat catalogue with the Natura 2000 habitat types (rnaturecz) -----
+  #--------------------------------------------------#
+
+  # The habitats of the habitat mapping (Katalog biotopů ČR) with the Natura
+  # 2000 habitat type of each (TPS), from portal.nature.cz. The published VMB
+  # has no Natura 2000 code; the cascade derives it from this table
+  # (natura_habitat_of()).
+  if ("habitat_catalogue" %in% layers) {
+    message("Fetching the habitat catalogue ...")
+    libs <- rnaturecz_libraries()
+    if (!requireNamespace("rnaturecz", lib.loc = libs, quietly = TRUE)) {
+      stop(
+        "Package rnaturecz is missing. Install it with ",
+        "remotes::install_github(\"BiodivMonCZ/rnaturecz\") in the user library.",
+        call. = FALSE
+      )
+    }
+    habitats <- rnaturecz::list_habitats(quiet = TRUE)
+    catalogue <- habitats %>%
+      dplyr::transmute(
+        BIOTOP = kod, BIOTOP_NAZEV = nazev, FORMACNI_SKUPINA = formacni_skupina, PRIORITA = priorita,
+        HABITAT = tps_kod, HABITAT_NAZEV = tps_nazev, HABITAT_PRIORITA = tps_priorita
+      ) %>%
+      dplyr::arrange(BIOTOP)
+    checkmate::assert_character(catalogue$BIOTOP, any.missing = FALSE, unique = TRUE)
+    readr::write_csv(catalogue, file.path(dest, "habitat_catalogue.csv"), na = "")
+    log$habitat_catalogue <- list(
+      source = paste0(
+        "rnaturecz::list_habitats(), rnaturecz ", utils::packageVersion("rnaturecz", lib.loc = libs), ", ",
+        attr(habitats, "rnaturecz_source")$page
+      ),
+      rows = nrow(catalogue),
+      with_natura_code = sum(!is.na(catalogue$HABITAT))
     )
   }
 

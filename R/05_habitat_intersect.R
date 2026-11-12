@@ -404,6 +404,61 @@ if (file.exists(path_current) && file.exists(path_frozen)) {
 }
 
 #--------------------------------------------------#
+## The Natura 2000 habitat types from the habitat catalogue -----
+#--------------------------------------------------#
+
+# The published habitat mapping has no Natura 2000 code, so the current
+# layer takes it from the habitat code by the habitat catalogue
+# (natura_habitat_of()). The frozen intersection has the codes of the
+# mapping itself, which is what the catalogue is checked against.
+catalogue <- read_habitat_catalogue()
+if (is.null(catalogue)) {
+  report_warning(
+    "No habitat catalogue (Data/Input/reference/habitat_catalogue.csv): the",
+    "current habitat mapping has no Natura 2000 habitat code (HABITAT). Run",
+    "refresh_reference_layers(layers = \"habitat_catalogue\")",
+    "(R/tools/refresh_reference_layers.R)."
+  )
+} else if (file.exists(path_frozen)) {
+  report_section("The Natura 2000 habitat types from the habitat catalogue")
+  frozen_codes <- readr::read_csv2(path_frozen, show_col_types = FALSE, progress = FALSE) %>%
+    dplyr::transmute(
+      BIOTOP = as.character(BIOTOP),
+      HABITAT = as.character(HABITAT),
+      # The priority form of 6210 is a property of the stand, not of the code.
+      mapped = sub("p$", "", HABITAT),
+      derived = natura_habitat_of(BIOTOP, catalogue = catalogue)
+    )
+  with_code <- frozen_codes[!is.na(frozen_codes$HABITAT), ]
+  report_table(
+    data.frame(
+      overlaps = c(
+        "frozen overlaps with a Natura 2000 code of the mapping",
+        "the catalogue gives the same code from the habitat code",
+        "the catalogue gives another code",
+        "the catalogue gives none",
+        "of the mapped codes, the priority form of 6210 (the catalogue gives 6210)",
+        "frozen overlaps without a Natura 2000 code for which the catalogue gives one"
+      ),
+      n = c(
+        nrow(with_code),
+        sum(with_code$derived == with_code$mapped, na.rm = TRUE),
+        sum(with_code$derived != with_code$mapped, na.rm = TRUE),
+        sum(is.na(with_code$derived)),
+        sum(grepl("p$", with_code$HABITAT)),
+        sum(is.na(frozen_codes$HABITAT) & !is.na(frozen_codes$derived))
+      ),
+      stringsAsFactors = FALSE
+    ),
+    paste(
+      "The Natura 2000 habitat type derived from the habitat code by the",
+      "habitat catalogue, against the codes of the frozen intersection"
+    ),
+    "05_natura_codes_from_catalogue"
+  )
+}
+
+#--------------------------------------------------#
 ## KVES classes at the sites -----
 #--------------------------------------------------#
 

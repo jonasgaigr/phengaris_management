@@ -70,7 +70,47 @@ read_habitat_layer <- function(path = CONFIG$habitat$layer) {
       call. = FALSE
     )
   }
+  x$HABITAT <- natura_habitat_of(x$BIOTOP, x$HABITAT)
   x
+}
+
+#' The habitat catalogue: every habitat code with its Natura 2000 type.
+#'
+#' The local copy of the list of habitats of portal.nature.cz (Katalog
+#' biotopů ČR), written by R/tools/refresh_reference_layers.R with
+#' rnaturecz::list_habitats().
+#'
+#' @param path  Data/Input/reference/habitat_catalogue.csv
+#' @return a table with BIOTOP and HABITAT (the Natura 2000 habitat type, NA
+#'         for a habitat that is none), or NULL without the copy
+read_habitat_catalogue <- function(path = file.path(CONFIG$paths$reference, "habitat_catalogue.csv")) {
+  if (!file.exists(path)) {
+    return(NULL)
+  }
+  readr::read_csv(path, col_types = readr::cols(.default = readr::col_character()), progress = FALSE)
+}
+
+#' The Natura 2000 habitat type of a habitat code.
+#'
+#' The published habitat mapping has no Natura 2000 code (HABITAT), so it is
+#' derived from the habitat code by the habitat catalogue. On the frozen
+#' intersection of the original analysis, whose codes come from the mapping
+#' itself, the catalogue gives the same code for 7244 of the 7245 overlaps
+#' with one (the exception is L4A, a ravine forest mapped as 9180). It cannot
+#' tell the priority form of 6210 (orchid sites, "6210p" in the frozen
+#' intersection, 28 overlaps): that is a property of the stand.
+#'
+#' @param biotop     habitat codes (BIOTOP)
+#' @param habitat    the codes the layer already has; only NA are filled
+#' @param catalogue  read_habitat_catalogue(); NULL leaves `habitat` as it is
+#' @return the Natura 2000 codes, as character
+natura_habitat_of <- function(biotop, habitat = NA_character_, catalogue = read_habitat_catalogue()) {
+  habitat <- rep_len(as.character(habitat), length(biotop))
+  if (is.null(catalogue)) {
+    return(habitat)
+  }
+  derived <- catalogue$HABITAT[match(as.character(biotop), catalogue$BIOTOP)]
+  dplyr::coalesce(habitat, derived)
 }
 
 #' Is the habitat mapping network share reachable?

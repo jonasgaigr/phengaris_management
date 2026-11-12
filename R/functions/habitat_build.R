@@ -152,7 +152,8 @@ clip_to_area <- function(x, area) {
 #'                (05_current_vs_frozen).
 #'   B_ID, BIOTOP, STEJ_PR, REPRE, ZACH, KVALITA, DG, RB   of the habitat
 #'   HABITAT      the Natura 2000 habitat code. Not in the published data,
-#'                so always NA here.
+#'                so always NA here; read_habitat_layer() derives it from
+#'                BIOTOP by the habitat catalogue when the layer is read.
 #'
 #' The habitat rows repeated across a kraj line are kept once. A segment
 #' whose STEJ_PR do not add up to 100 is counted in `share_mismatch`.

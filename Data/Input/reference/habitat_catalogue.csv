@@ -1,0 +1,207 @@
+BIOTOP,BIOTOP_NAZEV,FORMACNI_SKUPINA,PRIORITA,HABITAT,HABITAT_NAZEV,HABITAT_PRIORITA
+-1,Nemapovaný segment,,,,,
+A1.1,Vyfoukávané alpínské trávníky,Alpínské bezlesí,Neprioritní,6150,Silikátové alpínské a boreální trávníky,Neprioritní
+A1.2,Zapojené alpínské trávníky,Alpínské bezlesí,Neprioritní,6150,Silikátové alpínské a boreální trávníky,Neprioritní
+A2.1,Alpínská vřesoviště,Alpínské bezlesí,Neprioritní,4060,Alpínská a boreální vřesoviště,Neprioritní
+A2.2,Subalpínská brusnicová vegetace,Alpínské bezlesí,Neprioritní,4060,Alpínská a boreální vřesoviště,Neprioritní
+A3,Sněhová vyležiska,Alpínské bezlesí,Neprioritní,6150,Silikátové alpínské a boreální trávníky,Neprioritní
+A4.1,Subalpínské vysokostébelné trávníky,Alpínské bezlesí,Neprioritní,6430,Vlhkomilná vysokobylinná lemová společenstva nížin a horského až alpínského stupně,Neprioritní
+A4.2,Subalpínské vysokobylinné nivy,Alpínské bezlesí,Neprioritní,6430,Vlhkomilná vysokobylinná lemová společenstva nížin a horského až alpínského stupně,Neprioritní
+A4.3,Subalpínské kapradinové nivy,Alpínské bezlesí,Neprioritní,6430,Vlhkomilná vysokobylinná lemová společenstva nížin a horského až alpínského stupně,Neprioritní
+A5,Skalní vegetace sudetských karů,Alpínské bezlesí,Neprioritní,8220,Chasmofytická vegetace silikátových skalnatých svahů,Neprioritní
+A6A,Acidofilní vegetace alpínských drolin,Alpínské bezlesí,Neprioritní,8110,Silikátové sutě horského až niválního stupně (Androsacetalia alpinae a Galeopsietalia ladani),Neprioritní
+A6B,Acidofilní vegetace alpínských skal,Alpínské bezlesí,Neprioritní,8220,Chasmofytická vegetace silikátových skalnatých svahů,Neprioritní
+A7,Kosodřevina,Alpínské bezlesí,Prioritní,4070,Křoviny s borovicí klečí (Pinus mugo) a pěnišníkem Rhododendron hirsutum (Mugo-Rhododendretum hirsuti),Prioritní
+A8.1,Subalpínské křoviny s vrbou laponskou (Salix lapponum),Alpínské bezlesí,Neprioritní,4080,Subarktické vrbové křoviny,Neprioritní
+A8.2,Vysoké subalpínské listnaté křoviny,Alpínské bezlesí,Neprioritní,4080,Subarktické vrbové křoviny,Neprioritní
+K1,Mokřadní vrbiny,Křoviny,Ostatní,,,
+K2.1,Vrbové křoviny hlinitých a písčitých náplavů,Křoviny,Ostatní,,,
+K2.2,Vrbové křoviny štěrkových náplavů,Křoviny,Neprioritní,3240,Alpínské řeky a jejich dřevinná vegetace s vrbou šedou (Salix elaeagnos),Neprioritní
+K3,Vysoké mezofilní a xerofilní křoviny,Křoviny,Ostatní,,,
+K4A,"Nízké xerofilní křoviny, primární porosty na skalách s druhy rodu Cotoneaster",Křoviny,Prioritní,40A0,Kontinentální opadavé křoviny,Prioritní
+K4B,"Nízké xerofilní křoviny, sekundární porosty s mandloní nízkou (Prunus tenella)",Křoviny,Prioritní,40A0,Kontinentální opadavé křoviny,Prioritní
+K4C,"Nízké xerofilní křoviny, ostatní sekundární porosty",Křoviny,Ostatní,,,
+L1,Mokřadní olšiny,Lesy,Ostatní,,,
+L10.1,Rašelinné březiny,Lesy,Prioritní,91D0,Rašelinný les,Prioritní
+L10.2,Rašelinné brusnicové bory,Lesy,Prioritní,91D0,Rašelinný les,Prioritní
+L10.3,Suchopýrové bory kontinentálních rašelinišť,Lesy,Prioritní,91D0,Rašelinný les,Prioritní
+L10.4,Blatkové bory,Lesy,Prioritní,91D0,Rašelinný les,Prioritní
+L2.1,Horské olšiny s olší šedou (Alnus incana),Lesy,Prioritní,91E0,"Smíšené jasanovo-olšové lužní lesy temperátní a boreální Evropy (Alno-Padion, Alnion incanae, Salicion albae)",Prioritní
+L2.2,Údolní jasanovo-olšové luhy,Lesy,Prioritní,91E0,"Smíšené jasanovo-olšové lužní lesy temperátní a boreální Evropy (Alno-Padion, Alnion incanae, Salicion albae)",Prioritní
+L2.3,Tvrdé luhy nížinných řek,Lesy,Neprioritní,91F0,"Smíšené lužní lesy s dubem letním (Quercus robur), jilmem vazem (Ulmus laevis) a jilmem habrolistým (Ulmus minor), jasanem ztepilým (Fraxinus excelsior) nebo jasanem úzkolistým (Fraxinus angustifolia) podél velkých řek (Ulmenion minoris)",Neprioritní
+L2.4,Měkké luhy nížinných řek,Lesy,Prioritní,91E0,"Smíšené jasanovo-olšové lužní lesy temperátní a boreální Evropy (Alno-Padion, Alnion incanae, Salicion albae)",Prioritní
+L3.1,Hercynské dubohabřiny,Lesy,Neprioritní,9170,Dubohabřiny asociace Galio-Carpinetum,Neprioritní
+L3.2,Polonské dubohabřiny,Lesy,Neprioritní,9170,Dubohabřiny asociace Galio-Carpinetum,Neprioritní
+L3.3A,Panonsko-karpatské dubohabřiny,Lesy,Prioritní,91G0,Panonské dubohabřiny,Prioritní
+L3.3B,Typické karpatské dubohabřiny,Lesy,Neprioritní,9170,Dubohabřiny asociace Galio-Carpinetum,Neprioritní
+L3.4,Panonské dubohabřiny,Lesy,Prioritní,91G0,Panonské dubohabřiny,Prioritní
+L4,Suťové lesy,Lesy,Prioritní,9180,"Lesy svazu Tilio-Acerion na svazích, sutích a v roklích",Prioritní
+L5.1,Květnaté bučiny,Lesy,Neprioritní,9130,Bučiny asociace Asperulo-Fagetum,Neprioritní
+L5.2,Horské klenové bučiny,Lesy,Neprioritní,9140,Středoevropské subalpínské bučiny (s javorem – Acer a šťovíkem horským – Rumex arifolius),Neprioritní
+L5.3,Vápnomilné bučiny,Lesy,Neprioritní,9150,Středoevropské vápencové bučiny (Cephalanthero-Fagion),Neprioritní
+L5.4,Acidofilní bučiny,Lesy,Neprioritní,9110,Bučiny asociace Luzulo-Fagetum,Neprioritní
+L6.1,Perialpidské bazifilní teplomilné doubravy,Lesy,Prioritní,91H0,Panonské šipákové doubravy,Prioritní
+L6.2,Panonské teplomilné doubravy na spraši,Lesy,Prioritní,91I0,Eurosibiřské stepní doubravy,Prioritní
+L6.3,Panonské teplomilné doubravy na písku,Lesy,Prioritní,91I0,Eurosibiřské stepní doubravy,Prioritní
+L6.4,Středoevropské bazifilní teplomilné doubravy,Lesy,Prioritní,91I0,Eurosibiřské stepní doubravy,Prioritní
+L6.5A,Acidofilní teplomilné doubravy s kručinkou chlupatou (Genista pilosa),Lesy,Prioritní,91I0,Eurosibiřské stepní doubravy,Prioritní
+L6.5B,Acidofilní teplomilné doubravy bez kručinky chlupaté (Genista pilosa),Lesy,Ostatní,,,
+L7.1,Suché acidofilní doubravy,Lesy,Ostatní,,,
+L7.2,Vlhké acidofilní doubravy,Lesy,Neprioritní,9190,Staré acidofilní doubravy s dubem letním (Quercus robur) na písčitých pláních,Neprioritní
+L7.3,Subkontinentální borové doubravy,Lesy,Ostatní,,,
+L7.4,Acidofilní doubravy na písku,Lesy,Ostatní,,,
+L8.1A,"Boreokontinentální bory, lišejníkové porosty na píscích",Lesy,Neprioritní,91T0,Středoevropské lišejníkové bory,Neprioritní
+L8.1B,"Boreokontinentální bory, ostatní porosty",Lesy,Ostatní,,,
+L8.2,Lesostepní bory,Lesy,Neprioritní,91U0,Lesostepní bory (Cytiso-Pinetalia),Neprioritní
+L8.3,Perialpidské hadcové bory,Lesy,Ostatní,,,
+L9.1,Horské třtinové smrčiny,Lesy,Neprioritní,9410,Acidofilní smrčiny (Vaccinio-Piceetea),Neprioritní
+L9.2A,Rašelinné smrčiny,Lesy,Prioritní,91D0,Rašelinný les,Prioritní
+L9.2B,Podmáčené smrčiny,Lesy,Neprioritní,9410,Acidofilní smrčiny (Vaccinio-Piceetea),Neprioritní
+L9.3,Horské papratkové smrčiny,Lesy,Neprioritní,9410,Acidofilní smrčiny (Vaccinio-Piceetea),Neprioritní
+LP,Lesní paseky a holiny,Lesy,Neprioritní,,,
+M1.1,Rákosiny eutrofních stojatých vod,Mokřady a pobřežní vegetace,Ostatní,,,
+M1.2,Slanomilné rákosiny a ostřicové porosty,Mokřady a pobřežní vegetace,Ostatní,,,
+M1.3,Eutrofní vegetace bahnitých substrátů,Mokřady a pobřežní vegetace,Ostatní,,,
+M1.4,Říční rákosiny,Mokřady a pobřežní vegetace,Ostatní,,,
+M1.5,Pobřežní vegetace potoků,Mokřady a pobřežní vegetace,Ostatní,,,
+M1.6,Mezotrofní vegetace bahnitých substrátů,Mokřady a pobřežní vegetace,Neprioritní,7140,Přechodová rašeliniště a třasoviště,Neprioritní
+M1.7,Vegetace vysokých ostřic,Mokřady a pobřežní vegetace,Ostatní,,,
+M1.8,Vápnitá slatiniště s mařicí pilovitou (Cladium mariscus),Mokřady a pobřežní vegetace,Prioritní,7210,Vápnitá slatiniště s mařicí pilovitou (Cladium mariscus) a druhy svazu Caricion davallianae,Prioritní
+M2.1,Vegetace letněných rybníků,Mokřady a pobřežní vegetace,Neprioritní,3130,"Oligotrofní až mezotrofní stojaté vody nížinného až subalpínského stupně kontinentální a alpínské oblasti a horských poloh jiných oblastí, s vegetací tříd Littorelletea uniflorae nebo Isoëto-Nanojuncetea",Neprioritní
+M2.2,Jednoletá vegetace vlhkých písků,Mokřady a pobřežní vegetace,Neprioritní,3130,"Oligotrofní až mezotrofní stojaté vody nížinného až subalpínského stupně kontinentální a alpínské oblasti a horských poloh jiných oblastí, s vegetací tříd Littorelletea uniflorae nebo Isoëto-Nanojuncetea",Neprioritní
+M2.3,Vegetace obnažených den teplých oblastí,Mokřady a pobřežní vegetace,Neprioritní,3130,"Oligotrofní až mezotrofní stojaté vody nížinného až subalpínského stupně kontinentální a alpínské oblasti a horských poloh jiných oblastí, s vegetací tříd Littorelletea uniflorae nebo Isoëto-Nanojuncetea",Neprioritní
+M2.4,Vegetace jednoletých slanomilných trav,Mokřady a pobřežní vegetace,Ostatní,,,
+M3,Vegetace vytrvalých obojživelných bylin,Mokřady a pobřežní vegetace,Neprioritní,3130,"Oligotrofní až mezotrofní stojaté vody nížinného až subalpínského stupně kontinentální a alpínské oblasti a horských poloh jiných oblastí, s vegetací tříd Littorelletea uniflorae nebo Isoëto-Nanojuncetea",Neprioritní
+M4.1,Štěrkové náplavy bez vegetace,Mokřady a pobřežní vegetace,Ostatní,,,
+M4.2,Štěrkové náplavy s židovníkem německým (Myricaria germanica),Mokřady a pobřežní vegetace,Neprioritní,3230,Alpínské řeky a jejich dřevinná vegetace s židoviníkem německým (Myricaria germanica),Neprioritní
+M4.3,Štěrkové náplavy s třtinou pobřežní (Calamagrostis pseudophragmites),Mokřady a pobřežní vegetace,Neprioritní,3220,Alpínské řeky a bylinná vegetace podél jejich břehů,Neprioritní
+M5,Devětsilové lemy horských potoků,Mokřady a pobřežní vegetace,Neprioritní,6430,Vlhkomilná vysokobylinná lemová společenstva nížin a horského až alpínského stupně,Neprioritní
+M6,Bahnité říční náplavy,Mokřady a pobřežní vegetace,Neprioritní,3270,Bahnité břehy řek s vegetací svazů Chenopodion rubri p. p. a Bidention p. p.,Neprioritní
+M7,Bylinné lemy nížinných řek,Mokřady a pobřežní vegetace,Neprioritní,6430,Vlhkomilná vysokobylinná lemová společenstva nížin a horského až alpínského stupně,Neprioritní
+R1.1,Luční pěnovcová prameniště,Prameniště a rašeliniště,Prioritní,7220,Petrifikující prameny s tvorbou pěnovců (Cratoneurion),Prioritní
+R1.2,Luční prameniště bez tvorby pěnovců,Prameniště a rašeliniště,Ostatní,,,
+R1.3,Lesní pěnovcová prameniště,Prameniště a rašeliniště,Prioritní,7220,Petrifikující prameny s tvorbou pěnovců (Cratoneurion),Prioritní
+R1.4,Lesní prameniště bez tvorby pěnovců,Prameniště a rašeliniště,Ostatní,,,
+R1.5,Subalpínská prameniště,Prameniště a rašeliniště,Ostatní,,,
+R2.1,Vápnitá slatiniště,Prameniště a rašeliniště,Neprioritní,7230,Zásaditá slatiniště,Neprioritní
+R2.2,Nevápnitá mechová slatiniště,Prameniště a rašeliniště,Neprioritní,7140,Přechodová rašeliniště a třasoviště,Neprioritní
+R2.3,Přechodová rašeliniště,Prameniště a rašeliniště,Neprioritní,7140,Přechodová rašeliniště a třasoviště,Neprioritní
+R2.4,Zrašelinělé půdy s hrotnosemenkou bílou (Rhynchospora alba),Prameniště a rašeliniště,Neprioritní,7150,Prolákliny na rašelinném podloží (Rhynchosporion),Neprioritní
+R3.1,Otevřená vrchoviště,Prameniště a rašeliniště,Prioritní,7110,Aktivní vrchoviště,Prioritní
+R3.2,Vrchoviště s klečí (Pinus mugo),Prameniště a rašeliniště,Prioritní,91D0,Rašelinný les,Prioritní
+R3.3,Vrchovištní šlenky,Prameniště a rašeliniště,Prioritní,7110,Aktivní vrchoviště,Prioritní
+R3.4,Degradovaná vrchoviště,Prameniště a rašeliniště,Neprioritní,7120,Degradovaná vrchoviště (ještě schopná přirozené obnovy),Neprioritní
+S1.1,Štěrbinová vegetace vápnitých skal a drolin,"Skály, sutě a jeskyně",Neprioritní,8210,Chasmofytická vegetace vápnitých skalnatých svahů,Neprioritní
+S1.2,Štěrbinová vegetace silikátových skal a drolin,"Skály, sutě a jeskyně",Neprioritní,8220,Chasmofytická vegetace silikátových skalnatých svahů,Neprioritní
+S1.3,Vysokostébelné trávníky skalních terásek,"Skály, sutě a jeskyně",Ostatní,,,
+S1.4,Vysokobylinná vegetace zazemněných drolin,"Skály, sutě a jeskyně",Ostatní,,,
+S1.5,Křoviny skal a drolin s rybízem alpínským (Ribes alpinum),"Skály, sutě a jeskyně",Ostatní,,,
+S2A,Pohyblivé sutě bazických hornin,"Skály, sutě a jeskyně",Prioritní,8160,Vápnité sutě pahorkatin a horského stupně,Prioritní
+S2B,Pohyblivé sutě kyselých hornin,"Skály, sutě a jeskyně",Neprioritní,8150,Středoevropské silikátové sutě,Neprioritní
+S3A,Jeskyně přístupné veřejnosti,"Skály, sutě a jeskyně",Ostatní,,,
+S3B,Jeskyně nepřístupné veřejnosti,"Skály, sutě a jeskyně",Neprioritní,8310,Jeskyně nepřístupné veřejnosti,Neprioritní
+T1.1,Mezofilní ovsíkové louky,Sekundární trávníky a vřesoviště,Neprioritní,6510,"Extenzivní sečené louky nížin až podhůří (Arrhenatherion, Brachypodio-Centaureion nemoralis)",Neprioritní
+T1.10,Vegetace vlhkých narušovaných půd,Sekundární trávníky a vřesoviště,Ostatní,,,
+T1.2,Horské trojštětové louky,Sekundární trávníky a vřesoviště,Neprioritní,6520,Horské sečené louky,Neprioritní
+T1.3,Poháňkové pastviny,Sekundární trávníky a vřesoviště,Ostatní,,,
+T1.4,Aluviální psárkové louky,Sekundární trávníky a vřesoviště,Ostatní,,,
+T1.5,Vlhké pcháčové louky,Sekundární trávníky a vřesoviště,Ostatní,,,
+T1.6,Vlhká tužebníková lada,Sekundární trávníky a vřesoviště,Neprioritní,6430,Vlhkomilná vysokobylinná lemová společenstva nížin a horského až alpínského stupně,Neprioritní
+T1.7,Kontinentální zaplavované louky,Sekundární trávníky a vřesoviště,Neprioritní,6440,Nivní louky říčních údolí svazu Cnidion dubii,Neprioritní
+T1.8,Kontinentální vysokobylinná vegetace,Sekundární trávníky a vřesoviště,Neprioritní,6430,Vlhkomilná vysokobylinná lemová společenstva nížin a horského až alpínského stupně,Neprioritní
+T1.9,Střídavě vlhké bezkolencové louky,Sekundární trávníky a vřesoviště,Neprioritní,6410,"Bezkolencové louky na vápnitých, rašelinných nebo hlinito-jílovitých půdách (Molinion caeruleae)",Neprioritní
+T2.1,Subalpínské smilkové trávníky,Sekundární trávníky a vřesoviště,Prioritní,6230,Druhově bohaté smilkové louky na silikátových podložích v horských oblastech (a v kontinentální Evropě v podhorských oblastech),Prioritní
+T2.2,Horské smilkové trávníky s alpínskými druhy,Sekundární trávníky a vřesoviště,Prioritní,6230,Druhově bohaté smilkové louky na silikátových podložích v horských oblastech (a v kontinentální Evropě v podhorských oblastech),Prioritní
+T2.3A,Podhorské a horské smilkové trávníky s rozptýlenými porosty jalovce obecného (Juniperus communis),Sekundární trávníky a vřesoviště,Neprioritní,5130,Formace jalovce obecného (Juniperus communis) na vřesovištích nebo vápnitých trávnících,Neprioritní
+T2.3B,Podhorské a horské smilkové trávníky bez výskytu jalovce obecného (Juniperus communis),Sekundární trávníky a vřesoviště,Prioritní,6230,Druhově bohaté smilkové louky na silikátových podložích v horských oblastech (a v kontinentální Evropě v podhorských oblastech),Prioritní
+T3.1,Skalní vegetace s kostřavou sivou (Festuca pallens),Sekundární trávníky a vřesoviště,Neprioritní,6190,Panonské skalní trávníky (Stipo-Festucetalia pallentis),Neprioritní
+T3.2,Pěchavové trávníky,Sekundární trávníky a vřesoviště,Neprioritní,6190,Panonské skalní trávníky (Stipo-Festucetalia pallentis),Neprioritní
+T3.3A,Subpanonské stepní trávníky,Sekundární trávníky a vřesoviště,Prioritní,6240,Subpanonské stepní trávníky,Prioritní
+T3.3B,Panonské sprašové stepní trávníky,Sekundární trávníky a vřesoviště,Prioritní,6250,Panonské sprašové stepní trávníky,Prioritní
+T3.3C,"Úzkolisté suché trávníky, porosty s význačným výskytem vstavačovitých",Sekundární trávníky a vřesoviště,Prioritní,6210,Polopřirozené suché trávníky a facie křovin na vápnitých podložích (Festuco-Brometalia) (* význačná naleziště vstavačovitých),Prioritní
+T3.3D,"Úzkolisté suché trávníky, porosty bez význačného výskytu vstavačovitých",Sekundární trávníky a vřesoviště,Neprioritní,6210,Polopřirozené suché trávníky a facie křovin na vápnitých podložích (Festuco-Brometalia),Neprioritní
+T3.4A,"Širokolisté suché trávníky, porosty s význačným výskytem vstavačovitých a s jalovcem obecným (Juniperus communis)",Sekundární trávníky a vřesoviště,Prioritní,6210,Polopřirozené suché trávníky a facie křovin na vápnitých podložích (Festuco-Brometalia) (* význačná naleziště vstavačovitých),Prioritní
+T3.4B,"Širokolisté suché trávníky, porosty bez význačného výskytu vstavačovitých a s jalovcem obecným (Juniperus communis)",Sekundární trávníky a vřesoviště,Neprioritní,5130,Formace jalovce obecného (Juniperus communis) na vřesovištích nebo vápnitých trávnících,Neprioritní
+T3.4C,"Širokolisté suché trávníky, porosty s význačným výskytem vstavačovitých a bez jalovce obecného (Juniperus communis)",Sekundární trávníky a vřesoviště,Prioritní,6210,Polopřirozené suché trávníky a facie křovin na vápnitých podložích (Festuco-Brometalia) (* význačná naleziště vstavačovitých),Prioritní
+T3.4D,"Širokolisté suché trávníky, porosty bez význačného výskytu vstavačovitých a bez jalovce obecného (Juniperus communis)",Sekundární trávníky a vřesoviště,Neprioritní,6210,Polopřirozené suché trávníky a facie křovin na vápnitých podložích (Festuco-Brometalia),Neprioritní
+T3.5A,"Acidofilní suché trávníky, porosty s význačným výskytem vstavačovitých",Sekundární trávníky a vřesoviště,Prioritní,6210,Polopřirozené suché trávníky a facie křovin na vápnitých podložích (Festuco-Brometalia) (* význačná naleziště vstavačovitých),Prioritní
+T3.5B,"Acidofilní suché trávníky, porosty bez význačného výskytu vstavačovitých",Sekundární trávníky a vřesoviště,Neprioritní,6210,Polopřirozené suché trávníky a facie křovin na vápnitých podložích (Festuco-Brometalia),Neprioritní
+T4.1,Suché bylinné lemy,Sekundární trávníky a vřesoviště,Ostatní,,,
+T4.2,Mezofilní bylinné lemy,Sekundární trávníky a vřesoviště,Ostatní,,,
+T5.1,Jednoletá vegetace písčin,Sekundární trávníky a vřesoviště,Neprioritní,2330,Otevřené trávníky kontinentálních dun s paličkovcem (Corynephorus) a psinečkem (Agrostis),Neprioritní
+T5.2,Otevřené trávníky písčin s paličkovcem šedavým (Corynephorus canescens),Sekundární trávníky a vřesoviště,Neprioritní,2330,Otevřené trávníky kontinentálních dun s paličkovcem (Corynephorus) a psinečkem (Agrostis),Neprioritní
+T5.3,Kostřavové trávníky písčin,Sekundární trávníky a vřesoviště,Neprioritní,2330,Otevřené trávníky kontinentálních dun s paličkovcem (Corynephorus) a psinečkem (Agrostis),Neprioritní
+T5.4,Panonské stepní trávníky na písku,Sekundární trávníky a vřesoviště,Prioritní,6260,Panonské písčité stepi,Prioritní
+T5.5,Acidofilní trávníky mělkých půd,Sekundární trávníky a vřesoviště,Ostatní,,,
+T6.1A,"Acidofilní vegetace efemér a sukulentů, porosty s převahou netřesku výběžkatého (Jovibarba globifera)",Sekundární trávníky a vřesoviště,Neprioritní,8230,"Pionýrská vegetace silikátových skal (Sedo-Scleranthion, Sedo albi-Veronicion dillenii)",Neprioritní
+T6.1B,"Acidofilní vegetace efemér a sukulentů, porosty bez převahy netřesku výběžkatého (Jovibarba globifera)",Sekundární trávníky a vřesoviště,Neprioritní,8230,"Pionýrská vegetace silikátových skal (Sedo-Scleranthion, Sedo albi-Veronicion dillenii)",Neprioritní
+T6.2A,"Bazifilní vegetace efemér a sukulentů, porosty s převahou netřesku výběžkatého (Jovibarba globifera)",Sekundární trávníky a vřesoviště,Prioritní,6110,Vápnité nebo bazické skalní trávníky (Alysso-Sedion albi),Prioritní
+T6.2B,"Bazifilní vegetace efemér a sukulentů, porosty bez převahy netřesku výběžkatého (Jovibarba globifera)",Sekundární trávníky a vřesoviště,Prioritní,6110,Vápnité nebo bazické skalní trávníky (Alysso-Sedion albi),Prioritní
+T7,Slaniska,Sekundární trávníky a vřesoviště,Prioritní,1340,Vnitrozemské slané louky,Prioritní
+T8.1A,Suchá vřesoviště nížin a pahorkatin s výskytem jalovce obecného (Juniperus communis),Sekundární trávníky a vřesoviště,Neprioritní,5130,Formace jalovce obecného (Juniperus communis) na vřesovištích nebo vápnitých trávnících,Neprioritní
+T8.1B,Suchá vřesoviště nížin a pahorkatin bez výskytu jalovce obecného (Juniperus communis),Sekundární trávníky a vřesoviště,Neprioritní,4030,Evropská suchá vřesoviště,Neprioritní
+T8.2A,Sekundární podhorská a horská vřesoviště s výskytem jalovce obecného (Juniperus communis),Sekundární trávníky a vřesoviště,Neprioritní,5130,Formace jalovce obecného (Juniperus communis) na vřesovištích nebo vápnitých trávnících,Neprioritní
+T8.2B,Sekundární podhorská a horská vřesoviště bez výskytu jalovce obecného (Juniperus communis),Sekundární trávníky a vřesoviště,Neprioritní,4030,Evropská suchá vřesoviště,Neprioritní
+T8.3,Brusnicová vegetace skal a drolin,Sekundární trávníky a vřesoviště,Neprioritní,4030,Evropská suchá vřesoviště,Neprioritní
+V1A,Makrofytní vegetace přirozeně eutrofních a mezotrofních stojatých vod s voďankou žabí (Hydrocharis morsus-ranae),Vodní toky a nádrže,Neprioritní,3150,Přirozené eutrofní vodní nádrže s vegetací typu Magnopotamion nebo Hydrocharition,Neprioritní
+V1B,Makrofytní vegetace přirozeně eutrofních a mezotrofních stojatých vod s řezanem pilolistým (Stratiotes aloides),Vodní toky a nádrže,Neprioritní,3150,Přirozené eutrofní vodní nádrže s vegetací typu Magnopotamion nebo Hydrocharition,Neprioritní
+V1C,Makrofytní vegetace přirozeně eutrofních a mezotrofních stojatých vod s bublinatkou jižní nebo obecnou (Utricularia australis a U. vulgaris),Vodní toky a nádrže,Neprioritní,3150,Přirozené eutrofní vodní nádrže s vegetací typu Magnopotamion nebo Hydrocharition,Neprioritní
+V1D,Makrofytní vegetace přirozeně eutrofních a mezotrofních stojatých vod s nepukalkou plovoucí (Salvinia natans),Vodní toky a nádrže,Neprioritní,3150,Přirozené eutrofní vodní nádrže s vegetací typu Magnopotamion nebo Hydrocharition,Neprioritní
+V1E,Makrofytní vegetace přirozeně eutrofních a mezotrofních stojatých vod s aldrovandkou měchýřkatou (Aldrovanda vesiculosa),Vodní toky a nádrže,Neprioritní,3150,Přirozené eutrofní vodní nádrže s vegetací typu Magnopotamion nebo Hydrocharition,Neprioritní
+V1F,"Makrofytní vegetace přirozeně eutrofních a mezotrofních stojatých vod, porosty bez druhů charakteristických pro V1A-V1E",Vodní toky a nádrže,Neprioritní,3150,Přirozené eutrofní vodní nádrže s vegetací typu Magnopotamion nebo Hydrocharition,Neprioritní
+V1G,"Makrofytní vegetace přirozeně eutrofních a mezotrofních stojatých vod, porosty bez ochranářsky významných vodních makrofytů",Vodní toky a nádrže,Ostatní,,,
+V2A,"Makrofytní vegetace mělkých stojatých vod, porosty s dominantními lakušníky",Vodní toky a nádrže,Ostatní,,,
+V2B,"Makrofytní vegetace mělkých stojatých vod, porosty s dominantní žebratkou bahenní (Hottonia palustris)",Vodní toky a nádrže,Ostatní,,,
+V2C,"Makrofytní vegetace mělkých stojatých vod, ostatní porosty",Vodní toky a nádrže,Ostatní,,,
+V3,Makrofytní vegetace oligotrofních jezírek a tůní,Vodní toky a nádrže,Neprioritní,3160,Přirozená dystrofní jezera a tůně,Neprioritní
+V4A,"Makrofytní vegetace vodních toků, porosty aktuálně přítomných vodních makrofytů",Vodní toky a nádrže,Neprioritní,3260,Nížinné až horské vodní toky s vegetací svazů Ranunculion fluitantis a Callitricho-Batrachion,Neprioritní
+V4B,"Makrofytní vegetace vodních toků, stanoviště s potenciálním výskytem vodních makrofytů nebo se zjevně přirozeným či přírodě blízkým chrakterem koryta",Vodní toky a nádrže,Ostatní,,,
+V5,Vegetace parožnatek,Vodní toky a nádrže,Neprioritní,3140,Tvrdé oligo-mezotrofní vody s bentickou vegetací parožnatek,Neprioritní
+V6,Vegetace šídlatek (Isoëtes),Vodní toky a nádrže,Neprioritní,3130,"Oligotrofní až mezotrofní stojaté vody nížinného až subalpínského stupně kontinentální a alpínské oblasti a horských poloh jiných oblastí, s vegetací tříd Littorelletea uniflorae nebo Isoëto-Nanojuncetea",Neprioritní
+X1,Urbanizovaná území,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X1.1,Zastavěné plochy,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X1.2,"Užitkové a okrasné zahrady, zahrádkářské kolonie",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X1.3,Hřbitovy,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X1.4,Skládky a smetiště,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X1.5,Chemicky znehodnocené plochy a otevřené povrchy skládek abiotických materiálů,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X12A,"Nálety pionýrských dřevin, ochranářsky významné porosty",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X12B,"Nálety pionýrských dřevin, ostatní porosty",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X13,Nelesní stromové výsadby mimo sídla,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X13.1,Parky,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X13.2,"Aleje, větrolamy a skupiny stromů",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X13.3,Extenzivní sady,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X13.4,Plantáže rychle rostoucích (energetických) dřevin,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X13.5,Renaturační výsadby,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X14,Vodní toky a nádrže bez ochranářsky významné vegetace,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X14.1,Kanalizované vodní toky,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X14.2,"Eutrofní a hypertrofní rybníky, rybí sádky",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X14.3,Technicky řešené vodní nádrže,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X14.4,Přehradní nádrže se strmými břehy,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X14.5,"Nádrže čističek, odkaliště s trvalou hladinou vody a chemicky znehodnocené vody",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X14.6,Chemicky znehodnocené mokřiny,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X2,Intenzivně obhospodařovaná pole,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X2.1,Jednoleté a dvouleté polní kultury,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X2.2,Víceleté polní kultury,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X2.3,Plevelová vegetace intenzivních zemědělských kultur,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X3,Extenzivně obhospodařovaná pole,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X4,Trvalé zemědělské kultury,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X4.1,"Intenzivní sady, chmelnice a vinice",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X4.2,Ovocné školky a jiné pěstební plochy (např. zahradnictví),Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X5,Intenzivně obhospodařované louky,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X5.1,Intenzivní mezofilní a vlhké louky a pastviny,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X5.2,"Intenzivně kultivované trávníky v zastavěných plochách, parcích, okrasných zahradách a na sportovištích",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X6,Antropogenní plochy se sporadickou vegetací mimo sídla,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X6.1,Nepropustné plochy a plochy trvale bez vegetace,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X6.2,Zpevněné polopropustné plochy se štěrbinovou vegetací,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X6.3,"Nezazemněné kamenné rovnaniny, opěrné zídky, zbořeniště",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X6.4,Provozované těžební prostory nerostných substrátů,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X6.5,Opuštěné těžební prostory nerostných substrátů,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X6.6,Krátkodobě opuštěné uměle obnažené zemní substráty,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X6.7,Skládky dřeva,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X6.8,Vyschlá odkaliště a popílkoviště,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X7A,"Ruderální bylinná vegetace mimo sídla, ochranářsky významné porosty",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X7B,"Ruderální bylinná vegetace mimo sídla, ostatní porosty",Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X8,Křoviny s ruderálními a nepůvodními druhy,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X9A,Lesní kultury s nepůvodními jehličnatými dřevinami,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X9B,Lesní kultury s nepůvodními listnatými dřevinami,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,
+X9C,Lesní školky,Biotopy silně ovlivněné nebo vytvořené člověkem,Nepřírodní,,,

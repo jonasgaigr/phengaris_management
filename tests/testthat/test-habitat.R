@@ -123,6 +123,24 @@ test_that("the habitat layer is checked against the input contract", {
   expect_error(read_habitat_layer(tempfile(fileext = ".gpkg")), "not found")
 })
 
+test_that("the Natura 2000 habitat type comes from the habitat catalogue where the layer has none", {
+  catalogue <- tibble::tibble(BIOTOP = c("T1.1", "T1.9", "T1.5", "X7"), HABITAT = c("6510", "6410", NA, NA))
+  # Derived from the habitat code; none for a habitat that is no Natura 2000 type.
+  derived <- natura_habitat_of(c("T1.1", "T1.9", "T1.5", "X7", NA), catalogue = catalogue)
+  expect_equal(derived, c("6510", "6410", NA, NA, NA))
+  # A code the layer already has is kept, the priority form of 6210 too.
+  expect_equal(natura_habitat_of(c("T1.1", "T3.4D"), c(NA, "6210p"), catalogue = catalogue), c("6510", "6210p"))
+  # Without the catalogue the codes stay as they are.
+  expect_equal(natura_habitat_of(c("T1.1", "T1.9"), c(NA, "6410"), catalogue = NULL), c(NA, "6410"))
+})
+
+test_that("the local copy of the habitat catalogue has one row per habitat code", {
+  catalogue <- read_habitat_catalogue(file.path(project_root, "Data/Input/reference/habitat_catalogue.csv"))
+  expect_false(is.null(catalogue))
+  expect_false(anyDuplicated(catalogue$BIOTOP) > 0)
+  expect_equal(catalogue$HABITAT[match(c("T1.1", "T1.9", "T1.5"), catalogue$BIOTOP)], c("6510", "6410", NA))
+})
+
 #----------------------------------------------------------#
 # The intersection a specification uses -----
 #----------------------------------------------------------#
