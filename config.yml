@@ -10,9 +10,10 @@
 # R/functions/config.R reads this file into the list CONFIG when
 # R/00_setup.R runs, and checks that nothing required is missing.
 #
-# Choices that need a decision on the ecology or on the field protocol are
-# marked TODO(Jonáš). Until that decision is made, the value given is the one
-# that reproduces the original analysis.
+# The choices on the ecology and on the field protocol carry the date they
+# were decided on; REVIEW.md has the decisions and what is still open. A
+# choice that still waits for a decision is marked TODO(Jonáš); none is at
+# present.
 #
 #----------------------------------------------------------#
 
@@ -145,7 +146,8 @@ specifications:
 # The source year is the year the dataset was published, not the year of the
 # record: "Kolektiv autorů (2022) Monitoring motýlů." holds the records of
 # 2022, 2023 and 2024 (and 5 from 2021), and the 2021 sources hold 28 records
-# from 2019 and 2020. TODO(Jonáš): confirm that this is intended.
+# from 2019 and 2020. That is how the sources are published (confirmed
+# 2026-11-12); the year of a record is always taken from its date.
 sources:
   targeted:
     - Kolektiv autorů (2019) Monitoring totenových modrásků. Monitoring druhů ČR. AOPK ČR.
@@ -158,9 +160,10 @@ sources:
     # kept so that a later export using them is picked up.
     - Kolektiv autorů (2023) Monitoring motýlů.
     - Kolektiv autorů (2024) Monitoring motýlů.
-  # TODO(Jonáš): are any of these targeted monitoring too? They are not used
-  # unless moved into the list above. Record counts in the 2019-2024 exports
-  # in brackets.
+  # Sources that could be read as monitoring but are not targeted monitoring
+  # (decided 2026-11-12): all their 402 records are presence-only, with no
+  # negative record and no structured notes. They are not used unless moved
+  # into the list above. Record counts in the 2019-2024 exports in brackets.
   candidates:
     - Kolektiv autorů (2024) Síťové mapování denních motýlů v letech 2024-2029.  # 156
     - FIŠER M. (2020) Monitoring EV druhů.                                       # 129
@@ -208,7 +211,7 @@ imputation:
   # lies within this distance (km) of the site: the longest recorded move of
   # P. teleius is 2.94 km (Nowicki et al. 2014). The revised models are
   # fitted on a third sample with only the plausible imputed absences.
-  # PROPOSED.
+  # Decided 2026-11-12.
   plausible_radius_km: 3
 
 #--------------------------------------------------#
@@ -275,7 +278,9 @@ strukt_pozn:
   # They cover the newer threat list but not much of the older one: e.g.
   # "sečení" (857 records), "vývoj biocenózy" (540), "eutrofizace" (335),
   # "pastva" (101) and "hnojení" (68) match no class (REVIEW.md, item 18).
-  # TODO(Jonáš): map the items of the older list to these classes.
+  # The harmonised vocabulary below (`threat_items`) maps the items of the
+  # older list; these phrases stay as they were, for the legacy
+  # specification.
   # The phrase with which the surveyor records that no threat was seen. It
   # sets the flag None and is not a threat, so it is not counted in
   # SUM_THREATS.
@@ -315,8 +320,12 @@ strukt_pozn:
   # dominants); in 2019-2020 they are unknown, not absent
   # (`threat_min_records_per_era`).
   # Counts are item occurrences in the targeted records of 2019-2024.
-  # PROPOSED in Phase 3 (P3.7). TODO(Jonáš): check the mapping of the older
-  # items (marked "older list").
+  # Proposed in Phase 3 (P3.7); the mapping of the older items (marked "older
+  # list") was accepted on 2026-11-12. "sečení" is listed more often than
+  # "nevhodná seč" later (at 62 % of the 2019-2020 records with a threat
+  # list, against 19-36 %), but it goes with inappropriately timed mowing as
+  # the later item does: 52 % of the records listing it, against 17 % of the
+  # others (later: 62 % against 11 %).
   threat_items:
     LandUseChange:
       - "změna zemědělského využívání půdy a terénní úpravy"
@@ -390,7 +399,9 @@ strukt_pozn:
   # threats, pressures and activities of the 2013-2018 reporting), so that
   # both field-form lists, and other studies, speak the same language
   # (P4.11). The current Czech threat list follows that list closely.
-  # PROPOSED. TODO(Jonáš): check against the reference list.
+  # Checked on 2026-11-12 against the vocabulary of the 2018 reporting
+  # (dd.eionet.europa.eu/vocabulary/art17_2018/threats): every code carries
+  # the label given here. Decided 2026-11-12.
   threat_article17:
     LandUseChange: "A02"              # conversion from one agricultural land use to another
     Abandonment: "A06"                # abandonment of grassland management
@@ -455,7 +466,7 @@ design:
     #
     # The literature review (P4.1) found the 45 days of Phase 3 about twice
     # the documented flight period of 6-8 weeks and proposed the cut-off
-    # where the flight curve falls below 5 % of its peak. PROPOSED.
+    # where the flight curve falls below 5 % of its peak. Decided 2026-11-12.
     cutoff: flight_curve
     min_relative_activity: 0.05
     # The flight curve is fitted on the visits within this many days of the
@@ -496,7 +507,9 @@ design:
   # order and the "jmeno.prijmeni" form; for several authors the first one
   # counts), which merges e.g. "Jiří Švarc", "Švarc Jiří" and "Jiří  Švarc".
   # The aliases merge the spellings the normalisation cannot, from the
-  # normalised form to the normalised form. TODO(Jonáš): confirm.
+  # normalised form to the normalised form. Confirmed 2026-11-12: one
+  # observer (the two spellings never share a year, share 6 of 8 mapping
+  # squares, and were entered by the same person).
   observer_aliases:
     "slavek valda": "slavomir valda"
 
@@ -518,7 +531,7 @@ connectivity:
   # of the grids below under which the management model of the sample with
   # the imputed absences has the highest likelihood (profile likelihood,
   # step 17), as the literature review proposed; "fixed": the pair
-  # alpha_per_km, area_exponent. PROPOSED.
+  # alpha_per_km, area_exponent. Decided 2026-11-12.
   choice: profile
   # 1 / alpha is the mean dispersal distance, in km. The fixed pair is also
   # CONN in the data and the one the summary of step 16 describes. Phase 3
@@ -569,7 +582,7 @@ landscape:
   # Land-cover groups, by the prefixes of the KVES codes: grassland (the
   # meadows and the degraded grassland), arable land, forest, water and
   # wetlands, settlements. The other classes (orchards, scattered and shrub
-  # greenery, rocks) belong to no group. PROPOSED.
+  # greenery, rocks) belong to no group. Decided 2026-11-12.
   groups:
     GRASSLAND: [B311, C11]
     ARABLE: [B111]
@@ -597,7 +610,7 @@ landscape:
 
 # The association with the EVLs designated for the species, after matching,
 # and the persistence of the 2012-2018 populations (P4.8, P4.9; step 24,
-# R/functions/natura2000.R). PROPOSED.
+# R/functions/natura2000.R). Decided 2026-11-12.
 natura2000:
   # Full matching on the propensity score (MatchIt with optmatch).
   matching_method: full
@@ -647,7 +660,8 @@ revised_models:
   # fits the P. nausithous records better (delta AIC 6), the activity the
   # P. teleius records about equally (1.8 in its favour), and the
   # management estimates hardly differ. The quadratic is kept; the flight
-  # curve cuts the season and is the offset of the count models. PROPOSED.
+  # curve cuts the season and is the offset of the count models. Decided
+  # 2026-11-12.
   season_term: quadratic
   # The day-of-year deviation of the quadratic is in units of this many
   # days, so that its coefficients are of the order of the others.
@@ -686,7 +700,7 @@ revised_models:
     # The threats with a direction expected before looking, from the
     # management literature: harmful mowing, abandonment, harmful grazing,
     # fertiliser use and encroachment. Their p-values are adjusted with Holm,
-    # the others' with Benjamini-Hochberg (P4.11). PROPOSED.
+    # the others' with Benjamini-Hochberg (P4.11). Decided 2026-11-12.
     confirmatory: [HarmfulMow, Abandonment, HarmfulGrazing, FertilizerUse, Encroachment]
     # The stacked model of all threat classes at once (P4.11).
     stacked: true
@@ -699,7 +713,7 @@ revised_models:
 # shows how far their management estimates could owe to imperfect detection
 # (P4.4; R/functions/detection.R). No per-visit detection probability of
 # adult Phengaris is published; the closest are daily mark-recapture capture
-# probabilities of 0.4-0.5 (Nowicki & Vrabec 2011). PROPOSED.
+# probabilities of 0.4-0.5 (Nowicki & Vrabec 2011). Decided 2026-11-12.
 detection:
   # The management model refitted with the detection fixed at each p.
   fixed_p: [0.9, 0.7, 0.5]
@@ -814,7 +828,7 @@ habitat:
     "Hospodářské lesy smíšené": D11
   # The KVES version each record takes its KVES information from, by the
   # record's year: the closest version; on a tie (2024) the later one, which
-  # includes the habitat mapping of that year. PROPOSED.
+  # includes the habitat mapping of that year. Decided 2026-11-12.
   kves_version_of_year: {"2019": "2021", "2020": "2021", "2021": "2021", "2022": "2022", "2023": "2023", "2024": "2025"}
   # Distance from a site (m). The local copies keep the features within it,
   # and a point or line site's KVES polygon is cut to it. Decided 2026-10-15.
@@ -890,12 +904,12 @@ habitat:
   # limit both species (Anton et al. 2008) and prefer moist meadows (P4.6).
   # The alluvial, wet Cirsium, wet tall-herb, flooded and Molinia meadows
   # and the vegetation of wet disturbed soils; the literature review named
-  # T1.5 and T1.10 as examples. PROPOSED. TODO(Jonáš): check the list.
+  # T1.5 and T1.10 as examples. Decided 2026-11-12.
   wet_meadow_codes: [T1.4, T1.5, T1.6, T1.7, T1.9, T1.10]
   # Width (m) of the edge zone of a polygon site (EDGE_SHARE, the share of
   # the site within it). The host ants are missing from the interior of
   # large, uniformly mown meadows (Oder 2026); the review proposed 20-30 m.
-  # PROPOSED.
+  # Decided 2026-11-12.
   edge_width_m: 25
   # Column holding a habitat's share of a mosaic segment, in per cent. The
   # area-weighted rule multiplies each overlap with the current layer by it,
