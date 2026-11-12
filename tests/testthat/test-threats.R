@@ -39,6 +39,32 @@ test_that("a class off the threat list of an era is NA there, not 0", {
   expect_equal(out$masked$records_masked, 5)
 })
 
+test_that("a class unknown in a year is NA in that year only", {
+  d <- tibble::tibble(
+    YEAR = c(2020, 2021, 2021, 2021, 2022),
+    SUM_THREATS = c(1, 1, 2, NA, 1),
+    HarmfulGrazing = c(0, 1, 1, NA, 0),
+    HarmfulMow = c(1, 0, 1, NA, 1)
+  )
+  out <- mask_threat_years(d, list(HarmfulGrazing = 2021))
+  expect_equal(out$data$HarmfulGrazing, c(0, NA, NA, NA, 0))
+  expect_equal(out$data$HarmfulMow, d$HarmfulMow)
+  expect_equal(out$masked$class, "HarmfulGrazing")
+  expect_equal(out$masked$records_with_threat, 2)
+  expect_equal(out$masked$records_masked, 2)
+})
+
+test_that("without a list of unknown years nothing is masked", {
+  d <- tibble::tibble(YEAR = 2021, SUM_THREATS = 1, HarmfulGrazing = 1)
+  out <- mask_threat_years(d, NULL)
+  expect_equal(out$data, d)
+  expect_equal(nrow(out$masked), 0)
+})
+
+test_that("the classes unknown in a year in config.yml are threat classes", {
+  expect_true(all(names(CONFIG$strukt_pozn$threat_unknown_years) %in% names(CONFIG$strukt_pozn$threat_items)))
+})
+
 test_that("the stacked model gives an era term only to the classes on both forms", {
   set.seed(5)
   n <- 300

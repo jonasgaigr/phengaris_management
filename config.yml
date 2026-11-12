@@ -369,6 +369,19 @@ strukt_pozn:
   # era (over both species) was not on that era's threat list: it is NA
   # there rather than 0 (R/functions/threats.R, mask_unlisted_threats()).
   threat_min_records_per_era: 5
+  # Threat classes unknown in single years, beside the eras above
+  # (R/functions/threats.R, mask_threat_years()): NA in that year, not 0 and
+  # not 1. The threat lists of 2021 differ from those of 2022-2024 in two
+  # items. "absence či nedostatek péče" is listed at 1 of the 627 records
+  # with a threat list in 2021, against 192 of 645 in 2022 (23-29 % in
+  # 2022-2024): it was evidently not on the form yet. "nevhodná pastva" is
+  # listed at 212 of them (34 %), against 5 in 2022 (1-3 % in 2022-2024),
+  # with grazing recorded at only 9 of the 212 and most of them on mown
+  # meadows: whatever the surveyors ticked there, it is not the grazing of
+  # the later years. Decided 2026-11-12.
+  threat_unknown_years:
+    Abandonment: [2021]
+    HarmfulGrazing: [2021]
   # The Article 17 pressure code of each threat class (reference list of
   # threats, pressures and activities of the 2013-2018 reporting), so that
   # both field-form lists, and other studies, speak the same language

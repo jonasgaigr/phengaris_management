@@ -149,6 +149,10 @@ if (design_variables) {
   if (threat_vocabulary == "harmonised") {
     unlisted <- mask_unlisted_threats(data_clean)
     data_clean <- unlisted$data
+    # And a class whose record of one year cannot be trusted is unknown in
+    # that year.
+    unknown_years <- mask_threat_years(data_clean)
+    data_clean <- unknown_years$data
   }
 }
 
@@ -369,6 +373,14 @@ if (threat_vocabulary == "harmonised") {
         CONFIG$strukt_pozn$threat_min_records_per_era
       ),
       "04_threat_classes_off_form"
+    )
+    report_table(
+      unknown_years$masked,
+      paste(
+        "Threat classes unknown in single years (config.yml `strukt_pozn:",
+        "threat_unknown_years`): set to NA in that year"
+      ),
+      "04_threat_classes_unknown_years"
     )
   }
 }

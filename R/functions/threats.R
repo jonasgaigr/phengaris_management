@@ -63,6 +63,41 @@ mask_unlisted_threats <- function(data, classes = names(CONFIG$strukt_pozn$threa
   )
 }
 
+#' Set the threat classes to NA in the years their record cannot be trusted.
+#'
+#' Beside the classes off the form of a whole era (mask_unlisted_threats()),
+#' a class can be unusable in a single year of an era: in 2021 "absence či
+#' nedostatek péče" is listed at 1 record of 627 with a threat list against
+#' 23-29 % in 2022-2024, and "nevhodná pastva" at 34 % against 1-3 %, with
+#' grazing recorded at 9 of those 212 records. Such a class is unknown in
+#' that year, not absent and not present.
+#'
+#' @param data     records with the class flags, YEAR and SUM_THREATS
+#' @param unknown  config.yml `strukt_pozn: threat_unknown_years`: the years
+#'                 of each class
+#' @return list(data = `data` with the masked cells set to NA, masked = a
+#'         table of the class x year combinations masked, the records with
+#'         a threat list they held and those listing the class)
+mask_threat_years <- function(data, unknown = CONFIG$strukt_pozn$threat_unknown_years) {
+  listed <- !is.na(data$SUM_THREATS)
+  masked <- list()
+  for (k in names(unknown)) {
+    for (y in unlist(unknown[[k]])) {
+      rows <- data$YEAR == y
+      masked[[length(masked) + 1]] <- tibble::tibble(
+        class = k, year = y,
+        records_with_threat = sum(data[[k]][rows & listed] == 1, na.rm = TRUE),
+        records_masked = sum(rows & listed & !is.na(data[[k]]))
+      )
+      data[[k]][rows] <- NA
+    }
+  }
+  list(
+    data = data,
+    masked = if (length(masked)) dplyr::bind_rows(masked) else tibble::tibble(class = character(), year = integer())
+  )
+}
+
 #' The records x threat classes, one row each, for the stacked model.
 #'
 #' A class that is NA (off the form of an era, mask_unlisted_threats()) has
