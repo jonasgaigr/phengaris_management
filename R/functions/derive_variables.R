@@ -114,6 +114,8 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
   mzchu_ids <- pa_site_ids(protected_area_id, "MZCHU")
 
   notes <- parse_strukt_pozn(data$STRUKT_POZN)
+  # No structured notes at all: the form was not filled in (or not exported).
+  notes_empty <- is.na(data$STRUKT_POZN) | !nzchar(trimws(data$STRUKT_POZN))
   plant_levels <- unlist(CONFIG$strukt_pozn$host_plant_levels)
   # A record without any threat list says nothing about threats: NA, not 0.
   threats <- if (threat_vocabulary == "legacy") {
@@ -218,13 +220,22 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
         notes$mow_timing == "ano" ~ 1,
         notes$mow_timing == "ne" ~ 0
       ),
-      # 1 when the form records anything about mowing.
-      MOW = as.numeric(!is.na(notes$mow_timing) | !is.na(notes$mow_whole_area)),
+      # 1 when the form records anything about mowing, 0 when it was filled
+      # in without a mowing entry, NA when the structured notes are empty:
+      # nothing was filled in, so nothing is known about the mowing.
+      MOW = dplyr::if_else(
+        notes_empty,
+        NA_real_,
+        as.numeric(!is.na(notes$mow_timing) | !is.na(notes$mow_whole_area))
+      ),
       # Grazing: 1 grazed (extensively or intensively), 0 not grazed, NA in
-      # the years whose form had no grazing entry. From grazing_from on, a
-      # record without a grazing entry counts as not grazed (config.yml).
+      # the years whose form had no grazing entry and where the structured
+      # notes are empty. From grazing_from on, a filled-in record without a
+      # grazing entry counts as not grazed: the form writes the entry only
+      # for a grazed site (config.yml).
       GRAZE = dplyr::case_when(
         YEAR < grazing_from ~ NA_real_,
+        notes_empty ~ NA_real_,
         notes$grazing %in% c("extenzivní", "intenzivní") ~ 1,
         notes$grazing == "ne" | is.na(notes$grazing) ~ 0
       ),

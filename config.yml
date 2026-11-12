@@ -254,11 +254,13 @@ strukt_pozn:
     "Procento mikrolokalit s vyhovujícím stavem živných rostlin": host_plant_share  # 1
 
   # The first year whose field form has a grazing entry (`Pastva`). Before
-  # it grazing was not recorded at all, so GRAZE is NA. From it on a record
-  # without a `Pastva` entry is read as not grazed, as in the original
-  # analysis. TODO(Jonáš): confirm that a missing `Pastva` entry means "not
-  # grazed" rather than "not filled in"; the same question applies to the
-  # mowing entries, whose absence gives MOW = 0.
+  # it grazing was not recorded at all, so GRAZE is NA. From it on a
+  # filled-in record without a `Pastva` entry is read as not grazed: the form
+  # writes the entry for a grazed site only ("Pastva: ne" occurs twice among
+  # 151 entries). A record whose structured notes are empty says nothing, so
+  # GRAZE is NA there. The mowing entries are read the same way: MOW is 1
+  # with a mowing entry, 0 on a filled-in form without one, NA where the
+  # notes are empty. Decided 2026-11-12.
   grazing_recorded_from_year: 2021
 
   # Host plant (Sanguisorba officinalis) abundance classes, in order.

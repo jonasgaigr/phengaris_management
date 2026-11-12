@@ -60,14 +60,16 @@ test_that("host plant abundance comes from either host-plant key", {
 test_that("mowing timing and method come from their own keys", {
   expect_equal(d$TIMING, c(1, NA, 0, NA, NA))
   expect_equal(d$METHOD, c(1, NA, NA, NA, NA))
-  expect_equal(d$MOW, c(1, 0, 1, 0, 0))
+  # A filled-in form without a mowing entry: not mown. Empty notes: unknown.
+  expect_equal(d$MOW, c(1, 0, 1, 0, NA))
   # Unknown method or timing leaves OVERALL unknown.
   expect_equal(d$OVERALL, c(1, NA, NA, NA, NA))
 })
 
 test_that("grazing is NA before the form had a grazing entry, and 'ne' is not grazed", {
-  # 2020: NA; 'Pastva: ne' -> 0; 'Pastva: extenzivní' -> 1; no entry from 2021 on -> 0.
-  expect_equal(d$GRAZE, c(NA, 0, 1, 0, 0))
+  # 2020: NA; 'Pastva: ne' -> 0; 'Pastva: extenzivní' -> 1; a filled-in form
+  # without the entry from 2021 on -> 0; empty notes -> NA.
+  expect_equal(d$GRAZE, c(NA, 0, 1, 0, NA))
   expect_equal(d$GRAZE_MET, c(NA, NA, 1, NA, NA))
 })
 
