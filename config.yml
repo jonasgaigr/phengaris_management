@@ -168,6 +168,28 @@ sources:
     - FIŠER M. (2023) Mapováni EV druhů (2023).                                  # 52
 
 #--------------------------------------------------#
+# Records excluded -----
+#--------------------------------------------------#
+
+# Records the validation of the source database marks as unusable
+# (VALIDACE "záznam k opravě", with the note in VAL_POZN). Step 01 drops them
+# when it reads the exports, so no later step sees them: not the analysis
+# table, and not the positive records of every source that give the flight
+# season, the connectivity and the plausibility of an imputed absence.
+# Decided 2026-11-12. The two other records marked "záznam k opravě" are not
+# targeted monitoring and are kept: their notes correct the observer and the
+# date, not the observation.
+records:
+  excluded:
+    # P. teleius, 7 July 2019, iNaturalist. It was the only positive record of
+    # the species within 6.5 km, and made two imputed absences plausible.
+    - id: 48780342
+      reason: "špatná lokalizace, na místě není vhodný biotop ani živná rostlina"
+    # P. nausithous, 23 July 2021, targeted monitoring.
+    - id: 52600070
+      reason: "zákres neodpovídá popisu"
+
+#--------------------------------------------------#
 # Imputed absences -----
 #--------------------------------------------------#
 

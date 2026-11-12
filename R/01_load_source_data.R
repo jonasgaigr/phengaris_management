@@ -39,6 +39,12 @@ data_new <-
     read_occurrence_csv(CONFIG$paths$occurrence$teleius)
   )
 
+# The records the validation of the source database marks as unusable
+# (config.yml `records: excluded`) go no further.
+n_read <- nrow(data_new)
+excluded <- drop_excluded_records(data_new)
+data_new <- excluded$data
+
 #----------------------------------------------------------#
 # Site geometries -----
 #----------------------------------------------------------#
@@ -105,8 +111,9 @@ validate_table(
   not_na = c("ID_NALEZ", "DRUH", "ID_LOKAL", "DATUM_OD", "X", "Y", "NEGATIV"),
   values = list(DRUH = c(SPECIES_NAU, SPECIES_TEL), NEGATIV = c(0, 1)),
   xy = c("X", "Y"),
-  n_rows = n_lines
+  n_rows = n_lines - length(excluded$dropped)
 )
+checkmate::assert_true(n_read == n_lines, .var.name = "every line of the exports was read")
 
 validate_table(
   sf::st_drop_geometry(lokal_new), "sites",
@@ -173,6 +180,12 @@ sf::st_write(
 )
 
 message("  ", nrow(data_new), " records, ", nrow(lokal_new), " site geometries")
+if (length(excluded$dropped)) {
+  message(
+    "  ", length(excluded$dropped), " record(s) excluded in config.yml: ",
+    paste(excluded$dropped, collapse = ", ")
+  )
+}
 message("  2012-2018: ", nrow(data_history), " records, ", nrow(lokal_history), " site geometries")
 
 step_end("01")

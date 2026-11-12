@@ -81,6 +81,24 @@ read_occurrence_csv <- function(file) {
   ))
 }
 
+#' Drop the records excluded in config.yml.
+#'
+#' A record whose validation in the source database says it cannot be used
+#' (config.yml `records: excluded`) is left out when the exports are read, so
+#' that no later step sees it: not the analysis table, and not the positive
+#' records that give the flight season, the connectivity and the
+#' plausibility of an imputed absence.
+#'
+#' @param data      records with ID_NALEZ
+#' @param excluded  config.yml `records: excluded`: a list of entries with
+#'                  `id` (ID_NALEZ) and `reason`
+#' @return list(data = the records kept, dropped = the ID_NALEZ dropped)
+drop_excluded_records <- function(data, excluded = CONFIG$records$excluded) {
+  ids <- vapply(excluded, function(e) as.numeric(e$id), numeric(1))
+  drop <- data$ID_NALEZ %in% ids
+  list(data = data[!drop, , drop = FALSE], dropped = data$ID_NALEZ[drop])
+}
+
 #--------------------------------------------------#
 ## Site geometries and reporting ranges -----
 #--------------------------------------------------#

@@ -45,3 +45,28 @@ test_that("the column types are the declared ones", {
   expect_type(x$DRUH, "character")
   expect_s3_class(x$CAS, "hms")
 })
+
+#----------------------------------------------------------#
+# drop_excluded_records(): records excluded in config.yml -----
+#----------------------------------------------------------#
+
+test_that("the records excluded in config.yml are dropped, and only those", {
+  x <- data.frame(ID_NALEZ = c(1, 2, 3, 4), DRUH = "Phengaris teleius")
+  out <- drop_excluded_records(x, list(list(id = 2, reason = "wrong place"), list(id = 9, reason = "not here")))
+  expect_equal(out$data$ID_NALEZ, c(1, 3, 4))
+  expect_equal(out$dropped, 2)
+})
+
+test_that("without an exclusion list every record is kept", {
+  x <- data.frame(ID_NALEZ = c(1, 2))
+  out <- drop_excluded_records(x, NULL)
+  expect_equal(nrow(out$data), 2)
+  expect_length(out$dropped, 0)
+})
+
+test_that("the excluded records of config.yml carry an id and a reason", {
+  for (e in CONFIG$records$excluded) {
+    expect_true(is.numeric(e$id))
+    expect_true(nzchar(e$reason))
+  }
+})
