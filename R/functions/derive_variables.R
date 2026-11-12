@@ -188,6 +188,8 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
       PRIKOP = flag_biotope(POP_BIOT, pop_biot$PRIKOP),
       ZARUST = flag_biotope(POP_BIOT, pop_biot$ZARUST),
       JINY = flag_biotope(POP_BIOT, pop_biot$JINY),
+      VODA = flag_biotope(POP_BIOT, pop_biot$VODA),
+      PASTVINA = flag_biotope(POP_BIOT, pop_biot$PASTVINA),
 
       #--------------------------------------------------#
       ## Threats and pressures -----
@@ -265,7 +267,7 @@ derive_analysis_variables <- function(data, protected_area_id, both_present,
       HET_INN = dplyr::if_else(
         is.na(POP_BIOT),
         NA_real_,
-        rowSums(dplyr::across(c(TTP, PRIKOP, ZARUST, JINY)), na.rm = TRUE)
+        rowSums(dplyr::across(c(TTP, PRIKOP, ZARUST, JINY, VODA, PASTVINA)), na.rm = TRUE)
       )
     )
 }

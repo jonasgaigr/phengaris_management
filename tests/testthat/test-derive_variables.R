@@ -82,8 +82,10 @@ test_that("habitat flags match both ditch categories and stay NA without a descr
   expect_equal(d$TTP, c(1, 0, 0, 0, NA))
   expect_equal(d$PRIKOP, c(1, 1, 0, 0, NA))
   expect_equal(d$ZARUST, c(0, 0, 1, 0, NA))
-  # 'okraj vodní plochy' sets no flag (TODO in config.yml), so HET_INN is 0.
-  expect_equal(d$HET_INN, c(2, 1, 1, 0, NA))
+  # 'okraj vodní plochy' is a habitat type of its own, so HET_INN is 1.
+  expect_equal(d$VODA, c(0, 0, 0, 1, NA))
+  expect_equal(d$PASTVINA, c(0, 0, 0, 0, NA))
+  expect_equal(d$HET_INN, c(2, 1, 1, 1, NA))
 })
 
 test_that("only records with the host plant present are kept", {

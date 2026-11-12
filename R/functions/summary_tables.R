@@ -130,10 +130,12 @@ summarise_habitat_counts <- function(data) {
       POSITIVE
     ) %>%
     dplyr::reframe(
-      TTP    = sum(TTP == 1, na.rm = TRUE),
+      TTP = sum(TTP == 1, na.rm = TRUE),
       ZARUST = sum(ZARUST == 1, na.rm = TRUE),
       PRIKOP = sum(PRIKOP == 1, na.rm = TRUE),
-      JINY   = sum(JINY == 1, na.rm = TRUE)
+      JINY = sum(JINY == 1, na.rm = TRUE),
+      VODA = sum(VODA == 1, na.rm = TRUE),
+      PASTVINA = sum(PASTVINA == 1, na.rm = TRUE)
     )
 }
 
@@ -148,8 +150,8 @@ summarise_recorded_habitats <- function(data, species) {
   )
 
   data %>%
-    dplyr::select(DRUH, POSITIVE, TTP, ZARUST, PRIKOP, JINY) %>%
-    tidyr::pivot_longer(cols = c(TTP, ZARUST, PRIKOP, JINY)) %>%
+    dplyr::select(DRUH, POSITIVE, TTP, ZARUST, PRIKOP, JINY, VODA, PASTVINA) %>%
+    tidyr::pivot_longer(cols = c(TTP, ZARUST, PRIKOP, JINY, VODA, PASTVINA)) %>%
     dplyr::filter(value == 1) %>%
     dplyr::select(-value) %>%
     dplyr::filter(POSITIVE == 1) %>%
@@ -165,7 +167,9 @@ summarise_recorded_habitats <- function(data, species) {
         name == "TTP" ~ "managed\ngrassland",
         name == "ZARUST" ~ "neglected\ngrassland",
         name == "JINY" ~ "other",
-        name == "PRIKOP" ~ "road verge,\nditch"
+        name == "PRIKOP" ~ "road verge,\nditch",
+        name == "VODA" ~ "water\nmargin",
+        name == "PASTVINA" ~ "pasture"
       )
     )
 }

@@ -14,7 +14,7 @@
 #
 # Most variables are read out of two free-text fields the surveyors fill in:
 #
-#   POP_BIOT     habitat description  -> TTP, PRIKOP, ZARUST, JINY
+#   POP_BIOT     habitat description  -> TTP, PRIKOP, ZARUST, JINY, VODA, PASTVINA
 #   STRUKT_POZN  structured notes     -> host plant, threats, management
 #
 # Which records the host-plant filter drops, and how the threat list is
@@ -544,7 +544,8 @@ validate_table(
     EVL = flag_values, EVL_target = flag_values, MZCHU = flag_values,
     PROTECT = flag_values, METHOD = flag_values, TIMING = flag_values,
     GRAZE = flag_values, GRAZE_MET = flag_values,
-    TTP = flag_values, PRIKOP = flag_values, ZARUST = flag_values, JINY = flag_values
+    TTP = flag_values, PRIKOP = flag_values, ZARUST = flag_values, JINY = flag_values,
+    VODA = flag_values, PASTVINA = flag_values
   ),
   xy = c("X", "Y"),
   max_rows = nrow(data_with_imputed)

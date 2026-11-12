@@ -225,8 +225,10 @@ pop_biot:
     PRIKOP: ["příkop"]                                 # ditch, road verge
     ZARUST: ["zarůstající louka bez managementu"]      # neglected grassland
     JINY: ["jiný"]                                     # "jiný", "jiný typ biotopu-..."
-  # TODO(Jonáš): two categories of the form set no flag: "okraj vodní plochy"
-  # (263 records) and "pastvina" (13). Map them to a flag or add flags.
+    # The last two categories of the form set no flag until 2026-11-12, so a
+    # site described only as a water margin had no habitat type (HET_INN 0).
+    VODA: ["okraj vodní plochy"]                       # margin of a water body
+    PASTVINA: ["pastvina"]                             # pasture
 
 #--------------------------------------------------#
 # Structured notes (STRUKT_POZN) -----
