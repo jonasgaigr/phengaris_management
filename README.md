@@ -34,6 +34,8 @@ The cascade runs two specifications side by side:
   - absences imputed visit by visit, and only inside the imputed species'
     reporting range;
   - explicit negatives outside the range kept;
+  - only the records whose structured notes were filled in: those with a
+    host-plant entry, the host plant present;
   - observer, flight-season timing and the field-form era as covariates;
   - multivariable glmmTMB models fitted with and without the imputed
     absences, with diagnostics;
@@ -83,7 +85,7 @@ source("run_all.R")          # everything, in dependency order
 ```
 
 ```sh
-Rscript run_all.R            # everything (about 95 minutes; the MCMC of step 23 takes 40)
+Rscript run_all.R            # everything (about 100-125 minutes; the MCMC of step 23 takes 45-50)
 Rscript run_all.R 07 08 15   # selected steps only
 Rscript R/09_models_nausithous.R   # one step on its own
 PHENGARIS_SPEC=revised Rscript R/07_describe_tables.R   # under a chosen specification
@@ -113,7 +115,7 @@ PHENGARIS_SPEC=revised Rscript R/07_describe_tables.R   # under a chosen specifi
 |---|---|---|---|---|
 | 01 | `01_load_source_data.R` | common | occurrence exports 2019-2024 and 2012-2018, site shapefiles | `records.csv`, `sites.gpkg`, `records_2012_2018.csv`, `sites_2012_2018.gpkg` |
 | 03 | `03_protected_areas.R` | common | 01, reference EVL / MZCHU / Natura 2000 subjects | `protected_area_id.csv` |
-| 05 | `05_habitat_intersect.R` | common | 01, frozen intersection, VMB and KVES copies (each optional) | `data_lokal_vmb.csv`, `data_lokal_vmb_current.csv`, `data_lokal_kves.csv`, `site_areas.gpkg`, `site_area_shape.csv` |
+| 05 | `05_habitat_intersect.R` | common | 01, frozen intersection, VMB and KVES copies, habitat catalogue (each optional) | `data_lokal_vmb.csv`, `data_lokal_vmb_current.csv`, `data_lokal_kves.csv`, `site_areas.gpkg`, `site_area_shape.csv` |
 | 16 | `16_site_design.R` | common | 01, elevation model (optional) | `site_design.csv`, `flight_window.csv`, `flight_curve.csv`, `connectivity.csv`, `site_history.csv` |
 | 21 | `21_landscape.R` | common | 01, 16, landscape rasters (optional) | `landscape.csv` |
 | 02 | `02_impute_absences.R` | spec | 01, reporting ranges | `data_with_imputed.csv` |
@@ -166,8 +168,10 @@ What each step does:
      notes `STRUKT_POZN` key by key;
    - habitat type from `POP_BIOT`.
 
-   It then applies the specification's host-plant filter. Unknown values stay
-   NA. Under the revised specification it also adds the survey-design
+   It then applies the specification's host-plant filter: both
+   specifications keep only the records with the host plant recorded
+   present, so every analysed record has its structured notes filled in.
+   Unknown values stay NA. Under the revised specification it also adds the survey-design
    variables (observer, flight-season timing, field-form era, persistent site,
    site area, protection designated for the record's own species,
    connectivity). It keeps one record per species × site × visit.
@@ -341,23 +345,24 @@ regenerates them.
 - file paths;
 - the specifications.
 
-Choices that need a decision on the ecology or the field protocol are marked
-**`TODO(Jonáš)`**. Values marked **PROPOSED** are used by the revised
-specification until they are confirmed. The open ones are:
+The choices on the ecology and the field protocol carry the date they were
+decided on. A choice still waiting for a decision would be marked
+**`TODO(Jonáš)`**; none is at present. The last ones were settled on
+2026-11-12 (`REVIEW.md`, "Status at merge"):
 
-- which other sources are targeted monitoring;
-- the meaning of a missing grazing or mowing entry;
-- the mapping of the older (2019-2020) threat list (proposed);
-- the observer aliases (proposed);
-- the unmapped habitat categories;
-- the KVES version of each record year, the closest one (proposed);
-- the crosswalk from the habitat codes to the Natura 2000 habitat codes;
-- from Phase 4 (proposed): the flight-season cut-off at 5 % of the flight
-  curve, the season term, the connectivity grids and their choice by
-  profile likelihood, the 3 km radius of a plausible imputed absence, the
-  detection priors, the wet-meadow codes and the 25 m edge, the land-cover
-  groups and radii, the matching covariates, the Article 17 codes of the
-  threat classes and the confirmatory threats.
+- the revised specification keeps only the records with a host-plant entry;
+- two records the source database marks as unusable are excluded
+  (`records: excluded`);
+- grazing and mowing are unknown where the structured notes are empty;
+- abandonment and harmful grazing are unknown in 2021
+  (`strukt_pozn: threat_unknown_years`);
+- the water margin and the pasture have a habitat flag of their own;
+- T1.9 counts among the *Sanguisorba* meadows;
+- the Natura 2000 habitat type comes from the habitat catalogue, and the
+  renamed and split KVES categories have their 2025 code;
+- confirmed as they were: the candidate sources (not targeted monitoring),
+  the mapping of the 2019-2020 threat list, the Article 17 codes, the
+  observer alias, and every value of Phase 4 that was marked PROPOSED.
 
 ## Data
 
@@ -384,7 +389,12 @@ layers the cascade needs:
 
 - EVL, MZCHU and the mapping grid (AOPK WFS);
 - the border, the shaded relief and the elevation model (RCzechia);
-- the Natura 2000 site-subject table (rn2kcz).
+- the Natura 2000 site-subject table (rn2kcz);
+- the habitat catalogue with the Natura 2000 habitat type of each habitat
+  code (rnaturecz, `habitat_catalogue.csv`). rnaturecz is not in
+  `renv.lock` while its repository is private: install it in the user
+  library with `remotes::install_github("BiodivMonCZ/rnaturecz")`, where
+  the tool finds it. Only the tool needs it.
 
 `RETRIEVED.yml` records when and where each copy was fetched. To bring them
 up to date, run `R/tools/refresh_reference_layers.R` by hand
@@ -429,12 +439,18 @@ download_habitat_layers()    # about 2 hours the first time; needs step 01
   the input contract of `config.yml` `habitat: required_columns`), one
   `kves_<version>.gpkg` per KVES version, and `RETRIEVED.yml`.
 - The published VMB has no Natura 2000 habitat code, so `HABITAT` is empty
-  until a crosswalk is added. `FSB_EVAL` is derived: X for a mapped segment
+  in the layer. The cascade derives it from the habitat code when it reads
+  the layer, by the habitat catalogue (`natura_habitat_of()`); on the
+  frozen intersection the catalogue gives the mapped code for 7244 of 7245
+  overlaps (`05_natura_codes_from_catalogue`). `FSB_EVAL` is derived: X for a mapped segment
   less than half natural. This is the network share's rule without two
   artefacts of its table joins (`CHANGELOG.md`).
 - KVES before 2025 publishes only the category name. Its code is the 2025
-  code of the category of the same name; `RETRIEVED.yml` lists the categories
-  left without one.
+  code of the category of the same name. The 16 categories 2025 renamed or
+  split (`RETRIEVED.yml` lists them) take their code from
+  `habitat: kves_category_codes` when the layer is read; the three
+  managed-forest classes, split by tree species in 2025, take the code
+  those share, D11.
 
 **How the current layers describe a site.**
 
@@ -447,7 +463,7 @@ download_habitat_layers()    # about 2 hours the first time; needs step 01
 - Over that area: the habitat shares from VMB, each weighted by `STEJ_PR`,
   including the shares of natural habitats, of X habitats (kept apart from
   the unmapped area) and of the *Sanguisorba* meadows (T1.1, T1.4, T1.5,
-  T1.7, T1.10); and the dominant KVES class.
+  T1.7, T1.9, T1.10); and the dominant KVES class.
 
 **Which habitat layer a specification uses** (`habitat_source` in
 `config.yml`):

@@ -66,7 +66,7 @@ The environment works:
 | 3 | No persistent site ID; `(1 \| X:Y)` is nearly observation-level | blocks | c | [x] P3.1 (revised) |
 | 4 | Imputation per 10 km cell; species-specific fields inherited | blocks | b + c | [x] b03; P3.2 (revised) |
 | 5 | `STRUKT_POZN` parsed with `grepl()` on the whole string | biases | a + b | [x] parser (a), b04 |
-| 6 | Unknown coded as 0 (`GRAZE`, `OVERALL`, `MOW`, threats) | biases | b | [x] b05 |
+| 6 | Unknown coded as 0 (`GRAZE`, `OVERALL`, `MOW`, threats) | biases | b | [x] b05; empty notes b14 |
 | 7 | Dead filters, unused sources, `ZDROJ` year ≠ record year | cosmetic | a | [x] (a) |
 | 8 | Habitat segment rule keeps the least natural, smallest segment | biases | c | [x] area-weighted on the current VMB layer, point sites over their KVES polygon (revised, P3.9) |
 | 9 | AIC tables compare models fitted on different n | blocks | b | [x] b07 |
@@ -78,14 +78,14 @@ The environment works:
 | 15 | Remote layers fetched live on every run | biases (drift) | a | [x] (a) |
 | 16 | Steps 02, 03, 14 depend on session objects | cosmetic | a | [x] (a) |
 | 17 | Hard-coded paths, stale outputs, tracked intermediates, no seeds | cosmetic | a | [x] (a), b08 |
-| 18 | Two threat codebooks; legacy patterns miss 46 % of the older one | biases | c | [~] mapping proposed (revised), TODO check; Article 17 codes P4.11 |
-| 19 | `PRIKOP` misses plain "příkop"; `HET_INN` = 0 when unmatched | biases | b | [x] b06 |
+| 18 | Two threat codebooks; legacy patterns miss 46 % of the older one | biases | c | [x] mapping accepted 2026-11-12 (revised); Article 17 codes checked (P4.11) |
+| 19 | `PRIKOP` misses plain "příkop"; `HET_INN` = 0 when unmatched | biases | b | [x] b06; water margin and pasture c20 |
 | 20 | The field form changed in 2021; geometry and keys confounded with year | biases | c | [x] P3.4 (revised) |
-| 21 | The host-plant filter silently drops 869 records | biases | a (report) + c | [x] reported (a); revised keeps the unknown-plant records |
+| 21 | The host-plant filter silently drops 869 records | biases | a (report) + c | [x] reported (a); revised drops the records without a host-plant entry too (2026-11-12) |
 | 22 | Inherited counts contaminate the abundance comparisons | biases | b + c | [x] b03; P3.8 (revised) |
 | 23 | Step 02 silently drops 365 records outside the species' own range | biases | a (report) + c | [x] reported (a); kept in revised (Q2) |
 | 24 | `EVL_target` is species-blind, contradicting its own documentation | biases | c | [x] `EVL_species` (revised); matching P4.8 |
-| 25 | Small data oddities: out-of-season dates, wrong `.prj`, candidate sources | cosmetic | a + TODO | [~] out-of-season flagged (revised); TODOs in config.yml |
+| 25 | Small data oddities: out-of-season dates, wrong `.prj`, candidate sources | cosmetic | a + b | [x] out-of-season flagged (revised); two records excluded, candidate sources not targeted (2026-11-12) |
 | 26 | SPEC_NUM is 1 only on positive records: separation by construction | blocks | c | [x] co-occurrence reformulated (revised) |
 
 ---
@@ -202,7 +202,7 @@ After deduplicating on (`ID_NALEZ`, `DRUH`):
 **Fix (c).**
 
 - `match_sites()` builds `SITE_ID` from overlap or distance, with
-  `site_match_distance_m` in the config (`TODO(Jonáš)`; 50 m proposed).
+  `site_match_distance_m` in the config (50 m, approved with P3.1).
 - Revised random effects: `(1 | SITMAP) + (1 | YEAR)`, with `(1 | SITE_ID)` as
   an option, and a sensitivity check over 0 / 50 / 200 m.
 
@@ -255,8 +255,8 @@ range. Under it:
 
 **Fix (c).**
 
-- `config: imputation$rule ∈ {legacy_cell, visit, none}`. `TODO(Jonáš)`: see
-  Q1.
+- `config: imputation$rule ∈ {legacy_cell, visit, none}`. Decided with Q1:
+  the visit rule, inside the reporting range only.
 - Every model is fitted with and without imputed absences.
 
 ### 5. `STRUKT_POZN` parsing
@@ -331,8 +331,10 @@ Against a key–value parse, on all 4540 analysis rows:
   - `Pastva: ne` (2 rows) is coded `GRAZE = 1`.
 - **`MANAGEMENT_HET`** ≡ `!is.na(METHOD)` on all 4540 rows.
 - **`OVERALL`** is 0 for the 2089 rows where mowing was not assessed.
-- **`MOW`** is the presence of a `Seč` key; it is 0 in 1935 rows. Whether the
-  form omits the `Seč` fields when a site is not mown is `TODO(Jonáš)`.
+- **`MOW`** is the presence of a `Seč` key; it is 0 in 1935 rows. Decided
+  2026-11-12: a filled-in form without a `Seč` or `Pastva` entry means not
+  mown or not grazed; where the structured notes are empty, both are
+  unknown.
 - **Threat flags.** 610 rows have no threat key at all, yet every threat flag
   and `SUM_THREATS` is 0 for them.
 
@@ -366,7 +368,7 @@ Against a key–value parse, on all 4540 analysis rows:
   - "Kolektiv autorů (2022) Monitoring motýlů." holds 5 records from 2021, 761
     from 2022, 453 from 2023 and 565 from 2024;
   - the 2021 sources hold 11 records from 2019 and 17 from 2020.
-  - Whether this is intended is `TODO(Jonáš)`.
+  - This is how the sources are published (confirmed 2026-11-12).
 - The 2012–2018 data are loaded on every run; no step uses them.
 - `YEAR`: see the table at the top.
 
@@ -400,10 +402,11 @@ Against a key–value parse, on all 4540 analysis rows:
 
 - Area-weighted summaries per site:
   - overlap with a configurable *Sanguisorba*-meadow habitat group
-    (`TODO(Jonáš)`: code list);
+    (decided: T1.1, T1.4, T1.5, T1.7, T1.10, and T1.9 from 2026-11-12);
   - the share of natural habitat;
   - the dominant habitat by area.
-- Point and line sites get a buffer (`TODO(Jonáš)`: width).
+- Point and line sites get a buffer (decided 2026-10-15: none; they take
+  the KVES polygon they lie in).
 - The legacy rule stays available as an option.
 - Habitat input contract: see the plan.
 
@@ -482,7 +485,7 @@ Other mismatches:
 
 - Say in every model report that these are naive occupancy models.
 - Add day of year (quadratic, relative to the flight window) and
-  `(1 | observer)`. `TODO(Jonáš)`: the flight window.
+  `(1 | observer)`. The flight window was decided with P3.3 and P4.1.
 
 ### 12. The ordination cannot be interpreted
 
@@ -662,7 +665,8 @@ Other mismatches:
 - A vocabulary table in the config maps each item of both lists to a threat
   class.
 - The legacy mapping reproduces today's flags.
-- The proposed mapping of the older items is `TODO(Jonáš)`.
+- The proposed mapping of the older items was accepted on 2026-11-12
+  ("Status at merge").
 
 ### 19. Habitat-description flags (`POP_BIOT`)
 
@@ -695,8 +699,9 @@ Other mismatches:
 
 - **(b)** `PRIKOP` matches `příkop` (the variable, and the figure label "road
   verge, ditch", cover ditches).
-- **(c)** The mapping of the other categories goes into the config with
-  `TODO(Jonáš)`.
+- **(c)** The mapping of the other categories goes into the config. Decided
+  2026-11-12: `okraj vodní plochy` and `pastvina` each set a flag of their
+  own (`VODA`, `PASTVINA`).
 
 ### 20. The field form changed in 2021
 
@@ -776,7 +781,7 @@ Other mismatches:
 **Fix.**
 
 - **(a)** Report the drop.
-- **(c)** `config: keep_outside_range` (`TODO(Jonáš)`).
+- **(c)** `config: keep_outside_range` (decided with Q2: kept in revised).
 
 ### 24. `EVL_target` is species-blind
 
@@ -801,21 +806,25 @@ legacy flag stays.
 
 - **Out-of-season dates.** Three rows are dated 2024-10-29 and 2024-12-12
   (day of year 303 and 347). All are negatives, one of them imputed.
-  `TODO(Jonáš)`: drop them, or flag them via the flight window.
+  Decided 2026-11-12: they stay in the data, flagged outside the flight
+  season, so no revised model uses them; legacy keeps them.
 - **Wrong `.prj`.** The site shapefiles' `.prj` declares ETRS89/LAEA, but the
   coordinates are S-JTSK. `st_set_crs(5514)` is therefore correct, and the
   comment "carry no CRS" is wrong.
 - **A mislocated record.** One record's validation note, recovered by the
   b01 reader fix, reads "špatná lokalizace, na místě není vhodný biotop ani
   živná rostlina" (wrong location; no suitable habitat or host plant on the
-  spot). `TODO(Jonáš)`: exclude it?
+  spot). Excluded on 2026-11-12 (`records: excluded`), with a monitoring
+  record whose site drawing does not match its description; see "Status at
+  merge".
 - **Candidate sources.** These sources are not on the list but may be targeted
   monitoring:
   - "Kolektiv autorů (2024) Síťové mapování denních motýlů v letech 2024-2029"
     (156 rows);
   - "FIŠER M. (2020/2021) Monitoring EV druhů" (129 / 65);
   - "FIŠER M. (2023) Mapováni EV druhů (2023)" (52).
-  - `TODO(Jonáš)`.
+  - Decided 2026-11-12: none is targeted monitoring. All 402 records are
+    presence-only, without a negative record or structured notes.
 
 ### 26. SPEC_NUM separates occupancy by construction
 
@@ -863,7 +872,8 @@ listed in the plan below.
 **Open, awaiting approval:** the Phase 3 proposals P3.1-P3.9 below, and with
 them the revised specification.
 
-**Open, needing domain input.** These are the `TODO(Jonáš)` entries in
+**Open, needing domain input** (as of Phase 2; all settled by 2026-11-12,
+see "Status at merge"). These were the `TODO(Jonáš)` entries in
 `config.yml`:
 
 - candidate sources;
@@ -913,7 +923,8 @@ changed). Results and numbers are in `CHANGELOG.md` and
   host plant recorded absent are structural zeros: 4 positives out of 342.
   The revised specification drops only those.
 
-**Open, needing domain input** (`TODO(Jonáš)` / PROPOSED in `config.yml`):
+**Open, needing domain input** (as of Phase 3; all settled by 2026-11-12,
+see "Status at merge"):
 
 - the mapping of the 2019-2020 threat items;
 - the connectivity alpha (1 per km);
@@ -966,17 +977,18 @@ area in 99.9 % (`05_current_vs_frozen`).
 |---|---|---|
 | Mosaic share column | `STEJ_PR` | `habitat: share_column` |
 | Margin around the sites | 200 m | `habitat: margin_m` |
-| Natura 2000 code (`HABITAT`) | A crosswalk from `BIOTOP` will be added later | `TODO(Jonáš)` in `config.yml`; `HABITAT` stays empty |
+| Natura 2000 code (`HABITAT`) | A crosswalk from `BIOTOP` will be added later | Added on 2026-11-12 from the habitat catalogue (`natura_habitat_of()`) |
 | X habitats | May be valuable for the species too | `X_SHARE`, the share of a site in X habitats, kept apart from the unmapped area |
 | Buffer widths for point sites | None: a point site takes the KVES polygon it lies in, from the KVES version of the record's year | `site_areas()`; KVES 2021, 2022, 2023 and 2025 downloaded; the year → version map is PROPOSED |
 | *Sanguisorba* habitat codes | T1.1, T1.4, T1.5, T1.7, T1.10 | `habitat: sanguisorba_meadow_codes`; `SANGUISORBA_AREA`, `SANGUISORBA_SHARE` |
 
 The results are in `CHANGELOG.md`.
 
-**Open, needing domain input**, in addition to the list above:
+**Open, needing domain input**, in addition to the list above (all settled
+by 2026-11-12, see "Status at merge"):
 
 - the KVES version of each record year: the closest version, and for 2024,
-  equally close to 2023 and 2025, the later one (PROPOSED);
+  equally close to 2023 and 2025, the later one;
 - the crosswalk from `BIOTOP` to the Natura 2000 habitat codes;
 - a crosswalk between the KVES versions. The versions before 2025 publish
   only the category name, and 13 of their 38 categories (16 in 2021) have no
@@ -1154,8 +1166,8 @@ analyses could not do:
 - Record explicit *P. teleius* negatives at every visit where it was
   searched for. That would make the imputation unnecessary.
 
-**Open, needing domain input** (PROPOSED or `TODO(Jonáš)` in `config.yml`),
-in addition to the lists above:
+**Open, needing domain input**, in addition to the lists above (all
+confirmed on 2026-11-12, see "Status at merge"):
 
 - the flight-season cut-off at 5 % of the curve, and the season term;
 - the connectivity grids, and their choice by profile likelihood;
@@ -1165,6 +1177,124 @@ in addition to the lists above:
 - the land-cover groups and the radii;
 - the matching covariates;
 - the Article 17 codes of the threat classes and the confirmatory threats.
+
+## Status at merge (2026-11-13)
+
+**Done.** Every open item, question and `TODO(Jonáš)` was put to a
+decision on 2026-11-12 and implemented, one commit each, with its numbers
+in `CHANGELOG.md` and its diff in `changes/` (`b11`-`b14`, `c19`-`c23`).
+`config.yml` holds no `TODO(Jonáš)` and no PROPOSED mark any more. The
+merge into `main` is a fast-forward to this state.
+
+**Decisions** (2026-11-12):
+
+| | Answer | Implemented as |
+|---|---|---|
+| Records to analyse | Only those whose structured notes were filled in: a host-plant entry is required | `host_plant_filter: absent_or_unknown` in the revised specification (`c19`) |
+| Flagged records (item 25) | Exclude both the mislocated iNaturalist record and the monitoring record whose drawing does not match its description | `records: excluded`, dropped in step 01 (`b12`) |
+| The 2021 threat list (item 34 below) | Abandonment and harmful grazing unknown in 2021 | `strukt_pozn: threat_unknown_years` (`b13`) |
+| Unmapped `POP_BIOT` categories (item 19) | A flag each for the water margin and the pasture | `VODA`, `PASTVINA`, counted in `HET_INN` (`c20`) |
+| A missing `Pastva` or `Seč` entry (item 6) | Not grazed or not mown on a filled-in form; unknown where the notes are empty | `GRAZE`, `MOW` NA for empty notes (`b14`) |
+| Natura 2000 code of the habitats | From `rnaturecz::list_habitats()` | `habitat_catalogue.csv`, `natura_habitat_of()` (`c21`) |
+| Crosswalk between the KVES versions | As proposed: 13 categories to one 2025 code, the three managed-forest classes to D11 | `habitat: kves_category_codes` (`c22`) |
+| *Sanguisorba* meadow codes | Add T1.9 | `sanguisorba_meadow_codes`; landscape rasters built again (`c23`) |
+| Older threat list (item 18) | Mapping accepted as proposed | No change |
+| Candidate sources (item 25) | Not targeted monitoring | No change |
+| `ZDROJ` year, observer alias, out-of-season visits | Confirmed as they stand | No change |
+| Every value marked PROPOSED (Phase 3 and 4) | Confirmed | No change |
+| `693b185` | Document it as a bug fix, history untouched | `b11` |
+
+**Found while preparing the merge.**
+
+- **34. The threat list of 2021 is not that of 2022-2024.** "absence či
+  nedostatek péče" is listed at 1 of the 627 records of 2021 with a threat
+  list, against 23-29 % later; "nevhodná pastva" at 34 %, against 1-3 %,
+  with grazing recorded at 9 of those 212 records. Item 29 took the whole
+  of 2021-2024 as one list. Both classes are now unknown in 2021. What the
+  2021 form listed is worth asking AOPK.
+- **35. A record outside the analysis table can still reach it.** The
+  mislocated iNaturalist record was never a targeted record, but as the
+  only positive record of *P. teleius* within 6.5 km it made two imputed
+  absences plausible and entered the connectivity. Excluding it and one
+  monitoring record moved the matched Natura 2000 estimates of *P. teleius*
+  more than any other change (matching weights, with imputed: 2.40 → 6.22).
+- **36. One source has no structured notes.** "Kolektiv autorů (2021)
+  Monitoring totenových modrásků" holds 397 of the 511 revised records
+  without any structured notes. It also held 140 of the 141 visits of the
+  newer form at which both species were recorded, so the co-occurrence
+  model had drawn its newer era from records without notes.
+- **37. `compare_snapshots()` matched the site tables by row position**, so
+  one site less showed as a change in every row after it. They now have
+  their keys (an (a) change to the tool).
+
+**What the decisions changed** (the baseline is the branch as it stood on
+2026-10-22; numbers in `CHANGELOG.md`).
+
+- **The management results do not move.** The management models already
+  needed the host plant and the mowing entries, so they are fitted on the
+  same 1924 (*P. nausithous*) and 1339 (*P. teleius*) records: timing 2.16
+  (1.48-3.15), uncut patches 2.18 (1.34-3.56), abundant host plant 2.93
+  (2.23-3.86), in all three samples and 9-10 of 10 analyses. Connectivity,
+  the landscape scales, the detection sensitivity (p 0.78 and 0.69) and the
+  spatial models are the same.
+- **The revised analysis table** has 5927 records instead of 6576
+  (*P. nausithous* 3498 in season with 1446 positive; *P. teleius* 2412
+  with 200 positive, 1309 in the plausible sample).
+- **Natura 2000.** *P. nausithous*: no positive association in any
+  analysis (0.57-1.31 across the samples and methods). The matched GLMM
+  without the grid square is now below 1 in the plausible sample (0.57,
+  0.40-0.82) and the observed one (0.63, 0.43-0.90); before the host-plant
+  filter its intervals reached 1. *P. teleius*: unmatched 5.72
+  with imputed and 4.01 in the plausible sample; covariate-adjusted 1.94
+  and 1.63; after matching 1.40-4.37 and 1.18-1.99. The matched estimates
+  of this species swing with single records and covariates; the
+  covariate-adjusted ones are the steadier, and are the ones to cite.
+- **Persistence.** A record of the species at the site in 2012-2018:
+  *P. nausithous* 2.82 (2.05-3.88); *P. teleius*, plausible sample, 1.84
+  (1.00-3.41), p 0.051, no longer among the main findings.
+- **Co-occurrence** is no longer among the main findings: the model is now
+  one of 2019-2020 and its era term separates (item 36). *P. nausithous*
+  2.58 (1.03-6.45), bias-reduced 2.31 (1.21-4.43); *P. teleius* 1.85
+  (0.66-5.25).
+- **Threats.** Fertiliser use stays the one association that passes its
+  adjustment (0.34, Holm 0.026). Harmful grazing for *P. nausithous* is 0.56
+  (0.32-1.00) without 2021, Holm 0.192.
+- **Legacy** changes in two places only: the excluded monitoring record
+  (dropped by the host-plant filter anyway, so no model changes) and
+  `HET_INN`, whose *P. nausithous* slope is now −0.124 with p 0.046.
+
+**How it was checked.**
+
+- The branch as it stood was run in full first and reproduced the previous
+  outputs exactly (364 files identical; 108 minutes).
+- The first two decisions were each run in full from a clean worktree of
+  their commit; the later ones on top, rerunning the steps each can reach.
+- A full run from a clean worktree of the last commit that touches the
+  cascade or `config.yml` (`7959806`; after it only the comparison tool and
+  the documentation changed), with `renv::restore()` from the
+  lockfile, gave the same tables and processed data as that chain.
+- After the merge, `main` is run in full from a clean worktree and compared
+  with that run.
+- Tests, styler and lintr pass.
+
+**Open.** None of these waits in `config.yml`; they are questions for the
+manuscript.
+
+- **The co-occurrence model.** With one visit of the newer form left, its
+  era term cannot be estimated. Refit it without the era term, on
+  2019-2020 alone, or leave it out.
+- **The matched Natura 2000 estimates of *P. teleius*** are unstable
+  (item 35). Report the covariate-adjusted estimate beside them, or in
+  their place.
+- **Natura 2000, *P. nausithous*.** One of the five analyses, the matched
+  GLMM without the grid square, puts the species below the comparable
+  sites in two samples. The other four do not; how to report it is open.
+- **The 2021 threat list** (item 34): what the form of 2021 listed.
+- **The priority form of 6210** cannot be derived from the habitat code;
+  `HABITAT` gives 6210 for it.
+- **rnaturecz** is not in `renv.lock` while its repository is private; the
+  tool that needs it finds it in the user library.
+- The recommendations for the monitoring of "Status after Phase 4" stand.
 
 ---
 
@@ -1344,6 +1474,20 @@ Not taken up, with the reason:
   same model class from CRAN binaries.
 
 ## Questions
+
+All five are answered. They are kept as they were asked:
+
+- [x] **Q1**: impute only inside the reporting range; the revised
+  specification uses the visit rule (2026-10-09).
+- [x] **Q2**: keep the explicit negatives outside the range in the revised
+  specification (2026-10-09).
+- [x] **Q3**: `run_all.R` (2026-10-09).
+- [x] **Q4**: option A (2026-10-09).
+- [x] **Q5**: the flight window with P3.3 and P4.1; the site-matching
+  distance with P3.1; buffer widths, the *Sanguisorba* codes and the
+  mosaic share column on 2026-10-15; alpha with P4.2; the older threat
+  list, the `POP_BIOT` categories, the missing `Seč` key, the candidate
+  sources and the out-of-season dates on 2026-11-12 ("Status at merge").
 
 **Q1. Imputation (blocks P3.2).** On a targeted visit where only
 *P. nausithous* is recorded, was *P. teleius* searched for?

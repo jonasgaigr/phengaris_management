@@ -1754,3 +1754,419 @@ fields are the same.
 Every record lies in a quadrant. One record has its coordinates in a basic
 field other than its `SITMAP`; no surveyed quadrant lies in a field that no
 `SITMAP` code names. The other 362 processed files and tables are identical.
+
+---
+
+## The decisions of 2026-11-12: how their numbers were produced
+
+The entries below are the decisions taken before the merge into `main`
+(`REVIEW.md`, "Status at merge"), one commit each.
+
+- The first two were each run in full, both specifications, from a clean
+  worktree of their commit, and compared with the state before.
+- The later ones were run on top of the second, each rerunning the steps
+  its change can reach.
+- A last full run from a clean worktree of the final commit gave the same
+  tables as that chain, cell for cell.
+
+The baseline is a full run of the branch as it stood (`693b185`), which
+reproduced the previous outputs exactly (364 files identical).
+
+---
+
+## (c) Revised: only the records with a host-plant entry
+
+- **Commit:** `0fed7c0`
+- **Specification:** revised only; legacy unchanged (it has always used
+  this rule).
+- **Full diff:** [`changes/c19_host_plant_entry.md`](changes/c19_host_plant_entry.md)
+- **Decision:** 2026-11-12. The analysis uses only the records whose
+  structured notes (`STRUKT_POZN`) were filled in.
+
+**Why.** The revised specification dropped the records with the host plant
+recorded absent and kept those without host-plant information, leaving them
+out only of the models that use the host plant. The baseline, Natura 2000,
+persistence, co-occurrence and descriptive parts therefore ran on 649 records
+without a host-plant entry: 511 with no structured notes at all (397 of them
+the whole source "Kolektiv autorů (2021) Monitoring totenových modrásků") and
+138 with threats or mowing noted but no host plant.
+
+**What changed.** `host_plant_filter` of the revised specification:
+`absent` → `absent_or_unknown`.
+
+**What changed in the numbers.**
+
+| | before | after |
+|---|---|---|
+| revised analysis table, records | 6576 | 5927 |
+| *P. nausithous*, in season, with imputed | 3842 (1589 positive) | 3498 (1446) |
+| *P. nausithous*, observed only | 3532 | 3191 |
+| *P. teleius*, in season, with imputed | 2716 (213 positive) | 2412 (200) |
+| *P. teleius*, with plausible imputed | 1568 | 1311 |
+| *P. teleius*, observed only | 895 | 702 |
+| records with the management recorded (*P. nausithous* / *P. teleius*) | 1924 / 1339 | 1924 / 1339 |
+
+- **The management models do not change.** They already needed the host
+  plant and the mowing entries, so they are fitted on the same records:
+  timing 2.16, uncut patches 2.18, their interaction 0.45, abundant host
+  plant 2.93, all as before. So are the connectivity profile, the windows,
+  the SPDE and spatial+ models, the habitat and landscape models and the
+  detection sensitivity of step 23.
+- **The models on every in-season record** are refitted on fewer records:
+  the baseline models, the two species together and the comparison of the
+  season terms. The quadratic still fits *P. nausithous* better (delta AIC
+  6.1 → 5.1) and the flight curve *P. teleius* about equally (1.8 → 2.1 in
+  its favour). The residuals of one baseline model (*P. nausithous*,
+  plausible sample) are now spatially autocorrelated (Moran's I, p 0.033),
+  so step 18 fits its smooth of the coordinates beside the grid
+  (`18_grid_vs_smooth`); no management model is.
+- **Natura 2000 (step 24).** *P. nausithous*, with imputed: unmatched 1.40 →
+  1.19, with matching weights 1.10 → 0.89, cluster-robust 1.16 → 0.90;
+  still no positive association. The matched GLMM without the grid square
+  falls below 1 in the two other samples: plausible 0.76 (0.54-1.07) → 0.56
+  (0.39-0.80), observed 0.69 (0.48-1.00) → 0.51 (0.35-0.74). *P. teleius*,
+  with imputed: unmatched 4.86 → 5.72,
+  covariate-adjusted 1.82 → 1.98, matching weights 4.42 → 2.40,
+  cluster-robust 1.47 → 1.19; with plausible imputed: unmatched 3.68 → 4.01,
+  covariate-adjusted 1.61 → 1.65.
+- **Persistence (step 24).** A record of the species at the site in
+  2012-2018: *P. nausithous* 3.04 (2.22-4.15) → 2.82 (2.05-3.88);
+  *P. teleius*, plausible sample, 2.08 (1.15-3.76) → 1.85 (1.00-3.43),
+  p 0.016 → 0.050.
+- **Co-occurrence (step 17).** The visits with both species recorded fall
+  from 584 to 394. Of the 141 visits of the newer form one is left: the
+  other 140 are of the 2021 source without structured notes. The model is
+  therefore one of 2019-2020, its era term separates, and both models are
+  flagged "possible separation". The other species recorded at the visit:
+  *P. nausithous* 4.27 (1.72-10.60) → 2.58 (1.03-6.45), bias-reduced 2.31
+  (1.21-4.43); *P. teleius* 3.32 (1.31-8.41) → 1.85 (0.66-5.25). Being
+  flagged, neither is listed among the main findings any more.
+- **Threats (step 19).** The estimates move in the second decimal;
+  fertiliser use for *P. nausithous* 0.35 → 0.34, Holm-adjusted p 0.030 →
+  0.026. The effects of livestock farming for *P. teleius* with imputed
+  absences, which had no standard error, are now estimated (0.86,
+  0.26-2.91), and the stacked model of the observed *P. nausithous* sample,
+  which had not converged, converges.
+- The main findings (step 26) are otherwise the same list, with the same
+  estimates for every management, host-plant, landscape and connectivity
+  term.
+
+125 files changed, 2 added, 3 removed, 236 identical; every legacy file is
+identical.
+
+---
+
+## (b) Two records the source database marks as unusable are excluded
+
+- **Commit:** `e1ca6ce`
+- **Specification:** both.
+- **Full diff:** [`changes/b12_excluded_records.md`](changes/b12_excluded_records.md)
+- **Review item:** 25.
+
+**Why.** Four records carry the validation "záznam k opravě". For two the
+note corrects the observer or the date. For the other two it questions the
+record itself:
+
+- `48780342`, *P. teleius*, 7 July 2019, iNaturalist: "špatná lokalizace,
+  na místě není vhodný biotop ani živná rostlina". It is not targeted
+  monitoring, so it was never in the analysis table. But it counted among
+  the positive records of every source, and it was the only one of the
+  species within 6.5 km.
+- `52600070`, *P. nausithous*, 23 July 2021, targeted monitoring: "zákres
+  neodpovídá popisu".
+
+**What changed.** `config.yml` lists them under `records: excluded`, and
+step 01 drops them when it reads the exports.
+
+**What changed in the numbers.**
+
+- `records.csv`: 10 112 → 10 110. The positive records of 2021 that place
+  the *P. nausithous* flight season: 1111 → 1110, of 2019 for *P. teleius*:
+  218 → 217; no median moves. The *P. nausithous* flight curve is refitted
+  without the one monitoring record and moves by about half a per cent.
+- The two imputed *P. teleius* absences 2.3 and 2.4 km from the iNaturalist
+  record are no longer plausible (the next positive record is 6.5 km away):
+  the plausible sample has 1311 → 1309 records, 284 → 282 plausible imputed
+  absences of the older form.
+- Connectivity changes at the sites within reach of the two records; the
+  profile still picks the same kernels (alpha 1 and 0.5 per km, b = 0).
+- The management estimates are the same to two decimals in every sample.
+- **Natura 2000, *P. teleius*, after matching.** These are the estimates
+  that move, because the matching is on the connectivity: with imputed,
+  matching weights 2.40 (0.89-6.50) → 6.22 (2.26-17.12), without the grid
+  square 2.43 → 2.91, cluster-robust 1.19 → 1.57; with plausible imputed,
+  matching weights 1.66 → 1.40, without the grid square 2.29 → 2.01,
+  cluster-robust 1.25 → 1.07. The unmatched and the covariate-adjusted
+  estimates do not move (5.72, 1.97; 4.01, 1.65). The matched estimates of
+  this species rest on few designated records and swing with two records:
+  the covariate-adjusted ones are the steadier.
+- **Persistence, *P. teleius*, plausible sample:** 1.85 (1.00-3.43),
+  p 0.050 → 1.84 (1.00-3.41), p 0.051, which takes it off the list of the
+  main findings.
+- Legacy: one record less before the host-plant filter, which dropped it
+  anyway (`02_imputation_*`, `04_cleaning_summary`, `04_host_plant_filter`);
+  its analysis table and every model are identical.
+
+103 files changed, 260 identical.
+
+---
+
+## (b) Abandonment and harmful grazing are unknown in 2021
+
+- **Commit:** `2f091df`
+- **Specification:** revised only (the harmonised threat vocabulary);
+  legacy unchanged.
+- **Full diff:** [`changes/b13_threats_2021.md`](changes/b13_threats_2021.md)
+- **Review item:** 18; found while the 2019-2020 mapping was checked.
+
+**Why.** The threat lists of 2021 differ from those of 2022-2024 in two
+items. Among the 627 targeted records of 2021 with a threat list:
+
+- "absence či nedostatek péče" is listed at 1, against 192 of 645 in 2022
+  (23-29 % in 2022-2024). It was evidently not on the form yet, so a 0 there
+  is not an absence. The rule of b09 works by era and does not see it,
+  because the class is common in the rest of 2021-2024.
+- "nevhodná pastva" is listed at 212 (34 %), against 5 in 2022 (1-3 % in
+  2022-2024). Grazing is recorded at 9 of the 212, and 80 % of them are
+  described as regularly managed grassland.
+
+**What changed.** `config.yml` `strukt_pozn: threat_unknown_years` names
+both classes for 2021; `mask_threat_years()` sets them to NA there, after
+the era rule, and step 04 reports it (`04_threat_classes_unknown_years`).
+
+**What changed in the numbers.** In the revised analysis table, 953 records
+of 2021 with a threat list have both classes unknown (342 of them listed
+harmful grazing, 1 abandonment).
+
+| *P. nausithous*, with imputed | before | after |
+|---|---|---|
+| harmful grazing | 0.66 (0.46-0.95), p 0.027, Holm 0.109 | 0.56 (0.32-1.00), p 0.048, Holm 0.192 |
+| abandonment | 1.48 (1.01-2.18), p 0.046, Holm 0.139 | 1.49 (1.00-2.23), p 0.051, Holm 0.192 |
+| fertiliser use | 0.34 (0.16-0.73), Holm 0.026 | the same |
+
+- Harmful grazing for *P. teleius*: 1.24 (0.67-2.30) → 1.59 (0.61-4.14)
+  with imputed, 1.15 → 1.84 (0.71-4.74) in the plausible sample; no
+  interval excludes 1, before or after.
+- The Holm-adjusted p of the other confirmatory threats move with the
+  family (encroachment 0.191 → 0.192, with imputed). No class enters or
+  leaves the main findings: fertiliser use stays the one threat that
+  passes its adjustment.
+- Nothing outside the threat models changes. 18 files changed, 1 added.
+
+---
+
+## (c) The water margin and the pasture have a habitat flag
+
+- **Commit:** `bb56bd1`
+- **Specification:** both. No revised model uses these flags; the legacy
+  models with `HET_INN` change.
+- **Full diff:** [`changes/c20_habitat_flags.md`](changes/c20_habitat_flags.md)
+- **Review item:** 19.
+- **Decision:** 2026-11-12.
+
+**Why.** Two categories of the field form set no `POP_BIOT` flag: "okraj
+vodní plochy" and "pastvina". A site described only as a water margin had no
+habitat type at all (`HET_INN` = 0).
+
+**What changed.** `pop_biot: flags` gains `VODA` and `PASTVINA`. Both are
+derived like the other flags, counted in `HET_INN`, and listed in the
+habitat-type summaries of steps 07 and 08.
+
+**What changed in the numbers.**
+
+- `HET_INN` rises by one at 278 legacy and 356 revised records.
+- Legacy, within-site heterogeneity (`HET_INN`):
+
+  | model | before | after |
+  |---|---|---|
+  | `nau_het_inner`, estimate (p) | −0.101 (0.125) | −0.124 (0.046) |
+  | `tel_het_inner`, estimate (p) | −0.272 (0.066) | −0.267 (0.058) |
+  | `nau_management_het`, delta AIC in `09_nausithous_aic_management` | 6.0 | 4.7 |
+
+  The *P. nausithous* slope now has p below 0.05: the species is recorded
+  less often the more habitat types a site has.
+- `07_habitat_type_counts` and `07_recorded_habitats_<species>` gain the two
+  types. Among the positive *P. nausithous* records, 69 are at a water
+  margin and 5 on a pasture; among the *P. teleius* ones, 12 and none.
+- No revised model changes. 21 files changed.
+
+---
+
+## (b) Grazing and mowing are unknown where the structured notes are empty
+
+- **Commit:** `abff46e`
+- **Specification:** both.
+- **Full diff:** [`changes/b14_empty_notes.md`](changes/b14_empty_notes.md)
+- **Review item:** 6.
+
+**Why.** From 2021 a record without a `Pastva` entry was coded `GRAZE` = 0,
+and a record without a mowing entry `MOW` = 0. For a filled-in form that is
+right: the form writes `Pastva` for a grazed site only ("Pastva: ne" occurs
+twice among 151 entries). But the 398 records of 2021-2024 without any
+structured notes were coded 0 as well.
+
+**What changed.** `GRAZE` and `MOW` are NA where `STRUKT_POZN` is empty.
+
+**What changed in the numbers.** Nothing: 364 files identical. Both
+specifications now drop the records without a host-plant entry, the ones
+with empty notes among them, before the analysis table. The fix guards any
+specification that keeps them (`host_plant_filter: absent` or `none`), under
+which the 2021-2024 management model would have counted those 398 records
+as not grazed.
+
+---
+
+## (c) The Natura 2000 habitat type from the habitat catalogue
+
+- **Commit:** `6df9b54`
+- **Specification:** revised (the current habitat mapping); legacy
+  unchanged.
+- **Full diff:** [`changes/c21_natura_codes.md`](changes/c21_natura_codes.md)
+- **Decision:** 2026-11-12, closing the one left open on 2026-10-15.
+
+**Why.** The published habitat mapping has no Natura 2000 habitat code, so
+`HABITAT` was empty in every revised record.
+
+**What changed.**
+
+- `refresh_reference_layers(layers = "habitat_catalogue")` fetches the list
+  of habitats of portal.nature.cz (Katalog biotopů ČR) with
+  `rnaturecz::list_habitats()` into
+  `Data/Input/reference/habitat_catalogue.csv`: 206 habitat codes, 119 with
+  a Natura 2000 habitat type. The cascade reads only that copy.
+- `read_habitat_layer()` derives `HABITAT` from `BIOTOP`
+  (`natura_habitat_of()`); a code the layer already has is kept.
+- rnaturecz comes from a private repository, so it is not in `renv.lock`:
+  `renv/settings.json` lists it under `ignored.packages`, and the tool
+  finds it in the user library.
+
+**What changed in the numbers.**
+
+- `HABITAT` is filled for 1599 of the 5927 revised records (it is the type
+  of the dominant habitat of the site, and most dominant habitats are none):
+  6510 at 1048, 6410 at 179, 6430 at 135, 6440 at 53, 6520 at 52.
+- The check against the frozen intersection, whose codes come from the
+  mapping itself (`05_natura_codes_from_catalogue`): of its 7245 overlaps
+  with a code, the catalogue gives the same one for 7244. The exception is a
+  ravine forest (L4A, mapped as 9180). The 28 overlaps mapped as the
+  priority form of 6210 get 6210: the priority form is a property of the
+  stand, which no catalogue can tell.
+- No model uses `HABITAT`. 2 files changed, 1 added.
+
+---
+
+## (c) The renamed and split KVES categories have their 2025 code
+
+- **Commit:** `c091bfe`
+- **Specification:** revised (the current layers); legacy unchanged.
+- **Full diff:** [`changes/c22_kves_codes.md`](changes/c22_kves_codes.md)
+- **Decision:** 2026-11-12.
+
+**Why.** The KVES versions before 2025 publish only the category name. The
+local copies gave each the 2025 code of the category of the same name, which
+left 16 categories without one: those 2025 renamed or split.
+
+**What changed.** `habitat: kves_category_codes` gives each a code, and
+`read_kves_layer()` fills it in (`kves_code_of()`), so the local copies are
+not built again.
+
+| category before 2025 | 2025 code | 2025 category |
+|---|---|---|
+| Souvislá městská zástavba | A111 | Souvislá zástavba |
+| Nesouvislá městská zástavba | A211 | Nesouvislá zástavba |
+| Městské zelené plochy, okrasná zahrada, park, hřbitov | A611 | Městská zeleň |
+| Hospodářské louky (2021 only) | B311 | Degradovaný travní porost |
+| Přírodní křoviny, Nepůvodní křoviny | D212, D222 | Křoviny přírodní, nepůvodní |
+| Lužní a mokřadní lesy, Doubravy a dubohabřiny, Suťové lesy, Bučiny, Suché bory, Smrčiny, Rašelinné lesy | D121-D127 | the same, "přírodní" |
+| Hospodářské lesy jehličnaté, listnaté, smíšené | D11 | split by tree species in 2025 (D111-D117) |
+
+The three managed-forest classes take the code their 2025 parts share: the
+codes are hierarchical and are read by their prefixes
+(`landscape: groups`).
+
+**What changed in the numbers.** `KVES_KOD` was NA at 1485 of the 5927
+revised records and is now known at all of them: B311 at 1180, A211 at 111,
+D11 and D222 at 37 each. `05_kves_dominant_class` and `06_kves_classes`
+list the codes. No model uses `KVES_KOD`, and the landscape rasters are
+built from KVES 2025. 4 files changed.
+
+---
+
+## (c) Decisions confirmed without a change
+
+- **Commit:** `0df17a1`. `config.yml` only; no value and no number changes.
+
+Confirmed on 2026-11-12 as they stand, and marked so in `config.yml`, where
+no `TODO(Jonáš)` and no PROPOSED mark is left:
+
+- the year in a source name is the year of publication, not of the record;
+- the four candidate sources are not targeted monitoring: all their 402
+  records are presence-only, without a negative record or structured notes;
+- the mapping of the 2019-2020 threat items (review item 18). "sečení" is
+  listed at 62 % of the 2019-2020 records with a threat list, against
+  19-36 % for "nevhodná seč" later, so it is the broader item; but it goes
+  with inappropriately timed mowing as the later one does (52 % of the
+  records listing it against 17 % of the others; later 62 % against 11 %);
+- the Article 17 codes of the threat classes: each of the 16 codes was
+  checked against the vocabulary of the 2018 reporting and carries the
+  label given in `config.yml`;
+- the observer alias "Valda Slávek" = "Slavomír Valda": the two spellings
+  never share a year, share 6 of 8 mapping squares, and were entered by the
+  same person;
+- the out-of-season visits of October and December 2024 stay in the data,
+  flagged outside the flight season;
+- every value of Phase 4 that was marked PROPOSED: the 3 km radius of a
+  plausible imputed absence, the flight-season cut-off at 5 % of the flight
+  curve, the quadratic season term, the connectivity by profile likelihood,
+  the land-cover groups and radii, the matching, the confirmatory threats,
+  the detection settings, the KVES version of each record year, the
+  wet-meadow codes and the 25 m edge.
+
+---
+
+## (c) The Molinia meadows (T1.9) count among the Sanguisorba meadows
+
+- **Commit:** `7959806`
+- **Specification:** revised only; legacy unchanged.
+- **Full diff:** [`changes/c23_sanguisorba_t19.md`](changes/c23_sanguisorba_t19.md)
+  (the list of every changed cell is compressed,
+  `c23_sanguisorba_t19.csv.gz`: nearly every landscape share changes)
+- **Decision:** 2026-11-12, amending the list of 2026-10-15.
+
+**Why.** The *Sanguisorba* meadow codes were T1.1, T1.4, T1.5, T1.7 and
+T1.10. T1.9, the intermittently wet *Molinia* meadows (střídavě vlhké
+bezkolencové louky), was among the wet-meadow codes but not among these,
+although it is a habitat of *Sanguisorba officinalis* and of both species.
+
+**What changed.** `habitat: sanguisorba_meadow_codes` gains T1.9. The
+landscape rasters were built again from the same archives (`BUILT.yml`):
+`landcover_25m.tif` is byte-identical, `vmb_25m.tif` and
+`landscape_100m.tif` hold the new share.
+
+**What changed in the numbers.**
+
+- `SANGUISORBA_SHARE` changes at 328 of the 5927 revised records; the
+  records with any *Sanguisorba* meadow rise from 2926 to 3076, the mean
+  share from 0.317 to 0.345. In the landscape the mean share rises from
+  0.137 to 0.146 within 200 m and from 0.041 to 0.042 within 8 km.
+- **Step 22.** *Sanguisorba* meadows in the site, *P. nausithous*: 1.04
+  (1.01-1.08), p 0.015 → 1.04 (1.00-1.08), p 0.035. At their best radius:
+  *P. nausithous*, 200 m, 1.07 → 1.06 (p 0.061 → 0.086); *P. teleius*, 3 km,
+  3.26 (1.69-6.29) → 3.27 (1.72-6.22). The other land covers keep their
+  radii and estimates; water and wetlands within 4 km for *P. teleius*,
+  estimated beside the *Sanguisorba* share: 6.71 (1.85-24.36) → 6.24
+  (1.72-22.64).
+- **Step 24**, where the *Sanguisorba* share is a matching covariate.
+  *P. nausithous*, with imputed: matching weights 0.87 → 1.00, cluster-robust
+  0.86 → 1.11; no positive association in any analysis. The matched GLMM
+  without the grid square stays below 1 in the plausible sample (0.57,
+  0.40-0.82) and the observed one (0.54 → 0.63, 0.43-0.90). *P. teleius*, with
+  imputed: matching weights 6.22 (2.26-17.12) → 4.37 (1.66-11.48),
+  cluster-robust 1.57 → 1.40; plausible sample: matching weights 1.40 →
+  1.94 (0.75-5.00), cluster-robust 1.07 → 1.18. The covariate-adjusted
+  estimates barely move (1.97 → 1.94; 1.65 → 1.63).
+- The management models of step 17, the threats, the detection sensitivity
+  and the spatial models do not use the share and are unchanged. The main
+  findings list the same variables.
+
+46 files changed, 319 identical.
