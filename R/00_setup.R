@@ -33,7 +33,7 @@
 # not checked here. Keep the list in step with the code.
 pkgs <- c(
   "magrittr", "dplyr", "tidyr", "readr", "tibble", "stringr", "stringi",
-  "forcats", "ggplot2", "ggrepel", "ggpubr", "sf", "terra", "units", "vegan",
+  "forcats", "ggplot2", "ggrepel", "ggpubr", "ragg", "sf", "terra", "units", "vegan",
   "lme4", "Matrix", "reformulas", "DHARMa", "yaml", "checkmate",
   # The revised model set (steps 17-20).
   "glmmTMB", "brglm2", "detectseparation", "marginaleffects", "mgcv",

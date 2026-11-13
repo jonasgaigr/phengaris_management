@@ -76,7 +76,10 @@ write_figure <- function(plot, stem, size = "double", height = NULL, dpi = FIGUR
     units    = "cm",
     dpi      = dpi,
     bg       = "white",
-    device   = if (ext == "pdf") grDevices::cairo_pdf
+    # The PNG device is named, and ragg is in renv.lock: left to itself,
+    # ggsave() takes ragg when it happens to be installed and the base
+    # device when it is not, and the two draw the same figure differently.
+    device   = if (ext == "pdf") grDevices::cairo_pdf else ragg::agg_png
   )
   invisible(path)
 }

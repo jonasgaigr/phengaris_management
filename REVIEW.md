@@ -1226,6 +1226,13 @@ merge into `main` is a fast-forward to this state.
 - **37. `compare_snapshots()` matched the site tables by row position**, so
   one site less showed as a change in every row after it. They now have
   their keys (an (a) change to the tool).
+- **38. The PNG device was not fixed.** `ggsave()` draws with ragg when it
+  is installed and with the base device when it is not. ragg was in the
+  library of this machine but not in `renv.lock`, so a library restored
+  from the lockfile drew every figure with the other device: the same
+  tables, differently rendered figures. `write_figure()` now names
+  `ragg::agg_png`, and `renv.lock` records ragg (an (a) change: on this
+  machine nothing changes).
 
 **What the decisions changed** (the baseline is the branch as it stood on
 2026-10-22; numbers in `CHANGELOG.md`).
@@ -1269,12 +1276,13 @@ merge into `main` is a fast-forward to this state.
   outputs exactly (364 files identical; 108 minutes).
 - The first two decisions were each run in full from a clean worktree of
   their commit; the later ones on top, rerunning the steps each can reach.
-- A full run from a clean worktree of the last commit that touches the
-  cascade or `config.yml` (`7959806`; after it only the comparison tool and
-  the documentation changed), with `renv::restore()` from the
-  lockfile, gave the same tables and processed data as that chain.
+- A full run from a clean worktree of the last decision (`7959806`), with
+  `renv::restore()` from the lockfile, gave the same tables and processed
+  data as that chain. After it only the comparison tool, the documentation
+  and the PNG device (item 38) changed.
 - After the merge, `main` is run in full from a clean worktree and compared
-  with that run.
+  with that run: the tables and processed data have to be the same, the
+  figures are drawn with ragg.
 - Tests, styler and lintr pass.
 
 **Open.** None of these waits in `config.yml`; they are questions for the
